@@ -1,0 +1,9 @@
+@if (!isIniciarRoute()) {
+  <app-header></app-header>
+}
+
+<router-outlet></router-outlet>
+
+@if (!isIniciarRoute()) {
+  <app-footer></app-footer>
+}

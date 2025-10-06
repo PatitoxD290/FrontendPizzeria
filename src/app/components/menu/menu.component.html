@@ -1,0 +1,29 @@
+<div class="menu-container">
+
+  <!-- Buscador -->
+  <mat-form-field appearance="outline" class="search-bar">
+    <mat-label>Buscar producto</mat-label>
+    <input matInput [(ngModel)]="searchTerm" placeholder="Ej: Pizza, bebida, combo">
+  </mat-form-field>
+
+  <!-- Filtro con botones -->
+  <div class="filtro-botones">
+    <mat-button-toggle-group [(ngModel)]="filtroCategoria" aria-label="Filtro de categorías">
+      <mat-button-toggle value="">Todos</mat-button-toggle>
+      <mat-button-toggle value="Pizzas">Pizzas</mat-button-toggle>
+      <mat-button-toggle value="Bebidas">Bebidas</mat-button-toggle>
+      <mat-button-toggle value="Combos">Combos</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- Lista de productos -->
+  <div class="productos-lista">
+    <mat-card *ngFor="let p of productosFiltrados" class="producto-card">
+      <mat-card-title>{{ p.nombre }}</mat-card-title>
+      <mat-card-content>
+        <p><b>Categoría:</b> {{ p.categoria }}</p>
+        <p><b>Precio:</b> S/. {{ p.precio }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

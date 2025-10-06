@@ -1,0 +1,25 @@
+.menu-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.search-bar {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.filtro-botones {
+  margin-bottom: 20px;
+}
+
+.productos-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.producto-card {
+  padding: 10px;
+}

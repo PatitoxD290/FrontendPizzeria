@@ -1,0 +1,7 @@
+.footer {
+  background-color: white !important; /* fuerza blanco en el toolbar */
+  color: black !important;
+  font-size: 12px;
+  justify-content: center;
+  min-height: 40px; /* ocupa menos espacio */
+}
