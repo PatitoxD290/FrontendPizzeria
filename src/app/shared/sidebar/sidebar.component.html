@@ -1,0 +1,15 @@
+<div class="sidebar" [class.collapsed]="isCollapsed" *ngIf="isLoggedIn">
+  <button class="toggle-btn" mat-button (click)="toggleSidebar()">
+    {{ isCollapsed ? '➡️' : '⬅️' }}
+  </button>
+
+  <nav class="nav-links" *ngIf="!isCollapsed">
+    <button mat-button (click)="navigateTo('/graficos')" class="nav-btn">
+      📊 Gráficos
+    </button>
+
+    <button mat-button (click)="navigateTo('/inventario')" class="nav-btn">
+      📦 Inventario
+    </button>
+  </nav>
+</div>

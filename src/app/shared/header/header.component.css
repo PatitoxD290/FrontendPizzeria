@@ -1,21 +1,38 @@
+/* ---------- HEADER (LOGO + TÍTULOS) ---------- */
 .header {
   text-align: center;
   padding: 15px;
-  background-color: #be1b1c;
+  background-color: #be1b1c; /* rojo oscuro para el header */
   color: white;
+  display: flex;
+  align-items: center;         /* centra verticalmente imagen y texto */
+  justify-content: center;     /* centra todo horizontalmente */
+  gap: 20px;                   /* espacio entre imagen y texto */
 }
 
-/* El título siempre ocupa espacio */
+.header-img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.textos {
+  display: flex;
+  flex-direction: column;      /* título arriba, subtítulo abajo */
+  align-items: center;
+}
+
 .header h1 {
   margin: 0;
   font-size: 24px;
   font-weight: bold;
-  min-height: 28px; /* asegura altura fija */
+  min-height: 28px;
   line-height: 28px;
   padding-top: 15px;
 }
 
-/* El subtítulo también ocupa espacio */
 .subtitulo {
   margin-top: 5px;
   font-size: 18px;
@@ -24,7 +41,52 @@
   line-height: 22px;
 }
 
-/* Si está vacío, ocultamos el texto pero no el espacio */
 .empty {
-  visibility: hidden;
+  visibility: hidden; /* Oculta el texto si está vacío, pero mantiene el espacio */
+}
+
+/* ---------- NAVBAR (TOOLBAR + BOTONES) ---------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #c62828; /* rojo intenso */
+  color: white;
+  padding: 0 16px;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+button {
+  text-transform: none;
+  margin: 0 6px;
+  color: white;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+mat-icon {
+  margin-right: 4px;
+  vertical-align: middle;
+  color: white;
+}
+
+.logout-btn {
+  background-color: white !important;
+  color: #c62828 !important;
+  font-weight: 600;
+}
+
+.logout-btn mat-icon {
+  color: #c62828;
 }

@@ -1,0 +1,22 @@
+<div class="pago-container">
+  <h2>💳 Pago del Pedido</h2>
+
+  <div class="resumen-pago">
+    <p>Total a pagar:</p>
+    <h3>S/. {{ total | number: '1.2-2' }}</h3>
+  </div>
+
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Selecciona método de pago</mat-label>
+    <mat-select [(ngModel)]="metodoPago">
+      <mat-option value="tarjeta">Tarjeta</mat-option>
+      <mat-option value="yape">Yape</mat-option>
+      <mat-option value="plin">Plin</mat-option>
+      <mat-option value="efectivo">Efectivo</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-flat-button color="primary" (click)="confirmarPago()">
+    Confirmar Pago
+  </button>
+</div>

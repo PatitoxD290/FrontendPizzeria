@@ -1,9 +1,19 @@
-@if (!isIniciarRoute()) {
-  <app-header></app-header>
-}
+<app-header></app-header>
 
-<router-outlet></router-outlet>
+<!-- Layout con sidebar si mostrarUI es true -->
+<div class="main-layout" *ngIf="mostrarUI(); else fullContent">
+  <app-sidebar></app-sidebar>
+  <main class="content-area">
+    <router-outlet></router-outlet>
+  </main>
+</div>
 
-@if (!isIniciarRoute()) {
-  <app-footer></app-footer>
-}
+<!-- Layout sin sidebar si mostrarUI es false -->
+<ng-template #fullContent>
+  <main class="full-content">
+    <router-outlet></router-outlet>
+  </main>
+</ng-template>
+
+<app-footer></app-footer>
+<app-carrito-flotante></app-carrito-flotante>

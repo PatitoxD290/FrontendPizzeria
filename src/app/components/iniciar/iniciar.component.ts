@@ -5,14 +5,14 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-iniciar',
   standalone: true,
-  imports: [MatButtonModule], // 👈 Importamos el módulo aquí
+  imports: [MatButtonModule],
   templateUrl: './iniciar.component.html',
   styleUrls: ['./iniciar.component.css']
 })
 export class IniciarComponent {
   constructor(private router: Router) {}
 
-  irRegistrar() {
-    this.router.navigate(['/registrar']);
+  irMenu() {
+    this.router.navigate(['/menu']);
   }
 }

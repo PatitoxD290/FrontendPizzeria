@@ -17,11 +17,13 @@
 }
 
 .logo-pizzeria {
-  width: 150px;
-  height: 150px;
+  width: 250px;
+  height: 250px;
   margin-bottom: 30px;
   object-fit: contain;
   margin-top: 50px;
+  transform: scale(1.4); /* 🔹 agranda visualmente sin mover los textos */
+  transition: transform 0.3s ease; /* opcional: suaviza la animación */
 }
 
 h1 {
