@@ -8,14 +8,24 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatInputModule } from '@angular/material/input'; // Importamos MatInputModule para la barra de búsqueda
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Asegúrate de importar FormsModule aquí
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatInputModule,
+    FormsModule // Aquí importamos FormsModule
+  ],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
   titulo: string = '';
@@ -25,8 +35,10 @@ export class HeaderComponent {
   mostrarNavbar: boolean = false;
 
   nombreUsuario: string = '';
+  searchQuery: string = '';  // Variable para la barra de búsqueda
 
   isDarkMode = false;
+  notificationsCount = 5; // Número de notificaciones (aquí solo está estático)
 
   constructor(
     private router: Router,
@@ -84,5 +96,10 @@ export class HeaderComponent {
     } else {
       document.body.classList.remove('dark-mode');
     }
+  }
+
+  // Método para abrir la ventana de notificaciones (sin funcionalidad aún)
+  openNotifications() {
+    console.log('Abriendo ventana de notificaciones...');
   }
 }

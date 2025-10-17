@@ -1,4 +1,4 @@
-<app-header></app-header>
+<app-header *ngIf="mostrarUI()"></app-header>
 
 <!-- Layout con sidebar si mostrarUI es true -->
 <div class="main-layout" *ngIf="mostrarUI(); else fullContent">
@@ -15,5 +15,5 @@
   </main>
 </ng-template>
 
-<app-footer></app-footer>
-<app-carrito-flotante></app-carrito-flotante>
+<app-footer *ngIf="mostrarUI()"></app-footer>
+<app-carrito-flotante *ngIf="mostrarUI()"></app-carrito-flotante>

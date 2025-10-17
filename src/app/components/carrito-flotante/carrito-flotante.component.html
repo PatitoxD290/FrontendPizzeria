@@ -4,9 +4,10 @@
   color="primary"
   class="boton-carrito"
   (click)="toggleCarrito()"
-  *ngIf="!visible"
+  *ngIf="mostrarCarrito"
 >
   <mat-icon>shopping_cart</mat-icon>
+  <!-- Muestra la cantidad de productos si hay más de 0 -->
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
     {{ cantidadItemsDistintos }}
   </span>
@@ -36,6 +37,7 @@
       <div class="info">
         <p class="nombre">{{ item.nombre }}</p>
         <div class="cantidad-control">
+          <!-- Botones para incrementar/decrementar cantidad -->
           <button mat-mini-fab color="warn" (click)="decrementarCantidad(i)">
             <mat-icon>remove</mat-icon>
           </button>

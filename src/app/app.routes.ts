@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { HomeComponent } from './pages/home/home.component';
+import { DniGuard } from './core/guards/dni-guard'; // Importar el dniGuard
 import { authGuard } from './core/guards/auth-guard';
 
 import { IniciarComponent } from './components/iniciar/iniciar.component';
@@ -14,16 +15,16 @@ export const routes: Routes = [
   // ❌ No protegido
   { path: 'login', component: LoginComponent },
 
-  // ❌ NO protegido para que cualquiera pueda acceder sin estar logueado
+  // ❌ Ruta 'iniciar', solo se mostrará el contenido sin navbar, sidebar ni footer
   { path: 'iniciar', component: IniciarComponent, data: { title: '' } },
 
-  // 🔐 Protegido
+  // 🔐 Ruta protegida para 'home'
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
-  // 🔐 Protegidos
-  { path: 'registrar', component: RegistrarComponent, canActivate: [authGuard], data: { title: 'Ingresar DNI' } },
+  // 🔐 Ruta protegida para 'registrar'
+  { path: 'registrar', component: RegistrarComponent, data: { title: 'Ingresar DNI' } },
 
-  // ❌ NO protegido
+  // ❌ Ruta 'menu', accesible sin login
   {
     path: 'menu',
     component: MenuComponent,
@@ -33,8 +34,8 @@ export const routes: Routes = [
     }
   },
 
-  // 🔐 Protegido
-  { path: 'pago', component: PagoComponent, canActivate: [authGuard] },
+  // 🔐 Ruta protegida para 'pago', ahora con dniGuard
+  { path: 'pago', component: PagoComponent, canActivate: [DniGuard] },
 
   // Redirección comodín
   { path: '**', redirectTo: 'iniciar' }
