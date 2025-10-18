@@ -1,41 +1,35 @@
-import { Component } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter, startWith } from 'rxjs';
-import { AuthService } from '../../core/services/auth/auth.service';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [CommonModule, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
-  isCollapsed = false;
+  @Input() isCollapsed = false;
+
   isLoggedIn = false;
+  menuItems = [
+    { label: 'Gráficos', route: '/dashboard/graficos', icon: 'bar_chart' },
+    { label: 'Inventario', route: '/dashboard/inventario', icon: 'inventory' }
+  ];
 
   constructor(private router: Router, private authService: AuthService) {
     this.checkUser();
-
-    this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        startWith(null)
-      )
-      .subscribe(() => {
-        this.checkUser();
-      });
   }
 
   checkUser() {
     const user = this.authService.getUser();
     this.isLoggedIn = !!user;
-  }
-
-  toggleSidebar() {
-    this.isCollapsed = !this.isCollapsed;
   }
 
   navigateTo(route: string) {

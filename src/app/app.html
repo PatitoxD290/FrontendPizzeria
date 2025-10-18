@@ -1,19 +1,2 @@
-<app-header *ngIf="mostrarUI()"></app-header>
-
-<!-- Layout con sidebar si mostrarUI es true -->
-<div class="main-layout" *ngIf="mostrarUI(); else fullContent">
-  <app-sidebar></app-sidebar>
-  <main class="content-area">
-    <router-outlet></router-outlet>
-  </main>
-</div>
-
-<!-- Layout sin sidebar si mostrarUI es false -->
-<ng-template #fullContent>
-  <main class="full-content">
-    <router-outlet></router-outlet>
-  </main>
-</ng-template>
-
-<app-footer *ngIf="mostrarUI()"></app-footer>
-<app-carrito-flotante *ngIf="mostrarUI()"></app-carrito-flotante>
+<!-- app.html -->
+<router-outlet></router-outlet>

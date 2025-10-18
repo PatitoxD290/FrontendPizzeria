@@ -1,81 +1,40 @@
-/* ---------- SIDEBAR ---------- */
-.sidebar {
-  width: 220px;
-  background-color: #be1b1c; /* rojo oscuro, igual que header */
-  color: white;
-  height: 100vh; /* ocupa toda la altura de la pantalla */
-  display: flex;
-  flex-direction: column;
-  padding: 15px 10px;
-  box-sizing: border-box;
-  transition: width 0.3s ease;
+.sidenav-container {
+  height: 100vh;
 }
 
-.sidebar.collapsed {
-  width: 50px; /* ancho pequeño cuando está comprimido */
+.sidenav {
+  width: 220px;
+  background-color: #be1b1c;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
 }
 
 .toggle-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-  margin-bottom: 20px;
   align-self: flex-end;
-  padding: 4px 8px;
-  transition: background-color 0.2s ease;
-}
-
-.toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.nav-btn {
-  background: transparent;
-  border: none;
+  margin: 0 5px 10px 0;
   color: white;
-  text-align: left;
-  padding: 8px 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
 }
 
-.nav-btn:hover {
+.mat-list-item {
+  color: white;
+}
+
+.mat-list-item:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Opcional: cuando está colapsado no mostrar texto */
-.sidebar.collapsed .nav-btn {
-  text-align: center;
-  padding: 8px 0;
+.mat-list-item mat-icon {
+  margin-right: 16px;
 }
 
-.sidebar.collapsed .nav-links {
-  align-items: center;
+/* Cuando está colapsado solo mostrar íconos */
+.sidenav:not([opened]) .mat-list-item span {
+  display: none;
 }
 
-.sidebar.collapsed .nav-btn::before {
-  content: '';
-  display: inline-block;
-  width: 24px;
-}
-
-/* Elimina los textos cuando está colapsado */
-.sidebar.collapsed .nav-btn {
-  font-size: 0;
-  padding: 8px 0;
-}
-
-/* Para que el cursor cambie igual cuando está colapsado */
-.sidebar.collapsed .nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+.sidenav:not([opened]) .toggle-btn mat-icon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }

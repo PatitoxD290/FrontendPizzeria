@@ -1,55 +1,7 @@
-<!-- HEADER CON LOGO Y TEXTOS (solo en menú/pago) -->
-<header class="header" *ngIf="mostrarHeader">
-  <img src="/imgs/logo.png" alt="Logo" class="header-img" />
+<header class="header">
+  <img src="/assets/imgs/logo.png" alt="Logo" class="header-img" />
   <div class="textos">
     <h1 [class.empty]="!titulo">{{ titulo }}</h1>
     <h3 class="subtitulo" [class.empty]="!subtitulo">{{ subtitulo }}</h3>
   </div>
-
-
 </header>
-
-<!-- NAVBAR CON BOTONES DE NAVEGACIÓN (solo si es ADMIN) -->
-<mat-toolbar class="navbar" *ngIf="mostrarNavbar">
-  <img src="/imgs/logo.png" alt="Logo" class="header-img" />
-
-  <span class="spacer"></span>
-  <!-- Barra de búsqueda -->
-  <mat-form-field appearance="outline" class="search-bar">
-    <mat-icon matPrefix>search</mat-icon>
-    <input matInput placeholder="Buscar ........." [(ngModel)]="searchQuery" />
-
-  </mat-form-field>
-  <button mat-button (click)="navigateTo('/home')"><mat-icon>home</mat-icon> Inicio</button>
-  <button mat-button (click)="navigateTo('/ventas')"><mat-icon>point_of_sale</mat-icon> Ventas</button>
-  <button mat-button (click)="navigateTo('/pedido')"><mat-icon>local_pizza</mat-icon> Pedido</button>
-  <button mat-button (click)="navigateTo('/inventario')"><mat-icon>inventory_2</mat-icon> Inventario</button>
-  <button mat-button (click)="navigateTo('/reportes')"><mat-icon>bar_chart</mat-icon> Reportes</button>
-  <button mat-button (click)="navigateTo('/usuario')"><mat-icon>person</mat-icon> Usuarios</button>
-
-  <!-- Icono de campana para abrir notificaciones -->
-  <button mat-icon-button (click)="openNotifications()">
-    <mat-icon>notifications</mat-icon>
-    <span class="notification-badge" *ngIf="notificationsCount > 0">{{ notificationsCount }}</span>
-  </button>
-
-  <!-- Botón de usuario con menú desplegable -->
-  <button mat-button [matMenuTriggerFor]="userMenu">
-    <mat-icon>person</mat-icon> 
-    {{ nombreUsuario }}
-    <mat-icon>arrow_drop_down</mat-icon>
-  </button>
-
-  <mat-menu #userMenu="matMenu">
-    <button mat-menu-item (click)="toggleDarkMode()">
-      <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
-      {{ isDarkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-    </button>
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon>
-      Cerrar sesión
-    </button>
-  </mat-menu>
-
-  
-</mat-toolbar>

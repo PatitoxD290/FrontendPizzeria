@@ -1,0 +1,59 @@
+<mat-toolbar class="navbar" *ngIf="mostrarNavbar">
+  <!-- Botón para colapsar sidebar -->
+  <button mat-icon-button (click)="toggleSidebar()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <img src="/assets/imgs/logo.png" alt="Logo" class="header-img" />
+
+  <span class="spacer"></span>
+
+  <!-- Barra de búsqueda -->
+  <mat-form-field appearance="outline" class="search-bar">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput placeholder="Buscar ........." [(ngModel)]="searchQuery" />
+  </mat-form-field>
+
+  <button mat-button (click)="navigateTo('/dashboard/home')">
+    <mat-icon>home</mat-icon> Inicio
+  </button>
+  <button mat-button (click)="navigateTo('/dashboard/ventas')">
+    <mat-icon>point_of_sale</mat-icon> Ventas
+  </button>
+  <button mat-button (click)="navigateTo('/dashboard/pedido')">
+    <mat-icon>local_pizza</mat-icon> Pedido
+  </button>
+  <button mat-button (click)="navigateTo('/dashboard/inventario')">
+    <mat-icon>inventory_2</mat-icon> Inventario
+  </button>
+  <button mat-button (click)="navigateTo('/dashboard/reportes')">
+    <mat-icon>bar_chart</mat-icon> Reportes
+  </button>
+  <button mat-button (click)="navigateTo('/dashboard/usuario')">
+    <mat-icon>person</mat-icon> Usuarios
+  </button>
+
+  <!-- Notificaciones -->
+  <button mat-icon-button (click)="openNotifications()">
+    <mat-icon>notifications</mat-icon>
+    <span class="notification-badge" *ngIf="notificationsCount > 0">{{ notificationsCount }}</span>
+  </button>
+
+  <!-- Menú de usuario -->
+  <button mat-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>person</mat-icon> 
+    {{ nombreUsuario }}
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="toggleDarkMode()">
+      <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      {{ isDarkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Cerrar sesión
+    </button>
+  </mat-menu>
+</mat-toolbar>
