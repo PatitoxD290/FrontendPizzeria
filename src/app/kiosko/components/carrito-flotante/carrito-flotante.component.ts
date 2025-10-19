@@ -95,6 +95,7 @@ export class CarritoFlotanteComponent {
 
   // El carrito solo debe mostrarse si no estamos en las páginas de pago ni de registro y si el usuario no está logueado
   get mostrarCarrito(): boolean {
-    return !this.isInPagoPage && !this.isInRegistrarPage && !this.isLoggedIn && !this.isInLoginPage;
+    return !this.isInPagoPage && !this.isInRegistrarPage && !this.isInLoginPage;
   }
+
 }

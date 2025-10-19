@@ -18,7 +18,7 @@ export class DniGuard implements CanActivate {
       return true; // Si hay un DNI, permite el acceso
     } else {
       // Si no hay DNI, redirige a la página de registro
-      this.router.navigate(['/registrar']);
+      this.router.navigate(['/kiosko/registrar']);
       return false;
     }
   }
