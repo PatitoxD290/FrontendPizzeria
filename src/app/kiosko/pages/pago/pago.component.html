@@ -1,0 +1,81 @@
+<div class="pago-container">
+  <h2>💳 Pago del Pedido</h2>
+
+  <div class="resumen-pago">
+    <p>Total a pagar:</p>
+    <h3>S/. {{ total | number: '1.2-2' }}</h3>
+  </div>
+
+  <!-- OPCIONES PRINCIPALES -->
+  <div class="opciones-principales" *ngIf="!opcionSeleccionada">
+    <button mat-raised-button color="primary" (click)="seleccionarOpcion('billetera')" class="boton-opcion">
+      <img src="assets/imgs/billetera.png" alt="Billetera Digital" class="icono-btn"><span>Billetera Digital</span>
+    </button>
+
+    <button mat-raised-button color="accent" (click)="seleccionarOpcion('tarjeta')" class="boton-opcion">
+      <img src="assets/imgs/tarjeta.png" alt="Tarjeta" class="icono-btn"><span>Tarjeta</span>
+    </button>
+  </div>
+
+  <!-- OPCIONES DE BILLETERA DIGITAL -->
+  <div *ngIf="opcionSeleccionada === 'billetera' && !billeteraSeleccionada">
+    <h3>Selecciona tu billetera:</h3>
+
+    <button mat-stroked-button color="primary" (click)="seleccionarBilletera('yape')" class="boton-opcion">
+      <img src="assets/imgs/yape.png" alt="Yape" class="icono-btn"><span>Yape</span>
+    </button>
+
+    <button mat-stroked-button color="primary" (click)="seleccionarBilletera('plin')" class="boton-opcion">
+      <img src="assets/imgs/plin.png" alt="Plin" class="icono-btn"><span>Plin</span>
+    </button>
+
+    <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
+      <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
+    </button>
+
+  </div>
+
+  <!-- QR Y PREGUNTA DE BOLETA/FACTURA -->
+  <div *ngIf="billeteraSeleccionada">
+    <h3>Escanea el código QR de {{ billeteraSeleccionada | titlecase }}</h3>
+    <img src="assets/qr-{{ billeteraSeleccionada }}.png" alt="QR {{ billeteraSeleccionada }}" class="qr-img" />
+
+    <p>¿Desea boleta o factura?</p>
+    <div class="boleta-pregunta">
+      <button mat-flat-button class="btn-si" (click)="generarBoleta()">Sí</button>
+      <button mat-flat-button class="btn-no" (click)="confirmarPago()">No</button>
+    </div>
+
+    <button mat-flat-button color="warn" (click)="regresar()"><img src="assets/imgs/volver.png" alt="Volver"
+        class="icono-volver"><span>Volver</span></button>
+  </div>
+
+  <!-- SECCIÓN TARJETA -->
+  <div *ngIf="opcionSeleccionada === 'tarjeta'">
+    <h3>Ingresa los datos de tu tarjeta</h3>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Número de Tarjeta</mat-label>
+      <input matInput maxlength="16" placeholder="XXXX XXXX XXXX XXXX" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Fecha de Vencimiento</mat-label>
+      <input matInput placeholder="MM/AA" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>CVV</mat-label>
+      <input matInput maxlength="3" type="password" />
+    </mat-form-field>
+
+    <p>¿Desea boleta o factura?</p>
+    <div class="boleta-pregunta">
+      <button mat-flat-button class="btn-si" (click)="generarBoleta()">Sí</button>
+      <button mat-flat-button class="btn-no" (click)="confirmarPago()">No</button>
+    </div>
+
+    <button mat-flat-button color="warn" (click)="regresar()"><img src="assets/imgs/volver.png" alt="Volver"
+        class="icono-volver"><span>Volver</span></button>
+  </div>
+</div>

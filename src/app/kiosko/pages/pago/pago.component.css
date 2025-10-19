@@ -1,0 +1,159 @@
+.pago-container {
+  max-width: 400px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 20px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+.resumen-pago {
+  margin-bottom: 20px;
+}
+
+button {
+  margin: 8px;
+  width: 80%;
+}
+
+.qr-img {
+  width: 200px;
+  height: 200px;
+  margin: 15px auto;
+  display: block;
+}
+
+.boleta-pregunta {
+  margin-top: 10px;
+}
+
+h2, h3, p {
+  margin: 10px 0;
+}
+
+
+.boton-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80%;
+  margin: 8px auto;
+  font-size: 16px;
+}
+
+.icono-btn {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+
+/* Boton de volver */
+.boton-volver {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 80%;
+  margin: 10px auto;
+  font-size: 15px;
+}
+
+.icono-volver {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+
+/* haber */
+/* Contenedor general de las opciones (Billetera, Tarjeta, Yape, Plin) */
+.opciones-principales,
+.opciones-principales + div {
+  margin-top: -20px; /* Sube ligeramente la sección */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Botones principales y de billetera */
+.boton-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80%;
+  margin: 8px auto;
+  font-size: 16px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+/* Ícono dentro del botón */
+.boton-opcion img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* Asegura que el texto esté perfectamente centrado */
+.boton-opcion span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Botón Volver */
+.boton-volver {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 80%;
+  margin: 12px auto;
+  font-size: 15px;
+}
+
+.icono-volver {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+
+/* ✅ Botón “Sí” */
+.btn-si {
+  background-color: #4CAF50 !important; /* Verde */
+  color: white;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-si:hover {
+  background-color: #43A047;
+  transform: scale(1.05);
+}
+
+/* ❌ Botón “No” */
+.btn-no {
+  background-color: #E53935 !important; /* Rojo */
+  color: white;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-no:hover {
+  background-color: #D32F2F;
+  transform: scale(1.05);
+}

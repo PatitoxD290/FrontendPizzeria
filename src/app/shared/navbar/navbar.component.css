@@ -1,0 +1,120 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #c62828; /* rojo intenso */
+  color: white;
+  padding: 0 20px; /* Aumentamos el espacio para los elementos */
+  height: 65px; /* Aumentamos la altura del navbar */
+}
+
+.navbar img.header-img {
+  width: 45px; /* Tamaño más pequeño para el logo */
+  height: 45px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  height: 60px; /* Aseguramos que la barra de búsqueda no sea demasiado alta */
+  margin: 0 25px; /* Espaciado entre los elementos */
+  background-color: transparent;
+}
+
+.search-bar mat-icon {
+  font-size: 20px; /* Ajustamos el tamaño del icono */
+  color: white;
+  margin-right: 10px; /* Espacio entre el icono y el texto */
+}
+
+.search-bar input {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid white; /* Línea para el input */
+  color: white;
+  font-size: 14px;
+  height: 60px; /* Reducimos la altura */
+  padding: 2px 6px; /* Espaciado interno */
+  margin-left: 8px;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-bottom: 2px solid #ffeb3b; /* Color al hacer foco */
+}
+
+/* Botones del navbar */
+button {
+  text-transform: none;
+  margin: 0 6px;
+  color: white;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+mat-icon {
+  margin-right: 4px;
+  vertical-align: middle;
+  color: white;
+}
+
+/* Estilo del badge de notificaciones */
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff3b30;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 50%;
+}
+
+/* Logout button */
+.logout-btn {
+  background-color: white !important;
+  color: #c62828 !important;
+  font-weight: 600;
+}
+
+.logout-btn mat-icon {
+  color: #c62828;
+}
+
+/* Estilos para el menú desplegable de usuario */
+mat-menu {
+  min-width: 150px;
+}
+
+/* Aseguramos que el navbar se alinee bien */
+.mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mat-menu-item {
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 10px; /* Reducir el padding en pantallas pequeñas */
+  }
+
+  .search-bar {
+    margin: 0 8px; /* Ajustamos el margen de la barra de búsqueda */
+  }
+
+  .search-bar input {
+    font-size: 13px; /* Ajustamos el tamaño de la fuente */
+  }
+
+  .navbar img.header-img {
+    width: 40px;
+    height: 40px; /* Logo más pequeño en pantallas pequeñas */
+  }
+}

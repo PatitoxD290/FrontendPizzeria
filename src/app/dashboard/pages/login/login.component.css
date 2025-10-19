@@ -1,0 +1,25 @@
+.login-container {
+  width: 320px;
+  margin: 80px auto;
+  padding: 25px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background-color: #fff;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+button {
+  margin-top: 12px;
+}
+
+.error {
+  color: red;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}

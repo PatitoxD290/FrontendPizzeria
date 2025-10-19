@@ -1,0 +1,21 @@
+<div class="detalle-container">
+  <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen">
+
+  <h2>{{ data.nombre }}</h2>
+  <p class="precio">S/. {{ data.precio.toFixed(2) }}</p>
+
+  <div class="cantidad">
+    <button mat-mini-fab color="warn" (click)="decrementarCantidad()">−</button>
+    <span>{{ cantidad }}</span>
+    <button mat-mini-fab color="primary" (click)="incrementarCantidad()">+</button>
+  </div>
+
+  <div class="subtotal">
+    <p><b>Subtotal:</b> S/. {{ (data.precio * cantidad).toFixed(2) }}</p>
+  </div>
+
+  <div class="acciones">
+    <button mat-raised-button color="warn" (click)="cerrar()">Volver</button>
+    <button mat-raised-button color="primary" (click)="agregarCarrito()">Agregar al carrito</button>
+  </div>
+</div>

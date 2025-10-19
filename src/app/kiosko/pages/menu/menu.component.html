@@ -1,0 +1,52 @@
+<div class="menu-container">
+
+  <!-- 🕵️ Buscador -->
+  <!-- <mat-form-field appearance="outline" class="search-bar">
+    <mat-label>Buscar producto</mat-label>
+    <input matInput [(ngModel)]="searchTerm" placeholder="Ej: Pizza, bebida, combo">
+  </mat-form-field> -->
+
+  <!-- 📌 Filtro con botones -->
+  <div class="filtro-botones">
+    <mat-button-toggle-group [(ngModel)]="filtroCategoria" aria-label="Filtro de categorías">
+      <mat-button-toggle value="">
+        <mat-icon>list</mat-icon>
+        Todos
+      </mat-button-toggle>
+      <mat-button-toggle value="Pizzas">
+        <mat-icon>local_pizza</mat-icon>
+        Pizzas
+      </mat-button-toggle>
+      <mat-button-toggle value="Bebidas">
+        <mat-icon>local_drink</mat-icon>
+        Bebidas
+      </mat-button-toggle>
+      <mat-button-toggle value="Combos">
+        <mat-icon>fastfood</mat-icon>
+        Combos
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- 🧾 Lista de productos -->
+  <div class="productos-lista">
+    <mat-card
+      *ngFor="let p of productosFiltrados"
+      class="producto-card"
+      (click)="abrirDetalleProducto(p)"
+    >
+      <!-- Imagen -->
+      <img [src]="p.imagen" alt="{{ p.nombre }}" class="producto-imagen">
+
+      <mat-card-title>{{ p.nombre }}</mat-card-title>
+      <mat-card-content>
+        <p><b>Categoría:</b> {{ p.categoria }}</p>
+        <p><b>Precio:</b> S/. {{ p.precio }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+
+  <!-- Carrito flotante -->
+  <app-carrito-flotante></app-carrito-flotante>
+</div>

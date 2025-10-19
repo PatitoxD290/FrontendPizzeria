@@ -1,0 +1,47 @@
+/* ---------- HEADER (LOGO + TÍTULOS) ---------- */
+.header {
+  text-align: center;
+  padding: 15px;
+  background-color: #be1b1c; /* rojo oscuro para el header */
+  color: white;
+  display: flex;
+  align-items: center;         /* centra verticalmente imagen y texto */
+  justify-content: center;     /* centra todo horizontalmente */
+  gap: 20px;                   /* espacio entre imagen y texto */
+}
+
+.header-img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.textos {
+  display: flex;
+  flex-direction: column;      /* título arriba, subtítulo abajo */
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  min-height: 28px;
+  line-height: 28px;
+  padding-top: 15px;
+}
+
+.subtitulo {
+  margin-top: 5px;
+  font-size: 18px;
+  font-weight: 400;
+  min-height: 22px;
+  line-height: 22px;
+}
+
+.empty {
+  visibility: hidden; /* Oculta el texto si está vacío, pero mantiene el espacio */
+}
+

@@ -1,0 +1,40 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 220px;
+  background-color: #be1b1c;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+.toggle-btn {
+  align-self: flex-end;
+  margin: 0 5px 10px 0;
+  color: white;
+}
+
+.mat-list-item {
+  color: white;
+}
+
+.mat-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.mat-list-item mat-icon {
+  margin-right: 16px;
+}
+
+/* Cuando está colapsado solo mostrar íconos */
+.sidenav:not([opened]) .mat-list-item span {
+  display: none;
+}
+
+.sidenav:not([opened]) .toggle-btn mat-icon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}

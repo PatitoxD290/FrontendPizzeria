@@ -1,0 +1,119 @@
+.menu-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.search-bar {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.filtro-botones {
+  margin-bottom: 20px;
+}
+
+.productos-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.producto-card {
+  padding: 10px;
+}
+
+
+/* estilos para imagen de la interfaz */
+.producto-imagen {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+
+
+/* 🛒 Botón flotante del carrito */
+.carrito-flotante {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background-color: #2e7d32;
+  color: white;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.carrito-flotante:hover {
+  background-color: #1b5e20;
+}
+
+.carrito-flotante .contador {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #d32f2f;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  padding: 3px 7px;
+}
+
+/* 🧾 Contenedor del carrito */
+.carrito-container {
+  padding: 20px;
+  background: white;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.item-carrito {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.item-carrito img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.item-carrito .info {
+  flex: 1;
+}
+
+.nombre {
+  font-weight: bold;
+}
+
+.precio {
+  color: #d32f2f;
+}
+
+.total {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.acciones-carrito {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.acciones-carrito button {
+  flex: 1;
+  margin: 0 5px;
+}
+
+

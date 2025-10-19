@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ pedido.pedido_id ? 'Editar Pedido' : 'Nuevo Pedido' }}</h2>
+
+<mat-dialog-content>
+  <form #form="ngForm" (ngSubmit)="savePedido()">
+
+    <mat-form-field appearance="fill">
+      <mat-label>Cliente ID</mat-label>
+      <input matInput type="number" [(ngModel)]="pedido.cliente_id" name="cliente_id" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Usuario ID</mat-label>
+      <input matInput type="number" [(ngModel)]="pedido.usuario_id" name="usuario_id" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Fecha Pedido</mat-label>
+      <input matInput type="date" [(ngModel)]="pedido.fecha_pedido" name="fecha_pedido" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Hora Pedido</mat-label>
+      <input matInput type="time" [(ngModel)]="pedido.hora_pedido" name="hora_pedido" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Estado</mat-label>
+      <mat-select [(ngModel)]="pedido.estado_pedido" name="estado_pedido">
+        <mat-option value="PENDIENTE">PENDIENTE</mat-option>
+        <mat-option value="CONFIRMADO">CONFIRMADO</mat-option>
+        <mat-option value="ENTREGADO">ENTREGADO</mat-option>
+        <mat-option value="CANCELADO">CANCELADO</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Subtotal</mat-label>
+      <input matInput type="number" [(ngModel)]="pedido.subtotal" name="subtotal" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Descuento</mat-label>
+      <input matInput type="number" [(ngModel)]="pedido.monto_descuento" name="monto_descuento" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Total</mat-label>
+      <input matInput type="number" [(ngModel)]="pedido.total" name="total" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Notas</mat-label>
+      <textarea matInput [(ngModel)]="pedido.notas_generales" name="notas_generales"></textarea>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="savePedido()">Guardar</button>
+</mat-dialog-actions>
