@@ -1,0 +1,9 @@
+mat-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+mat-dialog-content {
+  min-width: 350px;
+}

@@ -1,0 +1,11 @@
+<h2>Gestión de Clientes</h2>
+
+<!-- Botón para abrir modal de nuevo cliente -->
+<button mat-flat-button color="primary" (click)="openNuevoCliente(clienteList)">
+  <mat-icon>add</mat-icon> Nuevo Cliente
+</button>
+
+<hr />
+
+<!-- Lista de clientes -->
+<app-cliente-list #clienteList></app-cliente-list>

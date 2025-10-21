@@ -1,19 +1,35 @@
-/* 🧱 Estructura general del layout */
-.dashboard-layout {
+/* Contenedor principal: sidebar + contenido */
+.dashboard-wrapper {
   display: flex;
-  min-height: calc(100vh - 65px - 40px); /* 65px navbar + 40px footer */
+  height: 100vh;
+  width: 100%;
   background-color: #f9f9f9;
+  overflow: hidden;
 }
 
-/* 📊 Contenido principal */
+/* Contenedor del navbar + contenido */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Permite que flex-shrink funcione correctamente */
+}
+
+/* Navbar siempre arriba */
+app-navbar {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* Contenido principal */
 .main-content {
   flex: 1;
   padding: 2rem;
-  background-color: #fff;
   overflow-y: auto;
+  background-color: #fff;
 }
 
-/* Asegura que el contenido no se oculte por el sidebar */
-app-sidebar {
+/* Footer */
+app-footer {
   flex-shrink: 0;
 }

@@ -1,0 +1,15 @@
+<h2>Gestión de Usuarios</h2>
+
+<!-- Botón para abrir el modal -->
+<button mat-flat-button color="primary" (click)="openNuevoUsuario(usuarioList)">
+  <mat-icon>add</mat-icon> Crear Usuario
+</button>
+
+<hr />
+
+<!-- Lista de usuarios -->
+<app-usuario-list 
+  #usuarioList 
+  (openEdit)="openEditarUsuario(usuarioList, $event)">
+</app-usuario-list>
+

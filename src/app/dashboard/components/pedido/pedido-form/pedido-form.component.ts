@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Pedido } from '../../models/pedido.model';
-import { PedidoService } from '../../services/pedido.service';
+import { Pedido } from '../../../../core/models/pedido.model';
+import { PedidoService } from '../../../services/pedido.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';

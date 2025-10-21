@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>{{ receta.receta_id ? 'Editar Receta' : 'Nueva Receta' }}</h2>
+
+<mat-dialog-content>
+  <form #form="ngForm" (ngSubmit)="saveReceta()">
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Nombre de la Receta</mat-label>
+      <input matInput type="text" [(ngModel)]="receta.nombre_receta" name="nombre_receta" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Descripción / Pasos</mat-label>
+      <textarea matInput rows="3" [(ngModel)]="receta.descripcion_receta" name="descripcion_receta" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Tiempo Estimado (minutos)</mat-label>
+      <input matInput type="number" [(ngModel)]="receta.tiempo_estimado_minutos" name="tiempo_estimado_minutos" min="1" />
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="saveReceta()">Guardar</button>
+</mat-dialog-actions>

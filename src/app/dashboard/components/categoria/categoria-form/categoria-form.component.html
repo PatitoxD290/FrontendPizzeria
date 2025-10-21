@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>{{ categoria.categoria_id ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+
+<mat-dialog-content>
+  <form #form="ngForm" (ngSubmit)="saveCategoria()">
+
+    <mat-form-field appearance="fill">
+      <mat-label>Nombre de la Categoría</mat-label>
+      <input matInput type="text" [(ngModel)]="categoria.nombre_categoria" name="nombre_categoria" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Descripción</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="categoria.descripcion_categoria"
+        name="descripcion_categoria"
+        rows="3">
+      </textarea>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="saveCategoria()">Guardar</button>
+</mat-dialog-actions>

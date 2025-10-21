@@ -1,40 +1,288 @@
 .sidenav-container {
   height: 100vh;
+  display: flex;
 }
 
+/* Sidebar principal */
 .sidenav {
-  width: 220px;
-  background-color: #be1b1c;
+  width: 250px;
+  background: linear-gradient(180deg, #be1b1c 0%, #a01516 100%);
   color: white;
   display: flex;
   flex-direction: column;
-  padding-top: 10px;
+  transition: width 0.3s ease;
+  border-radius: 0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.toggle-btn {
-  align-self: flex-end;
-  margin: 0 5px 10px 0;
+/* Colapsado: solo íconos */
+.sidenav.collapsed {
+  width: 64px;
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+}
+
+.sidebar-logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-weight: 600;
+  font-size: 16px;
   color: white;
+  line-height: 1;
 }
 
-.mat-list-item {
-  color: white;
+/* Navegación */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
 }
 
-.mat-list-item:hover {
+/* Títulos de sección */
+.section-title {
+  padding: 16px 16px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Items del menú - ALINEACIÓN CORREGIDA */
+.menu-item {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  cursor: pointer;
+  border-radius: 0 !important;
+  transition: all 0.2s ease;
+  margin: 2px 8px;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
+}
+
+.menu-item:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.mat-list-item mat-icon {
-  margin-right: 16px;
+.menu-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left: 3px solid white;
 }
 
-/* Cuando está colapsado solo mostrar íconos */
-.sidenav:not([opened]) .mat-list-item span {
+.menu-item.has-children {
+  position: relative;
+}
+
+/* Contenedor del contenido del menú */
+.menu-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.menu-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.menu-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  line-height: 24px;
+  min-height: 24px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.expand-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Submenú */
+.submenu {
+  background-color: rgba(0, 0, 0, 0.1);
+  margin: 0 8px 4px;
+  border-radius: 4px;
+  overflow: hidden;
+  max-height: 500px;
+  transition: max-height 0.3s ease;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px 0 40px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.submenu-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.submenu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submenu-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: 500;
+}
+
+.submenu-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.submenu-label {
+  font-size: 13px;
+  line-height: 20px;
+  min-height: 20px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* ============================================= */
+/* ESTILOS CUANDO ESTÁ COLAPSADO (SOLO ÍCONOS) */
+/* ============================================= */
+
+.sidenav.collapsed .sidebar-logo span {
   display: none;
 }
 
-.sidenav:not([opened]) .toggle-btn mat-icon {
-  transform: rotate(180deg);
-  transition: transform 0.3s ease;
+.sidenav.collapsed .section-title {
+  display: none;
+}
+
+.sidenav.collapsed .menu-label {
+  display: none;
+}
+
+.sidenav.collapsed .submenu {
+  display: none;
+}
+
+.sidenav.collapsed .menu-item {
+  justify-content: center;
+  padding: 0 12px;
+  margin: 2px 4px;
+  width: calc(100% - 8px);
+}
+
+.sidenav.collapsed .menu-content {
+  justify-content: center;
+  gap: 0;
+}
+
+.sidenav.collapsed .menu-icon {
+  margin: 0;
+}
+
+/* ============================================= */
+/* ESTILOS CUANDO ESTÁ EXPANDIDO (ÍCONOS + TEXTO) */
+/* ============================================= */
+
+.sidenav:not(.collapsed) .sidebar-logo span {
+  display: block;
+}
+
+.sidenav:not(.collapsed) .section-title {
+  display: block;
+}
+
+.sidenav:not(.collapsed) .menu-label {
+  display: flex;
+}
+
+.sidenav:not(.collapsed) .menu-item {
+  justify-content: flex-start;
+  padding: 0 16px;
+}
+
+.sidenav:not(.collapsed) .menu-content {
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+/* Aseguramos que los mat-list-item no tengan estilos conflictivos */
+.mat-list-item {
+  height: auto !important;
+}
+
+.mat-list-item .mat-list-item-content {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  width: 100%;
+}
+
+/* Scrollbar personalizado */
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Contenido principal */
+.main-content {
+  background-color: #f5f5f5;
+  overflow: auto;
 }

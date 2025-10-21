@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -16,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
   standalone: true,
   imports: [
     CommonModule,
+    NgIf,
     FormsModule,
     MatToolbarModule,
     MatButtonModule,
@@ -28,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class NavbarComponent {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
+  @Input() isSidebarCollapsed = false; // ⚡ Corregido
 
   nombreUsuario: string = '';
   searchQuery: string = '';
@@ -41,7 +44,6 @@ export class NavbarComponent {
     this.isDarkMode = localStorage.getItem('darkMode') === 'true';
     this.updateBodyClass();
 
-    // Escucha los cambios de ruta
     this.router.events.subscribe(() => {
       const url = this.router.url;
       this.mostrarNavbar = !url.includes('/dashboard/login');
