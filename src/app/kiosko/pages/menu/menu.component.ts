@@ -16,6 +16,7 @@ import { ProductoService } from '../../../dashboard/services/producto.service';
 interface Producto {
   id: number;
   nombre: string;
+  descripcion: string;
   categoria: number;
   precio: number;
   imagen: string;
@@ -71,6 +72,7 @@ export class MenuComponent implements OnInit {
         this.productos = rawArray.map((item: any) => ({
           id: item.producto_id ?? item.id ?? 0,
           nombre: item.nombre_producto ?? item.nombre ?? 'Sin nombre',
+          descripcion: item.descripcion_producto ?? item.descripcion ?? 'No llego',
           categoria: item.categoria_id ?? 0,
           precio: Number(item.precio_venta ?? item.precio ?? 0) || 0,
           imagen: `http://localhost:3000/imagenesCata/producto_${
