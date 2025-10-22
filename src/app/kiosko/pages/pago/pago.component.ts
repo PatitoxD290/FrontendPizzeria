@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,10 +20,12 @@ import { Router } from '@angular/router';
   templateUrl: './pago.component.html',
   styleUrls: ['./pago.component.css']
 })
-export class PagoComponent {
+export class PagoComponent implements OnInit {
   total = 0;
   opcionSeleccionada: string | null = null;
-  billeteraSeleccionada: string | null = null;
+  pagoConfirmado = false;
+  mostrarMensajeFinal = false;
+  tipoDocumento: string | null = null;
 
   constructor(
     private carritoService: CarritoService,
@@ -31,43 +33,64 @@ export class PagoComponent {
   ) {}
 
   ngOnInit() {
-    // Calcular total desde el carrito
+    this.calcularTotal();
+  }
+
+  calcularTotal() {
     this.total = this.carritoService
       .obtenerProductos()
-      .reduce((sum, item) => sum + item.subtotal, 0);
+      .reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
   }
 
   seleccionarOpcion(opcion: string) {
     this.opcionSeleccionada = opcion;
-    this.billeteraSeleccionada = null;
   }
 
-  seleccionarBilletera(billetera: string) {
-    this.billeteraSeleccionada = billetera;
+  simularPagoConfirmado() {
+    this.pagoConfirmado = true;
   }
 
-  generarBoleta() {
-    alert('🧾 Generando boleta con la información del pago...');
-    this.confirmarPago();
+  simularPagoTarjeta() {
+    this.pagoConfirmado = true;
   }
 
-  confirmarPago() {
-    alert('✅ Pago realizado con éxito. ¡Gracias por su compra!');
-    this.carritoService.vaciarCarrito();
+  seleccionarTipoDocumento(tipo: string) {
+    this.tipoDocumento = tipo;
+    this.mostrarMensajeFinal = true;
+    this.finalizarCompra();
+  }
+
+  finalizarSinDocumento() {
+    this.tipoDocumento = null;
+    this.mostrarMensajeFinal = true;
+    this.finalizarCompra();
+  }
+
+  finalizarCompra() {
+    setTimeout(() => {
+      this.carritoService.vaciarCarrito();
+    }, 2000);
+  }
+
+  volverAlInicio() {
     this.router.navigate(['/']);
     this.reiniciar();
   }
 
+  // NUEVO MÉTODO: Volver al menú
+  volverAlMenu() {
+    this.router.navigate(['/kiosko/menu']);
+  }
+
   regresar() {
-    if (this.billeteraSeleccionada) {
-      this.billeteraSeleccionada = null;
-    } else {
-      this.opcionSeleccionada = null;
-    }
+    this.opcionSeleccionada = null;
+    this.pagoConfirmado = false;
   }
 
   reiniciar() {
     this.opcionSeleccionada = null;
-    this.billeteraSeleccionada = null;
+    this.pagoConfirmado = false;
+    this.mostrarMensajeFinal = false;
+    this.tipoDocumento = null;
   }
 }

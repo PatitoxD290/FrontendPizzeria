@@ -1,10 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CarritoService } from '../../services/carrito/carrito.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
+
+interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;
+  imagen: string;
+  cantidad: number;
+}
 
 @Component({
   selector: 'app-carrito-flotante',
@@ -13,8 +21,9 @@ import { AuthService } from '../../../core/services/auth/auth.service';
   templateUrl: './carrito-flotante.component.html',
   styleUrls: ['./carrito-flotante.component.css']
 })
-export class CarritoFlotanteComponent {
-  visible = false;
+export class CarritoFlotanteComponent implements OnInit {
+  carritoVisible = true;
+  productos: Producto[] = [];
 
   constructor(
     public carritoService: CarritoService,
@@ -22,14 +31,85 @@ export class CarritoFlotanteComponent {
     private authService: AuthService
   ) {}
 
-  // Método para alternar la visibilidad del carrito
-  toggleCarrito() {
-    this.visible = !this.visible;
+  ngOnInit() {
+    this.inicializarProductos();
   }
 
-  // Método para cerrar el carrito
-  volver() {
-    this.visible = false;
+  inicializarProductos() {
+    this.productos = [
+      {
+        id: 1,
+        nombre: 'Box Engasse',
+        precio: 15000,
+        imagen: 'img/boxengasse.png',
+        cantidad: 1
+      },
+      {
+        id: 2,
+        nombre: 'English Horse',
+        precio: 25000,
+        imagen: 'img/englishrose.png',
+        cantidad: 1
+      },
+      {
+        id: 3,
+        nombre: 'Knock Nap',
+        precio: 35000,
+        imagen: 'img/knocknap.png',
+        cantidad: 1
+      },
+      {
+        id: 4,
+        nombre: 'La Night',
+        precio: 18000,
+        imagen: 'img/lanight.png',
+        cantidad: 1
+      },
+      {
+        id: 5,
+        nombre: 'Silver All',
+        precio: 32000,
+        imagen: 'img/silverall.png',
+        cantidad: 1
+      },
+      {
+        id: 6,
+        nombre: 'Skin Glam',
+        precio: 18000,
+        imagen: 'img/skinglam.png',
+        cantidad: 1
+      },
+      {
+        id: 7,
+        nombre: 'Midimix',
+        precio: 54000,
+        imagen: 'img/midimix.png',
+        cantidad: 1
+      },
+      {
+        id: 8,
+        nombre: 'Sir Blue',
+        precio: 32000,
+        imagen: 'img/sirblue.png',
+        cantidad: 1
+      },
+      {
+        id: 9,
+        nombre: 'Middlesteel',
+        precio: 42800,
+        imagen: 'img/middlesteel.png',
+        cantidad: 1
+      }
+    ];
+  }
+
+  // Agregar producto al carrito
+  agregarAlCarrito(producto: Producto) {
+    const productoParaCarrito = {
+      ...producto,
+      cantidad: 1
+    };
+    this.carritoService.agregarProducto(productoParaCarrito);
   }
 
   // Eliminar un producto del carrito
@@ -53,13 +133,7 @@ export class CarritoFlotanteComponent {
       alert('⚠️ El carrito está vacío.');
       return;
     }
-    this.visible = false;
     this.router.navigate(['/kiosko/pago']);
-  }
-
-  // Vaciar el carrito
-  vaciarCarrito() {
-    this.carritoService.vaciarCarrito();
   }
 
   // Calcular el total de los productos en el carrito
@@ -88,7 +162,7 @@ export class CarritoFlotanteComponent {
     return this.router.url.includes('/registrar');
   }
 
-    // Verificar si estamos en la página de login
+  // Verificar si estamos en la página de login
   get isInLoginPage(): boolean {
     return this.router.url.includes('/login');
   }

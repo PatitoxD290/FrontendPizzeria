@@ -1,52 +1,140 @@
 <div class="menu-container">
 
-  <!-- 🕵️ Buscador -->
-  <!-- <mat-form-field appearance="outline" class="search-bar">
-    <mat-label>Buscar producto</mat-label>
-    <input matInput [(ngModel)]="searchTerm" placeholder="Ej: Pizza, bebida, combo">
-  </mat-form-field> -->
-
-  <!-- 📌 Filtro con botones -->
-  <div class="filtro-botones">
-    <mat-button-toggle-group [(ngModel)]="filtroCategoria" aria-label="Filtro de categorías">
-      <mat-button-toggle value="">
-        <mat-icon>list</mat-icon>
-        Todos
-      </mat-button-toggle>
-      <mat-button-toggle value="Pizzas">
-        <mat-icon>local_pizza</mat-icon>
-        Pizzas
-      </mat-button-toggle>
-      <mat-button-toggle value="Bebidas">
-        <mat-icon>local_drink</mat-icon>
-        Bebidas
-      </mat-button-toggle>
-      <mat-button-toggle value="Combos">
-        <mat-icon>fastfood</mat-icon>
-        Combos
-      </mat-button-toggle>
-    </mat-button-toggle-group>
+  <!-- 🆕 NUEVOS BOTONES SUPERIORES -->
+  <div class="botones-superiores">
+    <button 
+      class="boton-superior" 
+      [class.activo]="pizzasActivo"
+      (click)="cambiarCategoriaSuperior('Pizzas')">
+      Pizzas
+    </button>
+    <button 
+      class="boton-superior" 
+      [class.activo]="filtroCategoria === 'Bebidas'"
+      (click)="cambiarCategoriaSuperior('Bebidas')">
+      Bebidas
+    </button>
   </div>
 
-  <!-- 🧾 Lista de productos -->
-  <div class="productos-lista">
-    <mat-card
-      *ngFor="let p of productosFiltrados"
-      class="producto-card"
-      (click)="abrirDetalleProducto(p)"
-    >
-      <!-- Imagen -->
-      <img [src]="p.imagen" alt="{{ p.nombre }}" class="producto-imagen">
-
-      <mat-card-title>{{ p.nombre }}</mat-card-title>
-      <mat-card-content>
-        <p><b>Categoría:</b> {{ p.categoria }}</p>
-        <p><b>Precio:</b> S/. {{ p.precio }}</p>
-      </mat-card-content>
-    </mat-card>
+  <!-- 📌 Filtro con botones (SOLO VISIBLE CUANDO NO ES BEBIDAS) -->
+  <div class="filtro-botones" *ngIf="filtroCategoria !== 'Bebidas'">
+    <button 
+      class="boton-filtro" 
+      [class.activo]="filtroCategoria === ''"
+      (click)="cambiarCategoria('')">
+      <mat-icon>list</mat-icon>
+      Todos
+    </button>
+    <button 
+      class="boton-filtro" 
+      [class.activo]="filtroCategoria === 'Pizzas'"
+      (click)="cambiarCategoria('Pizzas')">
+      <mat-icon>local_pizza</mat-icon>
+      Pizzas
+    </button>
+    <button 
+      class="boton-filtro" 
+      [class.activo]="filtroCategoria === 'Combos'"
+      (click)="cambiarCategoria('Combos')">
+      <mat-icon>fastfood</mat-icon>
+      Combos
+    </button>
+    <button 
+      class="boton-filtro" 
+      [class.activo]="filtroCategoria === 'Pizzas Especiales'"
+      (click)="cambiarCategoria('Pizzas Especiales')">
+      <mat-icon>star</mat-icon>
+      Pizzas Especiales
+    </button>
   </div>
 
+  <div class="contenedor-principal">
+    <!-- 🧾 Lista de productos - DISEÑO ACTUALIZADO -->
+    <div class="productos-grid" [class.con-carrito]="carritoService.obtenerProductos().length > 0">
+      <div
+        *ngFor="let p of productosFiltrados"
+        class="producto-card"
+      >
+        <!-- Imagen del producto -->
+        <div class="producto-imagen-container">
+          <img [src]="p.imagen" [alt]="p.nombre" class="producto-imagen">
+        </div>
 
-  <!-- Carrito flotante -->
-  <app-carrito-flotante></app-carrito-flotante>
+        <!-- Información del producto -->
+        <div class="producto-info">
+          <h3 class="producto-nombre">{{ p.nombre }}</h3>
+          <p class="producto-categoria">{{ p.categoria }}</p>
+          <p class="producto-precio">S/. {{ p.precio }}</p>
+          
+          <!-- Botones de acción -->
+          <div class="producto-acciones">
+            <!-- Botón Personalizar - SOLO PARA PIZZAS, COMBOS Y PIZZAS ESPECIALES -->
+            <button 
+              *ngIf="p.categoria !== 'Bebidas'"
+              class="btn-personalizar" 
+              (click)="abrirPersonalizacion(p)">
+              Personalizar
+            </button>
+            
+            <!-- Botón Agregar - SIEMPRE VISIBLE -->
+            <button 
+              class="btn-agregar" 
+              [class.btn-agregar-solo]="p.categoria === 'Bebidas'"
+              (click)="agregarAlCarrito(p)">
+              + Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🛒 Carrito lateral - SOLO VISIBLE CUANDO HAY PRODUCTOS -->
+    <div class="carrito-lateral" *ngIf="carritoService.obtenerProductos().length > 0">
+      <div class="carrito-header">
+        <h2>🛒 Tu Carrito</h2>
+      </div>
+
+      <div class="carrito-items">
+        <div 
+          *ngFor="let item of carritoService.obtenerProductos(); let i = index" 
+          class="carrito-item"
+        >
+          <img [src]="item.imagen" [alt]="item.nombre" class="carrito-item-imagen">
+          
+          <div class="carrito-item-info">
+            <span class="carrito-item-nombre">{{ item.nombre }}</span>
+            <div class="carrito-item-controls">
+              <button class="btn-cantidad" (click)="decrementarCantidadCarrito(i)">
+                -
+              </button>
+              <span class="carrito-item-cantidad">{{ item.cantidad }}</span>
+              <button class="btn-cantidad" (click)="incrementarCantidadCarrito(i)">
+                +
+              </button>
+            </div>
+            <span class="carrito-item-precio">
+              S/. {{ (item.precio * item.cantidad).toFixed(2) }}
+            </span>
+          </div>
+          
+          <button class="btn-eliminar" (click)="eliminarDelCarrito(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="carrito-total">
+        <div class="total-fila">
+          <strong>Tu Total</strong>
+          <strong>S/. {{ calcularTotalCarrito().toFixed(2) }}</strong>
+        </div>
+        <button class="btn-pagar" (click)="confirmarPedido()">
+          Pagar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carrito flotante para cuando no hay productos en el carrito lateral -->
+  <app-carrito-flotante *ngIf="carritoService.obtenerProductos().length === 0"></app-carrito-flotante>
 </div>
