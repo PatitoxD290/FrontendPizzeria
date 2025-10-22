@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+// src/app/kiosko/components/menu/menu.component.ts
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,16 +8,19 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { DetalleProductoComponent } from '../../components/detalle-producto/detalle-producto.component';
-import { CarritoFlotanteComponent } from '../../components/carrito-flotante/carrito-flotante.component'; // 🛒
-import { CarritoService } from '../../services/carrito/carrito.service'; // 🛍️ servicio del carrito
+import { Router } from '@angular/router';
 
-interface Producto {
-  id: number;
-  nombre: string;
-  categoria: string;
-  precio: number;
-  imagen: string;
+import { ProductoService } from '../../../dashboard/services/producto.service';
+import { CategoriaService } from '../../../dashboard/services/categoria.service';
+import { CarritoService } from '../../services/carrito/carrito.service';
+import { DetalleProductoComponent } from '../../components/detalle-producto/detalle-producto.component';
+import { CarritoFlotanteComponent } from '../../components/carrito-flotante/carrito-flotante.component';
+import { Producto } from '../../../core/models/producto.model';
+import { Categoria } from '../../../core/models/categoria.model';
+
+interface ProductoConCategoria extends Producto {
+  nombre_categoria: string;
+  imagen: string; // siempre string
 }
 
 @Component({
@@ -31,65 +35,136 @@ interface Producto {
     MatCardModule,
     MatIconModule,
     MatDialogModule,
-    CarritoFlotanteComponent // 🛒 Importamos carrito flotante aquí
+    CarritoFlotanteComponent
   ],
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent {
+export class MenuComponent implements OnInit {
   searchTerm: string = '';
-  filtroCategoria: string = '';
-
-  productos: Producto[] = [
-    { id: 1, nombre: 'Pizza Margarita', categoria: 'Pizzas', precio: 25, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 2, nombre: 'Pizza Pepperoni', categoria: 'Pizzas', precio: 28, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 3, nombre: 'Pizza Hawaiana', categoria: 'Pizzas', precio: 28, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 4, nombre: 'Coca Cola 500ml', categoria: 'Bebidas', precio: 5, imagen: '/assets/imgs/coca.webp' },
-    { id: 5, nombre: 'Inca Kola 1L', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/inca.jpg' },
-    { id: 6, nombre: 'Pepsi', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/pepsi.jpg' },
-    { id: 7, nombre: 'Agua San Luis', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/sanluis.png' },
-    { id: 8, nombre: 'Pulp Durazno', categoria: 'Bebidas', precio: 2, imagen: '/assets/imgs/pulp.jpg' },
-    { id: 9, nombre: 'Sprite', categoria: 'Bebidas', precio: 3, imagen: '/assets/imgs/sprite.jpeg' },
-    { id: 10, nombre: 'Combo 1 Pizza Kids', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 11, nombre: 'Combo 1 Pizza Personal', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 12, nombre: 'Combo 1 Pizza Familiar', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 13, nombre: 'Combo Pareja', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 14, nombre: 'Combo 1 Pizza Grande o Familiar', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 15, nombre: 'Combo Viernes - Segunda Pizza al 50%', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' }
-  ];
+  filtroCategoria: string = ''; // Mostrar todos al inicio
+  productos: ProductoConCategoria[] = [];
+  categorias: Categoria[] = [];
 
   constructor(
+    private productoService: ProductoService,
+    private categoriaService: CategoriaService,
     private dialog: MatDialog,
-    private carritoService: CarritoService // 🛍️ inyectamos servicio
+    public carritoService: CarritoService,
+    private router: Router
   ) {}
 
-  // ✅ Filtro dinámico
-  get productosFiltrados(): Producto[] {
+  ngOnInit(): void {
+    this.cargarCategorias();
+  }
+
+  private cargarCategorias(): void {
+    this.categoriaService.getCategorias().subscribe({
+      next: (data: Categoria[]) => {
+        this.categorias = data || [];
+        this.cargarProductos();
+      },
+      error: (err) => console.error('Error al cargar categorías', err)
+    });
+  }
+
+  private cargarProductos(): void {
+    this.productoService.getProductos().subscribe({
+      next: (data: Producto[]) => {
+        if (!data || data.length === 0) {
+          console.warn('No se encontraron productos');
+          return;
+        }
+
+        this.productos = data.map(p => {
+          const nombreCat = this.obtenerNombreCategoria(p.categoria_id);
+          // Si es Bebidas, imagen sanluis, sino pizza
+          const imagenPredeterminada = nombreCat.toLowerCase() === 'bebidas'
+            ? '/assets/imgs/sanluis.png'
+            : '/assets/imgs/pizza-margarita.jpg';
+
+          return {
+            ...p,
+            imagen: imagenPredeterminada,
+            nombre_categoria: nombreCat
+          };
+        });
+      },
+      error: (err) => console.error('Error al cargar productos', err)
+    });
+  }
+
+  private obtenerNombreCategoria(categoria_id: number): string {
+    const categoria = this.categorias.find(c => c.categoria_id === categoria_id);
+    return categoria ? categoria.nombre_categoria : 'Sin categoría';
+  }
+
+  cambiarCategoriaSuperior(categoria: string): void {
+    this.filtroCategoria = categoria;
+  }
+
+  cambiarCategoria(categoria: string): void {
+    this.filtroCategoria = categoria;
+  }
+
+  get pizzasActivo(): boolean {
+    return ['Pizzas', 'Combos', 'Pizzas Especiales'].includes(this.filtroCategoria);
+  }
+
+  get productosFiltrados(): ProductoConCategoria[] {
     return this.productos.filter(p => {
-      const coincideCategoria = this.filtroCategoria
-        ? p.categoria === this.filtroCategoria
-        : true;
+      const coincideCategoria =
+        !this.filtroCategoria ||
+        p.nombre_categoria.toLowerCase().includes(this.filtroCategoria.toLowerCase());
 
       const coincideBusqueda = this.searchTerm
-        ? p.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
+        ? p.nombre_producto.toLowerCase().includes(this.searchTerm.toLowerCase())
         : true;
 
       return coincideCategoria && coincideBusqueda;
     });
   }
 
-  // 🛍️ Abrir modal de detalle
-  abrirDetalleProducto(producto: Producto) {
+  agregarAlCarrito(producto: ProductoConCategoria): void {
+    this.carritoService.agregarProducto({ ...producto, cantidad: 1 });
+  }
+
+  abrirPersonalizacion(producto: ProductoConCategoria): void {
     const dialogRef = this.dialog.open(DetalleProductoComponent, {
-      width: '400px',
+      width: '500px',
+      maxWidth: '90vw',
       data: producto
     });
 
-    // 👇 Si el usuario confirma desde el modal, agregamos al carrito
     dialogRef.afterClosed().subscribe(result => {
-      if (result === 'agregar') {
-        this.carritoService.agregarProducto(producto);
+      if (result && result.agregar) {
+        this.carritoService.agregarProducto({ ...producto, ...result.producto, cantidad: 1 });
       }
     });
+  }
+
+  incrementarCantidadCarrito(index: number): void {
+    this.carritoService.incrementarCantidad(index);
+  }
+
+  decrementarCantidadCarrito(index: number): void {
+    this.carritoService.decrementarCantidad(index);
+  }
+
+  eliminarDelCarrito(index: number): void {
+    this.carritoService.eliminarProducto(index);
+  }
+
+  calcularTotalCarrito(): number {
+    return this.carritoService.obtenerProductos()
+      .reduce((total, item) => total + (item.precio_venta * (item.cantidad || 1)), 0);
+  }
+
+  confirmarPedido(): void {
+    if (this.carritoService.obtenerProductos().length === 0) {
+      alert('⚠️ El carrito está vacío.');
+      return;
+    }
+    this.router.navigate(['/kiosko/pago']);
   }
 }

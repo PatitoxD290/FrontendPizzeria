@@ -56,6 +56,11 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/producto/producto.page').then(m => m.ProductoPage)
       },
+       {        
+        path: 'ingrediente',
+        loadComponent: () =>
+          import('./pages/ingrediente/ingrediente.page').then(m => m.IngredientePage)
+      },
       // 404 interno del dashboard
       {
         path: '**',

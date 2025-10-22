@@ -1,21 +1,307 @@
 .pago-container {
   max-width: 400px;
-  margin: 40px auto;
+  margin: 20px auto;
+  text-align: center;
+  padding: 20px;
   background: #fff;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Contenedor del título con imagen */
+.pago-container h2 {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Imagen del icono */
+.pago-container .icono-btn {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .resumen-pago {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
 }
 
-.campo {
+.resumen-pago p {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.resumen-pago h3 {
+  font-size: 2rem;
+  color: #28a745;
+  font-weight: bold;
+  margin: 0;
+}
+
+.qr-img {
+  width: 200px;
+  height: 200px;
+  margin: 15px auto;
+  display: block;
+}
+
+.boleta-pregunta {
+  margin-top: 10px;
+}
+
+h2, h3, p {
+  margin: 10px 0;
+}
+
+/* CONTENEDOR PARA BOTONES HORIZONTALES */
+.contenedor-botones-horizontal {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
+  margin: 0 auto 20px auto;
+  flex-wrap: wrap;
+}
+
+/* BOTONES HORIZONTALES PRINCIPALES - CORREGIDOS */
+.boton-opcion-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 160px;
+  max-width: 180px;
+  margin: 8px 0;
+  font-size: 13px;
+  padding: 12px 8px;
+  text-align: center;
+  white-space: normal;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  word-wrap: break-word;
+  height: auto;
+  min-height: 60px;
+  line-height: 1.2;
+}
+
+/* Ajustar iconos en botones horizontales */
+.boton-opcion-horizontal img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Texto dentro del botón - asegurar que quepa */
+.boton-opcion-horizontal span {
+  display: inline-block;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* BOTONES VERTICALES (Yape, Plin) */
+.boton-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80%;
+  margin: 8px auto;
+  font-size: 16px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.boton-opcion img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.boton-opcion span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Botón Volver */
+.boton-volver {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 80%;
+  margin: 12px auto;
+  font-size: 15px;
+}
+
+.icono-volver {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* ✅ Botón "Sí" */
+.btn-si {
+  background-color: #4CAF50 !important;
+  color: white;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 5px;
+}
+
+.btn-si:hover {
+  background-color: #43A047;
+  transform: scale(1.05);
+}
+
+/* ❌ Botón "No" */
+.btn-no {
+  background-color: #E53935 !important;
+  color: white;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 5px;
+}
+
+.btn-no:hover {
+  background-color: #D32F2F;
+  transform: scale(1.05);
+}
+
+/* CONTENEDOR BOTONES SÍ/NO HORIZONTAL */
+.contenedor-si-no {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+/* ESTILOS PARA FORMULARIOS DE TARJETA */
+.campo {
+  width: 90%;
+  margin: 10px auto;
+}
+
+/* AJUSTES PARA SECCIONES ESPECÍFICAS */
+.opciones-principales {
+  margin-bottom: 10px;
+}
+
+.opciones-principales + div {
+  margin-top: 10px;
+}
+
+/* Asegurar que todo quepa sin scroll */
+.pago-container > div {
+  max-height: none;
+  overflow: visible;
+}
+
+/* ESTILOS PARA LA SECCIÓN "PAGA CON" */
+.paga-con {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.icono-billetera {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* BOTÓN SIMULAR PAGO (SOLO PRUEBAS) */
+.simular-pago {
+  margin: 15px 0;
+}
+
+.boton-simular {
+  background-color: #4CAF50 !important;
+  color: white !important;
+  width: 80%;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+/* ESTILOS PARA PAGO EXITOSO */
+.pago-exitoso {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.icono-exito {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 15px;
+}
+
+/* CONTENEDOR BOLETA/FACTURA */
+.contenedor-boleta-factura {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.btn-boleta {
+  background-color: #2196F3 !important;
+  color: white !important;
+}
+
+.btn-factura {
+  background-color: #FF9800 !important;
+  color: white !important;
+}
+
+.btn-no-documento {
+  background-color: #9E9E9E !important;
+  color: white !important;
+}
+
+/* MENSAJE FINAL */
+.mensaje-final {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.icono-gracias {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.boton-inicio {
+  width: 80%;
+  margin: 20px auto;
 }

@@ -33,7 +33,7 @@ import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
 })
 export class ClienteListComponent implements OnInit {
 
-  displayedColumns: string[] = ['cliente_id', 'nombre_completo', 'dni', 'fecha_registro', 'acciones'];
+displayedColumns: string[] = ['cliente_id', 'nombre_completo', 'dni', 'telefono', 'fecha_registro', 'acciones'];
   clientes: Cliente[] = [];
   loading = false;
 

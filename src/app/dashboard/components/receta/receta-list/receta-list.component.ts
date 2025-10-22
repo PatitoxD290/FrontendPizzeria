@@ -32,7 +32,6 @@ import { RecetaFormComponent } from '../receta-form/receta-form.component';
   styleUrls: ['./receta-list.component.css']
 })
 export class RecetaListComponent implements OnInit {
-
   displayedColumns: string[] = ['receta_id', 'nombre_receta', 'descripcion_receta', 'tiempo_estimado_minutos', 'acciones'];
   recetas: Receta[] = [];
   loading = false;
@@ -54,11 +53,6 @@ export class RecetaListComponent implements OnInit {
       next: data => {
         this.recetas = data;
         this.loading = false;
-        setTimeout(() => {
-          if (this.paginator) {
-            this.paginator.length = this.recetas.length;
-          }
-        });
       },
       error: err => {
         console.error('Error al cargar recetas', err);
@@ -76,13 +70,28 @@ export class RecetaListComponent implements OnInit {
   }
 
   openRecetaForm(receta?: Receta) {
-    const dialogRef = this.dialog.open(RecetaFormComponent, {
-      width: '500px',
-      data: { receta }
+  if (receta?.receta_id) {
+    this.recetaService.getDetallesPorReceta(receta.receta_id).subscribe({
+      next: (detalles) => {
+        const dialogRef = this.dialog.open(RecetaFormComponent, {
+          width: '700px',
+          data: { receta, detalles }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) this.loadRecetas();
+        });
+      },
+      error: (err) => console.error('Error al cargar detalles', err)
     });
-
+  } else {
+    const dialogRef = this.dialog.open(RecetaFormComponent, {
+      width: '700px',
+      data: {}
+    });
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.loadRecetas();
     });
   }
+}
+
 }

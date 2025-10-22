@@ -38,6 +38,7 @@ export class ClienteFormComponent {
       cliente_id: 0,
       nombre_completo: '',
       dni: '',
+      telefono: '',
       fecha_registro: ''
     };
   }

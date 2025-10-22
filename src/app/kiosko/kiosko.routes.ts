@@ -14,8 +14,22 @@ export const KIOSKO_ROUTES: Routes = [
     children: [
       { path: '', redirectTo: 'iniciar', pathMatch: 'full' },
       { path: 'iniciar', component: IniciarComponent },
-      { path: 'menu', component: MenuComponent },
-      { path: 'pago', component: PagoComponent },
+      { 
+        path: 'menu', 
+        component: MenuComponent,
+        data: {
+          title: 'Bienvenido a AITA PIZZA',
+          subtitle: 'Selecciona tu pizza favorita'
+        }
+      },
+      { 
+        path: 'pago', 
+        component: PagoComponent,
+        data: {
+          title: 'Confirmar tu pedido',
+          subtitle: 'Revisa y confirma tu compra'
+        }
+      },
       { path: 'registrar', component: RegistrarComponent },
       // 404 interno de kiosko
       { path: '**', loadComponent: () =>

@@ -1,19 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Lily+Script+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
 
+/* --- Elimina scroll solo dentro del contenedor --- */
 .iniciar-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;         /* 👈 ocupa toda la pantalla */
   text-align: center;
   padding: 20px;
   background: #101010;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
-  overflow: hidden;
   box-sizing: border-box;
+  overflow: hidden;      /* ✅ bloquea desbordes internos */
 }
 
 .logo-pizzeria {
@@ -22,8 +23,8 @@
   margin-bottom: 30px;
   object-fit: contain;
   margin-top: 50px;
-  transform: scale(1.4); /* 🔹 agranda visualmente sin mover los textos */
-  transition: transform 0.3s ease; /* opcional: suaviza la animación */
+  transform: scale(1.4);
+  transition: transform 0.3s ease;
 }
 
 h1 {
@@ -32,11 +33,11 @@ h1 {
   color: white;
   font-weight: 700;
   letter-spacing: 1px;
-  font-family: 'Lily Script One', cursive; /* Aplicando la nueva fuente */
+  font-family: 'Lily Script One', cursive;
 }
 
 .subtitulo {
-  margin-top: 30px;   /* 🔹 Aumenta el espacio por encima del texto */
+  margin-top: 30px;
   margin-bottom: 40px;
   color: white;
   font-weight: 400;
@@ -46,13 +47,10 @@ h1 {
   font-family: 'Lily Script One', cursive;
 }
 
-
 .btn-custom {
   background-color: #be1b1c !important;
   color: white !important;
   font-family: "Koulen", sans-serif;
-  font-weight: 400;
-  font-style: normal;
   padding: 12px 30px;
   font-size: 1.1rem;
   border-radius: 30px;
@@ -67,101 +65,53 @@ h1 {
   background-color: #a01616 !important;
 }
 
-/* Estilos para las imágenes de pizza */
-.pizza-images {
+/* --- Imágenes decorativas --- */
+.pizza-images, .decorations {
   position: absolute;
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.pizza, .decor {
+  position: absolute;
+  object-fit: contain;
 }
 
 .pizza {
-  position: absolute;
   width: 80px;
   height: 80px;
-  object-fit: contain;
-}
-
-.top-left {
-  top: 10%;
-  left: 5%;
-}
-
-.top-right {
-  top: 15%;
-  right: 5%;
-}
-
-.bottom-left {
-  bottom: 10%;
-  left: 5%;
-}
-
-.bottom-right {
-  bottom: 15%;
-  right: 5%;
-}
-
-/* Estilos para las decoraciones */
-.decorations {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
 }
 
 .decor {
-  position: absolute;
   width: 60px;
   height: 60px;
-  object-fit: contain;
 }
 
-.basil-top {
-  top: 25%;
-  left: 10%;
-}
+.top-left { top: 10%; left: 5%; }
+.top-right { top: 15%; right: 5%; }
+.bottom-left { bottom: 10%; left: 5%; }
+.bottom-right { bottom: 15%; right: 5%; }
 
-.basil-bottom {
-  bottom: 25%;
-  right: 10%;
-}
+.basil-top { top: 25%; left: 10%; }
+.basil-bottom { bottom: 25%; right: 10%; }
+.tomato-left { top: 35%; left: 8%; }
+.tomato-right { bottom: 35%; right: 8%; }
 
-.tomato-left {
-  top: 35%;
-  left: 8%;
-}
-
-.tomato-right {
-  bottom: 35%;
-  right: 8%;
-}
-
-/* --- ANIMACIONES --- */
+/* Animaciones */
 @keyframes rotatePizza {
   0% { transform: rotate(0deg) translateY(0); }
   50% { transform: rotate(10deg) translateY(-5px); }
   100% { transform: rotate(0deg) translateY(0); }
 }
-.pizza { 
-  animation: rotatePizza 6s ease-in-out infinite; 
-}
+.pizza { animation: rotatePizza 6s ease-in-out infinite; }
 
 @keyframes floatDecor {
   0% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-10px) rotate(5deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-.decor { 
-  animation: floatDecor 5s ease-in-out infinite; 
-}
-
-/* Ocultar scroll */
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+.decor { animation: floatDecor 5s ease-in-out infinite; }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -169,29 +119,8 @@ html, body {
     width: 60px;
     height: 60px;
   }
-  
   .decor {
     width: 40px;
     height: 40px;
-  }
-  
-  .top-left {
-    top: 5%;
-    left: 2%;
-  }
-  
-  .top-right {
-    top: 8%;
-    right: 2%;
-  }
-  
-  .bottom-left {
-    bottom: 5%;
-    left: 2%;
-  }
-  
-  .bottom-right {
-    bottom: 8%;
-    right: 2%;
   }
 }

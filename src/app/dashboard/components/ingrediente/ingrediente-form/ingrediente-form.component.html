@@ -1,0 +1,87 @@
+<h2 mat-dialog-title>
+  {{ ingrediente.ingrediente_id ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}
+</h2>
+
+<mat-dialog-content>
+  <form #form="ngForm" (ngSubmit)="saveIngrediente()">
+
+    <mat-form-field appearance="fill">
+      <mat-label>Nombre del Ingrediente</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="ingrediente.nombre_ingrediente"
+        name="nombre_ingrediente"
+        required
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Descripción</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="ingrediente.descripcion_ingrediente"
+        name="descripcion_ingrediente"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Unidad de Medida</mat-label>
+      <mat-select [(ngModel)]="ingrediente.unidad_medida" name="unidad_medida" required>
+        <mat-option value="kg">Kilogramos</mat-option>
+        <mat-option value="g">Gramos</mat-option>
+        <mat-option value="l">Litros</mat-option>
+        <mat-option value="ml">Mililitros</mat-option>
+        <mat-option value="unidad">Unidad</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Categoría</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="ingrediente.categoria_ingrediente"
+        name="categoria_ingrediente"
+        required
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Stock Mínimo</mat-label>
+      <input
+        matInput
+        type="number"
+        [(ngModel)]="ingrediente.stock_minimo"
+        name="stock_minimo"
+        required
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Stock Máximo</mat-label>
+      <input
+        matInput
+        type="number"
+        [(ngModel)]="ingrediente.stock_maximo"
+        name="stock_maximo"
+        required
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Estado</mat-label>
+      <mat-select [(ngModel)]="ingrediente.estado" name="estado" required>
+        <mat-option value="A">Activo</mat-option>
+        <mat-option value="I">Inactivo</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="saveIngrediente()">Guardar</button>
+</mat-dialog-actions>

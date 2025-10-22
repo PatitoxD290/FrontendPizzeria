@@ -1,4 +1,3 @@
-// src/app/dashboard/components/producto-form/producto-form.component.ts
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +5,7 @@ import { Producto } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../services/producto.service';
 import { CategoriaService } from '../../../services/categoria.service';
 import { RecetaService } from '../../../services/receta.service';
+import Swal from 'sweetalert2';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -44,7 +44,6 @@ export class ProductoFormComponent implements OnInit {
     private dialogRef: MatDialogRef<ProductoFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { producto?: Producto }
   ) {
-    // Si llega un producto, se edita; sino se crea nuevo
     this.producto = data?.producto
       ? { ...data.producto }
       : {
@@ -78,17 +77,62 @@ export class ProductoFormComponent implements OnInit {
   }
 
   saveProducto() {
+    // Validación básica
+    if (!this.producto.nombre_producto || !this.producto.precio_venta || !this.producto.categoria_id) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor completa los campos obligatorios antes de guardar.',
+        confirmButtonColor: '#3085d6'
+      });
+      return;
+    }
+
+    // Si no tiene ID, es nuevo producto
     if (!this.producto.producto_id || this.producto.producto_id === 0) {
-      // Crear nuevo producto
       this.productoService.createProducto(this.producto).subscribe({
-        next: () => this.dialogRef.close(true),
-        error: (err) => console.error('Error al crear producto', err)
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Producto creado',
+            text: 'El producto se registró correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          console.error('Error al crear producto', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo crear el producto.',
+            confirmButtonColor: '#d33'
+          });
+        }
       });
     } else {
-      // Editar producto existente
-      this.productoService.updateProducto(this.producto.producto_id!, this.producto).subscribe({
-        next: () => this.dialogRef.close(true),
-        error: (err) => console.error('Error al actualizar producto', err)
+      // Si tiene ID, se actualiza
+      this.productoService.updateProducto(this.producto.producto_id, this.producto).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Producto actualizado',
+            text: 'El producto fue actualizado correctamente.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          console.error('Error al actualizar producto', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el producto.',
+            confirmButtonColor: '#d33'
+          });
+        }
       });
     }
   }

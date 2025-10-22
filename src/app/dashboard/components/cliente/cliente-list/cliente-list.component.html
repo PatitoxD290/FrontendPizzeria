@@ -27,6 +27,13 @@
       <td mat-cell *matCellDef="let cliente">{{ cliente.dni }}</td>
     </ng-container>
 
+    <!-- Teléfono -->
+    <ng-container matColumnDef="telefono">
+      <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.telefono || '—' }}</td>
+    </ng-container>
+
+
     <!-- Fecha Registro -->
     <ng-container matColumnDef="fecha_registro">
       <th mat-header-cell *matHeaderCellDef>Fecha de Registro</th>

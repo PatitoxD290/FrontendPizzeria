@@ -1,10 +1,10 @@
-// src/app/dashboard/components/producto/producto-list/producto-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Producto } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../services/producto.service';
 import { CategoriaService } from '../../../services/categoria.service';
 import { RecetaService } from '../../../services/receta.service';
+import Swal from 'sweetalert2';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -45,7 +45,7 @@ export class ProductoListComponent implements OnInit {
     'fecha_registro',
     'acciones'
   ];
-  
+
   productos: any[] = [];
   categorias: any[] = [];
   recetas: any[] = [];
@@ -74,8 +74,6 @@ export class ProductoListComponent implements OnInit {
     .then(([categorias, recetas, productos]) => {
       this.categorias = categorias || [];
       this.recetas = recetas || [];
-
-      // Enlazar nombres de categoría y receta a cada producto
       this.productos = (productos || []).map(p => ({
         ...p,
         nombre_categoria: this.categorias.find(c => c.categoria_id === p.categoria_id)?.nombre_categoria || 'Sin categoría',
@@ -94,10 +92,38 @@ export class ProductoListComponent implements OnInit {
   }
 
   deleteProducto(id: number) {
-    if (!confirm('¿Eliminar este producto?')) return;
-    this.productoService.deleteProducto(id).subscribe({
-      next: () => this.loadProductos(),
-      error: err => console.error(err)
+    Swal.fire({
+      title: '¿Eliminar este producto?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.productoService.deleteProducto(id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Producto eliminado',
+              text: 'El producto fue eliminado correctamente.',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            this.loadProductos();
+          },
+          error: err => {
+            console.error(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo eliminar el producto.',
+              confirmButtonColor: '#d33'
+            });
+          }
+        });
+      }
     });
   }
 

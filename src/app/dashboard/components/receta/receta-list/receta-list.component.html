@@ -1,7 +1,6 @@
 <mat-card>
   <div class="header">
     <h2>Lista de Recetas</h2>
-  
   </div>
 
   <div *ngIf="loading" class="spinner-container">
@@ -31,9 +30,7 @@
     <!-- Tiempo estimado -->
     <ng-container matColumnDef="tiempo_estimado_minutos">
       <th mat-header-cell *matHeaderCellDef>Tiempo Estimado (min)</th>
-      <td mat-cell *matCellDef="let receta">
-        {{ receta.tiempo_estimado_minutos || '—' }}
-      </td>
+      <td mat-cell *matCellDef="let receta">{{ receta.tiempo_estimado_minutos || '—' }}</td>
     </ng-container>
 
     <!-- Acciones -->

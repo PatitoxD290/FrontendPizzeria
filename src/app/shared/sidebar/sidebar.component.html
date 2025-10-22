@@ -1,21 +1,23 @@
 <mat-sidenav-container class="sidenav-container" *ngIf="isLoggedIn">
   <mat-sidenav mode="side" [opened]="!isCollapsed" class="sidenav" [class.collapsed]="isCollapsed">
-    <!-- Logo -->
+    
+    <!-- Header Simple -->
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <img src="/assets/imgs/logo.png" alt="Logo" />
-        <span class="logo-text" *ngIf="!isCollapsed">Aita! Dashboard</span>
+        <div class="logo-container">
+          <img src="/assets/imgs/logo.png" alt="Logo Pizzería" class="logo-img" />
+        </div>
+        <div class="logo-text" *ngIf="!isCollapsed">
+          <span class="logo-primary">Aita</span>
+          <span class="logo-subtitle">Pizzería</span>
+        </div>
       </div>
+      
     </div>
 
+    <!-- Navegación Simple -->
     <mat-nav-list class="sidebar-nav">
       <ng-container *ngFor="let section of menuSections">
-        <!-- Sección con título -->
-        <div *ngIf="section.label && !isCollapsed" class="section-title">
-          {{ section.label }}
-        </div>
-
-        <!-- Items de la sección -->
         <ng-container *ngFor="let item of section.items">
           
           <!-- Item con submenú -->
@@ -23,15 +25,16 @@
             <mat-list-item 
               class="menu-item has-children"
               [class.expanded]="item.isExpanded"
-              (click)="toggleSubMenu(item)">
+              (click)="toggleSubMenu(item)"
+              [matTooltip]="isCollapsed ? item.label : ''"
+              matTooltipPosition="right">
               
               <div class="menu-content">
-                <mat-icon matListIcon class="menu-icon">{{ item.icon }}</mat-icon>
-                
+                <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
                 <span class="menu-label" *ngIf="!isCollapsed">
                   {{ item.label }}
-                  <mat-icon class="expand-icon">
-                    {{ item.isExpanded ? 'expand_less' : 'expand_more' }}
+                  <mat-icon class="expand-icon" [class.rotated]="item.isExpanded">
+                    expand_more
                   </mat-icon>
                 </span>
               </div>
@@ -45,10 +48,11 @@
                 *ngFor="let child of item.children"
                 [routerLink]="child.route"
                 routerLinkActive="active"
+                [class.active]="isRouteActive(child.route!)"
                 (click)="navigateTo(child.route, $event)">
                 
                 <div class="submenu-content">
-                  <mat-icon matListIcon class="submenu-icon">{{ child.icon }}</mat-icon>
+                  <mat-icon class="submenu-icon">{{ child.icon }}</mat-icon>
                   <span class="submenu-label">{{ child.label }}</span>
                 </div>
               </a>
@@ -62,10 +66,13 @@
               class="menu-item"
               [routerLink]="item.route"
               routerLinkActive="active"
-              (click)="navigateTo(item.route, $event)">
+              [class.active]="isRouteActive(item.route!)"
+              (click)="navigateTo(item.route, $event)"
+              [matTooltip]="isCollapsed ? item.label : ''"
+              matTooltipPosition="right">
               
               <div class="menu-content">
-                <mat-icon matListIcon class="menu-icon">{{ item.icon }}</mat-icon>
+                <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
                 <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
               </div>
             </a>
@@ -73,9 +80,6 @@
         </ng-container>
       </ng-container>
     </mat-nav-list>
-  </mat-sidenav>
 
-  <mat-sidenav-content class="main-content">
-    <ng-content></ng-content>
-  </mat-sidenav-content>
+  </mat-sidenav>
 </mat-sidenav-container>
