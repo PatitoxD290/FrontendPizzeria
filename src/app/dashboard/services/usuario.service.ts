@@ -1,17 +1,12 @@
-<<<<<<< HEAD
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Usuario } from '../../core/models/usuario.model';
-=======
-import { Injectable } from '@angular/core';
->>>>>>> abner
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuarioService {
-<<<<<<< HEAD
 
   private apiUrl = 'http://localhost:3000/api/v2/usuarios';
 
@@ -55,7 +50,4 @@ export class UsuarioService {
   changePassword(id: number, password: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/password`, { password }, { headers: this.getHeaders() });
   }
-=======
-  
->>>>>>> abner
 }

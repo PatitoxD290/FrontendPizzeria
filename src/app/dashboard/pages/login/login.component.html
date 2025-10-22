@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class="login-card">
   <!-- Sección de imagen -->
   <div class="image-section">
@@ -53,29 +52,3 @@
     </div>
   </div>
 </div>
-=======
-<div class="login-container">
-  <h2>Iniciar Sesión</h2>
-
-  <form (ngSubmit)="login()">
-    <!-- DNI -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>DNI</mat-label>
-      <input matInput [(ngModel)]="dni" name="dni" required />
-    </mat-form-field>
-
-    <!-- Contraseña -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Contraseña</mat-label>
-      <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
-      <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <button mat-raised-button color="primary" type="submit" class="full-width">Ingresar</button>
-  </form>
-
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-</div>
->>>>>>> abner

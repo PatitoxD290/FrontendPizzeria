@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Pedido } from '../../models/pedido.model';
+import { Pedido } from '../../../core/models/pedido.model';
 import { PedidoService } from '../../services/pedido.service';
 
 // Angular Material
