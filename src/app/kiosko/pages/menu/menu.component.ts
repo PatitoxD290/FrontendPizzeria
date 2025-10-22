@@ -21,6 +21,43 @@ interface Producto {
   cantidad?: number;
 }
 
+// 🔧 MAPEO DE PRODUCTOS - Simulación de base de datos
+const MAPEO_PRODUCTOS: Producto[] = [
+  // CATEGORIA PIZZAS
+  { id: 1, nombre: 'AMERICANA', categoria: 'Pizzas', precio: 47.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 2, nombre: 'PEPPERONI', categoria: 'Pizzas', precio: 47.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 3, nombre: 'HAWAIANA', categoria: 'Pizzas', precio: 48.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 4, nombre: 'TROPICAL', categoria: 'Pizzas', precio: 48.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 5, nombre: 'SUPREMA', categoria: 'Pizzas', precio: 49.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 6, nombre: 'CONTINENTAL', categoria: 'Pizzas', precio: 49.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
+  { id: 7, nombre: 'AMAZONICO REGIONAL', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
+  { id: 8, nombre: 'AMERICANA SELVATICA', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
+  { id: 9, nombre: 'VEGETARIANA', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
+  
+  // CATEGORIA BEBIDAS
+  { id: 10, nombre: 'COCA COLA 500ml', categoria: 'Bebidas', precio: 5, imagen: '/assets/imgs/coca.webp' },
+  { id: 11, nombre: 'INCA KOLA 1L', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/inca.jpg' },
+  { id: 12, nombre: 'PEPSI', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/pepsi.jpg' },
+  { id: 13, nombre: 'AGUA SAN LUIS', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/sanluis.png' },
+  { id: 14, nombre: 'PULP DURAZNO', categoria: 'Bebidas', precio: 2, imagen: '/assets/imgs/pulp.jpg' },
+  { id: 15, nombre: 'SPRITE', categoria: 'Bebidas', precio: 3, imagen: '/assets/imgs/sprite.jpeg' },
+
+  // CATEGORIA COMBOS
+  { id: 16, nombre: 'COMBO 1 Pizza Kids', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 17, nombre: 'COMBO 1 Pizza Personal', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 18, nombre: 'COMBO 1 Pizza Familiar', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 19, nombre: 'COMBO Pareja', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 20, nombre: 'COMBO 1 Pizza Grande o Familiar', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 21, nombre: 'COMBO Viernes - Segunda Pizza al 50%', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
+
+  // CATEGORIA PIZZAS ESPECIALES
+  { id: 22, nombre: 'AMERICANA SELVATICA', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 23, nombre: 'ESPECIAL DE CARNE', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 24, nombre: 'ESPECIAL SELVATICA', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 25, nombre: 'VEGETARIANA', categoria: 'Pizzas Especiales', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
+  { id: 26, nombre: 'CHARAPITA', categoria: 'Pizzas Especiales', precio: 10, imagen: '/assets/imgs/pizza-margarita.jpg' },
+];
+
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -42,46 +79,53 @@ export class MenuComponent {
   searchTerm: string = '';
   filtroCategoria: string = 'Pizzas'; // Inicia con Pizzas por defecto
 
-  productos: Producto[] = [
-    // CATEGORIA PIZZAS
-    { id: 1, nombre: 'AMERICANA', categoria: 'Pizzas', precio: 47.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 2, nombre: 'PEPPERONI', categoria: 'Pizzas', precio: 47.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 3, nombre: 'HAWAIANA', categoria: 'Pizzas', precio: 48.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 4, nombre: 'TROPICAL', categoria: 'Pizzas', precio: 48.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 5, nombre: 'SUPREMA', categoria: 'Pizzas', precio: 49.90, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 6, nombre: 'CONTINENTAL', categoria: 'Pizzas', precio: 49.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
-    { id: 7, nombre: 'AMAZONICO REGIONAL', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
-    { id: 8, nombre: 'AMERICANA SELVATICA', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
-    { id: 9, nombre: 'VEGETARIANA', categoria: 'Pizzas', precio: 52.90, imagen: '/assets/imgs/pizza-margarita.jpg'},
-    
-    // CATEGORIA BEBIDAS
-    { id: 10, nombre: 'COCA COLA 500ml', categoria: 'Bebidas', precio: 5, imagen: '/assets/imgs/coca.webp' },
-    { id: 11, nombre: 'INCA KOLA 1L', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/inca.jpg' },
-    { id: 12, nombre: 'PEPSI', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/pepsi.jpg' },
-    { id: 13, nombre: 'AGUA SAN LUIS', categoria: 'Bebidas', precio: 7, imagen: '/assets/imgs/sanluis.png' },
-    { id: 14, nombre: 'PULP DURAZNO', categoria: 'Bebidas', precio: 2, imagen: '/assets/imgs/pulp.jpg' },
-    { id: 15, nombre: 'SPRITE', categoria: 'Bebidas', precio: 3, imagen: '/assets/imgs/sprite.jpeg' },
-
-    // CATEGORIA COMBOS
-    { id: 16, nombre: 'COMBO 1 Pizza Kids', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 17, nombre: 'COMBO 1 Pizza Personal', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 18, nombre: 'COMBO 1 Pizza Familiar', categoria: 'Combos', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 19, nombre: 'COMBO Pareja', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 20, nombre: 'COMBO 1 Pizza Grande o Familiar', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 21, nombre: 'COMBO Viernes - Segunda Pizza al 50%', categoria: 'Combos', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-
-    // CATEGORIA PIZZAS ESPECIALES
-    { id: 22, nombre: 'AMERICANA SELVATICA', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 23, nombre: 'ESPECIAL DE CARNE', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 24, nombre: 'ESPECIAL SELVATICA', categoria: 'Pizzas Especiales', precio: 50, imagen: '/assets/imgs/pizza-margarita.jpg' },
-    { id: 25, nombre: 'VEGETARIANA', categoria: 'Pizzas Especiales', precio: 30, imagen: '/assets/imgs/pizza-margarita.jpg' },
-  ];
+  // 🔧 PRODUCTOS SIMULADOS - Se cargan desde el mapeo
+  productos: Producto[] = [];
 
   constructor(
     private dialog: MatDialog,
     public carritoService: CarritoService,
     private router: Router
-  ) {}
+  ) {
+    // ✅ Inicializar productos desde el mapeo
+    this.cargarProductosDesdeMapeo();
+  }
+
+  // 🔧 MÉTODO PARA CARGAR PRODUCTOS DESDE EL MAPEO
+  private cargarProductosDesdeMapeo(): void {
+    // Crear una nueva instancia del arreglo para evitar mutaciones
+    this.productos = [...MAPEO_PRODUCTOS];
+  }
+
+  // 🔧 MÉTODO PARA AGREGAR NUEVO PRODUCTO DINÁMICAMENTE
+  agregarNuevoProducto(nuevoProducto: Producto): void {
+    // Verificar si el producto ya existe
+    const productoExistente = this.productos.find(p => p.id === nuevoProducto.id);
+    
+    if (!productoExistente) {
+      // Crear nuevo arreglo con el producto agregado (sin mutar el original)
+      this.productos = [...this.productos, nuevoProducto];
+    } else {
+      console.warn('⚠️ El producto con ID', nuevoProducto.id, 'ya existe');
+    }
+  }
+
+  // 🔧 MÉTODO PARA ACTUALIZAR PRODUCTO EXISTENTE
+  actualizarProducto(productoActualizado: Producto): void {
+    this.productos = this.productos.map(p => 
+      p.id === productoActualizado.id ? { ...productoActualizado } : p
+    );
+  }
+
+  // 🔧 MÉTODO PARA ELIMINAR PRODUCTO
+  eliminarProducto(id: number): void {
+    this.productos = this.productos.filter(p => p.id !== id);
+  }
+
+  // 🔧 MÉTODO PARA OBTENER CATEGORÍAS ÚNICAS (útil para futuras funcionalidades)
+  get categoriasUnicas(): string[] {
+    return [...new Set(this.productos.map(p => p.categoria))];
+  }
 
   // ✅ Método para cambiar categoría desde botones superiores
   cambiarCategoriaSuperior(categoria: string): void {
