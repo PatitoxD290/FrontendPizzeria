@@ -4,6 +4,7 @@
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveProducto()">
+
     <!-- Nombre del producto -->
     <mat-form-field appearance="fill">
       <mat-label>Nombre del Producto</mat-label>
@@ -51,6 +52,16 @@
         <mat-option value="I">Inactivo</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <!-- Imagen -->
+    <div style="margin-top: 1rem;">
+      <label for="imagen">Imagen del producto (opcional):</label>
+      <input type="file" id="file" (change)="onFileSelected($event)" accept="image/*" />
+
+      <div *ngIf="imagePreview" style="margin-top: 10px; text-align: center;">
+        <img [src]="imagePreview" alt="Vista previa" style="max-width: 150px; border-radius: 8px;" />
+      </div>
+    </div>
   </form>
 </mat-dialog-content>
 

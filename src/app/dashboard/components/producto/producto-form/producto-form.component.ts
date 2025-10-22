@@ -36,6 +36,8 @@ export class ProductoFormComponent implements OnInit {
   producto: Producto;
   categorias: any[] = [];
   recetas: any[] = [];
+  selectedFile: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
 
   constructor(
     private productoService: ProductoService,
@@ -76,8 +78,18 @@ export class ProductoFormComponent implements OnInit {
     });
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => (this.imagePreview = e.target?.result || null);
+      reader.readAsDataURL(file);
+    }
+  }
+
   saveProducto() {
-    // Validación básica
     if (!this.producto.nombre_producto || !this.producto.precio_venta || !this.producto.categoria_id) {
       Swal.fire({
         icon: 'warning',
@@ -88,53 +100,63 @@ export class ProductoFormComponent implements OnInit {
       return;
     }
 
-    // Si no tiene ID, es nuevo producto
-    if (!this.producto.producto_id || this.producto.producto_id === 0) {
-      this.productoService.createProducto(this.producto).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Producto creado',
-            text: 'El producto se registró correctamente.',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error('Error al crear producto', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo crear el producto.',
-            confirmButtonColor: '#d33'
-          });
-        }
-      });
+    // Si se seleccionó una imagen, armamos FormData
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+      formData.append('nombre_producto', this.producto.nombre_producto);
+      formData.append('descripcion_producto', this.producto.descripcion_producto || '');
+      formData.append('categoria_id', String(this.producto.categoria_id));
+      formData.append('receta_id', this.producto.receta_id ? String(this.producto.receta_id) : '');
+      formData.append('precio_venta', String(this.producto.precio_venta));
+      formData.append('estado', this.producto.estado || 'A');
+
+      if (!this.producto.producto_id || this.producto.producto_id === 0) {
+        this.productoService.createProductoFormData(formData).subscribe({
+          next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),
+          error: (err) => this.handleError('crear', err)
+        });
+      } else {
+        this.productoService.updateProductoFormData(this.producto.producto_id, formData).subscribe({
+          next: () => this.handleSuccess('Producto actualizado', 'El producto fue actualizado correctamente.'),
+          error: (err) => this.handleError('actualizar', err)
+        });
+      }
     } else {
-      // Si tiene ID, se actualiza
-      this.productoService.updateProducto(this.producto.producto_id, this.producto).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Producto actualizado',
-            text: 'El producto fue actualizado correctamente.',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error('Error al actualizar producto', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo actualizar el producto.',
-            confirmButtonColor: '#d33'
-          });
-        }
-      });
+      // Si NO hay imagen, usa JSON normal
+      if (!this.producto.producto_id || this.producto.producto_id === 0) {
+        this.productoService.createProducto(this.producto).subscribe({
+          next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),
+          error: (err) => this.handleError('crear', err)
+        });
+      } else {
+        this.productoService.updateProducto(this.producto.producto_id, this.producto).subscribe({
+          next: () => this.handleSuccess('Producto actualizado', 'El producto fue actualizado correctamente.'),
+          error: (err) => this.handleError('actualizar', err)
+        });
+      }
     }
+  }
+
+  private handleSuccess(title: string, text: string) {
+    Swal.fire({
+      icon: 'success',
+      title,
+      text,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    this.dialogRef.close(true);
+  }
+
+  private handleError(action: string, err: any) {
+    console.error(`Error al ${action} producto`, err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: `No se pudo ${action} el producto.`,
+      confirmButtonColor: '#d33'
+    });
   }
 
   close() {
