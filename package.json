@@ -31,7 +31,10 @@
     "@angular/platform-browser": "^20.2.0",
     "@angular/router": "^20.2.0",
     "rxjs": "~7.8.0",
+<<<<<<< HEAD
     "sweetalert2": "^11.26.3",
+=======
+>>>>>>> abner
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
@@ -48,4 +51,8 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.9.2"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> abner

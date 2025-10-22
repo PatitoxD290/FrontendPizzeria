@@ -10,9 +10,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
+<<<<<<< HEAD
 // SweetAlert2
 import Swal from 'sweetalert2';
 
+=======
+>>>>>>> abner
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -28,6 +31,7 @@ import Swal from 'sweetalert2';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
+<<<<<<< HEAD
 export class LoginComponent implements OnInit {
   dni = '';
   password = '';
@@ -35,6 +39,17 @@ export class LoginComponent implements OnInit {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+=======
+export class LoginComponent implements OnInit { // 👈 implementamos OnInit
+  dni = '';
+  password = '';
+  hidePassword = true; // para mostrar/ocultar contraseña
+  errorMessage = '';
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  // ✅ Este método se ejecuta cuando se carga el componente
+>>>>>>> abner
   ngOnInit() {
     // Si ya está logueado, redirige al home directamente
     if (this.authService.isLoggedIn()) {
@@ -43,6 +58,7 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
+<<<<<<< HEAD
     // Validaciones básicas antes de enviar
     if (!this.dni || !this.password) {
       Swal.fire({
@@ -95,4 +111,17 @@ export class LoginComponent implements OnInit {
     input.value = input.value.replace(/[^0-9]/g, ''); // solo números
     this.dni = input.value;
   }
+=======
+    this.errorMessage = '';
+    this.authService.login(this.dni, this.password).subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard/home']);
+      },
+      error: (err) => {
+        console.error('Login error:', err);
+        this.errorMessage = err?.error?.error || 'Credenciales incorrectas';
+      }
+    });
+  }
+>>>>>>> abner
 }
