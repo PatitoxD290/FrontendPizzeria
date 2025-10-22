@@ -1,14 +1,16 @@
-<!-- Navbar con botón para colapsar sidebar -->
-<app-navbar (toggleSidebarEvent)="toggleSidebar()"></app-navbar>
-
-<!-- Contenedor principal: sidebar + contenido -->
-<div class="dashboard-layout">
+<div class="dashboard-wrapper">
   <app-sidebar [isCollapsed]="isSidebarCollapsed"></app-sidebar>
 
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+  <div class="main-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <app-navbar 
+      (toggleSidebarEvent)="toggleSidebar()" 
+      [isSidebarCollapsed]="isSidebarCollapsed">
+    </app-navbar>
 
-<!-- Footer -->
-<app-footer></app-footer>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+</div>

@@ -1,22 +1,121 @@
 <div class="pago-container">
-  <h2>💳 Pago del Pedido</h2>
+  <h2><img src="assets/imgs/paga.png" alt="Tarjeta" class="icono-btn">Pago del Pedido</h2>
 
   <div class="resumen-pago">
     <p>Total a pagar:</p>
     <h3>S/. {{ total | number: '1.2-2' }}</h3>
   </div>
 
-  <mat-form-field appearance="outline" class="campo">
-    <mat-label>Selecciona método de pago</mat-label>
-    <mat-select [(ngModel)]="metodoPago">
-      <mat-option value="tarjeta">Tarjeta</mat-option>
-      <mat-option value="yape">Yape</mat-option>
-      <mat-option value="plin">Plin</mat-option>
-      <mat-option value="efectivo">Efectivo</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <!-- OPCIONES PRINCIPALES HORIZONTALES -->
+  <div class="opciones-principales" *ngIf="!opcionSeleccionada">
+    <div class="contenedor-botones-horizontal">
+      <button mat-raised-button color="primary" (click)="seleccionarOpcion('billetera')" class="boton-opcion-horizontal">
+        <img src="assets/imgs/billetera.png" alt="Billetera Digital" class="icono-btn">
+        <span>Billetera Digital</span>
+      </button>
+  
+      <button mat-raised-button color="accent" (click)="seleccionarOpcion('tarjeta')" class="boton-opcion-horizontal">
+        <img src="assets/imgs/tarjeta.png" alt="Tarjeta" class="icono-btn">
+        <span>Tarjeta Crédito/Débito</span>
+      </button>
 
-  <button mat-flat-button color="primary" (click)="confirmarPago()">
-    Confirmar Pago
-  </button>
+      <!-- BOTÓN VOLVER AGREGADO -->
+      <button mat-raised-button color="warn" (click)="volverAlMenu()" class="boton-opcion-horizontal">
+        <img src="assets/imgs/volver.png" alt="Volver" class="icono-btn">
+        <span>Volver al Menú</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN BILLETERA - SOLO EL QR -->
+  <div *ngIf="opcionSeleccionada === 'billetera' && !pagoConfirmado">
+    <div class="paga-con">
+      <span>Paga con</span>
+      <img src="assets/imgs/yape.png" alt="Yape" class="icono-billetera">
+      <span>o con </span>
+      <img src="assets/imgs/plin.png" alt="Plin" class="icono-billetera">
+    </div>
+    
+    <div class="qr-contenedor">
+      <img src="assets/imgs/Qr-yape.jpg" alt="QR Yape" class="qr-img">
+    </div>
+
+    <!-- Botón oculto para simular pago (solo para pruebas) -->
+    <div class="simular-pago">
+      <button mat-flat-button color="primary" (click)="simularPagoConfirmado()" class="boton-simular">
+        <span>Simular Pago Realizado</span>
+      </button>
+    </div>
+
+    <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
+      <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
+    </button>
+  </div>
+
+  <!-- SECCIÓN TARJETA -->
+  <div *ngIf="opcionSeleccionada === 'tarjeta' && !pagoConfirmado">
+    <h3>Ingresa los datos de tu tarjeta</h3>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Número de Tarjeta</mat-label>
+      <input matInput maxlength="16" placeholder="XXXX XXXX XXXX XXXX" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Fecha de Vencimiento</mat-label>
+      <input matInput placeholder="MM/AA" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>CVV</mat-label>
+      <input matInput maxlength="3" type="password" />
+    </mat-form-field>
+
+    <div class="contenedor-pago">
+      <button mat-flat-button color="primary" (click)="simularPagoTarjeta()" class="boton-pago">
+        <img src="assets/imgs/check.png" alt="Pago" class="icono-btn">
+        <span>Pagar S/. {{ total | number: '1.2-2' }}</span>
+      </button>
+    </div>
+
+    <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
+      <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
+    </button>
+  </div>
+
+  <!-- PAGO CONFIRMADO - SOLO PREGUNTA BOLETA/FACTURA -->
+  <div *ngIf="pagoConfirmado && !mostrarMensajeFinal">
+    <div class="pago-exitoso">
+      <img src="assets/imgs/check.png" alt="Éxito" class="icono-exito">
+      <h3>¡Pago Confirmado!</h3>
+      <p>¿Desea boleta o factura?</p>
+    </div>
+
+    <div class="contenedor-boleta-factura">
+      <button mat-flat-button class="btn-boleta" (click)="seleccionarTipoDocumento('boleta')">
+        <span>Boleta</span>
+      </button>
+      <button mat-flat-button class="btn-factura" (click)="seleccionarTipoDocumento('factura')">
+        <span>Factura</span>
+      </button>
+      <button mat-flat-button class="btn-no-documento" (click)="finalizarSinDocumento()">
+        <span>No, gracias</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MENSAJE FINAL -->
+  <div *ngIf="mostrarMensajeFinal">
+    <div class="mensaje-final">
+      <img src="assets/imgs/gracias.png" alt="Gracias" class="icono-gracias">
+      <h3>¡Muchas gracias por su compra!</h3>
+      <p *ngIf="tipoDocumento">{{ tipoDocumento | titlecase }} generada exitosamente</p>
+      <p *ngIf="!tipoDocumento">Vuelva pronto</p>
+    </div>
+
+    <button mat-flat-button color="primary" (click)="volverAlInicio()" class="boton-inicio">
+      <img src="assets/imgs/inicio.png" alt="Inicio" class="icono-btn">
+      <span>Volver al Inicio</span>
+    </button>
+  </div>
 </div>

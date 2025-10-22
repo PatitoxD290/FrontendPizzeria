@@ -1,24 +1,54 @@
-<div class="login-container">
-  <h2>Iniciar Sesión</h2>
+<div class="login-card">
+  <!-- Sección de imagen -->
+  <div class="image-section">
+    <img src="/assets/imgs/login-fondo2.jpg" alt="Imagen de login" class="login-image">
+  </div>
 
-  <form (ngSubmit)="login()">
-    <!-- DNI -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>DNI</mat-label>
-      <input matInput [(ngModel)]="dni" name="dni" required />
-    </mat-form-field>
+  <!-- Sección de formulario -->
+  <div class="form-section">
+    <div class="form-content">
+      <div class="form-header">
+        <div class="user-icon">
+          <div class="icon-circle">
+            <mat-icon>person</mat-icon>
+          </div>
+        </div>
+        <h1>LOGIN</h1>
+    
+      </div>
 
-    <!-- Contraseña -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Contraseña</mat-label>
-      <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
-      <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-      </button>
-    </mat-form-field>
+      <form (ngSubmit)="login()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>DNI</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <input
+            matInput
+            [(ngModel)]="dni"
+            name="dni"
+            required
+            maxlength="8"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            (input)="onDniInput($event)"
+          />
+        </mat-form-field>
 
-    <button mat-raised-button color="primary" type="submit" class="full-width">Ingresar</button>
-  </form>
 
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-raised-button type="submit" class="login-button">
+          <mat-icon>login</mat-icon>
+          INICIAR SESIÓN
+        </button>
+      </form>
+
+    </div>
+  </div>
 </div>
