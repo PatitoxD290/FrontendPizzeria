@@ -1,11 +1,11 @@
-// src/app/models/detalle-pedido.model.ts
+// Modelo del Detalle de Pedido
 export interface DetallePedido {
-  detalle_pedido_id: number;
-  pedido_id: number;
-  producto_id: number;
-  tamano_id: number | null;       // Puede ser null según la tabla
-  cantidad: number;
-  precio_unitario: number;        // Decimal en SQL → number en TS
-  subtotal: number;
-  notas_producto: string | null;  // Puede ser null según la tabla
+  detalle_pedido_id: number;       // INT IDENTITY(1,1)
+  pedido_id: number;               // INT NOT NULL
+  producto_id: number;             // INT NOT NULL
+  tamano_id: number | null;        // INT NULL
+  cantidad: number;                // INT NOT NULL CHECK (cantidad > 0)
+  precio_unitario: number;         // DECIMAL(10,2) NOT NULL
+  subtotal: number;                // DECIMAL(12,2) NOT NULL
+  notas_producto: string | null;   // TEXT NULL
 }

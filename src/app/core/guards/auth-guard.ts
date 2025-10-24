@@ -9,24 +9,28 @@ export const authGuard: CanActivateFn = () => {
   const token = auth.getToken();
 
   if (!token) {
-    router.navigate(['/dashboard/login']);
-    return false;
+    return redirectToLogin(router);
   }
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    const expired = Date.now() >= payload.exp * 1000;
+    const isExpired = Date.now() >= payload.exp * 1000;
 
-    if (expired) {
+    if (isExpired) {
       auth.logout();
-      router.navigate(['/dashboard/login']);
-      return false;
+      return redirectToLogin(router);
     }
+
   } catch {
     auth.logout();
-    router.navigate(['/dashboard/login']);
-    return false;
+    return redirectToLogin(router);
   }
 
   return true;
 };
+
+// ✅ Dashboard es lo único protegido
+function redirectToLogin(router: Router) {
+  router.navigate(['/dashboard/login']);
+  return false;
+}

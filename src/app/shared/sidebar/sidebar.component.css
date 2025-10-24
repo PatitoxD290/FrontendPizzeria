@@ -4,33 +4,33 @@
 :root {
   --sidebar-width: 280px;
   --sidebar-collapsed: 70px;
-  --primary-color: #be1b1c;
-  --primary-dark: #8b0000;
-  --primary-light: #d32f2f;
+  --primary-color: #8B0000;
+  --primary-dark: #5a0000;
+  --primary-light: #a52a2a;
   --accent-color: #ff6b00;
   --accent-hover: #ff8c00;
   --text-primary: #ffffff;
-  --text-secondary: #f0f0f0;
+  --text-secondary: #887f7f;
   --text-muted: #cccccc;
-  --bg-hover: rgba(255, 255, 255, 0.12);
-  --bg-active: rgba(255, 107, 0, 0.15);
+  --bg-hover: rgba(180, 174, 174, 0.788);
+  --bg-active: rgba(255, 107, 0, 0.2);
   --border-radius: 8px;
-  --transition: all 0.3s ease;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================= */
-/* ESTILOS BASE - PROFESIONAL Y LIMPIO */
+/* ESTILOS BASE */
 /* ============================================= */
 .sidenav-container {
   height: 100vh;
   display: flex;
+  background: hwb(0 100% 0% / 0.74);
 }
 
 .sidenav {
   width: var(--sidebar-width);
   background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   transition: var(--transition);
@@ -48,27 +48,25 @@
 }
 
 /* ============================================= */
-/* HEADER - CLARO Y PROFESIONAL */
+/* ENCABEZADO */
 /* ============================================= */
 .sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  position: relative;
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(189, 179, 179, 0.733);
   background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidenav.collapsed .sidebar-header {
-  padding: 15px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 20px 12px;
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 40px;
 }
 
 .sidenav.collapsed .sidebar-logo {
@@ -78,18 +76,25 @@
 .logo-container {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  background: white;
-  padding: 4px;
 }
 
 .logo-img {
-  width: 100%;
-  height: 100%;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
-  border-radius: 6px;
+}
+
+.logo-icon {
+  color: var(--primary-color) !important;
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 .logo-text {
@@ -117,92 +122,124 @@
 }
 
 /* ============================================= */
-/* BOTÓN COLAPSAR - INTUITIVO */
+/* ETIQUETAS DE SECCIÓN */
 /* ============================================= */
-.collapse-btn {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+.section-label {
+  padding: 16px 20px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
+.section-divider {
+  height: 1px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  color: white;
-  transition: var(--transition);
-  display: flex;
+  margin: 8px 16px;
+}
+
+/* ============================================= */
+/* BADGES PERSONALIZADOS */
+/* ============================================= */
+.custom-badge {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  background: #8a4343;
+  margin-left: auto;
 }
 
-.collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-50%) scale(1.05);
+.custom-badge.small {
+  min-width: 16px;
+  height: 16px;
+  font-size: 9px;
 }
 
-.sidenav.collapsed .collapse-btn {
-  position: relative;
-  top: auto;
-  right: auto;
-  transform: none;
-  margin-top: 10px;
-  transform: rotate(180deg);
+.custom-badge.primary {
+  background: #3f51b5;
 }
 
-.sidenav.collapsed .collapse-btn:hover {
-  transform: scale(1.05) rotate(180deg);
+.custom-badge.accent {
+  background: #777475;
+}
+
+.custom-badge.warn {
+  background: #6e6c6c;
 }
 
 /* ============================================= */
-/* NAVEGACIÓN - CLARA Y USABLE */
+/* NAVEGACIÓN - ESTILOS MEJORADOS */
 /* ============================================= */
 .sidebar-nav {
   flex: 1;
-  padding: 15px 0;
+  padding: 16px 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* ============================================= */
-/* ITEMS DE MENÚ - ALTAMENTE USABLES */
-/* ============================================= */
+/* Items del menú - BORDE COMPLETO */
 .menu-item {
-  display: flex;
+  display: flex !important;
   align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
+  min-height: 44px !important;
+  padding: 0 16px !important;
   cursor: pointer;
   transition: var(--transition);
-  margin: 2px 12px;
-  border-radius: var(--border-radius);
+  margin: 2px 0 !important;
+  border-radius: 0 !important;
   text-decoration: none;
-  color: inherit;
+  color: inherit !important;
   border: 1px solid transparent;
   position: relative;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .menu-item:hover {
   background: var(--bg-hover);
   border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+  border-radius: 0 !important;
 }
 
-.menu-item.active {
+/* BORDE ACTIVO SOLO PARA ENLACES DIRECTOS (con routerLink) */
+.menu-item.active[href] {
   background: var(--bg-active);
-  border-left: 3px solid var(--accent-color);
+  border-left: 4px solid var(--accent-color) !important;
+  box-shadow: 0 2px 8px rgba(66, 65, 63, 0.2);
+  border-radius: 0 !important;
+}
+
+/* REMOVER BORDE ACTIVO DE ÍTEMS QUE SOLO SON CONTENEDORES DE SUBMENÚ */
+.menu-item.active:not([href]) {
+  border-left: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .menu-item.active .menu-icon {
-  color: var(--accent-color);
+  color: var(--accent-color) !important;
+  transform: scale(1.1);
 }
 
+/* Contenido del menú - ICONOS MÁS CENTRADOS */
 .menu-content {
   display: flex;
   align-items: center;
   width: 100%;
   gap: 12px;
+  position: relative;
 }
 
 .sidenav.collapsed .menu-content {
@@ -210,44 +247,52 @@
   gap: 0;
 }
 
-/* Iconos claros y reconocibles */
+/* Iconos - MÁS CENTRADOS VISUALMENTE */
 .menu-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
   display: flex !important;
   align-items: center;
   justify-content: center;
   transition: var(--transition);
   flex-shrink: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  /* Centrado mejorado */
+  margin-left: 2px; /* Compensa visualmente el centrado */
 }
 
 .menu-item:hover .menu-icon {
-  color: var(--accent-hover);
+  color: var(--text-primary) !important;
   transform: scale(1.1);
 }
 
-/* Labels legibles */
+/* Labels */
 .menu-label {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
   transition: var(--transition);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidenav.collapsed .menu-label {
   display: none;
 }
 
-/* Indicador de submenú */
+/* Icono de expansión */
 .expand-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
   transition: var(--transition);
-  color: var(--text-muted);
+  color: var(--text-primary) !important;
+  opacity: 0.7;
 }
 
 .sidenav.collapsed .expand-icon {
@@ -256,27 +301,28 @@
 
 .expand-icon.rotated {
   transform: rotate(180deg);
-  color: var(--accent-color);
 }
 
 /* ============================================= */
-/* SUBMENÚ - JERARQUÍA CLARA */
+/* SUBMENÚ */
 /* ============================================= */
 .submenu {
-  background: rgba(0, 0, 0, 0.1);
-  margin: 0 12px 4px;
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  margin: 0 0 4px !important;
+  border-radius: 0 !important;
   overflow: hidden;
-  animation: slideDown 0.2s ease-out;
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
+    transform: translateY(-10px);
     max-height: 0;
   }
   to {
     opacity: 1;
+    transform: translateY(0);
     max-height: 500px;
   }
 }
@@ -286,24 +332,33 @@
 }
 
 .submenu-item {
-  display: flex;
+  display: flex !important;
   align-items: center;
-  min-height: 36px;
+  min-height: 36px !important;
   padding: 0 16px 0 48px !important;
   cursor: pointer;
   transition: var(--transition);
   font-size: 13px;
   text-decoration: none;
-  color: inherit;
+  color: inherit !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
 }
 
 .submenu-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+  border-radius: 0 !important;
 }
 
+/* BORDE ACTIVO PARA SUBMENÚ */
 .submenu-item.active {
-  background: rgba(255, 107, 0, 0.1);
+  background: rgba(54, 53, 52, 0.15);
   color: var(--accent-color);
+  border-left: 3px solid var(--accent-color) !important;
+  border-radius: 0 !important;
 }
 
 .submenu-content {
@@ -314,20 +369,28 @@
 }
 
 .submenu-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  color: var(--text-muted);
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-secondary) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: var(--transition);
 }
 
 .submenu-item:hover .submenu-icon,
 .submenu-item.active .submenu-icon {
-  color: var(--accent-color);
+  color: var(--text-primary) !important;
+  transform: scale(1.1);
 }
 
 .submenu-label {
   font-size: 13px;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: var(--transition);
 }
 
 .submenu-item:hover .submenu-label,
@@ -336,7 +399,7 @@
 }
 
 /* ============================================= */
-/* FOOTER - INFORMACIÓN ESENCIAL */
+/* PIE DE PÁGINA */
 /* ============================================= */
 .sidebar-footer {
   padding: 16px;
@@ -344,22 +407,10 @@
   background: rgba(0, 0, 0, 0.1);
 }
 
-.sidenav.collapsed .sidebar-footer {
-  padding: 12px 8px;
-  display: flex;
-  justify-content: center;
-}
-
 .user-info {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.sidenav.collapsed .user-info {
-  justify-content: center;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .user-avatar {
@@ -373,26 +424,18 @@
   flex-shrink: 0;
 }
 
-.sidenav.collapsed .user-avatar {
-  width: 32px;
-  height: 32px;
-}
-
 .user-avatar mat-icon {
-  color: white;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  color: white !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 1 !important;
 }
 
 .user-details {
   display: flex;
   flex-direction: column;
   gap: 2px;
-}
-
-.sidenav.collapsed .user-details {
-  display: none;
 }
 
 .user-name {
@@ -408,147 +451,87 @@
 }
 
 /* ============================================= */
-/* ESTADO COLAPSADO - FUNCIONAL Y CLARO */
+/* ESTADOS COLAPSADO - ICONOS MEJOR CENTRADOS */
 /* ============================================= */
-.sidenav.collapsed .menu-icon {
-  margin: 0 auto;
-  display: flex !important;
-}
-
-.sidenav.collapsed .menu-item {
-  justify-content: center;
-  padding: 0 12px;
-  margin: 2px 8px;
-  width: calc(100% - 16px);
-  min-height: 44px;
-}
-
-.sidenav.collapsed .menu-item.active {
-  background: var(--bg-active);
-  border: 2px solid var(--accent-color);
+.sidenav.collapsed {
+  .sidebar-header,
+  .section-label,
+  .section-divider,
+  .user-details {
+    display: none;
+  }
+  
+  .menu-item {
+    justify-content: center;
+    padding: 0 8px !important;
+    margin: 2px 0 !important;
+  }
+  
+  /* Centrado mejorado para íconos cuando está colapsado */
+  .menu-content {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .menu-icon {
+    margin: 0 auto; /* Centrado perfecto */
+    display: flex;
+    justify-content: center;
+  }
+  
+  .user-info {
+    justify-content: center;
+  }
 }
 
 /* ============================================= */
-/* SCROLLBAR DISCRETA */
+/* SCROLLBAR */
 /* ============================================= */
 .sidebar-nav::-webkit-scrollbar {
-  width: 4px;
+    width: 4px;
 }
 
 .sidebar-nav::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin: 10px 0;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: var(--accent-color);
-  border-radius: 2px;
+    background: var(--accent-color);
+    border-radius: 2px;
+    min-height: 30px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-hover);
+    background: var(--accent-hover);
+    width: 6px;
 }
 
 /* ============================================= */
-/* MEJORAS DE ACCESIBILIDAD */
+/* GARANTIZAR VISIBILIDAD */
 /* ============================================= */
-.menu-item:focus-visible,
-.submenu-item:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
+mat-icon {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
 }
 
-/* Indicador visual para teclado */
-.menu-item:focus:not(:hover) {
-  background: rgba(255, 255, 255, 0.08);
+.menu-label,
+.submenu-label,
+.section-label,
+.logo-primary,
+.logo-subtitle,
+.user-name,
+.user-role {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: inherit !important;
 }
 
-/* ============================================= */
-/* ESTADOS DE CARGA Y FEEDBACK */
-/* ============================================= */
-.menu-item.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.menu-item.loading .menu-icon {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* ============================================= */
-/* RESPONSIVE - ADAPTABLE */
-/* ============================================= */
-@media (max-width: 768px) {
-  .sidenav:not(.collapsed) {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .sidenav.collapsed {
-    width: 60px;
-  }
-  
-  :root {
-    --sidebar-collapsed: 60px;
-  }
-  
-  .menu-item {
-    min-height: 48px;
-  }
-}
-
-@media (max-height: 600px) {
-  .sidebar-header {
-    padding: 15px 20px;
-  }
-  
-  .sidebar-nav {
-    padding: 10px 0;
-  }
-  
-  .menu-item {
-    min-height: 42px;
-    margin: 1px 12px;
-  }
-}
-
-/* ============================================= */
-/* CONTRASTE Y LEGIBILIDAD MEJORADOS */
-/* ============================================= */
-.menu-item {
-  color: var(--text-primary) !important;
-}
-
+.menu-item,
 .submenu-item {
-  color: var(--text-secondary) !important;
-}
-
-/* Alto contraste para estados importantes */
-.menu-item.active,
-.submenu-item.active {
-  font-weight: 600;
-}
-
-/* ============================================= */
-/* SEPARACIÓN VISUAL ENTRE SECCIONES */
-/* ============================================= */
-.sidebar-nav {
-  gap: 8px;
-}
-
-/* Línea separadora sutil entre secciones */
-.sidebar-nav::before {
-  content: '';
-  display: block;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 8px 16px;
-}
-
-.sidebar-nav::before:first-child {
-  display: none;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
 }

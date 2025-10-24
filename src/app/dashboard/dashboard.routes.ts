@@ -14,6 +14,7 @@ export const DASHBOARD_ROUTES: Routes = [
     path: '',
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       {

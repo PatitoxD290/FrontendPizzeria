@@ -1,10 +1,9 @@
-
 /* Contenedor principal: sidebar + contenido */
 .dashboard-wrapper {
   display: flex;
   height: 100vh;
   width: 100%;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   overflow: hidden;
 }
 
@@ -25,9 +24,9 @@ app-navbar {
 /* Contenido principal */
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 3rem;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: #ddd6d6da;
 }
 
 /* Footer */

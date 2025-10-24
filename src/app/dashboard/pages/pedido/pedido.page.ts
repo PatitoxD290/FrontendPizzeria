@@ -18,15 +18,17 @@ export class PedidoPage {
   constructor(private dialog: MatDialog) {}
 
   openNuevoPedido(pedidoList: PedidoListComponent) {
-    const dialogRef = this.dialog.open(PedidoFormComponent, {
-      width: '600px',
-      data: {} // para crear nuevo, enviar objeto vacío
-    });
+  const dialogRef = this.dialog.open(PedidoFormComponent, {
+    width: '1200px',       // Ancho mayor para que se vea todo el formulario
+    maxWidth: '95vw',      // No se desborda en pantallas pequeñas
+    data: {}               // para crear nuevo, enviar objeto vacío
+  });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        pedidoList.loadPedidos(); // recarga la tabla
-      }
-    });
-  }
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      pedidoList.loadPedidos(); // recarga la tabla
+    }
+  });
+}
+
 }

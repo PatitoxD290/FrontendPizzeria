@@ -1,39 +1,42 @@
-/* Variables CSS consistentes con el sidebar */
+/* Variables CSS con rojo vino */
 :root {
   --sidebar-width: 280px;
   --sidebar-collapsed: 80px;
-  --primary-color: #be1b1c;
-  --primary-dark: #a01516;
-  --primary-light: #d42c2d;
+  --primary-color: #722F37; /* Rojo vino principal */
+  --primary-dark: #5A252B;
+  --primary-light: #8A3942;
   --accent-color: #ffd700;
   --text-primary: #333333;
   --text-secondary: #666666;
   --text-muted: #999999;
+  --bg-light: #ffffff;
   --bg-hover: #f5f5f5;
   --bg-active: #e8e8e8;
-  --border-color: #e0e0e0;
+  --border-color: #4e4747;
   --border-radius: 12px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --navbar-height: 70px;
+  --icon-color: #666666; /* Color gris más claro */
 }
 
-/* Navbar Principal - MISMO NIVEL QUE SIDEBAR */
+/* Navbar Principal - ROJO VINO */
 .navbar {
   display: flex;
   align-items: center;
   background: #ffffff;
-  color: var(--text-primary);
+  color: rgb(34, 34, 34);
   padding: 0 24px;
-  height: 70px;
+  height: var(--navbar-height);
   transition: all var(--transition);
   box-shadow: var(--shadow);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--primary-dark);
   position: fixed;
   top: 0;
   left: var(--sidebar-width);
   right: 0;
-  z-index: 1000; /* MISMO Z-INDEX QUE SIDEBAR */
+  z-index: 1000;
   gap: 20px;
 }
 
@@ -45,12 +48,12 @@
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex: 0 0 auto;
 }
 
 .menu-btn {
-  color: var(--text-primary);
+  color: var(--icon-color); /* Gris en lugar de blanco */
   width: 40px;
   height: 40px;
   display: flex;
@@ -58,10 +61,13 @@
   justify-content: center;
   border-radius: var(--border-radius);
   transition: var(--transition);
+  cursor: pointer;
+  border: none; /* Quitar bordes */
+  background: none; /* Quitar fondo */
 }
 
 .menu-btn:hover {
-  background-color: var(--bg-hover);
+  background-color: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
 
@@ -73,39 +79,54 @@
   border-radius: var(--border-radius);
   transition: var(--transition);
   cursor: pointer;
+  text-decoration: none;
+  border: none; /* Quitar bordes */
 }
 
 .logo-container:hover {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .logo-icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  background: rgba(71, 66, 66, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(190, 27, 28, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: none; /* Quitar bordes */
+  overflow: hidden; /* Para que la imagen no se salga del contenedor */
 }
 
+/* ESTILOS PARA LA IMAGEN DEL LOGO */
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Mantiene la proporción de la imagen */
+  border-radius: 8px; /* Bordes ligeramente redondeados */
+  transition: var(--transition);
+}
+
+.logo-container:hover .logo-img {
+  transform: scale(1.05); /* Efecto hover sutil */
+}
+
+/* Eliminar el estilo del icono de pizza anterior */
 .pizza-icon {
-  color: white;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  display: none; /* Ocultar el icono anterior */
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: rgb(32, 32, 32);
   white-space: nowrap;
 }
 
-/* Sección Central - Búsqueda */
+/* Sección Central - Búsqueda CON FONDO BLANCO */
 .navbar-center {
   flex: 1;
   display: flex;
@@ -123,22 +144,22 @@
 .search-bar {
   display: flex;
   align-items: center;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  background: #ffffff; /* Fondo blanco */
+  border: 1px solid #d1d5db; /* Borde gris claro */
   border-radius: 25px;
   padding: 8px 16px;
   transition: var(--transition);
 }
 
 .search-bar:focus-within {
-  background: #ffffff;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(190, 27, 28, 0.1);
+  background: #ffffff; /* Mantener fondo blanco al enfocar */
+  border-color: #722F37; /* Borde rojo vino al enfocar */
+  box-shadow: 0 0 0 2px rgba(114, 47, 55, 0.1); /* Sombra sutil roja */
   transform: translateY(-1px);
 }
 
 .search-icon {
-  color: var(--text-muted);
+  color: var(--icon-color); /* Gris en lugar de blanco */
   font-size: 20px;
   margin-right: 12px;
   transition: var(--transition);
@@ -146,14 +167,14 @@
 }
 
 .search-bar:focus-within .search-icon {
-  color: var(--primary-color);
+  color: var(--icon-color); /* Mantener gris al enfocar */
 }
 
 .search-input {
   flex: 1;
   background: transparent;
   border: none;
-  color: var(--text-primary);
+  color: rgb(68, 65, 65);
   font-size: 14px;
   font-weight: 400;
   padding: 4px 0;
@@ -162,83 +183,29 @@
 }
 
 .search-input::placeholder {
-  color: var(--text-muted);
+  color: #6b7280; /* Color gris para el placeholder */
   font-weight: 300;
 }
 
 .clear-btn {
-  color: var(--text-muted);
+  color: var(--icon-color); /* Gris en lugar de blanco */
   width: 24px;
   height: 24px;
   margin-left: 8px;
   transition: var(--transition);
   flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none; /* Quitar bordes */
+  background: none; /* Quitar fondo */
 }
 
 .clear-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+  color: #333030; /* Gris más oscuro al hover */
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
-}
-
-/* Sugerencias de Búsqueda */
-.search-suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  margin-top: 8px;
-  box-shadow: var(--shadow-hover);
-  overflow: hidden;
-  z-index: 1100; /* MAYOR QUE NAVBAR PARA SOBREPONERSE */
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.suggestion-item:hover {
-  background: var(--bg-hover);
-}
-
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
-.suggestion-item mat-icon {
-  font-size: 18px;
-  color: var(--primary-color);
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.suggestion-item span {
-  font-size: 14px;
-  font-weight: 400;
-  flex: 1;
 }
 
 /* Sección Derecha - Acciones */
@@ -251,7 +218,7 @@
 
 /* Botones de Acción */
 .action-btn {
-  color: var(--text-primary);
+  color: var(--icon-color); /* Gris en lugar de blanco */
   width: 40px;
   height: 40px;
   display: flex;
@@ -260,11 +227,20 @@
   border-radius: var(--border-radius);
   transition: var(--transition);
   position: relative;
+  cursor: pointer;
+  border: none; /* Quitar bordes */
+  background: none; /* Quitar fondo */
 }
 
 .action-btn:hover {
-  background: var(--bg-hover);
+  background: rgba(233, 228, 228, 0.904);
   transform: scale(1.05);
+}
+
+/* FORZAR COLOR GRIS EN TODOS LOS ICONOS DE ACCIÓN */
+.action-btn mat-icon,
+.action-btn .material-icons {
+  color: #646060 !important; /* Gris forzado */
 }
 
 /* Notificaciones */
@@ -281,8 +257,6 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  background: var(--primary-color);
-  color: white;
   font-size: 10px;
   font-weight: 700;
   padding: 2px 6px;
@@ -293,11 +267,11 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: none; 
+  border: none; 
 }
 
-/* Perfil de Usuario */
+/* Perfil de Usuario - CORREGIDO PARA HORIZONTAL */
 .profile-btn {
   display: flex;
   align-items: center;
@@ -305,54 +279,92 @@
   padding: 6px 12px 6px 8px;
   border-radius: 20px;
   transition: var(--transition);
-  color: var(--text-primary);
-  background: transparent;
-  border: 1px solid transparent;
+  color: rgb(20, 13, 13);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(78, 73, 73, 0.979);
   min-width: auto;
+  cursor: pointer;
+  height: 45px;
+  /* FORZAR CONTENEDOR HORIZONTAL */
+  flex-direction: row;
+  justify-content: flex-start;
+  white-space: nowrap;
+  line-height: 1;
+  /* Eliminar cualquier wrap */
+  flex-wrap: nowrap;
 }
 
 .profile-btn:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-color);
+  background: rgba(112, 112, 112, 0.719);
+  border-color: rgba(99, 90, 90, 0.863);
+  transform: translateY(-1px);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: rgba(15, 6, 6, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 2px solid #e0e0e0;
+  overflow: hidden;
+  border: none;
+  margin: 0;
+  /* Mantener en línea */
+  display: inline-flex;
 }
 
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* CAMBIO ESPECÍFICO: Icono de perfil en color gris */
 .avatar-icon {
-  color: var(--text-secondary);
+  color: #666666 !important; /* Color gris forzado */
   font-size: 18px;
   width: 18px;
   height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Asegurar que esté en línea */
+  display: inline-block;
 }
 
 .user-name {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: rgb(66, 61, 61);
   white-space: nowrap;
+  line-height: 1;
+  margin: 0;
+  /* FORZAR TEXTO EN LÍNEA */
+  display: inline;
+  vertical-align: middle;
+  /* Eliminar cualquier margin/padding que cause salto */
+  padding: 0;
 }
 
 .dropdown-icon {
-  color: var(--text-muted);
+  color: var(--icon-color);
   font-size: 20px;
   width: 20px;
   height: 20px;
   transition: var(--transition);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Mantener en línea */
+  display: inline-flex;
 }
 
 .profile-btn:hover .dropdown-icon {
-  color: var(--text-primary);
+  color: #2b2828;
 }
 
 /* Menú de Usuario */
@@ -361,7 +373,9 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-hover);
   border: 1px solid var(--border-color);
-  min-width: 200px;
+  min-width: 300px;
+  overflow: hidden;
+  background: var(--bg-light);
 }
 
 .user-menu .mat-menu-item {
@@ -373,6 +387,7 @@
   color: var(--text-primary);
   transition: var(--transition);
   min-height: 40px;
+  border: none; /* Quitar bordes */
 }
 
 .user-menu .mat-menu-item:hover {
@@ -383,20 +398,27 @@
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: var(--primary-color);
+  color: var(--icon-color); /* Gris en lugar de rojo */
   flex-shrink: 0;
 }
 
 .logout-item {
-  color: #d32f2f;
+  color: #3b3535;
 }
 
 .logout-item mat-icon {
-  color: #d32f2f !important;
+  color: #3f3d3d !important;
 }
 
 .user-menu .mat-divider {
   margin: 4px 0;
+  border-top-color: var(--border-color);
+}
+
+/* Estados de búsqueda */
+.search-active .search-bar {
+  background: #ffffff;
+  border-color: #722F37;
 }
 
 /* Responsive */
@@ -433,12 +455,17 @@
   .profile-btn {
     padding: 6px;
   }
+  
+  .navbar-right {
+    gap: 4px;
+  }
 }
 
 @media (max-width: 480px) {
   .navbar {
     padding: 0 12px;
     gap: 8px;
+    height: 60px;
   }
   
   .action-btn:not(.notification-btn) {
@@ -451,6 +478,7 @@
   
   .search-input {
     min-width: 120px;
+    font-size: 12px;
   }
   
   .logo-container {
@@ -459,5 +487,15 @@
   
   .navbar-center {
     max-width: 200px;
+  }
+  
+  .menu-btn, .action-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
   }
 }

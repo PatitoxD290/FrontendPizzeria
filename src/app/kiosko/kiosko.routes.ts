@@ -5,7 +5,7 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { PagoComponent } from './pages/pago/pago.component';
 import { RegistrarComponent } from './pages/registrar/registrar.component';
 
-// rutas del dashboard: http://localhost:4200/kiosko/
+// rutas del kiosko: http://localhost:4200/kiosko/
 
 export const KIOSKO_ROUTES: Routes = [
   {

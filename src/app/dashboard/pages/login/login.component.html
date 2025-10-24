@@ -1,28 +1,24 @@
-<div class="login-card">
-  <!-- Sección de imagen -->
-  <div class="image-section">
-    <img src="/assets/imgs/login-fondo2.jpg" alt="Imagen de login" class="login-image">
-  </div>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-icon">
+      <i class="fas fa-user"></i>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      />
+    </div>
 
-  <!-- Sección de formulario -->
-  <div class="form-section">
-    <div class="form-content">
-      <div class="form-header">
-        <div class="user-icon">
-          <div class="icon-circle">
-            <mat-icon>person</mat-icon>
-          </div>
-        </div>
-        <h1>LOGIN</h1>
-    
-      </div>
+    <h2 class="login-title">LOGIN</h2>
 
-      <form (ngSubmit)="login()" class="login-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>DNI</mat-label>
-          <mat-icon matPrefix>badge</mat-icon>
+    <form (ngSubmit)="login()" class="login-form">
+      <!-- Campo DNI -->
+      <div class="form-group">
+        <div class="input-container">
+          <i class="fas fa-id-card input-icon"></i>
           <input
-            matInput
+            #dniInput
+            type="text"
+            class="form-control"
             [(ngModel)]="dni"
             name="dni"
             required
@@ -30,25 +26,44 @@
             inputmode="numeric"
             pattern="[0-9]*"
             (input)="onDniInput($event)"
+            placeholder="DNI"
           />
-        </mat-form-field>
+        </div>
+        <div class="error-message" *ngIf="dniError">{{ dniError }}</div>
+      </div>
 
+      <!-- Campo Contraseña -->
+      <div class="form-group">
+        <div class="input-container">
+          <i class="fas fa-lock input-icon"></i>
+          <input
+            [type]="hidePassword ? 'password' : 'text'"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            required
+            placeholder="Contraseña"
+          />
+          <!-- Icono del ojo corregido -->
+          <i
+            class="fas toggle-password"
+            [class.fa-eye-slash]="hidePassword"
+            [class.fa-eye]="!hidePassword"
+            (click)="togglePasswordVisibility()"
+            title="Mostrar u ocultar contraseña"
+          ></i>
+        </div>
+      </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Contraseña</mat-label>
-          <mat-icon matPrefix>lock</mat-icon>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-        </mat-form-field>
+      <!-- Botón -->
+      <button type="submit" class="login-button">
+        <i class="fas fa-sign-in-alt"></i> Ingresar
+      </button>
 
-        <button mat-raised-button type="submit" class="login-button">
-          <mat-icon>login</mat-icon>
-          INICIAR SESIÓN
-        </button>
-      </form>
-
-    </div>
+      <!-- Enlace de olvido de contraseña -->
+      <div class="forgot-password">
+        <a href="/dashboard/recuperar-controseña" class="forgot-link">¿Olvidaste tu contraseña? Haz clic aquí</a>
+      </div>
+    </form>
   </div>
 </div>

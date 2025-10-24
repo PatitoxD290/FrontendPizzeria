@@ -1,62 +1,165 @@
-<h2 mat-dialog-title>{{ pedido.pedido_id ? 'Editar Pedido' : 'Nuevo Pedido' }}</h2>
+<h2 mat-dialog-title>
+  {{ pedido.pedido_id ? 'Editar Pedido' : 'Nuevo Pedido' }}
+</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="savePedido()">
 
-    <mat-form-field appearance="fill">
-      <mat-label>Cliente ID</mat-label>
-      <input matInput type="number" [(ngModel)]="pedido.cliente_id" name="cliente_id" required />
-    </mat-form-field>
+    <!-- 📦 CONTENEDOR PRINCIPAL EN HORIZONTAL -->
+    <div class="pedido-container">
 
-    <mat-form-field appearance="fill">
-      <mat-label>Usuario ID</mat-label>
-      <input matInput type="number" [(ngModel)]="pedido.usuario_id" name="usuario_id" />
-    </mat-form-field>
+      <!-- ========================= -->
+      <!-- 🧍‍♂️ COLUMNA 1: CLIENTE -->
+      <!-- ========================= -->
+      <div class="col cliente-col">
+        <h3 class="titulo-seccion">Cliente</h3>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Fecha Pedido</mat-label>
-      <input matInput type="date" [(ngModel)]="pedido.fecha_pedido" name="fecha_pedido" required />
-    </mat-form-field>
+        <mat-checkbox [(ngModel)]="conCliente" name="conCliente">
+          Registrar con datos de cliente
+        </mat-checkbox>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Hora Pedido</mat-label>
-      <input matInput type="time" [(ngModel)]="pedido.hora_pedido" name="hora_pedido" required />
-    </mat-form-field>
+        <div *ngIf="conCliente" class="mt-2">
+          <button mat-flat-button color="accent" type="button" (click)="crearCliente()">
+            Registrar datos
+          </button>
+        </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="pedido.estado_pedido" name="estado_pedido">
-        <mat-option value="PENDIENTE">PENDIENTE</mat-option>
-        <mat-option value="CONFIRMADO">CONFIRMADO</mat-option>
-        <mat-option value="ENTREGADO">ENTREGADO</mat-option>
-        <mat-option value="CANCELADO">CANCELADO</mat-option>
-      </mat-select>
-    </mat-form-field>
+        <mat-form-field appearance="fill" class="w-full mt-3" *ngIf="conCliente">
+          <mat-label>Cliente</mat-label>
+          <mat-select [(ngModel)]="pedido.cliente_id" name="cliente_id" required>
+            <mat-option *ngFor="let cliente of clientes" [value]="cliente.cliente_id">
+              {{ cliente.nombre_completo }} ({{ cliente.dni || 'Sin DNI' }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Subtotal</mat-label>
-      <input matInput type="number" [(ngModel)]="pedido.subtotal" name="subtotal" required />
-    </mat-form-field>
+      <!-- ========================= -->
+      <!-- 📦 COLUMNA 2: AGREGAR DETALLE -->
+      <!-- ========================= -->
+      <div class="col detalle-col">
+        <h3 class="titulo-seccion">Agregar Producto</h3>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Descuento</mat-label>
-      <input matInput type="number" [(ngModel)]="pedido.monto_descuento" name="monto_descuento" />
-    </mat-form-field>
+        <div class="form-detalle">
+          <!-- Producto -->
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Producto</mat-label>
+            <mat-select [(ngModel)]="detalleTemporal.producto_id" name="producto_id" required>
+              <mat-option *ngFor="let producto of productos" [value]="producto.producto_id">
+                {{ producto.nombre_producto }} - S/ {{ producto.precio_venta | number:'1.2-2' }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Total</mat-label>
-      <input matInput type="number" [(ngModel)]="pedido.total" name="total" required />
-    </mat-form-field>
+          <!-- Cantidad -->
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Cantidad</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              [(ngModel)]="detalleTemporal.cantidad"
+              name="cantidad"
+              required
+            />
+          </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Notas</mat-label>
-      <textarea matInput [(ngModel)]="pedido.notas_generales" name="notas_generales"></textarea>
-    </mat-form-field>
+          <!-- Notas -->
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Notas (opcional)</mat-label>
+            <input matInput [(ngModel)]="detalleTemporal.notas_producto" name="notas_producto" />
+          </mat-form-field>
 
+          <button mat-flat-button color="primary" type="button" (click)="agregarDetalle()">
+            Agregar al Pedido
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- 💰 COLUMNA 3: TABLA + RESUMEN -->
+      <!-- ========================= -->
+      <div class="col resumen-col">
+        <h3 class="titulo-seccion">Detalle del Pedido</h3>
+
+        <table class="w-full mat-elevation-z2">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cant.</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of pedido.detalles; let i = index">
+              <td>{{ getNombreProducto(d.producto_id) }}</td>
+              <td>{{ d.cantidad }}</td>
+              <td>S/ {{ d.precio_unitario | number:'1.2-2' }}</td>
+              <td>S/ {{ d.subtotal | number:'1.2-2' }}</td>
+              <td>
+                  <button mat-icon-button color="warn" type="button" (click)="eliminarDetalle(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="pedido.detalles?.length === 0">
+              <td colspan="5" class="text-center text-gray-500">Sin productos agregados</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="totales mt-3">
+          <div class="flex justify-between">
+            <span>Subtotal:</span>
+            <strong>S/ {{ pedido.subtotal || 0 | number:'1.2-2' }}</strong>
+          </div>
+
+          <div class="flex justify-between items-center mt-2">
+            <span>Descuento:</span>
+            <mat-form-field appearance="outline" class="w-[130px]">
+              <input
+                matInput
+                type="number"
+                min="0"
+                [(ngModel)]="pedido.monto_descuento"
+                name="monto_descuento"
+                (ngModelChange)="actualizarTotales()"
+              />
+            </mat-form-field>
+          </div>
+
+          <div class="flex justify-between text-lg font-bold mt-2">
+            <span>Total:</span>
+            <span>S/ {{ pedido.total || 0 | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <mat-form-field appearance="fill" class="w-full mt-4">
+          <mat-label>Notas Generales</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="pedido.notas_generales"
+            name="notas_generales"
+          ></textarea>
+        </mat-form-field>
+      </div>
+
+    </div> <!-- cierre del contenedor principal -->
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="close()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="savePedido()">Guardar</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="form.invalid || !pedido.detalles?.length"
+    type="button"
+    (click)="savePedido()"
+  >
+    Guardar Pedido
+  </button>
 </mat-dialog-actions>
