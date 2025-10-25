@@ -1,0 +1,250 @@
+<div class="pago-container">
+  <!-- VENTANA PRINCIPAL DE PAGO -->
+  <div
+    *ngIf="!pagoConfirmado && !mostrarOpcionesDocumento && !solicitandoDni && !solicitandoRuc && !mostrarMensajeFinal">
+    <h2><img src="assets/imgs/paga.png" alt="Tarjeta" class="icono-btn">Pago del Pedido</h2>
+
+    <div class="resumen-pago">
+      <p>Total a pagar:</p>
+      <h3>S/. {{ total | number: '1.2-2' }}</h3>
+    </div>
+
+    <!-- OPCIONES PRINCIPALES HORIZONTALES -->
+    <div class="opciones-principales" *ngIf="!opcionSeleccionada">
+      <div class="contenedor-botones-horizontal">
+        <button mat-raised-button color="primary" (click)="seleccionarOpcion('billetera')"
+          class="boton-opcion-horizontal">
+          <img src="assets/imgs/billetera.png" alt="Billetera Digital" class="icono-btn">
+          <span>Billetera Digital</span>
+        </button>
+
+        <button mat-raised-button color="accent" (click)="seleccionarOpcion('tarjeta')" class="boton-opcion-horizontal">
+          <img src="assets/imgs/tarjeta.png" alt="Tarjeta" class="icono-btn">
+          <span>Tarjeta Crédito/Débito</span>
+        </button>
+
+        <!-- BOTÓN VOLVER AGREGADO -->
+        <button mat-raised-button color="warn" (click)="volverAlMenu()" class="boton-opcion-horizontal">
+          <img src="assets/imgs/volver.png" alt="Volver" class="icono-btn">
+          <span>Volver al Menú</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN BILLETERA - SOLO EL QR -->
+    <div *ngIf="opcionSeleccionada === 'billetera' && !procesandoPago">
+      <div class="paga-con">
+        <span>Paga con</span>
+        <img src="assets/imgs/yape.png" alt="Yape" class="icono-billetera">
+        <span>o con </span>
+        <img src="assets/imgs/plin.png" alt="Plin" class="icono-billetera">
+      </div>
+
+      <div class="qr-contenedor">
+        <img src="assets/imgs/Qr-yape.jpg" alt="QR Yape" class="qr-img">
+      </div>
+
+      <!-- Botón oculto para simular pago (solo para pruebas) -->
+      <div class="simular-pago">
+        <button mat-flat-button color="primary" (click)="simularPagoConfirmado()" class="boton-simular">
+          <span>Simular Pago Realizado</span>
+        </button>
+      </div>
+
+      <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
+        <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
+      </button>
+    </div>
+
+    <!-- PROCESANDO PAGO -->
+    <div *ngIf="procesandoPago" class="procesando-pago">
+      <div class="cargando">
+        <div class="loader-circular"></div>
+        <h3>Procesando pago...</h3>
+        <p>Por favor espere</p>
+      </div>
+    </div>
+
+    <!-- SECCIÓN TARJETA -->
+    <div *ngIf="opcionSeleccionada === 'tarjeta'">
+      <h3>Ingresa los datos de tu tarjeta</h3>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Número de Tarjeta</mat-label>
+        <input matInput maxlength="16" placeholder="XXXX XXXX XXXX XXXX" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>Fecha de Vencimiento</mat-label>
+        <input matInput placeholder="MM/AA" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>CVV</mat-label>
+        <input matInput maxlength="3" type="password" />
+      </mat-form-field>
+
+      <div class="contenedor-pago">
+        <button mat-flat-button color="primary" (click)="simularPagoTarjeta()" class="boton-pago">
+          <img src="assets/imgs/check.png" alt="Pago" class="icono-btn">
+          <span>Pagar S/. {{ total | number: '1.2-2' }}</span>
+        </button>
+      </div>
+
+      <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
+        <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTADO DEL PAGO (OCULTO - SOLO TRANSICIÓN) -->
+  <div *ngIf="pagoConfirmado && !mostrarOpcionesDocumento && !solicitandoDni && !solicitandoRuc && !mostrarMensajeFinal"
+    class="resultado-pago">
+    <div *ngIf="pagoExitoso" class="pago-exitoso">
+      <img src="assets/imgs/check.png" alt="Éxito" class="icono-exito">
+      <h3>¡Pago Aceptado!</h3>
+      <p>Su pago ha sido procesado exitosamente</p>
+    </div>
+
+    <div *ngIf="!pagoExitoso" class="pago-rechazado">
+      <img src="assets/imgs/error.png" alt="Error" class="icono-error">
+      <h3>¡Pago Rechazado!</h3>
+      <p>Su pago no pudo ser procesado</p>
+      <button mat-flat-button color="warn" (click)="reintentarPago()" class="boton-reintentar">
+        <span>Reintentar Pago</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- OPCIONES BOLETA/FACTURA - VENTANA SEPARADA -->
+  <div *ngIf="mostrarOpcionesDocumento && !solicitandoDni && !solicitandoRuc && !mostrarMensajeFinal"
+    class="ventana-separada">
+    <div class="pago-exitoso">
+      <img src="assets/imgs/check.png" alt="Éxito" class="icono-exito">
+      <h3>¡Pago Confirmado!</h3>
+      <p>¿Desea boleta o factura?</p>
+    </div>
+
+    <div class="contenedor-boleta-factura">
+      <button mat-flat-button class="btn-boleta" (click)="solicitarDni()">
+        <span>BOLETA</span>
+      </button>
+      <button mat-flat-button class="btn-factura" (click)="solicitarRuc()">
+        <span>FACTURA</span>
+      </button>
+      <button mat-flat-button class="btn-no-documento" (click)="finalizarSinDocumento()">
+        <span>NO, GRACIAS</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- VENTANA SEPARADA PARA INGRESAR DNI -->
+  <div *ngIf="solicitandoDni && !mostrarMensajeFinal" class="ventana-separada">
+    <h2>Ingrese su DNI para la boleta</h2>
+
+    <form (ngSubmit)="confirmarBoleta()">
+      <mat-form-field appearance="outline" class="dni-input">
+        <mat-label>DNI</mat-label>
+        <input matInput type="text" [(ngModel)]="dni" name="dni" required maxlength="8"
+          (input)="onDniInputChange($event)">
+      </mat-form-field>
+
+      <!-- Teclado numérico -->
+      <div class="keypad">
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addNumber('1')">1</button>
+          <button mat-stroked-button type="button" (click)="addNumber('2')">2</button>
+          <button mat-stroked-button type="button" (click)="addNumber('3')">3</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addNumber('4')">4</button>
+          <button mat-stroked-button type="button" (click)="addNumber('5')">5</button>
+          <button mat-stroked-button type="button" (click)="addNumber('6')">6</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addNumber('7')">7</button>
+          <button mat-stroked-button type="button" (click)="addNumber('8')">8</button>
+          <button mat-stroked-button type="button" (click)="addNumber('9')">9</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="deleteLast()">⌫</button>
+          <button mat-stroked-button type="button" (click)="addNumber('0')">0</button>
+          <button mat-stroked-button type="button" (click)="clearDni()">C</button>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" type="submit">
+          Confirmar
+        </button>
+        <button mat-raised-button color="warn" type="button" (click)="cancelarDni()">
+          Volver
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- VENTANA SEPARADA PARA INGRESAR RUC -->
+  <div *ngIf="solicitandoRuc && !mostrarMensajeFinal" class="ventana-separada">
+    <h2>Ingrese su RUC para la factura</h2>
+
+    <form (ngSubmit)="confirmarFactura()">
+      <mat-form-field appearance="outline" class="dni-input">
+        <mat-label>RUC</mat-label>
+        <input matInput type="text" [(ngModel)]="ruc" name="ruc" required maxlength="11"
+          (input)="onRucInputChange($event)">
+      </mat-form-field>
+
+      <!-- Teclado numérico -->
+      <div class="keypad">
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addRucNumber('1')">1</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('2')">2</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('3')">3</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addRucNumber('4')">4</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('5')">5</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('6')">6</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="addRucNumber('7')">7</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('8')">8</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('9')">9</button>
+        </div>
+        <div class="key-row">
+          <button mat-stroked-button type="button" (click)="deleteRucLast()">⌫</button>
+          <button mat-stroked-button type="button" (click)="addRucNumber('0')">0</button>
+          <button mat-stroked-button type="button" (click)="clearRuc()">C</button>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" type="submit">
+          Confirmar
+        </button>
+        <button mat-raised-button color="warn" type="button" (click)="cancelarRuc()">
+          Volver
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- VENTANA SEPARADA MENSAJE FINAL -->
+  <div *ngIf="mostrarMensajeFinal" class="ventana-separada">
+    <div class="mensaje-final">
+      <img src="assets/imgs/gracias.png" alt="Gracias" class="icono-gracias">
+      <h3>¡Muchas gracias por su compra!</h3>
+      <p *ngIf="tipoDocumento">{{ tipoDocumento | titlecase }} generada exitosamente</p>
+      <p *ngIf="!tipoDocumento">Vuelva pronto</p>
+      <p class="codigo-pedido">Código de pedido: {{ codigoPedido }}</p>
+    </div>
+
+    <button mat-flat-button color="primary" (click)="volverAlInicio()" class="boton-inicio">
+      <img src="assets/imgs/volver.png" alt="Inicio" class="icono-btn">
+      <span>Volver al Inicio</span>
+    </button>
+  </div>
+</div>

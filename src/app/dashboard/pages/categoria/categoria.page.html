@@ -1,0 +1,11 @@
+<h2>Gestión de Categorías</h2>
+
+<!-- Botón para abrir modal de nueva categoría -->
+<button mat-flat-button color="primary" (click)="openNuevaCategoria(categoriaList)">
+  <mat-icon>add</mat-icon> Nueva Categoría
+</button>
+
+<hr />
+
+<!-- Lista de categorías -->
+<app-categoria-list #categoriaList></app-categoria-list>

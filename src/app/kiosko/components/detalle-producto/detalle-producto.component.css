@@ -1,0 +1,159 @@
+.detalle-container {
+  text-align: center;
+}
+
+/* 📸 Imagen uniforme */
+.detalle-imagen {
+  width: 100%;
+  height: 300px;              /* 👈 Tamaño fijo para todas */
+  object-fit: cover;          /* Mantiene proporción y recorta */
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.precio {
+  font-size: 1.5rem;
+  color: #d32f2f;
+  margin-bottom: 10px;
+}
+
+.cantidad {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.4rem;
+  margin: 15px 0;
+}
+
+.subtotal {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+/* BOTONES */
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.acciones button {
+  flex: 1;                          
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 0;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+}
+
+/* 🟥 Botón "Volver" */
+.acciones button[color="warn"] {
+  background-color: #d32f2f;
+  color: #fff;
+  border: none;
+}
+
+.acciones button[color="warn"]:hover {
+  background-color: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+}
+
+/* 🟩 Botón "Agregar al carrito" */
+.acciones button[color="primary"] {
+  background-color: #2e7d32;
+  color: #fff;
+  border: none;
+}
+
+.acciones button[color="primary"]:hover {
+  background-color: #1b5e20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+}
+
+/* ✨ Animación click */
+.acciones button:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+
+
+.tamanos-container {
+  margin: 20px 0;
+  width: 100%;
+}
+
+.tamanos-pizza {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.boton-tamano {
+  padding: 12px 4px;
+  border: 2px solid #e0e0e0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.boton-tamano:hover {
+  background-color: #e9ecef;
+  border-color: #3f51b5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.boton-seleccionado {
+  background-color: #3f51b5;
+  color: white;
+  border-color: #3f51b5;
+  box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3);
+}
+
+.texto-tamano {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .tamanos-pizza {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .texto-tamano {
+    font-size: 11px;
+  }
+  
+  .boton-tamano {
+    padding: 10px 2px;
+    min-height: 40px;
+  }
+}
+
+/* Para pantallas medianas y grandes */
+@media (min-width: 481px) and (max-width: 768px) {
+  .tamanos-pizza {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

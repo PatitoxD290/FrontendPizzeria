@@ -1,0 +1,14 @@
+table {
+  width: 100%;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+mat-card {
+  padding: 20px;
+  margin: 20px;
+}

@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Lily+Script+One&display=swap');
+
+/* ---------- HEADER (LOGO + TÍTULOS) ---------- */
+.header {
+  text-align: center;
+  padding: 15px;
+  background-color: #be1b1c; /* rojo oscuro para el header */
+  color: white;
+  display: flex;
+  align-items: center;         /* centra verticalmente imagen y texto */
+  justify-content: center;     /* centra todo horizontalmente */
+  gap: 20px;                   /* espacio entre imagen y texto */
+}
+
+.header-img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.textos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 🔽 NUEVO: Bajar solo el texto con transform */
+  transform: translateY(15.5px);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: bold;
+  min-height: 28px;
+  line-height: 28px;
+  /* 🔽 NUEVO: Personalizar fuente */
+  font-family: 'Roboto', 'Arial', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.subtitulo {
+  margin-top: 5px;
+  font-size: 20px;
+  font-weight: 400;
+  min-height: 22px;
+  line-height: 22px;
+  /* 🔽 NUEVO: Personalizar fuente */
+  font-family: 'Lily Script One', cursive;
+  letter-spacing: 0.3px;
+}
+
+.empty {
+  visibility: hidden; /* Oculta el texto si está vacío, pero mantiene el espacio */
+}

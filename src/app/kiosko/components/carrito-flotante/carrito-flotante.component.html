@@ -1,0 +1,70 @@
+<!-- BOTÓN FLOTANTE DEL CARRITO -->
+<button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" *ngIf="!visible && !esPaginaPago()">
+  <mat-icon>shopping_cart</mat-icon>
+  <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
+    {{ cantidadItemsDistintos }}
+  </span>
+</button>
+
+<!-- PANEL LATERAL DEL CARRITO -->
+<div class="panel-carrito" [class.abierto]="visible && !esPaginaPago()">
+  <!-- ENCABEZADO -->
+  <div class="panel-header">
+    <div class="titulo-carrito">
+      <img src="assets/imgs/carrito_compras.png" alt="Carrito" class="img-icono-carrito">
+      <h3>Tu carrito</h3>
+    </div>
+    <button mat-icon-button (click)="volver()" class="btn-cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+
+  <!-- LISTA DE PRODUCTOS -->
+  <div class="lista-productos" *ngIf="carritoService.obtenerProductos().length > 0; else vacio">
+    <div *ngFor="let item of carritoService.obtenerProductos(); let i = index" class="item-carrito">
+      <img [src]="item.imagen" alt="{{ item.nombre }}" />
+
+      <div class="info">
+        <p class="nombre">{{ item.nombre }}</p>
+        <p class="descripcion">{{item.descripcion}}</p>
+        <div class="cantidad-control">
+          <button mat-mini-fab color="warn" (click)="decrementarCantidad(i)">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="cantidad-text">{{ item.cantidad }}</span>
+          <button mat-mini-fab color="primary" (click)="incrementarCantidad(i)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <button mat-icon-button color="warn" class="btn-eliminar" (click)="eliminarProducto(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- CARRITO VACÍO -->
+  <ng-template #vacio>
+    <div class="carrito-vacio">
+      <p>Tu carrito está vacío 🛒</p>
+    </div>
+  </ng-template>
+
+  <!-- SUBTOTAL -->
+  <div class="resumen" *ngIf="carritoService.obtenerProductos().length > 0">
+    <div class="resumen-total">
+      <span>Subtotal:</span>
+      <strong>S/. {{ total.toFixed(2) }}</strong>
+    </div>
+  </div>
+
+  <!-- BOTONES ABAJO -->
+  <div class="acciones-fijas" *ngIf="carritoService.obtenerProductos().length > 0">
+    <button mat-stroked-button color="warn" (click)="volver()">Volver</button>
+    <button mat-flat-button color="primary" (click)="confirmarPedido()">
+      Confirmar Pedido
+    </button>
+  </div>
+</div>

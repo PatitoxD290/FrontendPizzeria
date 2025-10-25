@@ -1,0 +1,22 @@
+mat-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.detalle-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+mat-dialog-content {
+  min-width: 400px;
+}
+
+h3 {
+  margin-top: 15px;
+  font-weight: 600;
+}

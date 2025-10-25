@@ -1,0 +1,554 @@
+/* ============================================= */
+/* VARIABLES CSS - DISEÑO PROFESIONAL */
+/* ============================================= */
+:root {
+  --sidebar-width: 280px;
+  --sidebar-collapsed: 70px;
+  --primary-color: #be1b1c;
+  --primary-dark: #8b0000;
+  --primary-light: #d32f2f;
+  --accent-color: #ff6b00;
+  --accent-hover: #ff8c00;
+  --text-primary: #ffffff;
+  --text-secondary: #f0f0f0;
+  --text-muted: #cccccc;
+  --bg-hover: rgba(255, 255, 255, 0.12);
+  --bg-active: rgba(255, 107, 0, 0.15);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+  --shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================= */
+/* ESTILOS BASE - PROFESIONAL Y LIMPIO */
+/* ============================================= */
+.sidenav-container {
+  height: 100vh;
+  display: flex;
+}
+
+.sidenav {
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  border: none;
+}
+
+.sidenav.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+/* ============================================= */
+/* HEADER - CLARO Y PROFESIONAL */
+/* ============================================= */
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidenav.collapsed .sidebar-header {
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+}
+
+.sidenav.collapsed .sidebar-logo {
+  justify-content: center;
+}
+
+.logo-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: white;
+  padding: 4px;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidenav.collapsed .logo-text {
+  display: none;
+}
+
+.logo-primary {
+  font-weight: 700;
+  font-size: 18px;
+  color: white;
+  line-height: 1;
+}
+
+.logo-subtitle {
+  font-size: 11px;
+  color: var(--accent-color);
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* ============================================= */
+/* BOTÓN COLAPSAR - INTUITIVO */
+/* ============================================= */
+.collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: white;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.sidenav.collapsed .collapse-btn {
+  position: relative;
+  top: auto;
+  right: auto;
+  transform: none;
+  margin-top: 10px;
+  transform: rotate(180deg);
+}
+
+.sidenav.collapsed .collapse-btn:hover {
+  transform: scale(1.05) rotate(180deg);
+}
+
+/* ============================================= */
+/* NAVEGACIÓN - CLARA Y USABLE */
+/* ============================================= */
+.sidebar-nav {
+  flex: 1;
+  padding: 15px 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================= */
+/* ITEMS DE MENÚ - ALTAMENTE USABLES */
+/* ============================================= */
+.menu-item {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  margin: 2px 12px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.menu-item:hover {
+  background: var(--bg-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+  background: var(--bg-active);
+  border-left: 3px solid var(--accent-color);
+}
+
+.menu-item.active .menu-icon {
+  color: var(--accent-color);
+}
+
+.menu-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.sidenav.collapsed .menu-content {
+  justify-content: center;
+  gap: 0;
+}
+
+/* Iconos claros y reconocibles */
+.menu-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.menu-item:hover .menu-icon {
+  color: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+/* Labels legibles */
+.menu-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.sidenav.collapsed .menu-label {
+  display: none;
+}
+
+/* Indicador de submenú */
+.expand-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: var(--transition);
+  color: var(--text-muted);
+}
+
+.sidenav.collapsed .expand-icon {
+  display: none;
+}
+
+.expand-icon.rotated {
+  transform: rotate(180deg);
+  color: var(--accent-color);
+}
+
+/* ============================================= */
+/* SUBMENÚ - JERARQUÍA CLARA */
+/* ============================================= */
+.submenu {
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0 12px 4px;
+  border-radius: 6px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.sidenav.collapsed .submenu {
+  display: none;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px 0 48px !important;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.submenu-item.active {
+  background: rgba(255, 107, 0, 0.1);
+  color: var(--accent-color);
+}
+
+.submenu-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.submenu-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+.submenu-item:hover .submenu-icon,
+.submenu-item.active .submenu-icon {
+  color: var(--accent-color);
+}
+
+.submenu-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.submenu-item:hover .submenu-label,
+.submenu-item.active .submenu-label {
+  color: var(--text-primary);
+}
+
+/* ============================================= */
+/* FOOTER - INFORMACIÓN ESENCIAL */
+/* ============================================= */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidenav.collapsed .sidebar-footer {
+  padding: 12px 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidenav.collapsed .user-info {
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidenav.collapsed .user-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.user-avatar mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidenav.collapsed .user-details {
+  display: none;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+/* ============================================= */
+/* ESTADO COLAPSADO - FUNCIONAL Y CLARO */
+/* ============================================= */
+.sidenav.collapsed .menu-icon {
+  margin: 0 auto;
+  display: flex !important;
+}
+
+.sidenav.collapsed .menu-item {
+  justify-content: center;
+  padding: 0 12px;
+  margin: 2px 8px;
+  width: calc(100% - 16px);
+  min-height: 44px;
+}
+
+.sidenav.collapsed .menu-item.active {
+  background: var(--bg-active);
+  border: 2px solid var(--accent-color);
+}
+
+/* ============================================= */
+/* SCROLLBAR DISCRETA */
+/* ============================================= */
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 2px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* ============================================= */
+/* MEJORAS DE ACCESIBILIDAD */
+/* ============================================= */
+.menu-item:focus-visible,
+.submenu-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Indicador visual para teclado */
+.menu-item:focus:not(:hover) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================= */
+/* ESTADOS DE CARGA Y FEEDBACK */
+/* ============================================= */
+.menu-item.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.menu-item.loading .menu-icon {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================= */
+/* RESPONSIVE - ADAPTABLE */
+/* ============================================= */
+@media (max-width: 768px) {
+  .sidenav:not(.collapsed) {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .sidenav.collapsed {
+    width: 60px;
+  }
+  
+  :root {
+    --sidebar-collapsed: 60px;
+  }
+  
+  .menu-item {
+    min-height: 48px;
+  }
+}
+
+@media (max-height: 600px) {
+  .sidebar-header {
+    padding: 15px 20px;
+  }
+  
+  .sidebar-nav {
+    padding: 10px 0;
+  }
+  
+  .menu-item {
+    min-height: 42px;
+    margin: 1px 12px;
+  }
+}
+
+/* ============================================= */
+/* CONTRASTE Y LEGIBILIDAD MEJORADOS */
+/* ============================================= */
+.menu-item {
+  color: var(--text-primary) !important;
+}
+
+.submenu-item {
+  color: var(--text-secondary) !important;
+}
+
+/* Alto contraste para estados importantes */
+.menu-item.active,
+.submenu-item.active {
+  font-weight: 600;
+}
+
+/* ============================================= */
+/* SEPARACIÓN VISUAL ENTRE SECCIONES */
+/* ============================================= */
+.sidebar-nav {
+  gap: 8px;
+}
+
+/* Línea separadora sutil entre secciones */
+.sidebar-nav::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 16px;
+}
+
+.sidebar-nav::before:first-child {
+  display: none;
+}

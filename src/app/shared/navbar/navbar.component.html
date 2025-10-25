@@ -1,0 +1,97 @@
+<mat-toolbar class="navbar" [class.sidebar-collapsed]="isSidebarCollapsed" *ngIf="mostrarNavbar">
+  
+  <!-- Sección Izquierda -->
+  <div class="navbar-left">
+    <button mat-icon-button class="menu-btn" (click)="toggleSidebar()">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <div class="logo-container" (click)="navigateTo('/dashboard/home')">
+      <div class="logo-icon">
+        <mat-icon class="pizza-icon">local_pizza</mat-icon>
+      </div>
+      <span class="logo-text">Pizzería</span>
+    </div>
+  </div>
+
+  <!-- Sección Central -->
+  <div class="navbar-center">
+    <div class="search-container">
+      <div class="search-bar">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          placeholder="Buscar pedidos, clientes, productos..." 
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+          class="search-input">
+        <button mat-icon-button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="search-suggestions" *ngIf="showSuggestions && searchQuery">
+        <div class="suggestion-item" (click)="searchByType('pedido')">
+          <mat-icon>local_pizza</mat-icon>
+          <span>Buscar pedidos: "{{ searchQuery }}"</span>
+        </div>
+        <div class="suggestion-item" (click)="searchByType('cliente')">
+          <mat-icon>person</mat-icon>
+          <span>Buscar clientes: "{{ searchQuery }}"</span>
+        </div>
+        <div class="suggestion-item" (click)="searchByType('producto')">
+          <mat-icon>inventory_2</mat-icon>
+          <span>Buscar productos: "{{ searchQuery }}"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Derecha -->
+  <div class="navbar-right">
+    <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">
+      <div class="notification-wrapper">
+        <mat-icon>notifications</mat-icon>
+        <span class="notification-badge" *ngIf="notificationsCount > 0">
+          {{ notificationsCount > 9 ? '9+' : notificationsCount }}
+        </span>
+      </div>
+    </button>
+
+    <button mat-icon-button class="action-btn" (click)="toggleDarkMode()" 
+            [matTooltip]="isDarkMode ? 'Modo Claro' : 'Modo Oscuro'">
+      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <button mat-button class="profile-btn" [matMenuTriggerFor]="userMenu">
+      <div class="user-avatar">
+        <mat-icon class="avatar-icon">person</mat-icon>
+      </div>
+      <span class="user-name">{{ nombreUsuario }}</span>
+      <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+    </button>
+  </div>
+
+  <mat-menu #userMenu="matMenu" class="user-menu">
+    <button mat-menu-item (click)="navigateTo('/dashboard/perfil')">
+      <mat-icon>person</mat-icon>
+      <span>Mi Perfil</span>
+    </button>
+    <button mat-menu-item (click)="navigateTo('/dashboard/configuracion')">
+      <mat-icon>settings</mat-icon>
+      <span>Configuración</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="toggleDarkMode()">
+      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()" class="logout-item">
+      <mat-icon>logout</mat-icon>
+      <span>Cerrar sesión</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

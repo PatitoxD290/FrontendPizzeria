@@ -1,0 +1,11 @@
+<h2>Gestión de Pedidos</h2>
+
+<!-- Botón para abrir modal -->
+<button mat-flat-button color="primary" (click)="openNuevoPedido(pedidoList)">
+  <mat-icon>add</mat-icon> Crear Pedido
+</button>
+
+<hr />
+
+<!-- Lista de pedidos -->
+<app-pedido-list #pedidoList></app-pedido-list>

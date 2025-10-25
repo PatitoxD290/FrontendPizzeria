@@ -1,0 +1,13 @@
+.kiosko-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fffaf5;
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  position: relative;
+  padding-bottom: 60px; /* espacio para el footer */
+}

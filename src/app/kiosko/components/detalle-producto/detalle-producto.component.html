@@ -1,0 +1,47 @@
+<div class="detalle-container">
+  <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen">
+
+  <h2>{{ data.nombre }}</h2>
+  <p class="precio">S/. {{ precioActual.toFixed(2) }}</p>
+
+  <!-- Botones de tamaño de pizza -->
+  <div class="tamanos-container">
+    <div class="tamanos-pizza">
+      <button class="boton-tamano {{ tamanoSeleccionado === 'kids' ? 'boton-seleccionado' : '' }}"
+        (click)="seleccionarTamano('kids')">
+        <span class="texto-tamano">KIDS</span>
+      </button>
+      <button class="boton-tamano {{ tamanoSeleccionado === 'personal' ? 'boton-seleccionado' : '' }}"
+        (click)="seleccionarTamano('personal')">
+        <span class="texto-tamano">PERSONAL</span>
+      </button>
+      <button class="boton-tamano {{ tamanoSeleccionado === 'mediana' ? 'boton-seleccionado' : '' }}"
+        (click)="seleccionarTamano('mediana')">
+        <span class="texto-tamano">MEDIANA</span>
+      </button>
+      <button class="boton-tamano {{ tamanoSeleccionado === 'grande' ? 'boton-seleccionado' : '' }}"
+        (click)="seleccionarTamano('grande')">
+        <span class="texto-tamano">GRANDE</span>
+      </button>
+      <button class="boton-tamano {{ tamanoSeleccionado === 'familiar' ? 'boton-seleccionado' : '' }}"
+        (click)="seleccionarTamano('familiar')">
+        <span class="texto-tamano">FAMILIAR</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="cantidad">
+    <button mat-mini-fab color="warn" (click)="decrementarCantidad()">−</button>
+    <span>{{ cantidad }}</span>
+    <button mat-mini-fab color="primary" (click)="incrementarCantidad()">+</button>
+  </div>
+
+  <div class="subtotal">
+    <p><b>Subtotal:</b> S/. {{ (precioActual * cantidad).toFixed(2) }}</p>
+  </div>
+
+  <div class="acciones">
+    <button mat-raised-button color="warn" (click)="cerrar()">Volver</button>
+    <button mat-raised-button color="primary" (click)="agregarCarrito()">Agregar al carrito</button>
+  </div>
+</div>
