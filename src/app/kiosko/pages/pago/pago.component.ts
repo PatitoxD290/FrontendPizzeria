@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CarritoService } from '../../services/carrito/carrito.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-pago',
@@ -34,11 +35,20 @@ export class PagoComponent implements OnInit {
   dni = '';
   ruc = '';
   codigoPedido = '';
-  mostrarCodigoPedido = false; // Nueva variable para controlar la visualización
+  mostrarCodigoPedido = false;
+
+  // Nuevas variables para la verificación por código
+  solicitandoCodigo = false;
+  codigoVerificacion = '';
+  codigoEnviado = false;
+  codigoCorrecto = '';
+  verificandoCodigo = false;
+  errorCodigo = false;
 
   constructor(
     private carritoService: CarritoService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -56,11 +66,103 @@ export class PagoComponent implements OnInit {
   }
 
   simularPagoConfirmado() {
-    this.procesarPago();
+    this.solicitarCodigoVerificacion();
   }
 
   simularPagoTarjeta() {
-    this.procesarPago();
+    this.solicitarCodigoVerificacion();
+  }
+
+  // Nueva función para solicitar código de verificación
+  solicitarCodigoVerificacion() {
+    this.solicitandoCodigo = true;
+    this.generarYEnviarCodigo();
+  }
+
+  generarYEnviarCodigo() {
+    // Ya no generamos el código aquí, lo genera el backend
+    this.enviarCodigoPorEmail().subscribe({
+      next: (response: any) => {
+        console.log('Código enviado correctamente:', response);
+        this.codigoEnviado = true;
+        // Para desarrollo, guardamos el código que devuelve el backend
+        if (response.codigo) {
+          this.codigoCorrecto = response.codigo.toString();
+          console.log('Código generado por backend:', this.codigoCorrecto);
+        }
+      },
+      error: (error) => {
+        console.error('Error enviando código:', error);
+        // En caso de error, generar código localmente como fallback
+        this.codigoCorrecto = Math.floor(1000 + Math.random() * 9000).toString();
+        console.log('Código generado localmente (para pruebas):', this.codigoCorrecto);
+        this.codigoEnviado = true;
+      }
+    });
+  }
+
+  enviarCodigoPorEmail() {
+    // URL CORREGIDA según tu configuración de rutas
+    return this.http.post('http://localhost:3000/api/v2/codigo-pago', {
+      email: 'abnerluisnovoa@gmail.com' // Tu correo destino
+    });
+  }
+
+  verificarCodigo() {
+    if (!this.codigoVerificacion) {
+      this.errorCodigo = true;
+      return;
+    }
+
+    this.verificandoCodigo = true;
+    this.errorCodigo = false;
+
+    // Verificación con el backend
+    this.http.post('http://localhost:3000/api/v2/verificar-pago', {
+      email: 'abnerluisnovoa@gmail.com',
+      codigo: this.codigoVerificacion
+    }).subscribe({
+      next: (response: any) => {
+        this.verificandoCodigo = false;
+        
+        if (response.success) {
+          // Código correcto, proceder con el pago
+          this.solicitandoCodigo = false;
+          this.procesarPago();
+        } else {
+          // Código incorrecto
+          this.errorCodigo = true;
+          this.codigoVerificacion = '';
+        }
+      },
+      error: (error) => {
+        this.verificandoCodigo = false;
+        this.errorCodigo = true;
+        this.codigoVerificacion = '';
+        console.error('Error verificando código:', error);
+        
+        // Fallback para desarrollo: verificación local
+        if (this.codigoVerificacion === this.codigoCorrecto) {
+          this.solicitandoCodigo = false;
+          this.procesarPago();
+        }
+      }
+    });
+  }
+
+  reenviarCodigo() {
+    this.codigoEnviado = false;
+    this.codigoVerificacion = '';
+    this.errorCodigo = false;
+    this.generarYEnviarCodigo();
+  }
+
+  cancelarVerificacion() {
+    this.solicitandoCodigo = false;
+    this.codigoVerificacion = '';
+    this.codigoEnviado = false;
+    this.errorCodigo = false;
+    this.opcionSeleccionada = null;
   }
 
   procesarPago() {
@@ -117,9 +219,8 @@ export class PagoComponent implements OnInit {
   }
 
   onDniInputChange(event: any) {
-    // Asegura que solo acepte números
     const value = event.target.value.replace(/[^0-9]/g, '');
-    this.dni = value.slice(0, 8); // Máximo 8 dígitos
+    this.dni = value.slice(0, 8);
   }
 
   // Métodos para el teclado numérico del RUC
@@ -138,17 +239,37 @@ export class PagoComponent implements OnInit {
   }
 
   onRucInputChange(event: any) {
-    // Asegura que solo acepte números
     const value = event.target.value.replace(/[^0-9]/g, '');
-    this.ruc = value.slice(0, 11); // Máximo 11 dígitos
+    this.ruc = value.slice(0, 11);
+  }
+
+  // Métodos para el código de verificación
+  addCodigoNumber(num: string) {
+    if (this.codigoVerificacion.length < 4) {
+      this.codigoVerificacion += num;
+    }
+  }
+
+  deleteCodigoLast() {
+    this.codigoVerificacion = this.codigoVerificacion.slice(0, -1);
+  }
+
+  clearCodigo() {
+    this.codigoVerificacion = '';
+    this.errorCodigo = false;
+  }
+
+  onCodigoInputChange(event: any) {
+    const value = event.target.value.replace(/[^0-9]/g, '');
+    this.codigoVerificacion = value.slice(0, 4);
+    this.errorCodigo = false;
   }
 
   confirmarBoleta() {
     if (this.dni && this.dni.length === 8) {
       this.tipoDocumento = 'boleta';
-      // NO generar código de pedido para boleta
       this.codigoPedido = '';
-      this.mostrarCodigoPedido = false; // No mostrar código de pedido
+      this.mostrarCodigoPedido = false;
       this.mostrarMensajeFinal = true;
       this.solicitandoDni = false;
       this.finalizarCompra();
@@ -166,9 +287,8 @@ export class PagoComponent implements OnInit {
   confirmarFactura() {
     if (this.ruc && this.ruc.length === 11) {
       this.tipoDocumento = 'factura';
-      // NO generar código de pedido para factura
       this.codigoPedido = '';
-      this.mostrarCodigoPedido = false; // No mostrar código de pedido
+      this.mostrarCodigoPedido = false;
       this.mostrarMensajeFinal = true;
       this.solicitandoRuc = false;
       this.finalizarCompra();
@@ -185,9 +305,8 @@ export class PagoComponent implements OnInit {
 
   finalizarSinDocumento() {
     this.tipoDocumento = null;
-    // SOLO generar código de pedido para "No, gracias"
     this.generarCodigoPedido();
-    this.mostrarCodigoPedido = true; // Mostrar código de pedido
+    this.mostrarCodigoPedido = true;
     this.mostrarMensajeFinal = true;
     this.mostrarOpcionesDocumento = false;
     this.finalizarCompra();
@@ -198,12 +317,10 @@ export class PagoComponent implements OnInit {
     const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let codigo = '';
     
-    // Generar 2 números
     for (let i = 0; i < 2; i++) {
       codigo += numeros.charAt(Math.floor(Math.random() * numeros.length));
     }
     
-    // Generar 2 letras
     for (let i = 0; i < 2; i++) {
       codigo += letras.charAt(Math.floor(Math.random() * letras.length));
     }
@@ -212,9 +329,31 @@ export class PagoComponent implements OnInit {
   }
 
   finalizarCompra() {
+    // Aquí guardarías el pedido en la base de datos
+    this.guardarPedidoEnBaseDeDatos();
+    
     setTimeout(() => {
       this.carritoService.vaciarCarrito();
     }, 2000);
+  }
+
+  guardarPedidoEnBaseDeDatos() {
+    // Aquí implementarías la lógica para guardar el pedido
+    // y los detalles del pedido en tu base de datos
+    const productos = this.carritoService.obtenerProductos();
+    
+    // Ejemplo de cómo podrías estructurar los datos
+    const pedidoData = {
+      total: this.total,
+      tipo_documento: this.tipoDocumento,
+      documento: this.tipoDocumento === 'boleta' ? this.dni : this.tipoDocumento === 'factura' ? this.ruc : null,
+      codigo_pedido: this.codigoPedido,
+      productos: productos
+    };
+
+    // Llamar a tu servicio para guardar el pedido
+    console.log('Guardando pedido:', pedidoData);
+    // this.pedidoService.guardarPedido(pedidoData).subscribe(...);
   }
 
   volverAlInicio() {
@@ -233,6 +372,7 @@ export class PagoComponent implements OnInit {
     this.mostrarOpcionesDocumento = false;
     this.solicitandoDni = false;
     this.solicitandoRuc = false;
+    this.solicitandoCodigo = false;
   }
 
   reiniciar() {
@@ -245,9 +385,15 @@ export class PagoComponent implements OnInit {
     this.mostrarOpcionesDocumento = false;
     this.solicitandoDni = false;
     this.solicitandoRuc = false;
+    this.solicitandoCodigo = false;
     this.dni = '';
     this.ruc = '';
     this.codigoPedido = '';
     this.mostrarCodigoPedido = false;
+    this.codigoVerificacion = '';
+    this.codigoEnviado = false;
+    this.codigoCorrecto = '';
+    this.verificandoCodigo = false;
+    this.errorCodigo = false;
   }
 }

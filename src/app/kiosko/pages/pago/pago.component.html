@@ -1,7 +1,7 @@
 <div class="pago-container">
   <!-- VENTANA PRINCIPAL DE PAGO -->
   <div
-    *ngIf="!pagoConfirmado && !mostrarOpcionesDocumento && !solicitandoDni && !solicitandoRuc && !mostrarMensajeFinal">
+    *ngIf="!pagoConfirmado && !mostrarOpcionesDocumento && !solicitandoDni && !solicitandoRuc && !mostrarMensajeFinal && !solicitandoCodigo">
     <h2><img src="assets/imgs/paga.png" alt="Tarjeta" class="icono-btn">Pago del Pedido</h2>
 
     <div class="resumen-pago">
@@ -94,6 +94,77 @@
       <button mat-flat-button color="warn" (click)="regresar()" class="boton-volver">
         <img src="assets/imgs/volver.png" alt="Volver" class="icono-volver"><span>Volver</span>
       </button>
+    </div>
+  </div>
+
+  <!-- VENTANA DE VERIFICACIÓN POR CÓDIGO -->
+  <div *ngIf="solicitandoCodigo && !procesandoPago && !pagoConfirmado" class="ventana-separada">
+    <div class="verificacion-codigo">
+      <img src="assets/imgs/verificacion.png" alt="Verificación" class="icono-verificacion">
+      <h3>Verificación de Pago</h3>
+      
+      <div *ngIf="!codigoEnviado" class="enviando-codigo">
+        <div class="loader-circular"></div>
+        <p>Enviando código de verificación a su email...</p>
+      </div>
+
+      <div *ngIf="codigoEnviado" class="codigo-enviado">
+        <p>Hemos enviado un código de 4 dígitos a su email</p>
+        <p class="instruccion">Ingrese el código recibido:</p>
+
+        <mat-form-field appearance="outline" class="codigo-input">
+          <mat-label>Código de Verificación</mat-label>
+          <input matInput type="text" [(ngModel)]="codigoVerificacion" name="codigoVerificacion" 
+                 required maxlength="4" (input)="onCodigoInputChange($event)"
+                 [class.error]="errorCodigo" placeholder="0000">
+        </mat-form-field>
+
+        <div *ngIf="errorCodigo" class="mensaje-error">
+          <img src="assets/imgs/error.png" alt="Error" class="icono-error-small">
+          <span>Código incorrecto. Por favor intente nuevamente.</span>
+        </div>
+
+        <!-- Teclado numérico para código -->
+        <div class="keypad keypad-codigo">
+          <div class="key-row">
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('1')">1</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('2')">2</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('3')">3</button>
+          </div>
+          <div class="key-row">
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('4')">4</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('5')">5</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('6')">6</button>
+          </div>
+          <div class="key-row">
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('7')">7</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('8')">8</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('9')">9</button>
+          </div>
+          <div class="key-row">
+            <button mat-stroked-button type="button" (click)="deleteCodigoLast()">⌫</button>
+            <button mat-stroked-button type="button" (click)="addCodigoNumber('0')">0</button>
+            <button mat-stroked-button type="button" (click)="clearCodigo()">C</button>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="verificarCodigo()" 
+                  [disabled]="codigoVerificacion.length !== 4 || verificandoCodigo" class="boton-verificar">
+            <span *ngIf="!verificandoCodigo">Verificar Código</span>
+            <span *ngIf="verificandoCodigo">Verificando...</span>
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="reenviarCodigo()" 
+                  [disabled]="verificandoCodigo" class="boton-renviar">
+            Reenviar Código
+          </button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelarVerificacion()" 
+                  [disabled]="verificandoCodigo" class="boton-cancelar">
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

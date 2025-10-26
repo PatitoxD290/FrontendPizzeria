@@ -69,7 +69,26 @@ export class MenuComponent implements OnInit {
     this.productoService.getProductos().subscribe({
       next: (data: any) => {
         const rawArray = Array.isArray(data) ? data : data ? [data] : [];
-        this.productos = rawArray.map((item: any) => ({
+        
+        // Filtrar solo productos que estén ACTIVOS
+        const productosActivos = rawArray.filter((item: any) => {
+          // Verificar si el producto está activo - INCLUYENDO "A" para tu base de datos
+          const estaActivo = 
+            item.estado === 'Activo' ||
+            item.estado === 'A' ||  // ← AGREGADO: Para tu BD que usa 'A'
+            item.activo === true ||
+            item.activo === 1 ||
+            item.status === 'active' ||
+            item.estado_producto === 'Activo' ||
+            item.disponible === true ||
+            item.disponible === 1 ||
+            // Si no existe campo de estado, cargar por defecto (compatibilidad)
+            (item.estado === undefined && item.activo === undefined && item.status === undefined);
+          
+          return estaActivo;
+        });
+
+        this.productos = productosActivos.map((item: any) => ({
           id: item.producto_id ?? item.id ?? 0,
           nombre: item.nombre_producto ?? item.nombre ?? 'Sin nombre',
           descripcion: item.descripcion_producto ?? item.descripcion ?? '',
