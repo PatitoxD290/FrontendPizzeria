@@ -6,7 +6,7 @@ export interface Pedido {
   id_cliente: number;
   id_usuario: number;
   notas?: string;
-  sub_total?: number;
+  sub_total: number;
   estado_p: 'P' | 'C' | 'E' | 'D';
   fecha_registro: string;
   hora_pedido?: string;
@@ -20,6 +20,9 @@ export interface PedidoDetalle {
   id_pedido: number;
   id_producto: number;
   id_tamano: number;
-  cantidad?: number;
-  precio_total?: number;
+  cantidad: number;
+  precio_total: number;
+  // 👇 Campos extra (solo para mostrar en frontend)
+  nombre_producto?: string;
+  nombre_categoria?: string;
 }

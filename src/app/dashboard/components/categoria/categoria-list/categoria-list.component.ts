@@ -1,10 +1,8 @@
 // src/app/dashboard/components/categoria/categoria-list/categoria-list.component.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Categoria_P } from '../../../../core/models/categoria.model';
 import { CategoriaService } from '../../../../core/services/auth/categoria.service';
-
-// Angular Material
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CategoriaFormComponent } from '../categoria-form/categoria-form.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-categoria-list',
@@ -32,17 +31,16 @@ import { CategoriaFormComponent } from '../categoria-form/categoria-form.compone
   styleUrls: ['./categoria-list.component.css']
 })
 export class CategoriaListComponent implements OnInit {
+  @Output() categoriaSeleccionada = new EventEmitter<number>();
 
   displayedColumns: string[] = ['categoria_id', 'nombre_categoria', 'descripcion_categoria', 'acciones'];
   categorias: Categoria_P[] = [];
   loading = false;
+  categoriaActiva: number | null = 0; // 0 = todos seleccionado
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(
-    private categoriaService: CategoriaService,
-    private dialog: MatDialog
-  ) {}
+  constructor(private categoriaService: CategoriaService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadCategorias();
@@ -54,11 +52,6 @@ export class CategoriaListComponent implements OnInit {
       next: data => {
         this.categorias = data;
         this.loading = false;
-        setTimeout(() => {
-          if (this.paginator) {
-            this.paginator.length = this.categorias.length;
-          }
-        });
       },
       error: err => {
         console.error('Error al cargar categorías', err);
@@ -67,11 +60,37 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
+  seleccionarCategoria(categoria: Categoria_P | null) {
+    const id = categoria ? categoria.categoria_id! : 0;
+
+    // si ya estaba seleccionada, la deselecciona
+    if (this.categoriaActiva === id) {
+      this.categoriaActiva = 0;
+      this.categoriaSeleccionada.emit(0);
+    } else {
+      this.categoriaActiva = id;
+      this.categoriaSeleccionada.emit(id);
+    }
+  }
+
   deleteCategoria(id: number) {
-    if (!confirm('¿Eliminar esta categoría?')) return;
-    this.categoriaService.deleteCategoria(id).subscribe({
-      next: () => this.loadCategorias(),
-      error: err => console.error('Error al eliminar categoría', err)
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esto',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.categoriaService.deleteCategoria(id).subscribe({
+          next: () => {
+            Swal.fire('¡Eliminada!', 'La categoría ha sido eliminada.', 'success');
+            this.loadCategorias();
+          },
+          error: () => Swal.fire('Error', 'No se pudo eliminar la categoría', 'error')
+        });
+      }
     });
   }
 

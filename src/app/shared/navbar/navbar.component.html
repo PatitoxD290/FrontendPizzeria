@@ -1,23 +1,21 @@
 <mat-toolbar class="navbar" [class.sidebar-collapsed]="isSidebarCollapsed" *ngIf="mostrarNavbar">
   
-  <!-- Sección Izquierda -->
+  <!-- Sección Izquierda - CON LOGO MEJORADO -->
   <div class="navbar-left">
     <button mat-icon-button class="menu-btn" (click)="toggleSidebar()">
       <mat-icon>menu</mat-icon>
     </button>
 
     <div class="logo-container" (click)="navigateTo('/dashboard/home')">
-      <div class="logo-icon">
-        <mat-icon class="pizza-icon">local_pizza</mat-icon>
-      </div>
-      <span class="logo-text">Pizzería</span>
+      <img src="/assets/imgs/logo-dash.png" alt="Logo Pizzería" class="logo-img">
     </div>
+
   </div>
 
-  <!-- Sección Central -->
+  <!-- Sección Central - MEJORADA -->
   <div class="navbar-center">
     <div class="search-container">
-      <div class="search-bar">
+      <div class="search-bar" [class.search-active]="showSuggestions">
         <mat-icon class="search-icon">search</mat-icon>
         <input 
           type="text" 
@@ -32,24 +30,43 @@
         </button>
       </div>
       
+      <!-- Sugerencias MEJORADAS -->
       <div class="search-suggestions" *ngIf="showSuggestions && searchQuery">
+        <div class="suggestion-header">
+          <span>Búsquedas sugeridas</span>
+        </div>
         <div class="suggestion-item" (click)="searchByType('pedido')">
-          <mat-icon>local_pizza</mat-icon>
-          <span>Buscar pedidos: "{{ searchQuery }}"</span>
+          <div class="suggestion-icon">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <div class="suggestion-content">
+            <span class="suggestion-title">Buscar pedidos</span>
+            <span class="suggestion-query">"{{ searchQuery }}"</span>
+          </div>
         </div>
         <div class="suggestion-item" (click)="searchByType('cliente')">
-          <mat-icon>person</mat-icon>
-          <span>Buscar clientes: "{{ searchQuery }}"</span>
+          <div class="suggestion-icon">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="suggestion-content">
+            <span class="suggestion-title">Buscar clientes</span>
+            <span class="suggestion-query">"{{ searchQuery }}"</span>
+          </div>
         </div>
         <div class="suggestion-item" (click)="searchByType('producto')">
-          <mat-icon>inventory_2</mat-icon>
-          <span>Buscar productos: "{{ searchQuery }}"</span>
+          <div class="suggestion-icon">
+            <mat-icon>inventory_2</mat-icon>
+          </div>
+          <div class="suggestion-content">
+            <span class="suggestion-title">Buscar productos</span>
+            <span class="suggestion-query">"{{ searchQuery }}"</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Sección Derecha -->
+  <!-- Sección Derecha - MEJORADA -->
   <div class="navbar-right">
     <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">
       <div class="notification-wrapper">
@@ -75,6 +92,9 @@
   </div>
 
   <mat-menu #userMenu="matMenu" class="user-menu">
+    
+      
+    <mat-divider></mat-divider>
     <button mat-menu-item (click)="navigateTo('/dashboard/perfil')">
       <mat-icon>person</mat-icon>
       <span>Mi Perfil</span>
@@ -84,14 +104,8 @@
       <span>Configuración</span>
     </button>
     <mat-divider></mat-divider>
-    <button mat-menu-item (click)="toggleDarkMode()">
-      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-      <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Oscuro' }}</span>
-    </button>
-    <mat-divider></mat-divider>
     <button mat-menu-item (click)="logout()" class="logout-item">
       <mat-icon>logout</mat-icon>
       <span>Cerrar sesión</span>
     </button>
-  </mat-menu>
-</mat-toolbar>
+  

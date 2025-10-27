@@ -1,0 +1,21 @@
+<h2 mat-dialog-title class="dialog-title">
+  Detalles del Pedido #{{ data.pedido_id }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div *ngIf="loading" class="spinner-container">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading" class="detalle-texto">
+    <mat-card>
+      <mat-card-content>
+        <p>{{ detalleTexto }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">Cerrar</button>
+</mat-dialog-actions>

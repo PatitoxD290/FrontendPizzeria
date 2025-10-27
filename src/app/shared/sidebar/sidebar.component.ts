@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgIf } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -27,7 +26,6 @@ export interface MenuItem {
   standalone: true,
   imports: [
     CommonModule,
-    NgIf,
     RouterModule,
     MatSidenavModule,
     MatListModule,
@@ -47,34 +45,37 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private routerSubscription!: Subscription;
   currentRoute = '';
 
-  // Rutas del sidebar organizadas por categorías - SIN NÚMEROS
+  // Rutas del sidebar organizadas por categorías
   menuSections: { label?: string; items: MenuItem[] }[] = [
     {
       items: [
         { 
           label: 'Inicio', 
           route: '/dashboard/home', 
-          icon: 'home' // Cambiado a casa
+          icon: 'home'
         }
       ]
     },
     {
-      label: 'Ventas',
       items: [
+      { 
+        label: 'Pedidos', 
+        icon: 'local_pizza',
+        children: [
+          { label: 'Realizar Pedido', route: '/dashboard/realizarpedido', icon: 'add_shopping_cart' },
+          { label: 'Registro de Pedidos', route: '/dashboard/registropedidos', icon: 'receipt_long' }
+        ],
+        isExpanded: false
+      },
         { 
-          label: 'Clientes', 
-          route: '/dashboard/cliente', 
-          icon: 'groups'
-        },
-        { 
-          label: 'Pedidos', 
-          route: '/dashboard/pedido', 
-          icon: 'local_pizza'
-        },
-        { 
-          label: 'Ventas', 
+          label: 'Registro de Ventas', 
           route: '/dashboard/venta', 
           icon: 'point_of_sale'
+        },
+        { 
+          label: 'Historial de Clientes', 
+          route: '/dashboard/cliente', 
+          icon: 'groups'
         }
       ]
     },
@@ -82,11 +83,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       label: 'Inventario',
       items: [
         { 
-          label: 'Gestión de Productos', 
+          label: 'Configuración del Menú', 
           icon: 'inventory_2', 
           children: [
-            { label: 'Productos', route: '/dashboard/producto', icon: 'fastfood' },
-            { label: 'Categorías', route: '/dashboard/categoria', icon: 'category' },
+            { label: 'Productos y Categorias', route: '/dashboard/producto', icon: 'fastfood' },
             { label: 'Recetas', route: '/dashboard/receta', icon: 'restaurant_menu' },
           ],
           isExpanded: false
@@ -104,7 +104,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      label: 'Reportes',
+      label: '',
       items: [
         { 
           label: 'Analíticas', 
@@ -113,13 +113,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
         }
       ]
     },
-    {
-      label: 'Administración',
-      items: [
-        { label: 'Usuarios', route: '/dashboard/usuario', icon: 'people' },
-        { label: 'Configuración', route: '/dashboard/configuracion', icon: 'settings' }
-      ]
-    }
   ];
 
   constructor(
@@ -145,6 +138,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private setupRouteTracking(): void {
+    this.currentRoute = this.router.url;
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -157,7 +151,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.menuSections.forEach(section => {
       section.items.forEach(item => {
         if (item.children) {
-          // Expandir si alguna ruta hija está activa
           const hasActiveChild = item.children.some(child => 
             child.route && this.isRouteActive(child.route)
           );
@@ -184,8 +177,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Método para simular notificaciones (puedes conectar con tu servicio real)
   getBadgeCount(item: MenuItem): number {
     return item.badge || 0;
+  }
+
+  onMenuItemClick(item: MenuItem, event?: Event): void {
+    if (item.children) {
+      this.toggleSubMenu(item);
+    } else if (item.route) {
+      this.navigateTo(item.route, event);
+    }
   }
 }

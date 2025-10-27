@@ -1,9 +1,27 @@
 <h2>Gestión de Productos</h2>
 
+<!-- Botón para nuevo producto -->
 <button mat-flat-button color="primary" (click)="openNuevoProducto(productoList)">
   <mat-icon>add</mat-icon> Nuevo Producto
 </button>
 
 <hr />
 
-<app-producto-list #productoList></app-producto-list>
+<div class="producto-categoria-container">
+  <div class="producto-list">
+    <app-producto-list #productoList></app-producto-list>
+  </div>
+
+  <div class="categoria-list">
+    <div class="categoria-header">
+      <h3>Categorías</h3>
+      <button mat-flat-button color="accent" (click)="openNuevaCategoria()">
+        <mat-icon>add</mat-icon> Nueva Categoría
+      </button>
+    </div>
+
+    <!-- Capturamos el evento al hacer clic -->
+    <app-categoria-list (categoriaSeleccionada)="onCategoriaSeleccionada($event)"></app-categoria-list>
+  </div>
+</div>
+

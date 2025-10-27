@@ -1,0 +1,12 @@
+<div class="menu-grid">
+  <mat-card *ngFor="let p of productos" class="producto-card" (click)="agregarAlCarrito(p)">
+    <mat-card-header>
+      <mat-card-title>{{ p.nombre_producto }}</mat-card-title>
+      <mat-card-subtitle>{{ p.nombre_categoria }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ p.descripcion_producto }}</p>
+      <h3>S/ {{ p.precio_venta | number:'1.2-2' }}</h3>
+    </mat-card-content>
+  </mat-card>
+</div>

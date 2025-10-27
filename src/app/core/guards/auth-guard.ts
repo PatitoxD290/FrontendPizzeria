@@ -9,24 +9,29 @@ export const authGuard: CanActivateFn = () => {
   const token = auth.getToken();
 
   if (!token) {
-    router.navigate(['/dashboard/login']);
-    return false;
+    return redirectToLogin(router, auth);
   }
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    const expired = Date.now() >= payload.exp * 1000;
+    const isExpired = Date.now() >= payload.exp * 1000;
 
-    if (expired) {
+    if (isExpired) {
       auth.logout();
-      router.navigate(['/dashboard/login']);
-      return false;
+      return redirectToLogin(router, auth);
     }
   } catch {
     auth.logout();
-    router.navigate(['/dashboard/login']);
-    return false;
+    return redirectToLogin(router, auth);
   }
 
   return true;
 };
+
+// 🔁 Función auxiliar
+function redirectToLogin(router: Router, auth: AuthService) {
+  // Limpia datos y redirige
+  auth.logout();
+  router.navigate(['/dashboard/login']);
+  return false;
+}

@@ -1,21 +1,40 @@
-<h2 mat-dialog-title>{{ cliente.cliente_id ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+<h2 mat-dialog-title>{{ cliente.id_cliente ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveCliente()">
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre Completo</mat-label>
-      <input matInput type="text" [(ngModel)]="cliente.nombre_completo" name="nombre_completo" required />
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="cliente.nombre"
+        name="nombre_completo"
+        required
+      />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
-      <mat-label>DNI</mat-label>
-      <input matInput type="text" [(ngModel)]="cliente.dni" name="dni" required maxlength="8" minlength="8" />
+      <mat-label>DNI (opcional, 8 dígitos)</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="cliente.dni"
+        name="dni"
+        maxlength="8"
+        minlength="8"
+      />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
-      <mat-label>Teléfono</mat-label>
-      <input matInput type="text" [(ngModel)]="cliente.telefono" name="telefono" maxlength="20" />
+      <mat-label>Teléfono (opcional)</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="cliente.telefono"
+        name="telefono"
+        maxlength="20"
+      />
     </mat-form-field>
 
   </form>
