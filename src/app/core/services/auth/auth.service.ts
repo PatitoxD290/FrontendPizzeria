@@ -34,23 +34,21 @@ export class AuthService {
   }
 
   // 🔹 LOGIN
-  login(dni: string, password: string) {
-    return this.http.post<{ token: string, user: any }>(
-      `${this.apiUrl}/login`,
-      { dni, password }
-    ).pipe(
-      tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-        localStorage.setItem('login', Date.now().toString()); // 🔔 Notifica login entre pestañas
+  login(Correo: string, Password: string) {
+  return this.http.post<{ token: string, user: any }>(
+    `${this.apiUrl}/login`,
+    { Correo, Password }
+  ).pipe(
+    tap(res => {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      this.token.set(res.token);
+      this.user.set(res.user);
+      this.router.navigate(['/dashboard/home']);
+    })
+  );
+}
 
-        this.token.set(res.token);
-        this.user.set(res.user);
-
-        this.router.navigate(['/dashboard/home']);
-      })
-    );
-  }
 
   // 🔹 LOGOUT
   logout() {

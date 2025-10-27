@@ -1,18 +1,17 @@
 <mat-toolbar class="navbar" [class.sidebar-collapsed]="isSidebarCollapsed" *ngIf="mostrarNavbar">
   
-  <!-- Sección Izquierda - CON LOGO MEJORADO -->
   <div class="navbar-left">
     <button mat-icon-button class="menu-btn" (click)="toggleSidebar()">
       <mat-icon>menu</mat-icon>
     </button>
 
     <div class="logo-container" (click)="navigateTo('/dashboard/home')">
-      <img src="/assets/imgs/logo-dash.png" alt="Logo Pizzería" class="logo-img">
+      <div class="logo-icon">
+        <img src="/assets/imgs/logoadministrativo.png" alt="Logo Pizzería" class="logo-img">
+      </div>
     </div>
-
   </div>
 
-  <!-- Sección Central - MEJORADA -->
   <div class="navbar-center">
     <div class="search-container">
       <div class="search-bar" [class.search-active]="showSuggestions">
@@ -30,7 +29,6 @@
         </button>
       </div>
       
-      <!-- Sugerencias MEJORADAS -->
       <div class="search-suggestions" *ngIf="showSuggestions && searchQuery">
         <div class="suggestion-header">
           <span>Búsquedas sugeridas</span>
@@ -66,7 +64,6 @@
     </div>
   </div>
 
-  <!-- Sección Derecha - MEJORADA -->
   <div class="navbar-right">
     <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">
       <div class="notification-wrapper">
@@ -82,18 +79,17 @@
       <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
 
-    <button mat-button class="profile-btn" [matMenuTriggerFor]="userMenu">
+    <button mat-button class="profile-btn admin-profile-btn" [matMenuTriggerFor]="userMenu">
       <div class="user-avatar">
         <mat-icon class="avatar-icon">person</mat-icon>
       </div>
-      <span class="user-name">{{ nombreUsuario }}</span>
-      <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      <mat-icon class="dropdown-icon">expand_more</mat-icon>
     </button>
-  </div>
+    </div>
 
   <mat-menu #userMenu="matMenu" class="user-menu">
     
-      
+    
     <mat-divider></mat-divider>
     <button mat-menu-item (click)="navigateTo('/dashboard/perfil')">
       <mat-icon>person</mat-icon>
@@ -108,4 +104,5 @@
       <mat-icon>logout</mat-icon>
       <span>Cerrar sesión</span>
     </button>
-  
+  </mat-menu>
+</mat-toolbar>

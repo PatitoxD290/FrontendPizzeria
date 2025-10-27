@@ -1,18 +1,17 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth/auth.service';
 
-// Angular Material - AGREGAR MatDividerModule
+// Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider'; // ← AÑADIR ESTA LÍNEA
+import { MatDividerModule } from '@angular/material/divider'; 
 
 @Component({
   selector: 'app-navbar',
@@ -27,7 +26,7 @@ import { MatDividerModule } from '@angular/material/divider'; // ← AÑADIR EST
     MatMenuModule,
     MatInputModule,
     MatTooltipModule,
-    MatDividerModule // ← AÑADIR ESTA LÍNEA
+    MatDividerModule 
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
@@ -36,7 +35,8 @@ export class NavbarComponent {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
   @Input() isSidebarCollapsed = false;
 
-  nombreUsuario: string = '';
+  // Establecido a 'ADMIN' o el rol, ya que el HTML usa el texto fijo 'ADMIN'
+  nombreUsuario: string = 'ADMIN'; 
   searchQuery: string = '';
   isDarkMode = false;
   notificationsCount = 3;
@@ -44,8 +44,11 @@ export class NavbarComponent {
   showSuggestions = false;
 
   constructor(private router: Router, private authService: AuthService) {
-    const user = this.authService.getUser();
-    this.nombreUsuario = user?.nombre ?? 'Usuario';
+    // Si quieres que el menú desplegable muestre el nombre real, descomenta estas líneas.
+    // Si no, puedes mantener 'ADMIN' fijo.
+    // const user = this.authService.getUser();
+    // this.nombreUsuario = user?.nombre ?? 'ADMIN'; 
+    
     this.isDarkMode = localStorage.getItem('darkMode') === 'true';
     this.updateBodyClass();
 
