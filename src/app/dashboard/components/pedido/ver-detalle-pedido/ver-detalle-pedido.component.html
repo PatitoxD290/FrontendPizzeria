@@ -3,14 +3,52 @@
 </h2>
 
 <mat-dialog-content class="dialog-content">
+  <!-- 🌀 Loading Spinner -->
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
-  <div *ngIf="!loading" class="detalle-texto">
+  <!-- ⚠️ Error -->
+  <div *ngIf="!loading && error" class="error-text">
     <mat-card>
       <mat-card-content>
-        <p>{{ detalleTexto }}</p>
+        <p>{{ error }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- 📋 Tabla de detalles -->
+  <div *ngIf="!loading && !error">
+    <mat-card>
+      <mat-card-content>
+        <table class="detalle-table" *ngIf="detalles.length > 0; else sinDatos">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Cantidad</th>
+              <th>Precio Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of detalles">
+              <td>{{ d.nombre_producto }}</td>
+              <td>{{ d.nombre_categoria }}</td>
+              <td>{{ d.cantidad }}</td>
+              <td>S/ {{ d.precio_total | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Total:</strong></td>
+              <td><strong>S/ {{ getTotal() | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <ng-template #sinDatos>
+          <p class="text-gray-500 text-center">No hay detalles disponibles para este pedido.</p>
+        </ng-template>
       </mat-card-content>
     </mat-card>
   </div>

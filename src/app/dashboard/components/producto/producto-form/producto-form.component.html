@@ -1,28 +1,28 @@
 <h2 mat-dialog-title>
-  {{ producto.producto_id ? 'Editar Producto' : 'Nuevo Producto' }}
+  {{ producto.id_producto ? 'Editar Producto' : 'Nuevo Producto' }}
 </h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveProducto()">
 
-    <!-- Nombre del producto -->
+    <!-- Nombre -->
     <mat-form-field appearance="fill">
       <mat-label>Nombre del Producto</mat-label>
-      <input matInput type="text" [(ngModel)]="producto.nombre_producto" name="nombre_producto" required />
+      <input matInput type="text" [(ngModel)]="producto.nombre" name="nombre" required />
     </mat-form-field>
 
     <!-- Descripción -->
     <mat-form-field appearance="fill">
       <mat-label>Descripción</mat-label>
-      <textarea matInput rows="3" [(ngModel)]="producto.descripcion_producto" name="descripcion_producto"></textarea>
+      <textarea matInput rows="3" [(ngModel)]="producto.descripcion" name="descripcion"></textarea>
     </mat-form-field>
 
     <!-- Categoría -->
     <mat-form-field appearance="fill">
       <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="producto.categoria_id" name="categoria_id" required>
-        <mat-option *ngFor="let c of categorias" [value]="c.categoria_id">
-          {{ c.nombre_categoria }}
+      <mat-select [(ngModel)]="producto.id_categoria_p" name="id_categoria_p" required>
+        <mat-option *ngFor="let c of categorias" [value]="c.id_categoria_p">
+          {{ c.nombre }}
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -30,18 +30,18 @@
     <!-- Receta -->
     <mat-form-field appearance="fill">
       <mat-label>Receta</mat-label>
-      <mat-select [(ngModel)]="producto.receta_id" name="receta_id">
-        <mat-option [value]="null">Sin receta</mat-option>
-        <mat-option *ngFor="let r of recetas" [value]="r.receta_id">
-          {{ r.nombre_receta }}
+      <mat-select [(ngModel)]="producto.id_receta" name="id_receta">
+        <mat-option [value]="0">Sin receta</mat-option>
+        <mat-option *ngFor="let r of recetas" [value]="r.id_receta">
+          {{ r.nombre }}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <!-- Precio -->
     <mat-form-field appearance="fill">
-      <mat-label>Precio de Venta</mat-label>
-      <input matInput type="number" step="0.01" [(ngModel)]="producto.precio_venta" name="precio_venta" required />
+      <mat-label>Precio Base</mat-label>
+      <input matInput type="number" step="0.01" [(ngModel)]="producto.precio_base" name="precio_base" required />
     </mat-form-field>
 
     <!-- Estado -->
@@ -57,11 +57,11 @@
     <div style="margin-top: 1rem;">
       <label for="imagen">Imagen del producto (opcional):</label>
       <input type="file" id="file" (change)="onFileSelected($event)" accept="image/*" />
-
       <div *ngIf="imagePreview" style="margin-top: 10px; text-align: center;">
         <img [src]="imagePreview" alt="Vista previa" style="max-width: 150px; border-radius: 8px;" />
       </div>
     </div>
+
   </form>
 </mat-dialog-content>
 

@@ -1,11 +1,28 @@
-<h2 mat-dialog-title>{{ categoria.categoria_id ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+<h2 mat-dialog-title>
+  {{ esEdicion ? 'Editar' : 'Nueva' }}
+  Categoría de {{ tipoCategoria === 'producto' ? 'Producto' : 'Insumo' }}
+</h2>
 
 <form #form="ngForm" (ngSubmit)="saveCategoria()">
   <mat-dialog-content>
-    <mat-form-field appearance="fill">
+
+    <div class="tipo-toggle">
+      <button mat-stroked-button color="accent" type="button" (click)="toggleTipo()">
+        Cambiar a {{ tipoCategoria === 'producto' ? 'Insumo' : 'Producto' }}
+      </button>
+    </div>
+
+    <mat-form-field appearance="fill" class="w-100">
       <mat-label>Nombre de la Categoría</mat-label>
-      <input matInput type="text" [(ngModel)]="categoria.nombre_categoria" name="nombre_categoria" required />
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="categoria.nombre"
+        name="nombre"
+        required
+      />
     </mat-form-field>
+
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">

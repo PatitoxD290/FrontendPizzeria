@@ -5,14 +5,10 @@
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="savePedido()">
 
-    <!-- 📦 CONTENEDOR PRINCIPAL EN HORIZONTAL -->
     <div class="pedido-container">
-
-      <!-- ========================= -->
-      <!-- 🧍‍♂️ COLUMNA 1: CLIENTE -->
-      <!-- ========================= -->
+      <!-- 🧍 CLIENTE -->
       <div class="col cliente-col">
-        <h3 class="titulo-seccion">Cliente</h3>
+        <h3>Cliente</h3>
 
         <mat-checkbox [(ngModel)]="conCliente" name="conCliente">
           Registrar con datos de cliente
@@ -28,53 +24,40 @@
           <mat-label>Cliente</mat-label>
           <mat-select [(ngModel)]="pedido.id_cliente" name="cliente_id" required>
             <mat-option *ngFor="let cliente of clientes" [value]="cliente.id_cliente">
-              {{ cliente.nombre }} ({{ cliente.dni || 'Sin DNI' }})
+              {{ cliente.nombre }} {{ cliente.apellido }}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
 
-      <!-- ========================= -->
-      <!-- 📦 COLUMNA 2: AGREGAR DETALLE -->
-      <!-- ========================= -->
+      <!-- 📦 PRODUCTO -->
       <div class="col detalle-col">
-        <h3 class="titulo-seccion">Agregar Producto</h3>
+        <h3>Agregar Producto</h3>
 
-        <div class="form-detalle">
-          <!-- Producto -->
-          <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Producto</mat-label>
-            <mat-select [(ngModel)]="detalleTemporal.id_producto" name="producto_id" required>
-              <mat-option *ngFor="let producto of productos" [value]="producto.producto_id">
-                {{ producto.nombre_producto }} - S/ {{ producto.precio_venta | number:'1.2-2' }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Producto</mat-label>
+          <mat-select [(ngModel)]="detalleTemporal.id_producto" name="producto_id" required>
+            <mat-option *ngFor="let producto of productos" [value]="producto.id_producto">
+              {{ producto.nombre }} - S/ {{ producto.precio_base | number:'1.2-2' }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-          <!-- Cantidad -->
-          <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Cantidad</mat-label>
-            <input
-              matInput
-              type="number"
-              min="1"
-              [(ngModel)]="detalleTemporal.cantidad"
-              name="cantidad"
-              required
-            />
-          </mat-form-field>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" min="1"
+                 [(ngModel)]="detalleTemporal.cantidad"
+                 name="cantidad" required>
+        </mat-form-field>
 
-          <button mat-flat-button color="primary" type="button" (click)="agregarDetalle()">
-            Agregar al Pedido
-          </button>
-        </div>
+        <button mat-flat-button color="primary" type="button" (click)="agregarDetalle()">
+          Agregar al Pedido
+        </button>
       </div>
 
-      <!-- ========================= -->
-      <!-- 💰 COLUMNA 3: TABLA + RESUMEN -->
-      <!-- ========================= -->
+      <!-- 💰 DETALLE -->
       <div class="col resumen-col">
-        <h3 class="titulo-seccion">Detalle del Pedido</h3>
+        <h3>Detalle del Pedido</h3>
 
         <table class="w-full mat-elevation-z2">
           <thead>
@@ -91,13 +74,13 @@
               <td>{{ d.cantidad }}</td>
               <td>S/ {{ d.precio_total | number:'1.2-2' }}</td>
               <td>
-                  <button mat-icon-button color="warn" type="button" (click)="eliminarDetalle(i)">
+                <button mat-icon-button color="warn" type="button" (click)="eliminarDetalle(i)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </td>
             </tr>
-            <tr *ngIf="pedido.detalles?.length === 0">
-              <td colspan="5" class="text-center text-gray-500">Sin productos agregados</td>
+            <tr *ngIf="!pedido.detalles?.length">
+              <td colspan="4" class="text-center text-gray-500">Sin productos agregados</td>
             </tr>
           </tbody>
         </table>
@@ -108,11 +91,6 @@
             <strong>S/ {{ pedido.sub_total | number:'1.2-2' }}</strong>
           </div>
 
-          <div class="flex justify-between items-center mt-2">
-            <span>Descuento:</span>
-          
-          </div>
-
           <div class="flex justify-between text-lg font-bold mt-2">
             <span>Total:</span>
             <span>S/ {{ pedido.sub_total | number:'1.2-2' }}</span>
@@ -120,29 +98,19 @@
         </div>
 
         <mat-form-field appearance="fill" class="w-full mt-4">
-          <mat-label>Notas Generales</mat-label>
-          <textarea
-            matInput
-            rows="3"
-            [(ngModel)]="pedido.notas"
-            name="notas_generales"
-          ></textarea>
+          <mat-label>Notas</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="pedido.notas" name="notas"></textarea>
         </mat-form-field>
       </div>
-
-    </div> <!-- cierre del contenedor principal -->
+    </div>
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="close()">Cancelar</button>
-  <button
-    mat-flat-button
-    color="primary"
-    [disabled]="form.invalid || !pedido.detalles?.length"
-    type="button"
-    (click)="savePedido()"
-  >
+  <button mat-flat-button color="primary"
+          [disabled]="form.invalid || !pedido.detalles?.length"
+          (click)="savePedido()">
     Guardar Pedido
   </button>
 </mat-dialog-actions>

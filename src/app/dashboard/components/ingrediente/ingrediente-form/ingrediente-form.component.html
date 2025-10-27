@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  {{ ingrediente.ingrediente_id ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}
+  {{ ingrediente.id_insumo ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}
 </h2>
 
 <mat-dialog-content>
@@ -10,8 +10,8 @@
       <input
         matInput
         type="text"
-        [(ngModel)]="ingrediente.nombre_ingrediente"
-        name="nombre_ingrediente"
+        [(ngModel)]="ingrediente.nombre"
+        name="nombre"
         required
       />
     </mat-form-field>
@@ -21,14 +21,14 @@
       <input
         matInput
         type="text"
-        [(ngModel)]="ingrediente.descripcion_ingrediente"
-        name="descripcion_ingrediente"
+        [(ngModel)]="ingrediente.descripcion"
+        name="descripcion"
       />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Unidad de Medida</mat-label>
-      <mat-select [(ngModel)]="ingrediente.unidad_medida" name="unidad_medida" required>
+      <mat-select [(ngModel)]="ingrediente.unidad_med" name="unidad_med" required>
         <mat-option value="kg">Kilogramos</mat-option>
         <mat-option value="g">Gramos</mat-option>
         <mat-option value="l">Litros</mat-option>
@@ -38,12 +38,12 @@
     </mat-form-field>
 
     <mat-form-field appearance="fill">
-      <mat-label>Categoría</mat-label>
+      <mat-label>ID Categoría</mat-label>
       <input
         matInput
-        type="text"
-        [(ngModel)]="ingrediente.categoria_ingrediente"
-        name="categoria_ingrediente"
+        type="number"
+        [(ngModel)]="ingrediente.id_categoria_i"
+        name="id_categoria_i"
         required
       />
     </mat-form-field>
@@ -53,8 +53,8 @@
       <input
         matInput
         type="number"
-        [(ngModel)]="ingrediente.stock_minimo"
-        name="stock_minimo"
+        [(ngModel)]="ingrediente.stock_min"
+        name="stock_min"
         required
       />
     </mat-form-field>
@@ -64,8 +64,8 @@
       <input
         matInput
         type="number"
-        [(ngModel)]="ingrediente.stock_maximo"
-        name="stock_maximo"
+        [(ngModel)]="ingrediente.stock_max"
+        name="stock_max"
         required
       />
     </mat-form-field>
@@ -74,7 +74,7 @@
       <mat-label>Estado</mat-label>
       <mat-select [(ngModel)]="ingrediente.estado" name="estado" required>
         <mat-option value="A">Activo</mat-option>
-        <mat-option value="I">Inactivo</mat-option>
+        <mat-option value="D">Desactivado</mat-option>
       </mat-select>
     </mat-form-field>
 

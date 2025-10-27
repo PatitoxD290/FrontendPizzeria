@@ -1,11 +1,14 @@
-export interface Ingrediente {
-  ingrediente_id?: number;
-  nombre_ingrediente: string;
-  descripcion_ingrediente?: string;
-  unidad_medida: string;
-  categoria_ingrediente: string;
-  stock_minimo: number;
-  stock_maximo: number;
-  estado: string;              // "A" o "I"
-  fecha_registro?: string;     // Fecha en formato ISO o string
+// ===========================================
+// INSUMOS - Ingredientes
+// ===========================================
+export interface Insumo {
+  id_insumo: number;
+  nombre: string;
+  descripcion: string;
+  unidad_med: string;
+  id_categoria_i: number;
+  stock_min: number;
+  stock_max: number;
+  estado: 'D' | 'A';
+  fecha_registro: string;
 }

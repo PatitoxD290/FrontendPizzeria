@@ -8,12 +8,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { DetalleProductoComponent } from '../../components/detalle-producto/detalle-producto.component';
-import { CarritoService } from '../../../core/services/auth/carrito.service';
+import { CarritoService } from '../../../core/services/carrito.service';
 import { Router } from '@angular/router';
 import { CarritoFlotanteComponent } from '../../components/carrito-flotante/carrito-flotante.component';
-import { ProductoService } from '../../../core/services/auth/producto.service';
-import { CategoriaService } from '../../../core/services/auth/categoria.service';
-import { CombosService } from '../../../core/services/auth/combos.service';
+import { ProductoService } from '../../../core/services/producto.service';
+import { CategoriaService } from '../../../core/services/categoria.service';
+import { CombosService } from '../../../core/services/combos.service';
 
 interface Producto {
   id: number;
@@ -67,7 +67,7 @@ export class MenuComponent implements OnInit {
 
   // ✅ Cargar categorías + agregar "Combos"
   private cargarCategoriasDesdeService(): void {
-    this.categoriaService.getCategorias().subscribe({
+    this.categoriaService.getCategoriasProducto().subscribe({
       next: (data: any[]) => {
         if (Array.isArray(data)) {
           this.CATEGORY_MAP = data.reduce((acc, item) => {

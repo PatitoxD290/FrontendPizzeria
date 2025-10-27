@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Cliente } from '../../../../core/models/cliente.model';
-import { ClienteService } from '../../../../core/services/auth/cliente.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';

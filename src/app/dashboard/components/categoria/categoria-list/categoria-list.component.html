@@ -1,36 +1,29 @@
+<div class="toolbar">
+  <button mat-stroked-button color="accent" (click)="toggleTipo()">
+    Ver categorías de {{ tipoCategoria === 'producto' ? 'Insumos' : 'Productos' }}
+  </button>
+
+  <button mat-flat-button color="primary" (click)="openCategoriaForm()">
+    <mat-icon>add</mat-icon>
+    Nueva Categoría
+  </button>
+</div>
+
 <div *ngIf="loading" class="spinner-container">
   <mat-spinner></mat-spinner>
 </div>
 
 <div *ngIf="!loading">
-  <!-- 🔹 Card "Todos" predeterminada -->
-  <mat-card
-    class="categoria-card"
-    [class.activa]="categoriaActiva === 0"
-    (click)="seleccionarCategoria(null)">
+  <mat-card *ngFor="let categoria of categorias" class="categoria-card">
     <div class="categoria-header">
       <div class="categoria-info">
-        <mat-card-title>Todos</mat-card-title>
-        <mat-card-content>Muestra todos los productos</mat-card-content>
-      </div>
-    </div>
-  </mat-card>
-
-  <!-- 🔹 Listado de categorías -->
-  <mat-card
-    *ngFor="let categoria of categorias"
-    class="categoria-card"
-    [class.activa]="categoriaActiva === categoria.categoria_id"
-    (click)="seleccionarCategoria(categoria)">
-    <div class="categoria-header">
-      <div class="categoria-info">
-        <mat-card-title>{{ categoria.nombre_categoria }}</mat-card-title>
+        <mat-card-title>{{ categoria.nombre }}</mat-card-title>
       </div>
       <div class="categoria-actions">
-        <button mat-icon-button color="primary" (click)="openCategoriaForm(categoria); $event.stopPropagation()">
+        <button mat-icon-button color="primary" (click)="openCategoriaForm(categoria)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deleteCategoria(categoria.categoria_id!); $event.stopPropagation()">
+        <button mat-icon-button color="warn" (click)="deleteCategoria(categoria)">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

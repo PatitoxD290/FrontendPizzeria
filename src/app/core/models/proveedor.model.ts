@@ -1,12 +1,14 @@
-// src/app/dashboard/models/proveedor.model.ts
+// ===========================================
+// PROVEEDOR
+// ===========================================
 export interface Proveedor {
-  proveedor_id?: number;
-  nombre_proveedor: string;
+  id_proveedor: number;
+  nombre: string;
   ruc: string;
-  direccion?: string;
-  telefono?: string;
-  email?: string;
-  persona_contacto?: string;
-  estado?: string;
-  fecha_registro?: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  persona_contacto: string;
+  estado: 'A' | 'I';
+  fecha_registro: string;
 }

@@ -1,19 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon'; 
-import { OrdenService } from '../../../../core/services/auth/orden.service';
-import { PedidoDetalle } from '../../../../core/models/pedido.model';
-import { PedidoService, PedidoConDetalle } from '../../../../core/services/auth/pedido.service';
-import { AuthService } from '../../../../core/services/auth/auth.service';
-import Swal from 'sweetalert2';
-
-// Angular Material Dialog
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { ClienteFormComponent } from '../../cliente/cliente-form/cliente-form.component';
-import { ClienteService } from '../../../../core/services/auth/cliente.service';
+
+import { OrdenService } from '../../../../core/services/orden.service';
+import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { PedidoService, PedidoConDetalle } from '../../../../core/services/pedido.service';
+import { AuthService } from '../../../../core/services/auth/auth.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { Cliente } from '../../../../core/models/cliente.model';
+import { ClienteFormComponent } from '../../cliente/cliente-form/cliente-form.component';
+
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalle-pedido',
@@ -28,33 +28,33 @@ export class DetallePedidoComponent implements OnInit {
   selectedCliente: Cliente | null = null;
 
   constructor(
-    private OrdenService: OrdenService,
+    private ordenService: OrdenService,
     private pedidoService: PedidoService,
     private authService: AuthService,
     private dialog: MatDialog,
     private clienteService: ClienteService
   ) {}
 
-  ngOnInit() {
-    this.OrdenService.detalles$.subscribe((data) => {
+  ngOnInit(): void {
+    this.ordenService.detalles$.subscribe((data) => {
       this.detalles = data;
     });
   }
 
   eliminar(id: number) {
-    this.OrdenService.eliminarProducto(id);
+    this.ordenService.eliminarProducto(id);
   }
 
   aumentarCantidad(detalle: PedidoDetalle) {
-    this.OrdenService.aumentarCantidad(detalle.id_producto);
+    this.ordenService.aumentarCantidad(detalle.id_producto, detalle.precio_total / detalle.cantidad);
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
-    this.OrdenService.reducirCantidad(detalle.id_producto);
+    this.ordenService.reducirCantidad(detalle.id_producto, detalle.precio_total / detalle.cantidad);
   }
 
   getTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + d.precio_total, 0);
+    return this.detalles.reduce((acc, d) => acc + (d.precio_total || 0), 0);
   }
 
   async realizarPedido() {
@@ -77,18 +77,17 @@ export class DetallePedidoComponent implements OnInit {
       return;
     }
 
-    // Preguntar si desea añadir un cliente
+    // 🔹 Preguntar si desea ingresar cliente
     const { value: accion } = await Swal.fire({
       title: 'Cliente',
       text: '¿Deseas ingresar los datos del cliente?',
       showCancelButton: true,
-      confirmButtonText: 'Añadir',
+      confirmButtonText: 'Añadir cliente',
       cancelButtonText: 'Usar cliente por defecto',
       icon: 'question'
     });
 
     if (accion) {
-      // Abrir formulario de cliente como modal
       const dialogRef = this.dialog.open(ClienteFormComponent, {
         width: '400px',
         data: {} // nuevo cliente
@@ -96,7 +95,6 @@ export class DetallePedidoComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          // Después de crear, obtener el último cliente registrado
           this.clienteService.getClientes().subscribe(clientes => {
             this.selectedCliente = clientes[clientes.length - 1];
             this.enviarPedido(usuarioLogueado);
@@ -104,8 +102,7 @@ export class DetallePedidoComponent implements OnInit {
         }
       });
     } else {
-      // Usar cliente por defecto
-      this.selectedCliente = { id_cliente: 1, nombre: 'Cliente por defecto' };
+      this.selectedCliente = { id_cliente: 1, nombre: 'Cliente por defecto' } as Cliente;
       this.enviarPedido(usuarioLogueado);
     }
   }
@@ -118,12 +115,12 @@ export class DetallePedidoComponent implements OnInit {
       sub_total: this.getTotal(),
       notas: '',
       estado_p: 'P',
-      fecha_registro: new Date().toISOString().split('T')[0], 
+      fecha_registro: new Date().toISOString().split('T')[0],
       hora_pedido: new Date().toTimeString().split(' ')[0],
       detalles: this.detalles.map(d => ({
         ...d,
-        detalle_pedido_id: 0,
-        pedido_id: 0
+        id_pedido_d: 0,
+        id_pedido: 0
       }))
     };
 
@@ -134,7 +131,7 @@ export class DetallePedidoComponent implements OnInit {
           title: 'Pedido realizado',
           text: 'Tu pedido se ha enviado correctamente.'
         });
-        this.OrdenService.limpiar();
+        this.ordenService.limpiar();
         this.selectedCliente = null;
       },
       error: (err) => {

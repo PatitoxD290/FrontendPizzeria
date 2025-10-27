@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Pedido } from '../../../../core/models/pedido.model';
-import { PedidoService } from '../../../../core/services/auth/pedido.service';
-import { ClienteService } from '../../../../core/services/auth/cliente.service';
+import { PedidoService } from '../../../../core/services/pedido.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';

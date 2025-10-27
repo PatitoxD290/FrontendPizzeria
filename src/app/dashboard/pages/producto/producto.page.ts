@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { ProductoListComponent } from '../../components/producto/producto-list/producto-list.component';
 import { ProductoFormComponent } from '../../components/producto/producto-form/producto-form.component';
@@ -16,6 +16,7 @@ import { CategoriaFormComponent } from '../../components/categoria/categoria-for
     CommonModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     ProductoListComponent,
     CategoriaListComponent
   ],
@@ -27,18 +28,23 @@ export class ProductoPage {
 
   constructor(private dialog: MatDialog) {}
 
-  openNuevoProducto(productoList: ProductoListComponent) {
-    const dialogRef = this.dialog.open(ProductoFormComponent, { width: '500px', data: {} });
+  openNuevoProducto() {
+    const dialogRef = this.dialog.open(ProductoFormComponent, {
+      width: '500px',
+      data: {}
+    });
     dialogRef.afterClosed().subscribe(result => {
-      if (result) productoList.loadProductos();
+      if (result) this.productoList.loadProductos();
     });
   }
 
   openNuevaCategoria() {
-    const dialogRef = this.dialog.open(CategoriaFormComponent, { width: '400px' });
+    const dialogRef = this.dialog.open(CategoriaFormComponent, {
+      width: '400px'
+    });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // refrescar categorías si deseas
+        // 🔹 Aquí podrías refrescar categorías si tu <app-categoria-list> tuviera un método público
       }
     });
   }

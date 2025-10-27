@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { CarritoService } from '../../../core/services/auth/carrito.service';
+import { CarritoService } from '../../../core/services/carrito.service';
 import { Router } from '@angular/router';
 
 @Component({

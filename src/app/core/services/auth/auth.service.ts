@@ -56,7 +56,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.setItem('logout', Date.now().toString()); // 🔔 Notifica logout entre pestañas
+    localStorage.setItem('logout', Date.now().toString()); 
 
     this.token.set(null);
     this.user.set(null);
@@ -124,5 +124,8 @@ private validateToken(token: string) {
 
   getUserRol(): string | null {
     return this.user()?.rol ?? null;
+  }
+  getnombreUsuario(): string | null {
+    return this.user()?.nombre ?? null;
   }
 }

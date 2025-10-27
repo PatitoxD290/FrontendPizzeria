@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CarritoService } from '../../../core/services/auth/carrito.service';
+import { CarritoService } from '../../../core/services/carrito.service';
 
 @Component({
   selector: 'app-detalle-producto',

@@ -1,11 +1,17 @@
-// src/app/dashboard/models/producto.model.ts
+// ===========================================
+// PRODUCTO
+// ===========================================
 export interface Producto {
-  producto_id?: number;          // ID autogenerado
-  nombre_producto: string;       // Nombre del producto
-  descripcion_producto: string;  // Descripción breve
-  categoria_id: number;          // Relación con la categoría
-  receta_id?: number | null;     // Relación con la receta (puede ser null)
-  precio_venta: number;          // Precio del producto
-  estado?: string;               // 'A' (Activo) o 'I' (Inactivo)
-  fecha_registro?: string;       // Fecha de creación (desde backend)
+  id_producto: number;
+  nombre: string;
+  descripcion: string;
+  precio_base: number;
+  id_categoria_p: number;
+  id_receta: number;
+  estado: 'A' | 'I';
+  fecha_registro: string;
+
+
+  nombre_categoria?: string;
+  nombre_receta?: string;
 }

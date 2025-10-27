@@ -1,24 +1,24 @@
-// src/app/dashboard/components/categoria/categoria-list/categoria-list.component.ts
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
-import { Categoria_P } from '../../../../core/models/categoria.model';
-import { CategoriaService } from '../../../../core/services/auth/categoria.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { CategoriaFormComponent } from '../categoria-form/categoria-form.component';
 import Swal from 'sweetalert2';
+import { Output, EventEmitter } from '@angular/core';
+
+import { CategoriaService } from '../../../../core/services/categoria.service';
+import { CategoriaProducto, CategoriaInsumos } from '../../../../core/models/categoria.model';
+import { CategoriaFormComponent } from '../categoria-form/categoria-form.component';
 
 @Component({
   selector: 'app-categoria-list',
   standalone: true,
   imports: [
     CommonModule,
-    NgIf,
     MatTableModule,
     MatPaginatorModule,
     MatButtonModule,
@@ -31,49 +31,59 @@ import Swal from 'sweetalert2';
   styleUrls: ['./categoria-list.component.css']
 })
 export class CategoriaListComponent implements OnInit {
-  @Output() categoriaSeleccionada = new EventEmitter<number>();
 
-  displayedColumns: string[] = ['categoria_id', 'nombre_categoria', 'descripcion_categoria', 'acciones'];
-  categorias: Categoria_P[] = [];
+  categorias: (CategoriaProducto | CategoriaInsumos)[] = [];
   loading = false;
-  categoriaActiva: number | null = 0; // 0 = todos seleccionado
+  tipoCategoria: 'producto' | 'insumo' = 'producto'; // 🔹 alterna entre ambos tipos
 
+  categoriaActiva: number | null = 0;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private categoriaService: CategoriaService, private dialog: MatDialog) {}
+  constructor(
+    private categoriaService: CategoriaService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadCategorias();
   }
 
+  // 🔁 Cargar categorías según el tipo
   loadCategorias() {
     this.loading = true;
-    this.categoriaService.getCategorias().subscribe({
-      next: data => {
-        this.categorias = data;
-        this.loading = false;
-      },
-      error: err => {
-        console.error('Error al cargar categorías', err);
-        this.loading = false;
-      }
-    });
-  }
-
-  seleccionarCategoria(categoria: Categoria_P | null) {
-    const id = categoria ? categoria.categoria_id! : 0;
-
-    // si ya estaba seleccionada, la deselecciona
-    if (this.categoriaActiva === id) {
-      this.categoriaActiva = 0;
-      this.categoriaSeleccionada.emit(0);
+    if (this.tipoCategoria === 'producto') {
+      this.categoriaService.getCategoriasProducto().subscribe({
+        next: data => {
+          this.categorias = data;
+          this.loading = false;
+        },
+        error: err => {
+          console.error('Error al cargar categorías de producto', err);
+          this.loading = false;
+        }
+      });
     } else {
-      this.categoriaActiva = id;
-      this.categoriaSeleccionada.emit(id);
+      this.categoriaService.getCategoriasInsumos().subscribe({
+        next: data => {
+          this.categorias = data;
+          this.loading = false;
+        },
+        error: err => {
+          console.error('Error al cargar categorías de insumos', err);
+          this.loading = false;
+        }
+      });
     }
   }
 
-  deleteCategoria(id: number) {
+  // 🧠 Alternar entre productos e insumos
+  toggleTipo() {
+    this.tipoCategoria = this.tipoCategoria === 'producto' ? 'insumo' : 'producto';
+    this.loadCategorias();
+  }
+
+  // 🗑️ Eliminar categoría
+  deleteCategoria(categoria: CategoriaProducto | CategoriaInsumos) {
     Swal.fire({
       title: '¿Estás seguro?',
       text: 'No podrás revertir esto',
@@ -83,7 +93,14 @@ export class CategoriaListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.categoriaService.deleteCategoria(id).subscribe({
+        const id = (categoria as any).id_categoria_p || (categoria as any).id_categoria_i;
+
+        const deleteObs =
+          this.tipoCategoria === 'producto'
+            ? this.categoriaService.deleteCategoriaProducto(id)
+            : this.categoriaService.deleteCategoriaInsumo(id);
+
+        deleteObs.subscribe({
           next: () => {
             Swal.fire('¡Eliminada!', 'La categoría ha sido eliminada.', 'success');
             this.loadCategorias();
@@ -94,14 +111,25 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  openCategoriaForm(categoria?: Categoria_P) {
+  // 📝 Abrir modal para crear/editar
+  openCategoriaForm(categoria?: CategoriaProducto | CategoriaInsumos) {
     const dialogRef = this.dialog.open(CategoriaFormComponent, {
       width: '400px',
-      data: { categoria }
+      data: { categoria, tipo: this.tipoCategoria }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.loadCategorias();
     });
   }
+  
+  @Output() categoriaSeleccionada = new EventEmitter<number>();
+
+  // Método para emitir la categoría seleccionada
+  seleccionarCategoria(categoria: CategoriaProducto | CategoriaInsumos) {
+    const id = (categoria as any).id_categoria_p || (categoria as any).id_categoria_i;
+    this.categoriaActiva = id;
+    this.categoriaSeleccionada.emit(id);
+  }
+
 }

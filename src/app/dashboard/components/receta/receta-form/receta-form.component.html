@@ -1,21 +1,21 @@
-<h2 mat-dialog-title>{{ receta.receta_id ? 'Editar Receta' : 'Nueva Receta' }}</h2>
+<h2 mat-dialog-title>{{ receta.id_receta ? 'Editar Receta' : 'Nueva Receta' }}</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveReceta()">
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre de la Receta</mat-label>
-      <input matInput type="text" [(ngModel)]="receta.nombre_receta" name="nombre_receta" required />
+      <input matInput type="text" [(ngModel)]="receta.nombre" name="nombre_receta" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Descripción</mat-label>
-      <textarea matInput rows="2" [(ngModel)]="receta.descripcion_receta" name="descripcion_receta" required></textarea>
+      <textarea matInput rows="2" [(ngModel)]="receta.descripcion" name="descripcion_receta" required></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Tiempo estimado (minutos)</mat-label>
-      <input matInput type="number" [(ngModel)]="receta.tiempo_estimado_minutos" name="tiempo_estimado_minutos" required />
+      <input matInput type="number" [(ngModel)]="receta.tiempo_preparacion" name="tiempo_estimado_minutos" required />
     </mat-form-field>
 
     <h3>🧂 Detalles de Receta</h3>
@@ -23,36 +23,21 @@
     <div *ngFor="let det of detalles; let i = index" class="detalle-item">
       <mat-form-field appearance="outline">
         <mat-label>Ingrediente</mat-label>
-        <mat-select [(ngModel)]="det.ingrediente_id" name="ingrediente_id_{{i}}" required>
-          <mat-option *ngFor="let ing of ingredientes" [value]="ing.ingrediente_id">
-            {{ ing.nombre_ingrediente }}
+        <mat-select [(ngModel)]="det.id_insumo" name="ingrediente_id_{{i}}" required>
+          <mat-option *ngFor="let ing of ingredientes" [value]="ing.id_insumo">
+            {{ ing.nombre }}
           </mat-option>
         </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Cantidad</mat-label>
-        <input matInput type="number" [(ngModel)]="det.cantidad_requerida" name="cantidad_requerida_{{i}}" required />
+        <input matInput type="number" [(ngModel)]="det.cantidad" name="cantidad_requerida_{{i}}" required />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Unidad de medida</mat-label>
-        <mat-select [(ngModel)]="det.unidad_medida" name="unidad_medida_{{i}}" required>
-          <mat-option value="gramos">Gramos (g)</mat-option>
-          <mat-option value="kilogramos">Kilogramos (kg)</mat-option>
-          <mat-option value="mililitros">Mililitros (ml)</mat-option>
-          <mat-option value="litros">Litros (L)</mat-option>
-          <mat-option value="unidad">Unidad</mat-option>
-          <mat-option value="pizca">Pizca</mat-option>
-          <mat-option value="taza">Taza</mat-option>
-          <mat-option value="cucharada">Cucharada</mat-option>
-          <mat-option value="cucharadita">Cucharadita</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline">
         <mat-label>Descripción de uso</mat-label>
-        <input matInput type="text" [(ngModel)]="det.descripcion_uso" name="descripcion_uso_{{i}}" />
+        <input matInput type="text" [(ngModel)]="det.uso" name="descripcion_uso_{{i}}" />
       </mat-form-field>
 
       <button mat-icon-button color="warn" type="button" (click)="removeDetalle(i)">

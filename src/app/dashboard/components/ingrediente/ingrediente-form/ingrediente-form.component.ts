@@ -1,9 +1,8 @@
-// src/app/dashboard/components/ingrediente-form/ingrediente-form.component.ts
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Ingrediente } from '../../../../core/models/ingrediente.model';
-import { IngredienteService } from '../../../../core/services/auth/ingrediente.service';
+import { Insumo } from '../../../../core/models/ingrediente.model';
+import { IngredienteService } from '../../../../core/services/ingrediente.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -12,6 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
+
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-ingrediente-form',
@@ -29,43 +30,63 @@ import { MatOptionModule } from '@angular/material/core';
   templateUrl: './ingrediente-form.component.html',
   styleUrls: ['./ingrediente-form.component.css']
 })
-export class IngredienteFormComponent {
+export class IngredienteFormComponent implements OnInit {
 
-  ingrediente: Ingrediente;
+  ingrediente: Insumo;
 
   constructor(
     private ingredienteService: IngredienteService,
     private dialogRef: MatDialogRef<IngredienteFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { ingrediente?: Ingrediente }
+    @Inject(MAT_DIALOG_DATA) public data: { ingrediente?: Insumo }
   ) {
-    // Crear una copia del ingrediente o inicializar uno nuevo
+    // Si viene un ingrediente para editar, lo clonamos
     this.ingrediente = data?.ingrediente
       ? { ...data.ingrediente }
       : {
-          ingrediente_id: 0,
-          nombre_ingrediente: '',
-          descripcion_ingrediente: '',
-          unidad_medida: '',
-          categoria_ingrediente: '',
-          stock_minimo: 0,
-          stock_maximo: 0,
+          id_insumo: 0,
+          nombre: '',
+          descripcion: '',
+          unidad_med: '',
+          id_categoria_i: 0,
+          stock_min: 0,
+          stock_max: 0,
           estado: 'A',
           fecha_registro: ''
         };
   }
 
+  ngOnInit(): void {}
+
+  // 💾 Guardar ingrediente
   saveIngrediente() {
-    if (!this.ingrediente.ingrediente_id || this.ingrediente.ingrediente_id === 0) {
-      // Crear nuevo ingrediente
+    if (!this.ingrediente.nombre.trim()) {
+      Swal.fire('Error', 'El nombre del ingrediente es obligatorio', 'warning');
+      return;
+    }
+
+    if (this.ingrediente.id_insumo === 0) {
+      // Crear nuevo
       this.ingredienteService.createIngrediente(this.ingrediente).subscribe({
-        next: () => this.dialogRef.close(true),
-        error: (err) => console.error('Error al crear ingrediente', err)
+        next: () => {
+          Swal.fire('¡Éxito!', 'Ingrediente creado correctamente', 'success');
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          console.error('Error al crear ingrediente', err);
+          Swal.fire('Error', 'No se pudo crear el ingrediente', 'error');
+        }
       });
     } else {
-      // Actualizar ingrediente existente
-      this.ingredienteService.updateIngrediente(this.ingrediente.ingrediente_id, this.ingrediente).subscribe({
-        next: () => this.dialogRef.close(true),
-        error: (err) => console.error('Error al actualizar ingrediente', err)
+      // Actualizar existente
+      this.ingredienteService.updateIngrediente(this.ingrediente.id_insumo, this.ingrediente).subscribe({
+        next: () => {
+          Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          console.error('Error al actualizar ingrediente', err);
+          Swal.fire('Error', 'No se pudo actualizar el ingrediente', 'error');
+        }
       });
     }
   }

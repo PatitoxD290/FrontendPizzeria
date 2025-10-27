@@ -1,5 +1,6 @@
 <table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
 
+  <!-- Producto -->
   <ng-container matColumnDef="producto">
     <th mat-header-cell *matHeaderCellDef>Producto</th>
     <td mat-cell *matCellDef="let d">
@@ -8,43 +9,47 @@
     </td>
   </ng-container>
 
-
+  <!-- Cantidad -->
   <ng-container matColumnDef="cantidad">
-  <th mat-header-cell *matHeaderCellDef>Cant.</th>
-  <td mat-cell *matCellDef="let d">
-    <div class="cantidad-control-vertical">
-      <button mat-mini-button (click)="aumentarCantidad(d)">
-        <mat-icon>keyboard_arrow_up</mat-icon>
-      </button>
-      <span>{{ d.cantidad }}</span>
-      <button mat-mini-button (click)="reducirCantidad(d)">
-        <mat-icon>keyboard_arrow_down</mat-icon>
-      </button>
-    </div>
-  </td>
-</ng-container>
+    <th mat-header-cell *matHeaderCellDef>Cant.</th>
+    <td mat-cell *matCellDef="let d">
+      <div class="cantidad-control-vertical">
+        <button mat-mini-button (click)="aumentarCantidad(d)">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </button>
+        <span>{{ d.cantidad }}</span>
+        <button mat-mini-button (click)="reducirCantidad(d)">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+      </div>
+    </td>
+  </ng-container>
 
-
-
+  <!-- Precio Unitario -->
   <ng-container matColumnDef="precio">
     <th mat-header-cell *matHeaderCellDef>Precio</th>
-    <td mat-cell *matCellDef="let d">S/ {{ d.precio_unitario | number:'1.2-2' }}</td>
+    <td mat-cell *matCellDef="let d">
+      S/ {{ (d.precio_total / d.cantidad) | number:'1.2-2' }}
+    </td>
   </ng-container>
 
+  <!-- Subtotal -->
   <ng-container matColumnDef="subtotal">
     <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-    <td mat-cell *matCellDef="let d">S/ {{ d.subtotal | number:'1.2-2' }}</td>
+    <td mat-cell *matCellDef="let d">
+      S/ {{ d.precio_total | number:'1.2-2' }}
+    </td>
   </ng-container>
 
+  <!-- Acciones -->
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let d">
-      <button mat-icon-button color="warn" (click)="eliminar(d.producto_id)">
+      <button mat-icon-button color="warn" (click)="eliminar(d.id_producto)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>
   </ng-container>
-
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let d; columns: displayedColumns;"></tr>
@@ -56,4 +61,3 @@
     Realizar pedido
   </button>
 </div>
-

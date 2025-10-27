@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Receta } from '../../../../core/models/receta.model';
-import { RecetaService } from '../../../../core/services/auth/receta.service';
+import { RecetaService } from '../../../../core/services/receta.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -70,8 +70,8 @@ export class RecetaListComponent implements OnInit {
   }
 
   openRecetaForm(receta?: Receta) {
-  if (receta?.receta_id) {
-    this.recetaService.getDetallesPorReceta(receta.receta_id).subscribe({
+  if (receta?.id_receta) {
+    this.recetaService.getDetallesPorReceta(receta.id_receta).subscribe({
       next: (detalles) => {
         const dialogRef = this.dialog.open(RecetaFormComponent, {
           width: '700px',

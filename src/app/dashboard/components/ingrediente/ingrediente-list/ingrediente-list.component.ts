@@ -1,8 +1,8 @@
 // src/app/dashboard/components/ingrediente-list/ingrediente-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Ingrediente } from '../../../../core/models/ingrediente.model';
-import { IngredienteService } from '../../../../core/services/auth/ingrediente.service';
+import { Insumo } from '../../../../core/models/ingrediente.model';
+import { IngredienteService } from '../../../../core/services/ingrediente.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { IngredienteFormComponent } from '../ingrediente-form/ingrediente-form.component';
+
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-ingrediente-list',
@@ -33,29 +35,33 @@ import { IngredienteFormComponent } from '../ingrediente-form/ingrediente-form.c
 export class IngredienteListComponent implements OnInit {
 
   displayedColumns: string[] = [
-    'ingrediente_id',
-    'nombre_ingrediente',
-    'descripcion_ingrediente',
-    'unidad_medida',
-    'categoria_ingrediente',
-    'stock_minimo',
-    'stock_maximo',
+    'id_insumo',
+    'nombre',
+    'descripcion',
+    'unidad_med',
+    'id_categoria_i',
+    'stock_min',
+    'stock_max',
     'estado',
     'fecha_registro',
     'acciones'
   ];
 
-  ingredientes: Ingrediente[] = [];
+  ingredientes: Insumo[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private ingredienteService: IngredienteService, private dialog: MatDialog) {}
+  constructor(
+    private ingredienteService: IngredienteService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadIngredientes();
   }
 
+  // 📦 Cargar ingredientes
   loadIngredientes() {
     this.loading = true;
     this.ingredienteService.getIngredientes().subscribe({
@@ -73,19 +79,38 @@ export class IngredienteListComponent implements OnInit {
     });
   }
 
+  // 🗑️ Eliminar ingrediente
   deleteIngrediente(id: number) {
-    if (!confirm('¿Deseas eliminar este ingrediente?')) return;
-    this.ingredienteService.deleteIngrediente(id).subscribe({
-      next: () => this.loadIngredientes(),
-      error: err => console.error(err)
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esta acción.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.ingredienteService.deleteIngrediente(id).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'El ingrediente fue eliminado correctamente', 'success');
+            this.loadIngredientes();
+          },
+          error: err => {
+            console.error(err);
+            Swal.fire('Error', 'No se pudo eliminar el ingrediente', 'error');
+          }
+        });
+      }
     });
   }
 
-  openIngredienteForm(ingrediente?: Ingrediente) {
+  // 📝 Abrir formulario
+  openIngredienteForm(ingrediente?: Insumo) {
     const dialogRef = this.dialog.open(IngredienteFormComponent, {
       width: '500px',
       data: { ingrediente }
     });
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.loadIngredientes();
     });

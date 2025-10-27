@@ -1,10 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Producto } from '../../../../core/models/producto.model';
-import { ProductoService } from '../../../../core/services/auth/producto.service';
-import { CategoriaService } from '../../../../core/services/auth/categoria.service';
-import { RecetaService } from '../../../../core/services/auth/receta.service';
+import { ProductoService } from '../../../../core/services/producto.service';
+import { CategoriaService } from '../../../../core/services/categoria.service';
+import { RecetaService } from '../../../../core/services/receta.service';
 import Swal from 'sweetalert2';
 
 // Angular Material
@@ -34,10 +33,10 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
 })
 export class ProductoListComponent implements OnInit {
 
-  productos: any[] = [];
+  productos: Producto[] = [];
   categorias: any[] = [];
   recetas: any[] = [];
-  paginatedProductos: any[] = [];
+  paginatedProductos: Producto[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -53,29 +52,36 @@ export class ProductoListComponent implements OnInit {
     this.loadProductos();
   }
 
-  loadProductos() {
+  async loadProductos() {
     this.loading = true;
-    Promise.all([
-      this.categoriaService.getCategorias().toPromise(),
-      this.recetaService.getRecetas().toPromise(),
-      this.productoService.getProductos().toPromise()
-    ])
-    .then(([categorias, recetas, productos]) => {
+    try {
+      const [categorias, recetas, productos] = await Promise.all([
+        this.categoriaService.getCategoriasProducto().toPromise(),
+        this.recetaService.getRecetas().toPromise(),
+        this.productoService.getProductos().toPromise()
+      ]);
+
       this.categorias = categorias || [];
       this.recetas = recetas || [];
+
       this.productos = (productos || []).map(p => ({
         ...p,
-        nombre_categoria: this.categorias.find(c => c.categoria_id === p.categoria_id)?.nombre_categoria || 'Sin categoría',
-        nombre_receta: this.recetas.find(r => r.receta_id === p.receta_id)?.nombre_receta || 'Sin receta'
+        nombre_categoria: this.categorias.find(c => c.id_categoria_p === p.id_categoria_p)?.nombre || 'Sin categoría',
+        nombre_receta: this.recetas.find(r => r.id_receta === p.id_receta)?.nombre || 'Sin receta'
       }));
 
-      this.loading = false;
-      this.setPage(0); // inicializa la paginación
-    })
-    .catch(err => {
+      this.setPage(0);
+    } catch (err) {
       console.error('Error al cargar datos', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al cargar productos',
+        text: 'No se pudieron cargar los datos.',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
       this.loading = false;
-    });
+    }
   }
 
   setPage(pageIndex: number) {
@@ -134,23 +140,23 @@ export class ProductoListComponent implements OnInit {
     });
   }
 
-filterByCategoria(categoriaId: number) {
-  if (!categoriaId) {
-    this.paginatedProductos = this.productos; // mostrar todos
-    return;
-  }
+  filterByCategoria(categoriaId: number) {
+    if (!categoriaId) {
+      this.paginatedProductos = this.productos;
+      return;
+    }
 
-  this.paginatedProductos = this.productos.filter(p => p.categoria_id === categoriaId);
+    this.paginatedProductos = this.productos.filter(p => p.id_categoria_p === categoriaId);
 
-  if (this.paginatedProductos.length === 0) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Sin productos',
-      text: 'No hay productos en esta categoría.',
-      timer: 1500,
-      showConfirmButton: false
-    });
+    if (this.paginatedProductos.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin productos',
+        text: 'No hay productos en esta categoría.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
   }
 }
-
-}
+  

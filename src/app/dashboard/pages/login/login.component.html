@@ -11,25 +11,25 @@
     <h2 class="login-title">LOGIN</h2>
 
     <form (ngSubmit)="login()" class="login-form">
-      <!-- Campo DNI -->
+      <!-- Campo Correo -->
       <div class="form-group">
         <div class="input-container">
           <i class="fas fa-id-card input-icon"></i>
           <input
-            #dniInput
+            #CorreoInput
             type="text"
             class="form-control"
-            [(ngModel)]="dni"
-            name="dni"
+            [(ngModel)]="Correo"
+            name="Correo"
             required
             maxlength="8"
             inputmode="numeric"
             pattern="[0-9]*"
-            (input)="onDniInput($event)"
-            placeholder="DNI"
+            (input)="onCorreoInput($event)"
+            placeholder="Correo"
           />
         </div>
-        <div class="error-message" *ngIf="dniError">{{ dniError }}</div>
+        <div class="error-message" *ngIf="CorreoError">{{ CorreoError }}</div>
       </div>
 
       <!-- Campo Contraseña -->
@@ -39,8 +39,8 @@
           <input
             [type]="hidePassword ? 'password' : 'text'"
             class="form-control"
-            [(ngModel)]="password"
-            name="password"
+            [(ngModel)]="Password"
+            name="Password"
             required
             placeholder="Contraseña"
           />

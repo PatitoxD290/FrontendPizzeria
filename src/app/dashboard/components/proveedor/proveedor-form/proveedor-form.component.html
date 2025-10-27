@@ -1,11 +1,11 @@
-<h2 mat-dialog-title>{{ proveedor.proveedor_id ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
+<h2 mat-dialog-title>{{ proveedor.id_proveedor ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveProveedor()">
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre Proveedor</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.nombre_proveedor" name="nombre_proveedor" required />
+      <input matInput type="text" [(ngModel)]="proveedor.nombre" name="nombre" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
@@ -40,6 +40,7 @@
         <mat-option value="I">Inactivo</mat-option>
       </mat-select>
     </mat-form-field>
+
   </form>
 </mat-dialog-content>
 

@@ -1,4 +1,5 @@
-// Tu archivo TypeScript se mantiene igual, solo he corregido el método togglePassword
+// Tu archivo TypeScript corregido y adaptado a validación de correo
+
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,13 +15,13 @@ import Swal from 'sweetalert2';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  dni = '';
-  password = '';
+  Correo = '';
+  Password = '';
   hidePassword = true;
-  dniError = '';
+  CorreoError = '';
   rememberMe = false;
 
-  @ViewChild('dniInput') dniInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('CorreoInput') CorreoInputRef!: ElementRef<HTMLInputElement>;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -31,21 +32,23 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.dniInputRef?.nativeElement?.focus(), 100);
+    setTimeout(() => this.CorreoInputRef?.nativeElement?.focus(), 100);
   }
 
-  onDniInput(event: Event) {
+  onCorreoInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const soloNumeros = input.value.replace(/\D/g, '');
+    const correo = input.value.trim();
 
-    if (input.value !== soloNumeros) {
-      input.value = soloNumeros;
-      this.dniError = 'Solo se permiten números';
+    // Expresión regular para validar correo electrónico
+    const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+
+    if (!correoValido && correo.length > 0) {
+      this.CorreoError = 'Ingresa un correo electrónico válido (ejemplo@dominio.com)';
     } else {
-      this.dniError = '';
+      this.CorreoError = '';
     }
 
-    this.dni = soloNumeros;
+    this.Correo = correo;
   }
 
   togglePasswordVisibility() {
@@ -53,27 +56,31 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   login() {
-    if (!this.dni || !this.password) {
+    // Validar campos vacíos
+    if (!this.Correo || !this.Password) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos vacíos',
-        text: 'Por favor, ingresa tu DNI y contraseña.',
+        text: 'Por favor, ingresa tu correo y contraseña.',
         confirmButtonColor: '#722f37',
       });
       return;
     }
 
-    if (this.dni.length !== 8) {
+    // Validar formato de correo
+    const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.Correo);
+    if (!correoValido) {
       Swal.fire({
         icon: 'warning',
-        title: 'DNI inválido',
-        text: 'El DNI debe tener exactamente 8 dígitos.',
+        title: 'Correo inválido',
+        text: 'Por favor, ingresa un correo electrónico válido.',
         confirmButtonColor: '#722f37',
       });
       return;
     }
 
-    this.authService.login(this.dni, this.password).subscribe({
+    // Intentar inicio de sesión
+    this.authService.login(this.Correo, this.Password).subscribe({
       next: () => {
         Swal.fire({
           icon: 'success',

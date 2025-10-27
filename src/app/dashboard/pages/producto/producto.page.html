@@ -1,7 +1,7 @@
 <h2>Gestión de Productos</h2>
 
 <!-- Botón para nuevo producto -->
-<button mat-flat-button color="primary" (click)="openNuevoProducto(productoList)">
+<button mat-flat-button color="primary" (click)="openNuevoProducto()">
   <mat-icon>add</mat-icon> Nuevo Producto
 </button>
 
@@ -20,8 +20,7 @@
       </button>
     </div>
 
-    <!-- Capturamos el evento al hacer clic -->
+    <!-- Capturamos el evento de selección -->
     <app-categoria-list (categoriaSeleccionada)="onCategoriaSeleccionada($event)"></app-categoria-list>
   </div>
 </div>
-

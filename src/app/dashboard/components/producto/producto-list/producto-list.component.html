@@ -1,22 +1,21 @@
 <mat-card>
   <div class="header">
-
+    <button mat-flat-button color="primary" (click)="openProductoForm()">+ Nuevo Producto</button>
   </div>
 
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>
   </div>
 
-  <!-- Grid de Cards -->
   <div class="card-grid" *ngIf="!loading && paginatedProductos.length > 0">
     <mat-card *ngFor="let p of paginatedProductos" class="producto-card">
       <div class="card-content">
-        <h3>{{ p.nombre_producto }}</h3>
-        <p><strong>ID:</strong> {{ p.producto_id }}</p>
-        <p><strong>Descripción:</strong> {{ p.descripcion_producto }}</p>
+        <h3>{{ p.nombre }}</h3>
+        <p><strong>ID:</strong> {{ p.id_producto }}</p>
+        <p><strong>Descripción:</strong> {{ p.descripcion }}</p>
         <p><strong>Categoría:</strong> {{ p.nombre_categoria }}</p>
         <p><strong>Receta:</strong> {{ p.nombre_receta }}</p>
-        <p><strong>Precio:</strong> S/ {{ p.precio_venta | number:'1.2-2' }}</p>
+        <p><strong>Precio:</strong> S/ {{ p.precio_base | number:'1.2-2' }}</p>
         <p><strong>Estado:</strong> {{ p.estado === 'A' ? 'Activo' : 'Inactivo' }}</p>
         <p><strong>Fecha Registro:</strong> {{ p.fecha_registro | date:'short' }}</p>
       </div>
@@ -25,7 +24,7 @@
         <button mat-icon-button color="primary" (click)="openProductoForm(p)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deleteProducto(p.producto_id)">
+        <button mat-icon-button color="warn" (click)="deleteProducto(p.id_producto)">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

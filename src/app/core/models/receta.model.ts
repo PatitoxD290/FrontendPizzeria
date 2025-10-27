@@ -1,7 +1,22 @@
-// src/app/dashboard/models/receta.model.ts
+// ===========================================
+// RECETA
+// ===========================================
 export interface Receta {
-  receta_id?: number;              // opcional, lo genera el backend
-  nombre_receta: string;           // nombre de la receta
-  descripcion_receta: string;      // descripción o pasos
-  tiempo_estimado_minutos?: number; // opcional, tiempo estimado en minutos
+  id_receta: number;
+  nombre: string;
+  descripcion: string;
+  tiempo_preparacion: string;
+}
+
+// ===========================================
+// RECETA DETALLE
+// ===========================================
+export interface RecetaDetalle {
+  id_receta_d: number;
+  id_receta: number;
+  id_insumo: number;
+  cantidad: number;
+  uso: string;
+
+  nombre_ingrediente?: string;
 }
