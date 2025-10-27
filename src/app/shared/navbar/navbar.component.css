@@ -71,60 +71,40 @@
   transform: scale(1.05);
 }
 
+/* LOGO: Solo imagen, con bordes más ajustados */
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
+  justify-content: center;
   cursor: pointer;
-  text-decoration: none;
-  border: none; /* Quitar bordes */
+  padding: 2px 3px;           /* 🔹 Reducido para pegar los bordes a la imagen */
+  height: var(--navbar-height);
+  border-radius: 10px;
+  transition: var(--transition);
+  border: none;
+  background: transparent;
+  gap: 0;                     /* 🔹 Elimina cualquier espacio entre elementos internos */
 }
 
 .logo-container:hover {
-  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.03);
 }
 
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(71, 66, 66, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: none; /* Quitar bordes */
-  overflow: hidden; /* Para que la imagen no se salga del contenedor */
-}
-
-/* ESTILOS PARA LA IMAGEN DEL LOGO */
+/* Imagen del logo */
 .logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Mantiene la proporción de la imagen */
-  border-radius: 8px; /* Bordes ligeramente redondeados */
+  height: 54px;               /* 🔹 Mantiene una buena proporción dentro del navbar */
+  width: 110px;               /* 🔹 Un ancho visualmente equilibrado */
+  object-fit: contain;        /* Mantiene proporción sin deformar */
+  border-radius: 6px;
   transition: var(--transition);
+  display: block;             /* 🔹 Elimina espacios fantasmas de inline */
 }
 
 .logo-container:hover .logo-img {
-  transform: scale(1.05); /* Efecto hover sutil */
+  transform: scale(1.05);
 }
 
-/* Eliminar el estilo del icono de pizza anterior */
-.pizza-icon {
-  display: none; /* Ocultar el icono anterior */
-}
-
-.logo-text {
-  font-size: 18px;
-  font-weight: 700;
-  color: rgb(32, 32, 32);
-  white-space: nowrap;
-}
 
 /* Sección Central - Búsqueda CON FONDO BLANCO */
 .navbar-center {

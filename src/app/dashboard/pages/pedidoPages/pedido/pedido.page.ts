@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { PedidoFormComponent } from '../../components/pedido/pedido-form/pedido-form.component';
-import { PedidoListComponent } from '../../components/pedido/pedido-list/pedido-list.component';
+import { PedidoFormComponent } from '../../../components/pedido/pedido-form/pedido-form.component';
+import { PedidoListComponent } from '../../../components/pedido/pedido-list/pedido-list.component';
 
 @Component({
   selector: 'app-pedido',

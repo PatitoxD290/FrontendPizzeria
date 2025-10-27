@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Producto } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../services/producto.service';
 import { CategoriaService } from '../../../services/categoria.service';
@@ -7,7 +8,6 @@ import { RecetaService } from '../../../services/receta.service';
 import Swal from 'sweetalert2';
 
 // Angular Material
-import { MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,7 +21,7 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
+    NgIf,
     MatPaginatorModule,
     MatButtonModule,
     MatProgressSpinnerModule,
@@ -34,21 +34,10 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
 })
 export class ProductoListComponent implements OnInit {
 
-  displayedColumns: string[] = [
-    'producto_id',
-    'nombre_producto',
-    'descripcion_producto',
-    'categoria',
-    'receta',
-    'precio_venta',
-    'estado',
-    'fecha_registro',
-    'acciones'
-  ];
-
   productos: any[] = [];
   categorias: any[] = [];
   recetas: any[] = [];
+  paginatedProductos: any[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -81,14 +70,22 @@ export class ProductoListComponent implements OnInit {
       }));
 
       this.loading = false;
-      setTimeout(() => {
-        if (this.paginator) this.paginator.length = this.productos.length;
-      });
+      this.setPage(0); // inicializa la paginación
     })
     .catch(err => {
       console.error('Error al cargar datos', err);
       this.loading = false;
     });
+  }
+
+  setPage(pageIndex: number) {
+    const pageSize = this.paginator?.pageSize || 5;
+    const startIndex = pageIndex * pageSize;
+    this.paginatedProductos = this.productos.slice(startIndex, startIndex + pageSize);
+  }
+
+  onPageChange(event: any) {
+    this.setPage(event.pageIndex);
   }
 
   deleteProducto(id: number) {
@@ -136,4 +133,24 @@ export class ProductoListComponent implements OnInit {
       if (result) this.loadProductos();
     });
   }
+
+filterByCategoria(categoriaId: number) {
+  if (!categoriaId) {
+    this.paginatedProductos = this.productos; // mostrar todos
+    return;
+  }
+
+  this.paginatedProductos = this.productos.filter(p => p.categoria_id === categoriaId);
+
+  if (this.paginatedProductos.length === 0) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Sin productos',
+      text: 'No hay productos en esta categoría.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+}
+
 }

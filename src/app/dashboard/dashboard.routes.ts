@@ -23,9 +23,14 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./pages/home/home.component').then(m => m.HomeComponent)
       },
       {
-        path: 'pedido',
+        path: 'registropedidos',
         loadComponent: () =>
-          import('./pages/pedido/pedido.page').then(m => m.PedidoPage)
+          import('./pages/pedidoPages/pedido/pedido.page').then(m => m.PedidoPage)
+      },
+      {
+        path: 'realizarpedido',
+        loadComponent: () =>
+          import('./pages/pedidoPages/realizar-pedido/realizar-pedido.page').then(m => m.RealizarPedidoPage)
       },
       {        
         path: 'cliente',

@@ -1,21 +1,34 @@
-table {
-  width: 100%;
+.categoria-card {
+  margin-bottom: 15px;
+  padding: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s, background-color 0.2s;
 }
 
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
+.categoria-card:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
 }
 
-mat-card {
-  padding: 20px;
-  margin: 20px;
-}
-
-.header {
+.categoria-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+}
+
+.categoria-info {
+  text-align: center;
+}
+
+.categoria-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* 🔹 Card activa (seleccionada) */
+.categoria-card.activa {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+  transform: scale(1.02);
 }

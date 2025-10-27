@@ -8,4 +8,8 @@ export interface DetallePedido {
   precio_unitario: number;         // DECIMAL(10,2) NOT NULL
   subtotal: number;                // DECIMAL(12,2) NOT NULL
   notas_producto: string | null;   // TEXT NULL
+
+  // 👇 Campos extra (solo para mostrar en frontend)
+  nombre_producto?: string;
+  nombre_categoria?: string;
 }

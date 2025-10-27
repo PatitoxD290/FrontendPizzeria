@@ -51,9 +51,9 @@ export class ProductoFormComponent implements OnInit {
       : {
           producto_id: 0,
           nombre_producto: '',
-          descripcion_producto: '',
+          descripcion_producto: '', // opcional
           categoria_id: 0,
-          receta_id: null,
+          receta_id: null, // opcional
           precio_venta: 0,
           estado: 'A'
         };
@@ -82,7 +82,6 @@ export class ProductoFormComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-
       const reader = new FileReader();
       reader.onload = (e) => (this.imagePreview = e.target?.result || null);
       reader.readAsDataURL(file);
@@ -90,24 +89,28 @@ export class ProductoFormComponent implements OnInit {
   }
 
   saveProducto() {
+    // ✅ Solo validamos los campos realmente obligatorios
     if (!this.producto.nombre_producto || !this.producto.precio_venta || !this.producto.categoria_id) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
-        text: 'Por favor completa los campos obligatorios antes de guardar.',
+        text: 'Por favor completa los campos obligatorios: nombre, precio y categoría.',
         confirmButtonColor: '#3085d6'
       });
       return;
     }
 
-    // Si se seleccionó una imagen, armamos FormData
+    // Si hay imagen → FormData
     if (this.selectedFile) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
       formData.append('nombre_producto', this.producto.nombre_producto);
       formData.append('descripcion_producto', this.producto.descripcion_producto || '');
       formData.append('categoria_id', String(this.producto.categoria_id));
+
+      // ✅ receta_id es opcional
       formData.append('receta_id', this.producto.receta_id ? String(this.producto.receta_id) : '');
+
       formData.append('precio_venta', String(this.producto.precio_venta));
       formData.append('estado', this.producto.estado || 'A');
 
@@ -123,7 +126,7 @@ export class ProductoFormComponent implements OnInit {
         });
       }
     } else {
-      // Si NO hay imagen, usa JSON normal
+      // Si NO hay imagen → JSON normal
       if (!this.producto.producto_id || this.producto.producto_id === 0) {
         this.productoService.createProducto(this.producto).subscribe({
           next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),

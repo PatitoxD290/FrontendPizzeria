@@ -9,7 +9,7 @@ export const authGuard: CanActivateFn = () => {
   const token = auth.getToken();
 
   if (!token) {
-    return redirectToLogin(router);
+    return redirectToLogin(router, auth);
   }
 
   try {
@@ -18,19 +18,20 @@ export const authGuard: CanActivateFn = () => {
 
     if (isExpired) {
       auth.logout();
-      return redirectToLogin(router);
+      return redirectToLogin(router, auth);
     }
-
   } catch {
     auth.logout();
-    return redirectToLogin(router);
+    return redirectToLogin(router, auth);
   }
 
   return true;
 };
 
-// ✅ Dashboard es lo único protegido
-function redirectToLogin(router: Router) {
+// 🔁 Función auxiliar
+function redirectToLogin(router: Router, auth: AuthService) {
+  // Limpia datos y redirige
+  auth.logout();
   router.navigate(['/dashboard/login']);
   return false;
 }

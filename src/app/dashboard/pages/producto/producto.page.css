@@ -10,3 +10,46 @@ button {
 hr {
   margin: 15px 0;
 }
+
+/* Layout flex: productos a la izquierda, categorías a la derecha */
+.producto-categoria-container {
+  display: flex;
+  gap: 20px; /* espacio entre columnas */
+}
+
+/* Productos ocupa más espacio */
+.producto-list {
+  flex: 2;
+}
+
+/* Panel de categorías vertical, ocupa menos */
+.categoria-list {
+  flex: 1;
+  max-width: 250px; /* reduce el ancho del panel */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Header del panel con botón */
+.categoria-header {
+  display: flex;
+  justify-content: space-between; /* título a la izquierda, botón a la derecha */
+  align-items: center;
+  width: 100%;
+  gap: 10px; /* espacio entre h3 y el botón si se reducen */
+}
+
+/* Ajusta el icono dentro del botón */
+.categoria-header button mat-icon {
+  margin-right: 5px; /* separa el icono del texto "Nueva Categoría" */
+}
+
+/* Opcional: ajusta tamaño del h3 si el panel es estrecho */
+.categoria-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  white-space: nowrap; /* evita que el texto se rompa */
+}
+
+

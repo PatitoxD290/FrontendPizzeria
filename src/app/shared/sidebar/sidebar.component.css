@@ -7,27 +7,21 @@
   --primary-color: #8B0000;
   --primary-dark: #5a0000;
   --primary-light: #a52a2a;
-  --accent-color: #ff6b00;
-  --accent-hover: #ff8c00;
+  --accent-color: #ffffff;
+  --accent-hover: #f0f0f0;
   --text-primary: #ffffff;
-  --text-secondary: #887f7f;
-  --text-muted: #cccccc;
-  --bg-hover: rgba(180, 174, 174, 0.788);
-  --bg-active: rgba(255, 107, 0, 0.2);
+  --text-secondary: #ffffff;
+  --text-muted: #ffffff;
+  --bg-hover: rgba(255, 255, 255, 0.1);
+  --bg-active: rgba(255, 255, 255, 0.15);
   --border-radius: 8px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================= */
-/* ESTILOS BASE */
+/* ESTILOS BASE - TODAS LAS LETRAS BLANCAS */
 /* ============================================= */
-.sidenav-container {
-  height: 100vh;
-  display: flex;
-  background: hwb(0 100% 0% / 0.74);
-}
-
 .sidenav {
   width: var(--sidebar-width);
   background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
@@ -41,6 +35,13 @@
   height: 100vh;
   z-index: 1000;
   border: none;
+  color: white !important; /* Garantiza que TODO el texto sea blanco */
+}
+
+.sidenav-container {
+  height: 100vh;
+  display: flex;
+  background: hwb(0 11% 47%);
 }
 
 .sidenav.collapsed {
@@ -48,11 +49,11 @@
 }
 
 /* ============================================= */
-/* ENCABEZADO */
+/* ENCABEZADO - BLANCO */
 /* ============================================= */
 .sidebar-header {
   padding: 24px 20px;
-  border-bottom: 1px solid rgba(189, 179, 179, 0.733);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -110,38 +111,64 @@
 .logo-primary {
   font-weight: 700;
   font-size: 18px;
-  color: white;
+  color: white !important;
   line-height: 1;
 }
 
 .logo-subtitle {
   font-size: 11px;
-  color: var(--accent-color);
+  color: white !important;
   font-weight: 500;
   line-height: 1;
+  opacity: 0.9;
 }
 
 /* ============================================= */
-/* ETIQUETAS DE SECCIÓN */
+/* TÍTULOS DE SECCIÓN - BLANCOS */
 /* ============================================= */
 .section-label {
   padding: 16px 20px 8px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--accent-color);
+  color: white !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.8;
 }
 
+/* Estilos para cualquier título o texto en el sidebar */
+.sidenav h1,
+.sidenav h2,
+.sidenav h3,
+.sidenav h4,
+.sidenav h5,
+.sidenav h6,
+.sidenav .section-title,
+.sidenav .menu-title,
+.sidenav .category-title {
+  color: white !important;
+  font-weight: 600;
+}
+
+/* Títulos específicos como "Inicio", "Clientes", "Inventario" */
+.sidenav .main-section-title,
+.sidenav .category-header,
+.sidenav .group-title {
+  color: white !important;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  margin: 0;
+}
+
 .section-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.3);
   margin: 8px 16px;
 }
 
 /* ============================================= */
-/* BADGES PERSONALIZADOS */
+/* BADGES PERSONALIZADOS - BLANCOS */
 /* ============================================= */
 .custom-badge {
   display: inline-flex;
@@ -153,8 +180,8 @@
   border-radius: 9px;
   font-size: 10px;
   font-weight: 600;
-  color: white;
-  background: #8a4343;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.3);
   margin-left: auto;
 }
 
@@ -165,19 +192,19 @@
 }
 
 .custom-badge.primary {
-  background: #3f51b5;
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .custom-badge.accent {
-  background: #777475;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .custom-badge.warn {
-  background: #6e6c6c;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ============================================= */
-/* NAVEGACIÓN - ESTILOS MEJORADOS */
+/* NAVEGACIÓN - TODOS LOS TEXTOS BLANCOS */
 /* ============================================= */
 .sidebar-nav {
   flex: 1;
@@ -186,9 +213,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  color: white !important;
 }
 
-/* Items del menú - BORDE COMPLETO */
+/* Items del menú - TEXTO BLANCO */
 .menu-item {
   display: flex !important;
   align-items: center;
@@ -199,7 +227,7 @@
   margin: 2px 0 !important;
   border-radius: 0 !important;
   text-decoration: none;
-  color: inherit !important;
+  color: white !important;
   border: 1px solid transparent;
   position: relative;
   opacity: 1 !important;
@@ -208,20 +236,19 @@
 
 .menu-item:hover {
   background: var(--bg-hover);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   transform: translateX(4px);
   border-radius: 0 !important;
 }
 
-/* BORDE ACTIVO SOLO PARA ENLACES DIRECTOS (con routerLink) */
+/* Estado activo - BLANCO */
 .menu-item.active[href] {
   background: var(--bg-active);
-  border-left: 4px solid var(--accent-color) !important;
-  box-shadow: 0 2px 8px rgba(66, 65, 63, 0.2);
+  border-left: 4px solid white !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
   border-radius: 0 !important;
 }
 
-/* REMOVER BORDE ACTIVO DE ÍTEMS QUE SOLO SON CONTENEDORES DE SUBMENÚ */
 .menu-item.active:not([href]) {
   border-left: none !important;
   background: transparent !important;
@@ -229,11 +256,11 @@
 }
 
 .menu-item.active .menu-icon {
-  color: var(--accent-color) !important;
+  color: white !important;
   transform: scale(1.1);
 }
 
-/* Contenido del menú - ICONOS MÁS CENTRADOS */
+/* Contenido del menú */
 .menu-content {
   display: flex;
   align-items: center;
@@ -247,7 +274,7 @@
   gap: 0;
 }
 
-/* Iconos - MÁS CENTRADOS VISUALMENTE */
+/* Iconos - SIEMPRE BLANCOS */
 .menu-icon {
   font-size: 20px !important;
   width: 20px !important;
@@ -257,24 +284,24 @@
   justify-content: center;
   transition: var(--transition);
   flex-shrink: 0;
-  color: var(--text-primary) !important;
+  color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
-  /* Centrado mejorado */
-  margin-left: 2px; /* Compensa visualmente el centrado */
+  margin-left: 2px;
 }
 
-.menu-item:hover .menu-icon {
-  color: var(--text-primary) !important;
+.menu-item:hover .menu-icon,
+.menu-item.active .menu-icon {
+  color: white !important;
   transform: scale(1.1);
 }
 
-/* Labels */
+/* Labels del menú - BLANCOS */
 .menu-label {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: white !important;
   transition: var(--transition);
   white-space: nowrap;
   overflow: hidden;
@@ -285,14 +312,14 @@
   display: none;
 }
 
-/* Icono de expansión */
+/* Icono de expansión - BLANCO */
 .expand-icon {
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
   transition: var(--transition);
-  color: var(--text-primary) !important;
-  opacity: 0.7;
+  color: white !important;
+  opacity: 0.9;
 }
 
 .sidenav.collapsed .expand-icon {
@@ -304,7 +331,7 @@
 }
 
 /* ============================================= */
-/* SUBMENÚ */
+/* SUBMENÚ - TODOS LOS TEXTOS BLANCOS */
 /* ============================================= */
 .submenu {
   background: rgba(0, 0, 0, 0.15);
@@ -340,7 +367,7 @@
   transition: var(--transition);
   font-size: 13px;
   text-decoration: none;
-  color: inherit !important;
+  color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
   border-radius: 0 !important;
@@ -348,16 +375,16 @@
 }
 
 .submenu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateX(4px);
   border-radius: 0 !important;
 }
 
-/* BORDE ACTIVO PARA SUBMENÚ */
+/* Submenú activo - BLANCO */
 .submenu-item.active {
-  background: rgba(54, 53, 52, 0.15);
-  color: var(--accent-color);
-  border-left: 3px solid var(--accent-color) !important;
+  background: rgba(255, 255, 255, 0.15);
+  color: white !important;
+  border-left: 3px solid white !important;
   border-radius: 0 !important;
 }
 
@@ -372,39 +399,43 @@
   font-size: 16px !important;
   width: 16px !important;
   height: 16px !important;
-  color: var(--text-secondary) !important;
-  opacity: 1 !important;
+  color: white !important;
+  opacity: 0.9 !important;
   visibility: visible !important;
   transition: var(--transition);
 }
 
 .submenu-item:hover .submenu-icon,
 .submenu-item.active .submenu-icon {
-  color: var(--text-primary) !important;
+  color: white !important;
   transform: scale(1.1);
+  opacity: 1 !important;
 }
 
 .submenu-label {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: white !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: var(--transition);
+  opacity: 0.9;
 }
 
 .submenu-item:hover .submenu-label,
 .submenu-item.active .submenu-label {
-  color: var(--text-primary);
+  color: white !important;
+  opacity: 1;
 }
 
 /* ============================================= */
-/* PIE DE PÁGINA */
+/* PIE DE PÁGINA - BLANCO */
 /* ============================================= */
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(0, 0, 0, 0.1);
+  color: white !important;
 }
 
 .user-info {
@@ -417,7 +448,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-light) 100%);
+  background: linear-gradient(135deg, white 0%, #e0e0e0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,7 +456,7 @@
 }
 
 .user-avatar mat-icon {
-  color: white !important;
+  color: var(--primary-color) !important;
   font-size: 20px !important;
   width: 20px !important;
   height: 20px !important;
@@ -441,17 +472,18 @@
 .user-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white !important;
 }
 
 .user-role {
   font-size: 11px;
-  color: var(--accent-color);
+  color: white !important;
   font-weight: 500;
+  opacity: 0.9;
 }
 
 /* ============================================= */
-/* ESTADOS COLAPSADO - ICONOS MEJOR CENTRADOS */
+/* ESTADOS COLAPSADO */
 /* ============================================= */
 .sidenav.collapsed {
   .sidebar-header,
@@ -467,14 +499,13 @@
     margin: 2px 0 !important;
   }
   
-  /* Centrado mejorado para íconos cuando está colapsado */
   .menu-content {
     justify-content: center;
     width: 100%;
   }
   
   .menu-icon {
-    margin: 0 auto; /* Centrado perfecto */
+    margin: 0 auto;
     display: flex;
     justify-content: center;
   }
@@ -498,40 +529,105 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 2px;
     min-height: 30px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-hover);
+    background: rgba(255, 255, 255, 0.7);
     width: 6px;
 }
 
 /* ============================================= */
-/* GARANTIZAR VISIBILIDAD */
+/* GARANTIZAR QUE TODO SEA BLANCO Y VISIBLE */
 /* ============================================= */
-mat-icon {
+
+/* Asegurar que todos los íconos sean blancos */
+.sidenav mat-icon {
+  color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
 }
 
+/* Asegurar que todos los textos sean blancos */
+.sidenav,
+.sidenav *:not(button):not(input):not(textarea):not(select) {
+  color: white !important;
+}
+
+.sidenav span,
+.sidenav div,
+.sidenav p,
+.sidenav a,
+.sidenav label {
+  color: white !important;
+}
+
+/* Específicamente para todos los elementos de texto */
 .menu-label,
 .submenu-label,
 .section-label,
 .logo-primary,
 .logo-subtitle,
 .user-name,
-.user-role {
+.user-role,
+.section-title,
+.menu-title,
+.category-title {
+  color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
-  color: inherit !important;
 }
 
 .menu-item,
 .submenu-item {
+  color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
+}
+
+/* ============================================= */
+/* ESTILOS PARA TEXTOS ESPECÍFICOS DEL SIDEBAR */
+/* ============================================= */
+
+/* Para títulos como "Inicio", "Clientes", "Inventario", "Analíticos" */
+.sidenav .nav-section-header,
+.sidenav .nav-category,
+.sidenav .nav-group {
+  color: white !important;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Para cualquier texto adicional en el sidebar */
+.sidenav .nav-description,
+.sidenav .nav-hint,
+.sidenav .nav-info {
+  color: white !important;
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+/* Estados activos y de hover mantienen el color blanco */
+.sidenav *:active,
+.sidenav *:focus,
+.sidenav *:hover {
+  color: white !important;
+}
+
+/* Para elementos de lista adicionales */
+.sidenav li,
+.sidenav ul,
+.sidenav ol {
+  color: white !important;
+}
+
+.sidenav li::before,
+.sidenav li::after {
+  color: white !important;
 }

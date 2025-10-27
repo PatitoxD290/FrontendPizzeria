@@ -58,11 +58,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     },
     {
       items: [
-       { 
-          label: 'Pedidos', 
-          route: '/dashboard/pedido', 
-          icon: 'local_pizza'
-        },
+      { 
+        label: 'Pedidos', 
+        icon: 'local_pizza',
+        children: [
+          { label: 'Realizar Pedido', route: '/dashboard/realizarpedido', icon: 'add_shopping_cart' },
+          { label: 'Registro de Pedidos', route: '/dashboard/registropedidos', icon: 'receipt_long' }
+        ],
+        isExpanded: false
+      },
         { 
           label: 'Registro de Ventas', 
           route: '/dashboard/venta', 
@@ -79,11 +83,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       label: 'Inventario',
       items: [
         { 
-          label: 'Gestión de Productos', 
+          label: 'Configuración del Menú', 
           icon: 'inventory_2', 
           children: [
-            { label: 'Productos', route: '/dashboard/producto', icon: 'fastfood' },
-            { label: 'Categorías', route: '/dashboard/categoria', icon: 'category' },
+            { label: 'Productos y Categorias', route: '/dashboard/producto', icon: 'fastfood' },
             { label: 'Recetas', route: '/dashboard/receta', icon: 'restaurant_menu' },
           ],
           isExpanded: false
