@@ -42,15 +42,15 @@ interface Producto {
 })
 export class MenuComponent implements OnInit {
   searchTerm: string = '';
-  filtroCategoria: string = 'Pizzas';
+  filtroCategoria: string = '';
   productos: Producto[] = [];
 
   // 🗺️ Mapa temporal de categorías según IDs de tu backend
   CATEGORY_MAP: Record<number, string> = {
     1: 'Pizzas',
-    2: 'Bebidas',
-    3: 'Combos',
-    4: 'Pizzas Especiales',
+    2: 'Combos',
+    3: 'Pizzas Especiales',
+    4: 'Bebidas',
   };
 
   constructor(
@@ -69,10 +69,29 @@ export class MenuComponent implements OnInit {
     this.productoService.getProductos().subscribe({
       next: (data: any) => {
         const rawArray = Array.isArray(data) ? data : data ? [data] : [];
-        this.productos = rawArray.map((item: any) => ({
+        
+        // Filtrar solo productos que estén ACTIVOS
+        const productosActivos = rawArray.filter((item: any) => {
+          // Verificar si el producto está activo - INCLUYENDO "A" para tu base de datos
+          const estaActivo = 
+            item.estado === 'Activo' ||
+            item.estado === 'A' ||  // ← AGREGADO: Para tu BD que usa 'A'
+            item.activo === true ||
+            item.activo === 1 ||
+            item.status === 'active' ||
+            item.estado_producto === 'Activo' ||
+            item.disponible === true ||
+            item.disponible === 1 ||
+            // Si no existe campo de estado, cargar por defecto (compatibilidad)
+            (item.estado === undefined && item.activo === undefined && item.status === undefined);
+          
+          return estaActivo;
+        });
+
+        this.productos = productosActivos.map((item: any) => ({
           id: item.producto_id ?? item.id ?? 0,
           nombre: item.nombre_producto ?? item.nombre ?? 'Sin nombre',
-          descripcion: item.descripcion_producto ?? item.descripcion ?? 'No llego',
+          descripcion: item.descripcion_producto ?? item.descripcion ?? '',
           categoria: item.categoria_id ?? 0,
           precio: Number(item.precio_venta ?? item.precio ?? 0) || 0,
           imagen: `http://localhost:3000/imagenesCata/producto_${
@@ -96,8 +115,8 @@ export class MenuComponent implements OnInit {
   get productosFiltrados(): Producto[] {
     return this.productos.filter((p) => {
       const categoriaNombre = this.getNombreCategoria(p.categoria);
-      const categoriaFiltrada = this.filtroCategoria === '' ? 'Pizzas' : this.filtroCategoria;
-      const coincideCategoria = categoriaFiltrada ? categoriaNombre === categoriaFiltrada : true;
+      const coincideCategoria = this.filtroCategoria ? 
+        categoriaNombre === this.filtroCategoria : true;
       const coincideBusqueda = this.searchTerm
         ? p.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
         : true;
@@ -105,21 +124,13 @@ export class MenuComponent implements OnInit {
     });
   }
 
-  cambiarCategoriaSuperior(categoria: string): void {
-    this.filtroCategoria = categoria;
-  }
-
   cambiarCategoria(categoria: string): void {
     this.filtroCategoria = categoria;
   }
 
-  get pizzasActivo(): boolean {
-    return (
-      this.filtroCategoria === 'Pizzas' ||
-      this.filtroCategoria === '' ||
-      this.filtroCategoria === 'Combos' ||
-      this.filtroCategoria === 'Pizzas Especiales'
-    );
+  // Propiedad computada para determinar si mostrar filtros inferiores
+  get mostrarFiltrosInferiores(): boolean {
+    return this.filtroCategoria !== 'Bebidas';
   }
 
   agregarAlCarrito(producto: Producto): void {
@@ -147,6 +158,7 @@ export class MenuComponent implements OnInit {
     });
   }
 
+  // Métodos del carrito (mantenidos por si se necesitan)
   incrementarCantidadCarrito(index: number): void {
     this.carritoService.incrementarCantidad(index);
   }
@@ -162,7 +174,7 @@ export class MenuComponent implements OnInit {
   calcularTotalCarrito(): number {
     return this.carritoService
       .obtenerProductos()
-      .reduce((total, item) => total + item.precio * item.cantidad, 0);
+      .reduce((total, item) => total + item.precio * item.cantidad!, 0);
   }
 
   confirmarPedido(): void {

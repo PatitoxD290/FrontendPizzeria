@@ -10,7 +10,7 @@ export const routes: Routes = [
   { path: 'dashboard', children: DASHBOARD_ROUTES },
 
   // Raíz → kiosko/iniciar
-  { path: '', redirectTo: 'kiosko/iniciar', pathMatch: 'full' }
+  { path: '', redirectTo: 'kiosko/iniciar', pathMatch: 'full' },
 
   // ❌ No hay ** global, cada módulo maneja su 404
 ];
