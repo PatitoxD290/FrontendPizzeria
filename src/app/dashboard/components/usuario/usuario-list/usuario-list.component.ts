@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Usuario } from '../../../../core/models/usuario.model';
-import { UsuarioService } from '../../../services/usuario.service';
+import { UsuarioService } from '../../../../core/services/auth/usuario.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

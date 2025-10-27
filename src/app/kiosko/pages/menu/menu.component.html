@@ -1,22 +1,21 @@
 <div class="menu-container">
-  <!-- 📌 Filtro con botones (VERSIÓN ANTERIOR) -->
+  <!-- 📌 Filtro dinámico -->
   <div class="filtro-botones">
-    <mat-button-toggle-group [(ngModel)]="filtroCategoria" aria-label="Filtro de categorías">
+    <mat-button-toggle-group
+      [(ngModel)]="filtroCategoria"
+      aria-label="Filtro de categorías"
+    >
       <mat-button-toggle value="">
         <mat-icon>list</mat-icon>
         Todos
       </mat-button-toggle>
-      <mat-button-toggle value="Pizzas">
-        <mat-icon>local_pizza</mat-icon>
-        Pizzas
-      </mat-button-toggle>
-      <mat-button-toggle value="Combos">
-        <mat-icon>fastfood</mat-icon>
-        Combos
-      </mat-button-toggle>
-      <mat-button-toggle value="Bebidas">
-        <mat-icon>local_drink</mat-icon>
-        Bebidas
+
+      <mat-button-toggle
+        *ngFor="let cat of categorias"
+        [value]="cat.nombre"
+      >
+        <mat-icon>{{ getIconoCategoria(cat.nombre) }}</mat-icon>
+        {{ cat.nombre }}
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
@@ -35,12 +34,20 @@
 
       <div class="producto-info">
         <h3 class="producto-nombre">{{ p.nombre }}</h3>
-        <p class="producto-descripcion">{{p.descripcion}}</p>
+        <p class="producto-descripcion">{{ p.descripcion }}</p>
+
+        <!-- 🔹 Solo para combos -->
+        <p
+          *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto"
+          class="producto-detalles"
+        >
+          {{ p.detallesTexto }}
+        </p>
+
         <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
         <p class="producto-precio">S/. {{ p.precio }}</p>
 
         <div class="producto-acciones">
-          <!-- Solo no-bebidas -->
           <button
             *ngIf="getNombreCategoria(p.categoria) !== 'Bebidas'"
             class="btn-personalizar"

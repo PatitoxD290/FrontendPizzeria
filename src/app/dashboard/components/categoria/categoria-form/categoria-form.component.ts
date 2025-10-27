@@ -2,8 +2,8 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Categoria } from '../../../../core/models/categoria.model';
-import { CategoriaService } from '../../../services/categoria.service';
+import { Categoria_P } from '../../../../core/models/categoria.model';
+import { CategoriaService } from '../../../../core/services/auth/categoria.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -27,18 +27,17 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class CategoriaFormComponent {
 
-  categoria: Categoria;
+  categoria: Categoria_P;
 
   constructor(
     private categoriaService: CategoriaService,
     private dialogRef: MatDialogRef<CategoriaFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { categoria?: Categoria }
+    @Inject(MAT_DIALOG_DATA) public data: { categoria?: Categoria_P }
   ) {
     // Si recibe datos (editar), los carga; si no, crea uno vacío
     this.categoria = data?.categoria ?? {
       categoria_id: 0,
-      nombre_categoria: '',
-      descripcion_categoria: ''
+      nombre_categoria: ''
     };
   }
 

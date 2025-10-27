@@ -2,13 +2,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Producto } from '../../core/models/producto.model';
+import { Producto } from '../../models/producto.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
-  private apiUrl = 'http://localhost:3000/api/v2/productos'; // ajusta el puerto según tu backend
+  private apiUrl = 'http://localhost:3000/api/v2/productos'; 
 
   constructor(private http: HttpClient) {}
 

@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf  } from '@angular/common';
 import { Cliente } from '../../../../core/models/cliente.model';
-import { ClienteService } from '../../../services/cliente.service';
+import { ClienteService } from '../../../../core/services/auth/cliente.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

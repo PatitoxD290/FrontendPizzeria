@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { Receta } from '../../../../core/models/receta.model';
 import { DetalleReceta } from '../../../../core/models/detalle-receta.model';
 import { Ingrediente } from '../../../../core/models/ingrediente.model';
-import { RecetaService } from '../../../services/receta.service';
-import { IngredienteService } from '../../../services/ingrediente.service';
+import { RecetaService } from '../../../../core/services/auth/receta.service';
+import { IngredienteService } from '../../../../core/services/auth/ingrediente.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';

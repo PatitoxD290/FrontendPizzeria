@@ -8,10 +8,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { DetalleProductoComponent } from '../../components/detalle-producto/detalle-producto.component';
-import { CarritoService } from '../../services/carrito/carrito.service';
+import { CarritoService } from '../../../core/services/auth/carrito.service';
 import { Router } from '@angular/router';
 import { CarritoFlotanteComponent } from '../../components/carrito-flotante/carrito-flotante.component';
-import { ProductoService } from '../../../dashboard/services/producto.service';
+import { ProductoService } from '../../../core/services/auth/producto.service';
+import { CategoriaService } from '../../../core/services/auth/categoria.service';
+import { CombosService } from '../../../core/services/auth/combos.service';
 
 interface Producto {
   id: number;
@@ -21,6 +23,7 @@ interface Producto {
   precio: number;
   imagen: string;
   cantidad?: number;
+  detallesTexto?: string; // 👈 Para combos
 }
 
 @Component({
@@ -44,61 +47,121 @@ export class MenuComponent implements OnInit {
   searchTerm: string = '';
   filtroCategoria: string = '';
   productos: Producto[] = [];
+  productosOriginales: Producto[] = [];
 
-  // 🗺️ Mapa temporal de categorías según IDs de tu backend
-  CATEGORY_MAP: Record<number, string> = {
-    1: 'Pizzas',
-    2: 'Combos',
-    3: 'Pizzas Especiales',
-    4: 'Bebidas',
-  };
+  CATEGORY_MAP: Record<number, string> = {};
+  categorias: { id: number; nombre: string }[] = [];
 
   constructor(
     private dialog: MatDialog,
     public carritoService: CarritoService,
     private productoService: ProductoService,
+    private categoriaService: CategoriaService,
+    private combosService: CombosService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.cargarProductosDesdeService();
+    this.cargarCategoriasDesdeService();
   }
 
-  // ✅ Cargar productos reales desde el servicio
-  private cargarProductosDesdeService(): void {
+  // ✅ Cargar categorías + agregar "Combos"
+  private cargarCategoriasDesdeService(): void {
+    this.categoriaService.getCategorias().subscribe({
+      next: (data: any[]) => {
+        if (Array.isArray(data)) {
+          this.CATEGORY_MAP = data.reduce((acc, item) => {
+            acc[item.ID_Categoria_P] = item.Nombre ?? `Categoría ${item.ID_Categoria_P}`;
+            return acc;
+          }, {} as Record<number, string>);
+
+          this.categorias = data.map((item) => ({
+            id: item.ID_Categoria_P,
+            nombre: item.Nombre ?? `Categoría ${item.ID_Categoria_P}`,
+          }));
+
+          // Agregamos manualmente la categoría "Combos"
+          const existeCombos = this.categorias.some(
+            (c) => c.nombre.toLowerCase() === 'combos'
+          );
+          if (!existeCombos) {
+            this.categorias.push({ id: 999, nombre: 'Combos' });
+            this.CATEGORY_MAP[999] = 'Combos';
+          }
+        }
+
+        this.cargarProductosYCombos();
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías:', err);
+        this.CATEGORY_MAP = {};
+        this.categorias = [{ id: 999, nombre: 'Combos' }];
+        this.CATEGORY_MAP[999] = 'Combos';
+        this.cargarProductosYCombos();
+      },
+    });
+  }
+
+  // ✅ Cargar productos y combos combinados
+  private cargarProductosYCombos(): void {
     this.productoService.getProductos().subscribe({
       next: (data: any) => {
         const rawArray = Array.isArray(data) ? data : data ? [data] : [];
-        
-        // Filtrar solo productos que estén ACTIVOS
-        const productosActivos = rawArray.filter((item: any) => {
-          // Verificar si el producto está activo - INCLUYENDO "A" para tu base de datos
-          const estaActivo = 
-            item.estado === 'Activo' ||
-            item.estado === 'A' ||  // ← AGREGADO: Para tu BD que usa 'A'
-            item.activo === true ||
-            item.activo === 1 ||
-            item.status === 'active' ||
-            item.estado_producto === 'Activo' ||
-            item.disponible === true ||
-            item.disponible === 1 ||
-            // Si no existe campo de estado, cargar por defecto (compatibilidad)
-            (item.estado === undefined && item.activo === undefined && item.status === undefined);
-          
-          return estaActivo;
-        });
+        const productosActivos = rawArray.filter(
+          (item: any) => item.estado === 'A' || item.estado === undefined
+        );
 
-        this.productos = productosActivos.map((item: any) => ({
-          id: item.producto_id ?? item.id ?? 0,
-          nombre: item.nombre_producto ?? item.nombre ?? 'Sin nombre',
-          descripcion: item.descripcion_producto ?? item.descripcion ?? '',
-          categoria: item.categoria_id ?? 0,
-          precio: Number(item.precio_venta ?? item.precio ?? 0) || 0,
+        const productosMapeados = productosActivos.map((item: any) => ({
+          id: item.ID_Producto ?? item.id ?? 0,
+          nombre: item.Nombre ?? 'Sin nombre',
+          descripcion: item.Descripcion ?? '',
+          categoria: item.ID_Categoria_P ?? 0,
+          precio: Number(item.Precio_Base ?? 0) || 0,
           imagen: `http://localhost:3000/imagenesCata/producto_${
-            item.producto_id ?? item.id ?? 0
+            item.ID_Producto ?? 0
           }_1.png`,
-          cantidad: item.cantidad ?? 1,
         }));
+
+        // Ahora cargamos los combos y los unimos
+        this.combosService.getCombos().subscribe({
+          next: (combos: any[]) => {
+            const combosActivos = combos.filter(
+              (item) => item.Estado === 'A' || item.estado === 'A'
+            );
+
+            const combosMapeados = combosActivos.map((item: any) => {
+              const detallesTexto = Array.isArray(item.detalles)
+                ? item.detalles
+                    .map(
+                      (d: any) =>
+                        `${d.Producto_Nombre ?? ''} (${d.Tamano_Nombre ?? ''}) x${d.Cantidad ?? 1}`
+                    )
+                    .join(', ')
+                : '';
+
+              return {
+                id: item.ID_Combo ?? 0,
+                nombre: item.Nombre ?? 'Combo sin nombre',
+                descripcion: item.Descripcion ?? '',
+                categoria: 999, // Combos
+                precio: Number(item.Precio ?? 0),
+                imagen: `http://localhost:3000/imagenesCata/combo_${
+                  item.ID_Combo ?? 0
+                }_1.png`,
+                detallesTexto,
+              };
+            });
+
+            // ✅ Unimos productos + combos
+            this.productos = [...productosMapeados, ...combosMapeados];
+            this.productosOriginales = [...this.productos];
+          },
+          error: (err) => {
+            console.error('Error al cargar combos:', err);
+            this.productos = [...productosMapeados];
+            this.productosOriginales = [...productosMapeados];
+          },
+        });
       },
       error: (err) => {
         console.error('Error al cargar productos:', err);
@@ -107,16 +170,27 @@ export class MenuComponent implements OnInit {
     });
   }
 
-  // 🧭 Obtener el nombre de la categoría desde el ID
+  // 🧭 Obtener nombre de categoría
   getNombreCategoria(id: number): string {
     return this.CATEGORY_MAP[id] ?? `Categoría ${id}`;
   }
 
+  // 🧩 Obtener ícono de categoría
+  getIconoCategoria(nombre: string): string {
+    const lower = nombre.toLowerCase();
+    if (lower.includes('pizza')) return 'local_pizza';
+    if (lower.includes('bebida')) return 'local_drink';
+    if (lower.includes('combo')) return 'fastfood';
+    return 'category';
+  }
+
+  // 🔍 Filtrar productos
   get productosFiltrados(): Producto[] {
     return this.productos.filter((p) => {
       const categoriaNombre = this.getNombreCategoria(p.categoria);
-      const coincideCategoria = this.filtroCategoria ? 
-        categoriaNombre === this.filtroCategoria : true;
+      const coincideCategoria = this.filtroCategoria
+        ? categoriaNombre === this.filtroCategoria
+        : true;
       const coincideBusqueda = this.searchTerm
         ? p.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
         : true;
@@ -128,16 +202,12 @@ export class MenuComponent implements OnInit {
     this.filtroCategoria = categoria;
   }
 
-  // Propiedad computada para determinar si mostrar filtros inferiores
   get mostrarFiltrosInferiores(): boolean {
     return this.filtroCategoria !== 'Bebidas';
   }
 
   agregarAlCarrito(producto: Producto): void {
-    this.carritoService.agregarProducto({
-      ...producto,
-      cantidad: 1,
-    });
+    this.carritoService.agregarProducto({ ...producto, cantidad: 1 });
   }
 
   abrirPersonalizacion(producto: Producto): void {
@@ -156,19 +226,6 @@ export class MenuComponent implements OnInit {
         });
       }
     });
-  }
-
-  // Métodos del carrito (mantenidos por si se necesitan)
-  incrementarCantidadCarrito(index: number): void {
-    this.carritoService.incrementarCantidad(index);
-  }
-
-  decrementarCantidadCarrito(index: number): void {
-    this.carritoService.decrementarCantidad(index);
-  }
-
-  eliminarDelCarrito(index: number): void {
-    this.carritoService.eliminarProducto(index);
   }
 
   calcularTotalCarrito(): number {

@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Proveedor } from '../../../../core/models/proveedor.model';
-import { ProveedorService } from '../../../services/proveedor.service';
+import { ProveedorService } from '../../../../core/services/auth/proveedor.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

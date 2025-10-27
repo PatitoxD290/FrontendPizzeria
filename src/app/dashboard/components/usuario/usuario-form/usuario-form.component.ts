@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Usuario } from '../../../../core/models/usuario.model';
-import { UsuarioService } from '../../../services/usuario.service';
+import { UsuarioService } from '../../../../core/services/auth/usuario.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -36,18 +36,18 @@ export class UsuarioFormComponent {
     @Inject(MAT_DIALOG_DATA) public data: { usuario?: Usuario }
   ) {
     this.usuario = data?.usuario ?? {
-      usuario_id: 0,
-      dni: '',
+      id_usuario: 0,
+      correo: '',
       password: '',
-      nombre_completo: '',
-      rol: 'EMPLEADO',
+      perfil: '',
+      roll: 'E',
       estado: 'A',
       fecha_registro: ''
     };
   }
 
   saveUsuario() {
-    if (this.usuario.usuario_id === 0) {
+    if (this.usuario.id_usuario === 0) {
       // Crear nuevo usuario
       this.usuarioService.createUsuario(this.usuario).subscribe({
         next: () => this.dialogRef.close(true),
@@ -55,7 +55,7 @@ export class UsuarioFormComponent {
       });
     } else {
       // Actualizar usuario existente
-      this.usuarioService.updateUsuario(this.usuario.usuario_id, this.usuario).subscribe({
+      this.usuarioService.updateUsuario(this.usuario.id_usuario, this.usuario).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar usuario', err)
       });

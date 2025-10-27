@@ -3,7 +3,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Ingrediente } from '../../../../core/models/ingrediente.model';
-import { IngredienteService } from '../../../services/ingrediente.service';
+import { IngredienteService } from '../../../../core/services/auth/ingrediente.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';

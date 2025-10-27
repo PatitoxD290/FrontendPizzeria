@@ -2,33 +2,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Categoria } from '../../core/models/categoria.model';
+import { Categoria_P } from '../../models/categoria.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriaService {
-  private apiUrl = 'http://localhost:3000/api/v2/categorias'; // 
+  private apiUrl = 'http://localhost:3000/api/v2/categorias/producto'; // 
 
   constructor(private http: HttpClient) {}
 
   //  Obtener todas las categorías
-  getCategorias(): Observable<Categoria[]> {
-    return this.http.get<Categoria[]>(this.apiUrl);
+  getCategorias(): Observable<Categoria_P[]> {
+    return this.http.get<Categoria_P[]>(this.apiUrl);
   }
 
   //  Obtener una categoría por ID
-  getCategoriaById(id: number): Observable<Categoria> {
-    return this.http.get<Categoria>(`${this.apiUrl}/${id}`);
+  getCategoriaById(id: number): Observable<Categoria_P> {
+    return this.http.get<Categoria_P>(`${this.apiUrl}/${id}`);
   }
 
   //  Crear una nueva categoría
-  createCategoria(categoria: Categoria): Observable<any> {
+  createCategoria(categoria: Categoria_P): Observable<any> {
     return this.http.post(this.apiUrl, categoria);
   }
 
   //  Actualizar categoría existente
-  updateCategoria(id: number, categoria: Categoria): Observable<any> {
+  updateCategoria(id: number, categoria: Categoria_P): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, categoria);
   }
 

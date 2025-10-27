@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Pedido } from '../../core/models/pedido.model';
-import { DetallePedido } from '../../core/models/detalle-pedido.model';
+import { Pedido, PedidoDetalle } from '../../models/pedido.model';
+ 
 import { Observable } from 'rxjs';
 
 // Hacemos que detalles sea opcional para mayor flexibilidad
 export interface PedidoConDetalle extends Pedido {
-  detalles?: DetallePedido[];
+  detalles?: PedidoDetalle[];
 }
 
 @Injectable({

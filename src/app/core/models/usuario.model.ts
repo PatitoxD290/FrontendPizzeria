@@ -1,9 +1,12 @@
+// ===========================================
+// USUARIO
+// ===========================================
 export interface Usuario {
-  usuario_id: number;
-  dni: string;
-  password?: string; // opcional, no se mostrará al listar
-  nombre_completo: string;
-  rol: string; // ADMIN o EMPLEADO
-  estado: string; // 'A' (activo) o 'I' (inactivo)
+  id_usuario: number;
+  perfil?: string;
+  correo?: string;
+  password?: string;
+  roll: 'A' | 'E';
+  estado: 'A' | 'I';
   fecha_registro: string;
 }

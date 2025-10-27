@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Pedido } from '../../../core/models/pedido.model';
-import { PedidoService } from '../../services/pedido.service';
+import { PedidoService } from '../../../core/services/auth/pedido.service';
 
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -36,28 +36,25 @@ export class PedidoFormComponent {
     @Inject(MAT_DIALOG_DATA) public data: { pedido?: Pedido }
   ) {
     this.pedido = data?.pedido ?? {
-      pedido_id: 0,
-      cliente_id: 0,
-      usuario_id: null,
-      fecha_pedido: '',
+      id_pedido: 0,
+      id_cliente: 0,
+      id_usuario: 0,
       hora_pedido: '',
-      estado_pedido: 'PENDIENTE',
-      subtotal: 0,
-      monto_descuento: 0,
-      total: 0,
-      notas_generales: '',
+      estado_p: 'P',
+      sub_total: 0,
+      notas: '',
       fecha_registro: ''
     };
   }
 
   savePedido() {
-    if (this.pedido.pedido_id === 0) {
+    if (this.pedido.id_pedido === 0) {
       this.pedidoService.createPedido(this.pedido).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al crear pedido', err)
       });
     } else {
-      this.pedidoService.updatePedido(this.pedido.pedido_id, this.pedido).subscribe({
+      this.pedidoService.updatePedido(this.pedido.id_pedido, this.pedido).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar pedido', err)
       });

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pedido } from '../../../../core/models/pedido.model';
-import { PedidoService } from '../../../services/pedido.service';
+import { PedidoService } from '../../../../core/services/auth/pedido.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

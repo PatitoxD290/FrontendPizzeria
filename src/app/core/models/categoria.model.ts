@@ -1,6 +1,10 @@
 // src/app/dashboard/models/categoria.model.ts
-export interface Categoria {
-  categoria_id?: number;          // opcional porque lo genera el backend
+export interface Categoria_P {
+  categoria_id?: number;         
   nombre_categoria: string;
-  descripcion_categoria?: string; // opcional
+}
+
+export interface Categoria_I {
+  categoria_id?: number;         
+  nombre_categoria: string;
 }

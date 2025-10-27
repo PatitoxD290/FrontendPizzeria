@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Ingrediente } from '../../../../core/models/ingrediente.model';
-import { IngredienteService } from '../../../services/ingrediente.service';
+import { IngredienteService } from '../../../../core/services/auth/ingrediente.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

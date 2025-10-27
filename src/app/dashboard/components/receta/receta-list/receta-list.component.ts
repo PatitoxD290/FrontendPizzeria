@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Receta } from '../../../../core/models/receta.model';
-import { RecetaService } from '../../../services/receta.service';
+import { RecetaService } from '../../../../core/services/auth/receta.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';

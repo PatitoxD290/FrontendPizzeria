@@ -1,8 +1,8 @@
 // src/app/dashboard/components/categoria/categoria-list/categoria-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
-import { Categoria } from '../../../../core/models/categoria.model';
-import { CategoriaService } from '../../../services/categoria.service';
+import { Categoria_P } from '../../../../core/models/categoria.model';
+import { CategoriaService } from '../../../../core/services/auth/categoria.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -34,7 +34,7 @@ import { CategoriaFormComponent } from '../categoria-form/categoria-form.compone
 export class CategoriaListComponent implements OnInit {
 
   displayedColumns: string[] = ['categoria_id', 'nombre_categoria', 'descripcion_categoria', 'acciones'];
-  categorias: Categoria[] = [];
+  categorias: Categoria_P[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -75,7 +75,7 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  openCategoriaForm(categoria?: Categoria) {
+  openCategoriaForm(categoria?: Categoria_P) {
     const dialogRef = this.dialog.open(CategoriaFormComponent, {
       width: '400px',
       data: { categoria }

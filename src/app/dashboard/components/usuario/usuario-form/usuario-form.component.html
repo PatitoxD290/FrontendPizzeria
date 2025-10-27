@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  {{ usuario.usuario_id ? 'Editar Usuario' : 'Nuevo Usuario' }}
+  {{ usuario.id_usuario ? 'Editar Usuario' : 'Nuevo Usuario' }}
 </h2>
 
 <mat-dialog-content>
@@ -7,11 +7,11 @@
 
     <mat-form-field appearance="fill">
       <mat-label>DNI</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.dni" name="dni" required />
+      <input matInput type="text" [(ngModel)]="usuario.correo" name="dni" required />
     </mat-form-field>
 
     <!-- Campo de contraseña solo si es nuevo -->
-    <ng-container *ngIf="usuario.usuario_id === 0">
+    <ng-container *ngIf="usuario.id_usuario === 0">
       <mat-form-field appearance="fill">
         <mat-label>Contraseña</mat-label>
         <input matInput type="password" [(ngModel)]="usuario.password" name="password" required />
@@ -20,14 +20,14 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre completo</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.nombre_completo" name="nombre_completo" required />
+      <input matInput type="text" [(ngModel)]="usuario.perfil" name="nombre_completo" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Rol</mat-label>
-      <mat-select [(ngModel)]="usuario.rol" name="rol" required>
-        <mat-option value="ADMIN">ADMIN</mat-option>
-        <mat-option value="EMPLEADO">EMPLEADO</mat-option>
+      <mat-select [(ngModel)]="usuario.roll" name="rol" required>
+        <mat-option value="A">ADMIN</mat-option>
+        <mat-option value="E">EMPLEADO</mat-option>
       </mat-select>
     </mat-form-field>
 

@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Producto } from '../../../../core/models/producto.model';
-import { ProductoService } from '../../../services/producto.service';
-import { CategoriaService } from '../../../services/categoria.service';
-import { RecetaService } from '../../../services/receta.service';
+import { ProductoService } from '../../../../core/services/auth/producto.service';
+import { CategoriaService } from '../../../../core/services/auth/categoria.service';
+import { RecetaService } from '../../../../core/services/auth/receta.service';
 import Swal from 'sweetalert2';
 
 // Angular Material
