@@ -78,9 +78,9 @@ export class ClienteListComponent implements OnInit {
     if (!this.searchTerm.trim()) return this.clientes;
     const term = this.searchTerm.toLowerCase();
     return this.clientes.filter(c =>
-      (c.nombre?.toLowerCase().includes(term)) ||
-      (c.dni?.toLowerCase().includes(term)) ||
-      (c.telefono?.toLowerCase().includes(term))
+      (c.Nombre?.toLowerCase().includes(term)) ||
+      (c.DNI?.toLowerCase().includes(term)) ||
+      (c.Telefono?.toLowerCase().includes(term))
     );
   }
 

@@ -43,11 +43,11 @@ export class CategoriaFormComponent {
     if (this.tipoCategoria === 'producto') {
       this.categoria = data?.categoria
         ? { ...(data.categoria as CategoriaProducto) }
-        : { id_categoria_p: 0, nombre: '' };
+        : { ID_Categoria_P: 0, Nombre: '' };
     } else {
       this.categoria = data?.categoria
         ? { ...(data.categoria as CategoriaInsumos) }
-        : { id_categoria_i: 0, nombre: '' };
+        : { ID_Categoria_I: 0, Nombre: '' };
     }
   }
 
@@ -55,32 +55,32 @@ export class CategoriaFormComponent {
   toggleTipo() {
     if (this.tipoCategoria === 'producto') {
       this.tipoCategoria = 'insumo';
-      this.categoria = { id_categoria_i: 0, nombre: '' };
+      this.categoria = { ID_Categoria_I: 0, Nombre: '' };
     } else {
       this.tipoCategoria = 'producto';
-      this.categoria = { id_categoria_p: 0, nombre: '' };
+      this.categoria = { ID_Categoria_P: 0, Nombre: '' };
     }
   }
 
   // 🧠 Getter para saber si estamos editando o creando
   get esEdicion(): boolean {
     if (this.tipoCategoria === 'producto') {
-      return (this.categoria as CategoriaProducto)?.id_categoria_p > 0;
+      return (this.categoria as CategoriaProducto)?.ID_Categoria_P > 0;
     } else {
-      return (this.categoria as CategoriaInsumos)?.id_categoria_i > 0;
+      return (this.categoria as CategoriaInsumos)?.ID_Categoria_I > 0;
     }
   }
 
   // 💾 Guardar categoría
   saveCategoria() {
-    if (!this.categoria.nombre.trim()) {
+    if (!this.categoria.Nombre.trim()) {
       Swal.fire('Error', 'El nombre de la categoría es obligatorio', 'warning');
       return;
     }
 
     if (this.tipoCategoria === 'producto') {
       const cat = this.categoria as CategoriaProducto;
-      if (!cat.id_categoria_p || cat.id_categoria_p === 0) {
+      if (!cat.ID_Categoria_P || cat.ID_Categoria_P === 0) {
         this.categoriaService.createCategoriaProducto(cat).subscribe({
           next: () => {
             Swal.fire('¡Éxito!', 'Categoría de producto creada correctamente', 'success');
@@ -89,7 +89,7 @@ export class CategoriaFormComponent {
           error: () => Swal.fire('Error', 'Error al crear categoría de producto', 'error')
         });
       } else {
-        this.categoriaService.updateCategoriaProducto(cat.id_categoria_p, cat).subscribe({
+        this.categoriaService.updateCategoriaProducto(cat.ID_Categoria_P, cat).subscribe({
           next: () => {
             Swal.fire('¡Éxito!', 'Categoría de producto actualizada correctamente', 'success');
             this.dialogRef.close(true);
@@ -99,7 +99,7 @@ export class CategoriaFormComponent {
       }
     } else {
       const cat = this.categoria as CategoriaInsumos;
-      if (!cat.id_categoria_i || cat.id_categoria_i === 0) {
+      if (!cat.ID_Categoria_I || cat.ID_Categoria_I === 0) {
         this.categoriaService.createCategoriaInsumo(cat).subscribe({
           next: () => {
             Swal.fire('¡Éxito!', 'Categoría de insumo creada correctamente', 'success');
@@ -108,7 +108,7 @@ export class CategoriaFormComponent {
           error: () => Swal.fire('Error', 'Error al crear categoría de insumo', 'error')
         });
       } else {
-        this.categoriaService.updateCategoriaInsumo(cat.id_categoria_i, cat).subscribe({
+        this.categoriaService.updateCategoriaInsumo(cat.ID_Categoria_I, cat).subscribe({
           next: () => {
             Swal.fire('¡Éxito!', 'Categoría de insumo actualizada correctamente', 'success');
             this.dialogRef.close(true);

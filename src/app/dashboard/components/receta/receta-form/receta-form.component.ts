@@ -50,9 +50,9 @@ export class RecetaFormComponent implements OnInit {
       ? { ...data.receta }
       : {
           id_receta: 0,
-          nombre: '',
-          descripcion: '',
-          tiempo_preparacion: ''
+          Nombre: '',
+          Descripcion: '',
+          Tiempo_preparacion: ''
         };
 
     // ✅ Clonar detalles si existen, o crear uno vacío
@@ -99,7 +99,7 @@ export class RecetaFormComponent implements OnInit {
 
   // 🔹 Guardar receta (crear o actualizar)
   saveReceta() {
-    if (!this.receta.nombre?.trim()) {
+    if (!this.receta.Nombre?.trim()) {
       console.warn('⚠️ Debes ingresar un nombre para la receta');
       return;
     }
@@ -110,9 +110,9 @@ export class RecetaFormComponent implements OnInit {
     }
 
     const recetaConDetalles = {
-      nombre: this.receta.nombre,
-      descripcion: this.receta.descripcion,
-      tiempo_preparacion: this.receta.tiempo_preparacion,
+      nombre: this.receta.Nombre,
+      descripcion: this.receta.Descripcion,
+      tiempo_preparacion: this.receta.Tiempo_preparacion,
       detalles: this.detalles
     };
 

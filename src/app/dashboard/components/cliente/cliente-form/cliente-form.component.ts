@@ -37,31 +37,31 @@ export class ClienteFormComponent {
     this.cliente = data?.cliente
       ? { ...data.cliente }
       : {
-          id_cliente: 0,
-          nombre: '',
-          apellido: '',
-          dni: '',
-          telefono: '',
-          fecha_registro: ''
+          ID_Cliente: 0,
+          Nombre: '',
+          Apellido: '',
+          DNI: '',
+          Telefono: '',
+          Fecha_Registro: ''
         };
   }
 
   async saveCliente() {
     // 🔸 Validar nombre obligatorio
-    if (!this.cliente.nombre?.trim()) {
+    if (!this.cliente.Nombre?.trim()) {
       Swal.fire('Campo requerido', 'El nombre completo es obligatorio', 'warning');
       return;
     }
 
     // 🔸 Validar DNI solo si fue ingresado
-    if (this.cliente.dni && this.cliente.dni.trim() !== '') {
-      if (this.cliente.dni.length !== 8) {
+    if (this.cliente.DNI && this.cliente.DNI.trim() !== '') {
+      if (this.cliente.DNI.length !== 8) {
         Swal.fire('DNI inválido', 'El DNI debe tener 8 dígitos', 'error');
         return;
       }
 
       // 🔸 Verificar si el DNI ya existe
-      const existe = await this.verificarDniExistente(this.cliente.dni, this.cliente.id_cliente);
+      const existe = await this.verificarDniExistente(this.cliente.DNI, this.cliente.ID_Cliente);
       if (existe) {
         Swal.fire('DNI duplicado', 'Ya existe un cliente con ese DNI', 'error');
         return;
@@ -69,7 +69,7 @@ export class ClienteFormComponent {
     }
 
     // 🔸 Crear cliente
-    if (!this.cliente.id_cliente || this.cliente.id_cliente === 0) {
+    if (!this.cliente.ID_Cliente || this.cliente.ID_Cliente === 0) {
       this.clienteService.createCliente(this.cliente).subscribe({
         next: () => {
           Swal.fire('¡Registrado!', 'Cliente agregado correctamente', 'success');
@@ -82,7 +82,7 @@ export class ClienteFormComponent {
     } 
     // 🔸 Actualizar cliente
     else {
-      this.clienteService.updateCliente(this.cliente.id_cliente, this.cliente).subscribe({
+      this.clienteService.updateCliente(this.cliente.ID_Cliente, this.cliente).subscribe({
         next: () => {
           Swal.fire('¡Actualizado!', 'Cliente actualizado correctamente', 'success');
           this.dialogRef.close(true);
@@ -100,7 +100,7 @@ export class ClienteFormComponent {
       this.clienteService.getClientes().subscribe({
         next: (clientes) => {
           const duplicado = clientes.some(
-            (c) => c.dni && c.dni === dni && c.id_cliente !== cliente_id
+            (c) => c.DNI && c.DNI === dni && c.ID_Cliente!== cliente_id
           );
           resolve(duplicado);
         },

@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  {{ ingrediente.id_insumo ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}
+  {{ ingrediente.ID_Insumo ? 'Editar Ingrediente' : 'Nuevo Ingrediente' }}
 </h2>
 
 <mat-dialog-content>
@@ -10,7 +10,7 @@
       <input
         matInput
         type="text"
-        [(ngModel)]="ingrediente.nombre"
+        [(ngModel)]="ingrediente.Nombre"
         name="nombre"
         required
       />
@@ -21,14 +21,14 @@
       <input
         matInput
         type="text"
-        [(ngModel)]="ingrediente.descripcion"
+        [(ngModel)]="ingrediente.Descripcion"
         name="descripcion"
       />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Unidad de Medida</mat-label>
-      <mat-select [(ngModel)]="ingrediente.unidad_med" name="unidad_med" required>
+      <mat-select [(ngModel)]="ingrediente.Unidad_Med" name="unidad_med" required>
         <mat-option value="kg">Kilogramos</mat-option>
         <mat-option value="g">Gramos</mat-option>
         <mat-option value="l">Litros</mat-option>
@@ -42,7 +42,7 @@
       <input
         matInput
         type="number"
-        [(ngModel)]="ingrediente.id_categoria_i"
+        [(ngModel)]="ingrediente.ID_Categoria_I"
         name="id_categoria_i"
         required
       />
@@ -53,7 +53,7 @@
       <input
         matInput
         type="number"
-        [(ngModel)]="ingrediente.stock_min"
+        [(ngModel)]="ingrediente.Stock_Min"
         name="stock_min"
         required
       />
@@ -64,7 +64,7 @@
       <input
         matInput
         type="number"
-        [(ngModel)]="ingrediente.stock_max"
+        [(ngModel)]="ingrediente.Stock_Max"
         name="stock_max"
         required
       />
@@ -72,7 +72,7 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="ingrediente.estado" name="estado" required>
+      <mat-select [(ngModel)]="ingrediente.Estado" name="estado" required>
         <mat-option value="A">Activo</mat-option>
         <mat-option value="D">Desactivado</mat-option>
       </mat-select>

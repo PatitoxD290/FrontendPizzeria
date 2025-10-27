@@ -2,26 +2,26 @@
 // PEDIDO
 // ===========================================
 export interface Pedido {
-  id_pedido: number;
-  id_cliente: number;
-  id_usuario: number;
-  notas: string;
-  sub_total: number;
-  estado_p: 'P' | 'C' | 'E' | 'D';
-  fecha_registro: string;
-  hora_pedido: string;
+  ID_Pedido: number;
+  ID_Cliente: number;
+  ID_Usuario: number;
+  Notas: string;
+  SubTotal: number;
+  Estado_P: 'P' | 'C' | 'E' | 'D';
+  Fecha_Registro: string;
+  Hora_Pedido: string;
 }
 
 // ===========================================
 // PEDIDO DETALLE
 // ===========================================
 export interface PedidoDetalle {
-  id_pedido_d: number;
-  id_pedido: number;
-  id_producto: number;
-  id_tamano: number;
-  cantidad: number;
-  precio_total: number;
+  ID_Pedido_D: number;
+  ID_Pedido: number;
+  ID_Producto: number;
+  ID_Tamano: number;
+  Cantidad: number;
+  PrecioTotal: number;
 
   nombre_producto: string;
   nombre_categoria: string;

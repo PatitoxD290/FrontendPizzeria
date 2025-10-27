@@ -5,17 +5,17 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre de la Receta</mat-label>
-      <input matInput type="text" [(ngModel)]="receta.nombre" name="nombre_receta" required />
+      <input matInput type="text" [(ngModel)]="receta.Nombre" name="nombre_receta" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Descripción</mat-label>
-      <textarea matInput rows="2" [(ngModel)]="receta.descripcion" name="descripcion_receta" required></textarea>
+      <textarea matInput rows="2" [(ngModel)]="receta.Descripcion" name="descripcion_receta" required></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Tiempo estimado (minutos)</mat-label>
-      <input matInput type="number" [(ngModel)]="receta.tiempo_preparacion" name="tiempo_estimado_minutos" required />
+      <input matInput type="number" [(ngModel)]="receta.Tiempo_preparacion" name="tiempo_estimado_minutos" required />
     </mat-form-field>
 
     <h3>🧂 Detalles de Receta</h3>
@@ -24,8 +24,8 @@
       <mat-form-field appearance="outline">
         <mat-label>Ingrediente</mat-label>
         <mat-select [(ngModel)]="det.id_insumo" name="ingrediente_id_{{i}}" required>
-          <mat-option *ngFor="let ing of ingredientes" [value]="ing.id_insumo">
-            {{ ing.nombre }}
+          <mat-option *ngFor="let ing of ingredientes" [value]="ing.ID_Insumo">
+            {{ ing.Nombre }}
           </mat-option>
         </mat-select>
       </mat-form-field>

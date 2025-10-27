@@ -2,10 +2,10 @@
 // CLIENTE
 // ===========================================
 export interface Cliente {
-  id_cliente: number;
-  dni: string;
-  nombre: string;
-  apellido: string;
-  telefono: string;
-  fecha_registro: string;
+  ID_Cliente: number;
+  DNI: string;
+  Nombre: string;
+  Apellido: string;
+  Telefono: string;
+  Fecha_Registro: string;
 }

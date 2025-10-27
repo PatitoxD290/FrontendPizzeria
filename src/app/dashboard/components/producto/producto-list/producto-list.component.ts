@@ -66,8 +66,8 @@ export class ProductoListComponent implements OnInit {
 
       this.productos = (productos || []).map(p => ({
         ...p,
-        nombre_categoria: this.categorias.find(c => c.id_categoria_p === p.id_categoria_p)?.nombre || 'Sin categoría',
-        nombre_receta: this.recetas.find(r => r.id_receta === p.id_receta)?.nombre || 'Sin receta'
+        nombre_categoria: this.categorias.find(c => c.id_categoria_p === p.ID_Categoria_P)?.nombre || 'Sin categoría',
+        nombre_receta: this.recetas.find(r => r.id_receta === p.ID_Receta)?.nombre || 'Sin receta'
       }));
 
       this.setPage(0);
@@ -146,7 +146,7 @@ export class ProductoListComponent implements OnInit {
       return;
     }
 
-    this.paginatedProductos = this.productos.filter(p => p.id_categoria_p === categoriaId);
+    this.paginatedProductos = this.productos.filter(p => p.ID_Categoria_P === categoriaId);
 
     if (this.paginatedProductos.length === 0) {
       Swal.fire({

@@ -2,28 +2,28 @@
 // CUPONES
 // ===========================================
 export interface Cupon {
-  id_cupon: number;
-  cod_cupon: string;
-  descripcion: string;
-  tipo_desc: 'Porcentaje' | 'Monto';
-  valor_desc: number;
-  monto_max: number;
-  usos_max: number;
-  usos_act: number;
-  fecha_inc: string;
-  fecha_fin: string;
-  estado: 'A' | 'I';
-  fecha_registro: string;
+  ID_Cupon: number;
+  Cod_Cupon: string;
+  Descripcion: string;
+  Tipo_Desc: 'Porcentaje' | 'Monto';
+  Valor_Desc: number;
+  Monto_Max: number;
+  Usos_Max: number;
+  Usos_Act: number;
+  Fecha_INC: string;
+  Fecha_FIN: string;
+  Estado: 'A' | 'I';
+  Fecha_Registro: string;
 }
 
 // ===========================================
 // USO CUPON
 // ===========================================
 export interface UsoCupon {
-  id_uso_c: number;
-  id_cupon: number;
-  id_pedido: number;
-  descuento_aplic: number;
-  monto_venta: number;
-  fecha_uso: string;
+  ID_Uso_C: number;
+  ID_Cupon: number;
+  ID_Pedido: number;
+  Descuento_Aplic: number;
+  Monto_Venta: number;
+  Fecha_Uso: string;
 }

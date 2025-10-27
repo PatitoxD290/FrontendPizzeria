@@ -2,13 +2,13 @@
 // PROVEEDOR
 // ===========================================
 export interface Proveedor {
-  id_proveedor: number;
-  nombre: string;
-  ruc: string;
-  direccion: string;
-  telefono: string;
-  email: string;
-  persona_contacto: string;
-  estado: 'A' | 'I';
-  fecha_registro: string;
+  ID_Proveedor: number;
+  Nombre: string;
+  Ruc: string;
+  Direccion: string;
+  Telefono: string;
+  Email: string;
+  Persona_contacto: string;
+  Estado: 'A' | 'I';
+  Fecha_registro: string;
 }

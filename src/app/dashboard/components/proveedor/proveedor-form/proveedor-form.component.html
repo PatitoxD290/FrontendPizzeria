@@ -1,41 +1,41 @@
-<h2 mat-dialog-title>{{ proveedor.id_proveedor ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
+<h2 mat-dialog-title>{{ proveedor.ID_Proveedor ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveProveedor()">
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre Proveedor</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.nombre" name="nombre" required />
+      <input matInput type="text" [(ngModel)]="proveedor.Nombre" name="nombre" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>RUC</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.ruc" name="ruc" required maxlength="11" minlength="11" />
+      <input matInput type="text" [(ngModel)]="proveedor.Ruc" name="ruc" required maxlength="11" minlength="11" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Dirección</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.direccion" name="direccion" />
+      <input matInput type="text" [(ngModel)]="proveedor.Direccion" name="direccion" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Teléfono</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.telefono" name="telefono" />
+      <input matInput type="text" [(ngModel)]="proveedor.Telefono" name="telefono" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Email</mat-label>
-      <input matInput type="email" [(ngModel)]="proveedor.email" name="email" />
+      <input matInput type="email" [(ngModel)]="proveedor.Email" name="email" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Persona Contacto</mat-label>
-      <input matInput type="text" [(ngModel)]="proveedor.persona_contacto" name="persona_contacto" />
+      <input matInput type="text" [(ngModel)]="proveedor.Persona_contacto" name="persona_contacto" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="proveedor.estado" name="estado" required>
+      <mat-select [(ngModel)]="proveedor.Estado" name="estado" required>
         <mat-option value="A">Activo</mat-option>
         <mat-option value="I">Inactivo</mat-option>
       </mat-select>

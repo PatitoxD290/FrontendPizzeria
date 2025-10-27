@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  {{ producto.id_producto ? 'Editar Producto' : 'Nuevo Producto' }}
+  {{ producto.ID_Producto ? 'Editar Producto' : 'Nuevo Producto' }}
 </h2>
 
 <mat-dialog-content>
@@ -8,19 +8,19 @@
     <!-- Nombre -->
     <mat-form-field appearance="fill">
       <mat-label>Nombre del Producto</mat-label>
-      <input matInput type="text" [(ngModel)]="producto.nombre" name="nombre" required />
+      <input matInput type="text" [(ngModel)]="producto.Nombre" name="nombre" required />
     </mat-form-field>
 
     <!-- Descripción -->
     <mat-form-field appearance="fill">
       <mat-label>Descripción</mat-label>
-      <textarea matInput rows="3" [(ngModel)]="producto.descripcion" name="descripcion"></textarea>
+      <textarea matInput rows="3" [(ngModel)]="producto.Descripcion" name="descripcion"></textarea>
     </mat-form-field>
 
     <!-- Categoría -->
     <mat-form-field appearance="fill">
       <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="producto.id_categoria_p" name="id_categoria_p" required>
+      <mat-select [(ngModel)]="producto.ID_Categoria_P" name="id_categoria_p" required>
         <mat-option *ngFor="let c of categorias" [value]="c.id_categoria_p">
           {{ c.nombre }}
         </mat-option>
@@ -30,7 +30,7 @@
     <!-- Receta -->
     <mat-form-field appearance="fill">
       <mat-label>Receta</mat-label>
-      <mat-select [(ngModel)]="producto.id_receta" name="id_receta">
+      <mat-select [(ngModel)]="producto.ID_Receta" name="id_receta">
         <mat-option [value]="0">Sin receta</mat-option>
         <mat-option *ngFor="let r of recetas" [value]="r.id_receta">
           {{ r.nombre }}
@@ -41,13 +41,13 @@
     <!-- Precio -->
     <mat-form-field appearance="fill">
       <mat-label>Precio Base</mat-label>
-      <input matInput type="number" step="0.01" [(ngModel)]="producto.precio_base" name="precio_base" required />
+      <input matInput type="number" step="0.01" [(ngModel)]="producto.Precio_Base" name="precio_base" required />
     </mat-form-field>
 
     <!-- Estado -->
     <mat-form-field appearance="fill">
       <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="producto.estado" name="estado" required>
+      <mat-select [(ngModel)]="producto.Estado" name="estado" required>
         <mat-option value="A">Activo</mat-option>
         <mat-option value="I">Inactivo</mat-option>
       </mat-select>

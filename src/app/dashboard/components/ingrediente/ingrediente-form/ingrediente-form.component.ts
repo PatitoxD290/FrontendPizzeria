@@ -43,15 +43,15 @@ export class IngredienteFormComponent implements OnInit {
     this.ingrediente = data?.ingrediente
       ? { ...data.ingrediente }
       : {
-          id_insumo: 0,
-          nombre: '',
-          descripcion: '',
-          unidad_med: '',
-          id_categoria_i: 0,
-          stock_min: 0,
-          stock_max: 0,
-          estado: 'A',
-          fecha_registro: ''
+          ID_Insumo: 0,
+          Nombre: '',
+          Descripcion: '',
+          Unidad_Med: '',
+          ID_Categoria_I: 0,
+          Stock_Min: 0,
+          Stock_Max: 0,
+          Estado: 'A',
+          Fecha_Registro: ''
         };
   }
 
@@ -59,12 +59,12 @@ export class IngredienteFormComponent implements OnInit {
 
   // 💾 Guardar ingrediente
   saveIngrediente() {
-    if (!this.ingrediente.nombre.trim()) {
+    if (!this.ingrediente.Nombre.trim()) {
       Swal.fire('Error', 'El nombre del ingrediente es obligatorio', 'warning');
       return;
     }
 
-    if (this.ingrediente.id_insumo === 0) {
+    if (this.ingrediente.ID_Insumo === 0) {
       // Crear nuevo
       this.ingredienteService.createIngrediente(this.ingrediente).subscribe({
         next: () => {
@@ -78,7 +78,7 @@ export class IngredienteFormComponent implements OnInit {
       });
     } else {
       // Actualizar existente
-      this.ingredienteService.updateIngrediente(this.ingrediente.id_insumo, this.ingrediente).subscribe({
+      this.ingredienteService.updateIngrediente(this.ingrediente.ID_Insumo, this.ingrediente).subscribe({
         next: () => {
           Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
           this.dialogRef.close(true);

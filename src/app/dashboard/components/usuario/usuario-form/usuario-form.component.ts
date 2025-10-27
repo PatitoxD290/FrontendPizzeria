@@ -37,12 +37,12 @@ export class UsuarioFormComponent {
   ) {
     this.usuario = data?.usuario ?? {
       id_usuario: 0,
-      correo: '',
-      password: '',
-      perfil: '',
-      roll: 'E',
-      estado: 'A',
-      fecha_registro: ''
+      Correo: '',
+      Password: '',
+      Perfil: '',
+      Roll: 'E',
+      Estado: 'A',
+      Fecha_registro: ''
     };
   }
 

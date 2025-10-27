@@ -41,20 +41,20 @@ export class ProveedorFormComponent {
     this.proveedor = data?.proveedor
       ? { ...data.proveedor }
       : {
-          id_proveedor: 0,
-          nombre: '',
-          ruc: '',
-          direccion: '',
-          telefono: '',
-          email: '',
-          persona_contacto: '',
-          estado: 'A',
-          fecha_registro: ''
+          ID_Proveedor: 0,
+          Nombre: '',
+          Ruc: '',
+          Direccion: '',
+          Telefono: '',
+          Email: '',
+          Persona_contacto: '',
+          Estado: 'A',
+          Fecha_registro: ''
         };
   }
 
   saveProveedor() {
-    if (!this.proveedor.id_proveedor || this.proveedor.id_proveedor === 0) {
+    if (!this.proveedor.ID_Proveedor || this.proveedor.ID_Proveedor === 0) {
       // Crear nuevo proveedor
       this.proveedorService.createProveedor(this.proveedor).subscribe({
         next: () => this.dialogRef.close(true),
@@ -62,7 +62,7 @@ export class ProveedorFormComponent {
       });
     } else {
       // Actualizar proveedor existente
-      this.proveedorService.updateProveedor(this.proveedor.id_proveedor, this.proveedor).subscribe({
+      this.proveedorService.updateProveedor(this.proveedor.ID_Proveedor, this.proveedor).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar proveedor', err)
       });

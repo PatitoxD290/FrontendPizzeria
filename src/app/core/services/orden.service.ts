@@ -16,20 +16,20 @@ export class OrdenService {
 
   // 🟩 Agregar producto al pedido
   agregarProducto(producto: Producto & { nombre_categoria?: string }) {
-    const existente = this.detalles.find(d => d.id_producto === producto.id_producto);
+    const existente = this.detalles.find(d => d.ID_Producto === producto.ID_Producto);
 
     if (existente) {
-      existente.cantidad = (existente.cantidad || 1) + 1;
-      existente.precio_total = (existente.cantidad || 1) * (producto.precio_base || 0);
+      existente.Cantidad = (existente.Cantidad || 1) + 1;
+      existente.PrecioTotal = (existente.Cantidad || 1) * (producto.Precio_Base || 0);
     } else {
       const nuevo: PedidoDetalle = {
-        id_pedido_d: 0, // se asignará en el backend
-        id_pedido: 0,
-        id_producto: producto.id_producto,
-        id_tamano: 0, // si no aplica, puede omitirse
-        cantidad: 1,
-        precio_total: producto.precio_base || 0,
-        nombre_producto: producto.nombre || 'Sin nombre',
+        ID_Pedido_D: 0, // se asignará en el backend
+        ID_Pedido: 0,
+        ID_Producto: producto.ID_Producto,
+        ID_Tamano: 0, // si no aplica, puede omitirse
+        Cantidad: 1,
+        PrecioTotal: producto.Precio_Base || 0,
+        nombre_producto: producto.Nombre || 'Sin nombre',
         nombre_categoria: producto.nombre_categoria || 'Sin categoría'
       };
       this.detalles.push(nuevo);
@@ -40,7 +40,7 @@ export class OrdenService {
 
   // 🟥 Eliminar producto del pedido
   eliminarProducto(id: number) {
-    this.detalles = this.detalles.filter(p => p.id_producto !== id);
+    this.detalles = this.detalles.filter(p => p.ID_Producto !== id);
     this.detallesSubject.next([...this.detalles]);
   }
 
@@ -52,27 +52,27 @@ export class OrdenService {
 
   // ⬆️ Aumentar cantidad de un producto
   aumentarCantidad(id: number, precioBase: number) {
-    const detalle = this.detalles.find(d => d.id_producto === id);
+    const detalle = this.detalles.find(d => d.ID_Producto === id);
     if (detalle) {
-      detalle.cantidad = (detalle.cantidad || 1) + 1;
-      detalle.precio_total = (detalle.cantidad || 1) * precioBase;
+      detalle.Cantidad = (detalle.Cantidad || 1) + 1;
+      detalle.PrecioTotal = (detalle.Cantidad || 1) * precioBase;
       this.detallesSubject.next([...this.detalles]);
     }
   }
 
   // ⬇️ Reducir cantidad de un producto
   reducirCantidad(id: number, precioBase: number) {
-    const detalle = this.detalles.find(d => d.id_producto === id);
-    if (detalle && detalle.cantidad && detalle.cantidad > 1) {
-      detalle.cantidad -= 1;
-      detalle.precio_total = detalle.cantidad * precioBase;
+    const detalle = this.detalles.find(d => d.ID_Pedido === id);
+    if (detalle && detalle.Cantidad && detalle.Cantidad > 1) {
+      detalle.Cantidad -= 1;
+      detalle.PrecioTotal = detalle.Cantidad * precioBase;
       this.detallesSubject.next([...this.detalles]);
     }
   }
 
   // 🔹 Obtener total del pedido
   obtenerTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + (d.precio_total || 0), 0);
+    return this.detalles.reduce((acc, d) => acc + (d.PrecioTotal || 0), 0);
   }
 
   // 🔹 Obtener los detalles actuales

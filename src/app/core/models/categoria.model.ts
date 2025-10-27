@@ -2,14 +2,14 @@
 // CATEGORIA PRODUCTO
 // ===========================================
 export interface CategoriaProducto {
-  id_categoria_p: number;
-  nombre: string;
+  ID_Categoria_P: number;
+  Nombre: string;
 }
 
 // ===========================================
 // CATEGORIA INSUMOS
 // ===========================================
 export interface CategoriaInsumos {
-  id_categoria_i: number;
-  nombre: string;
+  ID_Categoria_I: number;
+  Nombre: string;
 }

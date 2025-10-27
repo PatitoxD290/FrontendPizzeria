@@ -5,12 +5,12 @@ export interface Stock {
   id_stock: number;
   id_insumo: number;
   id_proveedor: number;
-  cantidad_recibida: number;
-  costo_unitario: number;
-  costo_total: number;
-  fecha_entrada: string;
-  fecha_vencimiento: string;
-  estado: 'A' | 'I' | 'C';
+  Cantidad_recibida: number;
+  Costo_unitario: number;
+  Costo_total: number;
+  Fecha_entrada: string;
+  Fecha_vencimiento: string;
+  Estado: 'A' | 'I' | 'C';
 }
 
 // ===========================================

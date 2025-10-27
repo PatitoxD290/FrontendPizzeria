@@ -42,7 +42,7 @@ export class MenuPedidoComponent implements OnInit {
         // Combinar producto con su nombre de categoría
         this.productos = data.map(p => ({
           ...p,
-          nombre_categoria: this.obtenerNombreCategoria(p.id_categoria_p)
+          nombre_categoria: this.obtenerNombreCategoria(p.ID_Categoria_P)
         }));
       },
       error: (err) => console.error('Error cargando productos:', err)
@@ -50,8 +50,8 @@ export class MenuPedidoComponent implements OnInit {
   }
 
   obtenerNombreCategoria(id: number): string {
-    const categoria = this.categorias.find(c => c.id_categoria_p === id);
-    return categoria ? categoria.nombre : 'Sin categoría';
+    const categoria = this.categorias.find(c => c.ID_Categoria_P === id);
+    return categoria ? categoria.Nombre : 'Sin categoría';
   }
 
   agregarAlCarrito(prod: Producto) {

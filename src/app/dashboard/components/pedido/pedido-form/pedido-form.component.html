@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  {{ pedido.id_pedido ? 'Editar Pedido' : 'Nuevo Pedido' }}
+  {{ pedido.ID_Pedido ? 'Editar Pedido' : 'Nuevo Pedido' }}
 </h2>
 
 <mat-dialog-content>
@@ -22,9 +22,9 @@
 
         <mat-form-field appearance="fill" class="w-full mt-3" *ngIf="conCliente">
           <mat-label>Cliente</mat-label>
-          <mat-select [(ngModel)]="pedido.id_cliente" name="cliente_id" required>
-            <mat-option *ngFor="let cliente of clientes" [value]="cliente.id_cliente">
-              {{ cliente.nombre }} {{ cliente.apellido }}
+          <mat-select [(ngModel)]="pedido.ID_Cliente" name="cliente_id" required>
+            <mat-option *ngFor="let cliente of clientes" [value]="cliente.ID_Cliente">
+              {{ cliente.Nombre }} {{ cliente.Apellido }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -36,9 +36,9 @@
 
         <mat-form-field appearance="fill" class="w-full">
           <mat-label>Producto</mat-label>
-          <mat-select [(ngModel)]="detalleTemporal.id_producto" name="producto_id" required>
-            <mat-option *ngFor="let producto of productos" [value]="producto.id_producto">
-              {{ producto.nombre }} - S/ {{ producto.precio_base | number:'1.2-2' }}
+          <mat-select [(ngModel)]="detalleTemporal.ID_Producto" name="producto_id" required>
+            <mat-option *ngFor="let producto of productos" [value]="producto.ID_Producto">
+              {{ producto.Nombre }} - S/ {{ producto.Precio_Base| number:'1.2-2' }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -46,7 +46,7 @@
         <mat-form-field appearance="fill" class="w-full">
           <mat-label>Cantidad</mat-label>
           <input matInput type="number" min="1"
-                 [(ngModel)]="detalleTemporal.cantidad"
+                 [(ngModel)]="detalleTemporal.Cantidad"
                  name="cantidad" required>
         </mat-form-field>
 
@@ -70,9 +70,9 @@
           </thead>
           <tbody>
             <tr *ngFor="let d of pedido.detalles; let i = index">
-              <td>{{ getNombreProducto(d.id_producto) }}</td>
-              <td>{{ d.cantidad }}</td>
-              <td>S/ {{ d.precio_total | number:'1.2-2' }}</td>
+              <td>{{ getNombreProducto(d.ID_Producto) }}</td>
+              <td>{{ d.Cantidad }}</td>
+              <td>S/ {{ d.PrecioTotal | number:'1.2-2' }}</td>
               <td>
                 <button mat-icon-button color="warn" type="button" (click)="eliminarDetalle(i)">
                   <mat-icon>delete</mat-icon>
@@ -88,18 +88,18 @@
         <div class="totales mt-3">
           <div class="flex justify-between">
             <span>Subtotal:</span>
-            <strong>S/ {{ pedido.sub_total | number:'1.2-2' }}</strong>
+            <strong>S/ {{ pedido.SubTotal | number:'1.2-2' }}</strong>
           </div>
 
           <div class="flex justify-between text-lg font-bold mt-2">
             <span>Total:</span>
-            <span>S/ {{ pedido.sub_total | number:'1.2-2' }}</span>
+            <span>S/ {{ pedido.SubTotal | number:'1.2-2' }}</span>
           </div>
         </div>
 
         <mat-form-field appearance="fill" class="w-full mt-4">
           <mat-label>Notas</mat-label>
-          <textarea matInput rows="3" [(ngModel)]="pedido.notas" name="notas"></textarea>
+          <textarea matInput rows="3" [(ngModel)]="pedido.Notas" name="notas"></textarea>
         </mat-form-field>
       </div>
     </div>

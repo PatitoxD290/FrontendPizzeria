@@ -46,15 +46,15 @@ export class DetallePedidoComponent implements OnInit {
   }
 
   aumentarCantidad(detalle: PedidoDetalle) {
-    this.ordenService.aumentarCantidad(detalle.id_producto, detalle.precio_total / detalle.cantidad);
+    this.ordenService.aumentarCantidad(detalle.ID_Producto, detalle.PrecioTotal / detalle.Cantidad);
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
-    this.ordenService.reducirCantidad(detalle.id_producto, detalle.precio_total / detalle.cantidad);
+    this.ordenService.reducirCantidad(detalle.ID_Producto, detalle.PrecioTotal / detalle.Cantidad);
   }
 
   getTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + (d.precio_total || 0), 0);
+    return this.detalles.reduce((acc, d) => acc + (d.PrecioTotal || 0), 0);
   }
 
   async realizarPedido() {
@@ -102,21 +102,21 @@ export class DetallePedidoComponent implements OnInit {
         }
       });
     } else {
-      this.selectedCliente = { id_cliente: 1, nombre: 'Cliente por defecto' } as Cliente;
+      this.selectedCliente = {ID_Cliente: 1, Nombre: 'Cliente por defecto' } as Cliente;
       this.enviarPedido(usuarioLogueado);
     }
   }
 
   private enviarPedido(usuarioLogueado: any) {
     const pedido: PedidoConDetalle = {
-      id_pedido: 0,
-      id_cliente: this.selectedCliente?.id_cliente || 1,
-      id_usuario: usuarioLogueado.id_usuario,
-      sub_total: this.getTotal(),
-      notas: '',
-      estado_p: 'P',
-      fecha_registro: new Date().toISOString().split('T')[0],
-      hora_pedido: new Date().toTimeString().split(' ')[0],
+      ID_Pedido: 0,
+      ID_Cliente: this.selectedCliente?.ID_Cliente || 1,
+      ID_Usuario: usuarioLogueado.ID_Usuario,
+      SubTotal: this.getTotal(),
+      Notas: '',
+      Estado_P: 'P',
+      Fecha_Registro: new Date().toISOString().split('T')[0],
+      Hora_Pedido: new Date().toTimeString().split(' ')[0],
       detalles: this.detalles.map(d => ({
         ...d,
         id_pedido_d: 0,

@@ -56,6 +56,6 @@ export class VerDetallePedidoComponent implements OnInit {
 
   /** 🔹 Calcular total del pedido */
   getTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + (Number(d.precio_total) || 0), 0);
+    return this.detalles.reduce((acc, d) => acc + (Number(d.PrecioTotal) || 0), 0);
   }
 }

@@ -49,14 +49,14 @@ export class ProductoFormComponent implements OnInit {
     this.producto = data?.producto
       ? { ...data.producto }
       : {
-          id_producto: 0,
-          nombre: '',
-          descripcion: '',
-          precio_base: 0,
-          id_categoria_p: 0,
-          id_receta: 0,
-          estado: 'A',
-          fecha_registro: new Date().toISOString()
+          ID_Producto: 0,
+          Nombre: '',
+          Descripcion: '',
+          Precio_Base: 0,
+          ID_Categoria_P: 0,
+          ID_Receta: 0,
+          Estado: 'A',
+          Fecha_Registro: new Date().toISOString()
         };
   }
 
@@ -90,7 +90,7 @@ export class ProductoFormComponent implements OnInit {
   }
 
   saveProducto() {
-    if (!this.producto.nombre || !this.producto.precio_base || !this.producto.id_categoria_p) {
+    if (!this.producto.Nombre || !this.producto.Precio_Base || !this.producto.ID_Categoria_P) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
@@ -103,32 +103,32 @@ export class ProductoFormComponent implements OnInit {
     if (this.selectedFile) {
       const formData = new FormData();
       formData.append('imagen', this.selectedFile);
-      formData.append('nombre', this.producto.nombre);
-      formData.append('descripcion', this.producto.descripcion || '');
-      formData.append('precio_base', String(this.producto.precio_base));
-      formData.append('id_categoria_p', String(this.producto.id_categoria_p));
-      formData.append('id_receta', this.producto.id_receta ? String(this.producto.id_receta) : '');
-      formData.append('estado', this.producto.estado);
+      formData.append('nombre', this.producto.Nombre);
+      formData.append('descripcion', this.producto.Descripcion || '');
+      formData.append('precio_base', String(this.producto.Precio_Base));
+      formData.append('id_categoria_p', String(this.producto.ID_Categoria_P));
+      formData.append('id_receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
+      formData.append('estado', this.producto.Estado);
 
-      if (!this.producto.id_producto || this.producto.id_producto === 0) {
+      if (!this.producto.ID_Producto || this.producto.ID_Producto === 0) {
         this.productoService.createProductoFormData(formData).subscribe({
           next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),
           error: (err) => this.handleError('crear', err)
         });
       } else {
-        this.productoService.updateProductoFormData(this.producto.id_producto, formData).subscribe({
+        this.productoService.updateProductoFormData(this.producto.ID_Producto, formData).subscribe({
           next: () => this.handleSuccess('Producto actualizado', 'El producto fue actualizado correctamente.'),
           error: (err) => this.handleError('actualizar', err)
         });
       }
     } else {
-      if (!this.producto.id_producto || this.producto.id_producto === 0) {
+      if (!this.producto.ID_Producto|| this.producto.ID_Producto === 0) {
         this.productoService.createProducto(this.producto).subscribe({
           next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),
           error: (err) => this.handleError('crear', err)
         });
       } else {
-        this.productoService.updateProducto(this.producto.id_producto, this.producto).subscribe({
+        this.productoService.updateProducto(this.producto.ID_Producto, this.producto).subscribe({
           next: () => this.handleSuccess('Producto actualizado', 'El producto fue actualizado correctamente.'),
           error: (err) => this.handleError('actualizar', err)
         });

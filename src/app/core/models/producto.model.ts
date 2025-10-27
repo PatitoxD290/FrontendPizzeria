@@ -2,14 +2,14 @@
 // PRODUCTO
 // ===========================================
 export interface Producto {
-  id_producto: number;
-  nombre: string;
-  descripcion: string;
-  precio_base: number;
-  id_categoria_p: number;
-  id_receta: number;
-  estado: 'A' | 'I';
-  fecha_registro: string;
+  ID_Producto: number;
+  Nombre: string;
+  Descripcion: string;
+  Precio_Base: number;
+  ID_Categoria_P: number;
+  ID_Receta: number;
+  Estado: 'A' | 'I';
+  Fecha_Registro: string;
 
 
   nombre_categoria?: string;

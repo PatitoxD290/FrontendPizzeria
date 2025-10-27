@@ -76,7 +76,7 @@ viewDetallePedido(pedido_id: number) {
     this.pedidoService.getPedidos().subscribe({
       next: pedidos => {
         // Ordenar de manera decreciente por pedido_id
-        pedidos.sort((a, b) => b.id_pedido - a.id_pedido);
+        pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
         this.dataSource.data = pedidos;
         this.loadClientes();
       },
@@ -97,7 +97,7 @@ viewDetallePedido(pedido_id: number) {
     this.clienteService.getClientes().subscribe({
       next: clientes => {
         clientes.forEach(c => {
-          if (c.id_cliente) this.clientesMap.set(c.id_cliente, c.nombre);
+          if (c.ID_Cliente) this.clientesMap.set(c.ID_Cliente, c.Nombre);
         });
         this.loading = false;
       },

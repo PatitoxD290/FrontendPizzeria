@@ -35,16 +35,16 @@ import Swal from 'sweetalert2';
 export class IngredienteListComponent implements OnInit {
 
   displayedColumns: string[] = [
-    'id_insumo',
-    'nombre',
-    'descripcion',
-    'unidad_med',
-    'id_categoria_i',
-    'stock_min',
-    'stock_max',
-    'estado',
-    'fecha_registro',
-    'acciones'
+    'ID_Insumo',
+    'Nombre',
+    'Descripcion',
+    'Unidad_Med',
+    'ID_Categoria_I',
+    'Stock_Min',
+    'Stock_Max',
+    'Estado',
+    'Fecha_registro',
+    'Acciones'
   ];
 
   ingredientes: Insumo[] = [];

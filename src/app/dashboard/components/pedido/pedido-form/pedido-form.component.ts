@@ -40,12 +40,12 @@ export class PedidoFormComponent implements OnInit {
 
   pedido: PedidoConDetalle;
   detalleTemporal: PedidoDetalle = {
-    id_pedido_d: 0,
-    id_pedido: 0,
-    id_producto: 0,
-    id_tamano: 0,
-    cantidad: 1,
-    precio_total: 0,
+    ID_Pedido_D: 0,
+    ID_Pedido: 0,
+    ID_Producto: 0,
+    ID_Tamano: 0,
+    Cantidad: 1,
+    PrecioTotal: 0,
     nombre_producto: '',
     nombre_categoria: ''
   };
@@ -67,14 +67,14 @@ export class PedidoFormComponent implements OnInit {
     const ahora = new Date();
 
     this.pedido = {
-      id_pedido: data?.pedido?.id_pedido || 0,
-      id_cliente: data?.pedido?.id_cliente || 0,
-      id_usuario: user?.id ?? 0,
-      fecha_registro: ahora.toISOString().split('T')[0],
-      hora_pedido: ahora.toTimeString().split(' ')[0],
-      sub_total: data?.pedido?.sub_total || 0,
-      notas: data?.pedido?.notas || '',
-      estado_p: data?.pedido?.estado_p || 'P',
+      ID_Pedido: data?.pedido?.ID_Pedido || 0,
+      ID_Cliente: data?.pedido?.ID_Cliente || 0,
+      ID_Usuario: user?.id ?? 0,
+      Fecha_Registro: ahora.toISOString().split('T')[0],
+      Hora_Pedido: ahora.toTimeString().split(' ')[0],
+      SubTotal: data?.pedido?.SubTotal || 0,
+      Notas: data?.pedido?.Notas || '',
+      Estado_P: data?.pedido?.Estado_P || 'P',
       detalles: data?.pedido?.detalles || []
     };
   }
@@ -88,7 +88,7 @@ export class PedidoFormComponent implements OnInit {
   cargarClientes(): void {
     this.clienteService.getClientes().subscribe({
       next: (clientes) => {
-        this.clientes = clientes.filter(c => c.id_cliente !== 1);
+        this.clientes = clientes.filter(c => c.ID_Cliente !== 1);
       },
       error: (err) => console.error('Error al cargar clientes:', err)
     });
@@ -104,30 +104,30 @@ export class PedidoFormComponent implements OnInit {
 
   /** 🔹 Obtener nombre de producto */
   getNombreProducto(id_producto: number): string {
-    const producto = this.productos.find(p => p.id_producto === id_producto);
-    return producto ? producto.nombre : 'Producto eliminado';
+    const producto = this.productos.find(p => p.ID_Producto === id_producto);
+    return producto ? producto.Nombre : 'Producto eliminado';
   }
 
   /** 🔹 Agregar detalle */
   agregarDetalle(): void {
-    if (!this.detalleTemporal.id_producto || this.detalleTemporal.cantidad <= 0) {
+    if (!this.detalleTemporal.ID_Producto || this.detalleTemporal.Cantidad <= 0) {
       Swal.fire('Datos incompletos', 'Completa los datos del producto antes de agregarlo', 'warning');
       return;
     }
 
-    const productoSeleccionado = this.productos.find(p => p.id_producto === this.detalleTemporal.id_producto);
+    const productoSeleccionado = this.productos.find(p => p.ID_Producto === this.detalleTemporal.ID_Producto);
     if (!productoSeleccionado) {
       Swal.fire('Producto inválido', 'El producto seleccionado no es válido', 'error');
       return;
     }
 
-    const precio = productoSeleccionado.precio_base || 0;
-    const total = precio * this.detalleTemporal.cantidad;
+    const precio = productoSeleccionado.Precio_Base || 0;
+    const total = precio * this.detalleTemporal.Cantidad;
 
     const nuevoDetalle: PedidoDetalle = {
       ...this.detalleTemporal,
-      precio_total: total,
-      nombre_producto: productoSeleccionado.nombre,
+      PrecioTotal: total,
+      nombre_producto: productoSeleccionado.Nombre,
       nombre_categoria: '',
     };
 
@@ -135,12 +135,12 @@ export class PedidoFormComponent implements OnInit {
     this.pedido.detalles.push(nuevoDetalle);
 
     this.detalleTemporal = {
-      id_pedido_d: 0,
-      id_pedido: 0,
-      id_producto: 0,
-      id_tamano: 0,
-      cantidad: 1,
-      precio_total: 0,
+      ID_Pedido_D: 0,
+      ID_Pedido: 0,
+      ID_Producto: 0,
+      ID_Tamano: 0,
+      Cantidad: 1,
+      PrecioTotal: 0,
       nombre_producto: '',
       nombre_categoria: ''
     };
@@ -150,7 +150,7 @@ export class PedidoFormComponent implements OnInit {
 
   /** 🔹 Actualizar totales */
   actualizarTotales(): void {
-    this.pedido.sub_total = this.pedido.detalles?.reduce((acc, d) => acc + d.precio_total, 0) || 0;
+    this.pedido.SubTotal = this.pedido.detalles?.reduce((acc, d) => acc + d.PrecioTotal, 0) || 0;
   }
 
   /** 🔹 Eliminar detalle */
@@ -173,12 +173,12 @@ export class PedidoFormComponent implements OnInit {
 
   /** 💾 Guardar pedido */
   savePedido(): void {
-    if (this.conCliente && (!this.pedido.id_cliente || this.pedido.id_cliente <= 0)) {
+    if (this.conCliente && (!this.pedido.ID_Cliente || this.pedido.ID_Cliente <= 0)) {
       Swal.fire('Cliente requerido', 'Selecciona un cliente válido', 'warning');
       return;
     }
 
-    if (!this.conCliente) this.pedido.id_cliente = 1;
+    if (!this.conCliente) this.pedido.ID_Cliente = 1;
 
     if (!this.pedido.detalles || this.pedido.detalles.length === 0) {
       Swal.fire('Sin productos', 'Agrega al menos un producto al pedido', 'warning');
@@ -186,11 +186,11 @@ export class PedidoFormComponent implements OnInit {
     }
 
     const user = this.authService.getUser();
-    this.pedido.id_usuario = user?.id ?? 0;
+    this.pedido.ID_Usuario = user?.id ?? 0;
 
-    const request$ = this.pedido.id_pedido === 0
+    const request$ = this.pedido.ID_Pedido === 0
       ? this.pedidoService.createPedido(this.pedido)
-      : this.pedidoService.updatePedido(this.pedido.id_pedido, this.pedido);
+      : this.pedidoService.updatePedido(this.pedido.ID_Pedido, this.pedido);
 
     request$.subscribe({
       next: () => {

@@ -2,22 +2,22 @@
 // COMBOS
 // ===========================================
 export interface Combo {
-  id_combo: number;
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  estado: 'A' | 'I';
+  ID_Combo: number;
+  Nombre: string;
+  Descripcion: string;
+  Precio: number;
+  Estado: 'A' | 'I';
 }
 
 // ===========================================
 // COMBOS DETALLE
 // ===========================================
 export interface ComboDetalle {
-  id_combo_d: number;
-  id_combo: number;
-  id_producto: number;
-  id_tamano: number;
-  cantidad: number;
+  ID_Combo_D: number;
+  ID_Combo: number;
+  ID_Producto: number;
+  ID_Tamano: number;
+  Cantidad: number;
 
   Producto_Nombre: string;
   Tamano_Nombre: string; 

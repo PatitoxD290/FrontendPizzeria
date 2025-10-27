@@ -3,9 +3,9 @@
 // ===========================================
 export interface Receta {
   id_receta: number;
-  nombre: string;
-  descripcion: string;
-  tiempo_preparacion: string;
+  Nombre: string;
+  Descripcion: string;
+  Tiempo_preparacion: string;
 }
 
 // ===========================================
