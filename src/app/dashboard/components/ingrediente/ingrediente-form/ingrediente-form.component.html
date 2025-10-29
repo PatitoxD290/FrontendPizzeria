@@ -37,15 +37,14 @@
       </mat-select>
     </mat-form-field>
 
+    <!-- 🔹 Select de Categoría -->
     <mat-form-field appearance="fill">
-      <mat-label>ID Categoría</mat-label>
-      <input
-        matInput
-        type="number"
-        [(ngModel)]="ingrediente.ID_Categoria_I"
-        name="id_categoria_i"
-        required
-      />
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="ingrediente.ID_Categoria_I" name="id_categoria_i" required>
+        <mat-option *ngFor="let cat of categorias" [value]="cat.ID_Categoria_I">
+          {{ cat.Nombre }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="fill">

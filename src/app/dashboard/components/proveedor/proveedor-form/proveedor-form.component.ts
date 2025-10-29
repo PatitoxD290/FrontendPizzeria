@@ -47,7 +47,7 @@ export class ProveedorFormComponent {
           Direccion: '',
           Telefono: '',
           Email: '',
-          Persona_contacto: '',
+          Persona_Contacto: '',
           Estado: 'A',
           Fecha_registro: ''
         };

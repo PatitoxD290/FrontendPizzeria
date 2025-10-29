@@ -49,10 +49,10 @@ export class RecetaFormComponent implements OnInit {
     this.receta = data?.receta
       ? { ...data.receta }
       : {
-          id_receta: 0,
+          ID_Receta: 0,
           Nombre: '',
           Descripcion: '',
-          Tiempo_preparacion: ''
+          Tiempo_Preparacion: ''
         };
 
     // ✅ Clonar detalles si existen, o crear uno vacío
@@ -60,11 +60,11 @@ export class RecetaFormComponent implements OnInit {
       ? data.detalles.map(det => ({ ...det }))
       : [
           {
-            id_receta_d: 0,
-            id_receta: 0,
-            id_insumo: 0,
-            cantidad: 0,
-            uso: ''
+            ID_Receta_D: 0,
+            ID_Receta: 0,
+            ID_Insumo: 0,
+            Cantidad: 0,
+            Uso: ''
           }
         ];
   }
@@ -84,11 +84,11 @@ export class RecetaFormComponent implements OnInit {
   // 🔹 Agregar un nuevo detalle
   addDetalle() {
     this.detalles.push({
-      id_receta_d: 0,
-      id_receta: this.receta.id_receta || 0,
-      id_insumo: 0,
-      cantidad: 0,
-      uso: ''
+      ID_Receta_D: 0,
+      ID_Receta: this.receta.ID_Receta || 0,
+      ID_Insumo: 0,
+      Cantidad: 0,
+      Uso: ''
     });
   }
 
@@ -110,21 +110,22 @@ export class RecetaFormComponent implements OnInit {
     }
 
     const recetaConDetalles = {
-      nombre: this.receta.Nombre,
-      descripcion: this.receta.Descripcion,
-      tiempo_preparacion: this.receta.Tiempo_preparacion,
-      detalles: this.detalles
+      Nombre: this.receta.Nombre,
+      Descripcion: this.receta.Descripcion,
+      Tiempo_Preparacion: this.receta.Tiempo_Preparacion,
+      Detalles: this.detalles
     };
 
-    if (!this.receta.id_receta || this.receta.id_receta === 0) {
+    if (!this.receta.ID_Receta || this.receta.ID_Receta === 0) {
       // 🟩 Crear nueva receta
+     console.log(recetaConDetalles);
       this.recetaService.createRecetaConDetalle(recetaConDetalles).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al crear receta', err)
       });
     } else {
       // 🟦 Actualizar receta existente
-      this.recetaService.updateReceta(this.receta.id_receta, recetaConDetalles).subscribe({
+      this.recetaService.updateReceta(this.receta.ID_Receta, recetaConDetalles).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar receta', err)
       });

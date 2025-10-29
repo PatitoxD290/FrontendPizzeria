@@ -1,0 +1,50 @@
+<h2 mat-dialog-title class="dialog-title">
+  Receta: {{ recetaNombre }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="spinner-container">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-text">
+    <mat-card>
+      <mat-card-content>
+        <p>{{ error }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Receta info -->
+  <div *ngIf="!loading && !error">
+    <mat-card class="detalle-card">
+      <mat-card-content>
+        <p><strong>Descripción:</strong> {{ recetaDescripcion }}</p>
+        <p><strong>Tiempo de preparación:</strong> {{ recetaTiempo }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Detalles de la receta -->
+    <div *ngIf="detalles.length > 0; else sinDetalles">
+      <mat-card *ngFor="let d of detalles" class="detalle-card">
+        <mat-card-content>
+          <p><strong>Ingrediente:</strong> {{ d.nombre_ingrediente }}</p>
+          <p><strong>Cantidad:</strong> {{ d.Cantidad }}</p>
+          <p><strong>Uso:</strong> {{ d.Uso }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <ng-template #sinDetalles>
+      <p class="text-gray-500 text-center">No hay detalles disponibles para esta receta.</p>
+    </ng-template>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">Cerrar</button>
+</mat-dialog-actions>

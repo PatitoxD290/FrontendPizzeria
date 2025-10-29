@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Insumo } from '../../../../core/models/ingrediente.model';
 import { IngredienteService } from '../../../../core/services/ingrediente.service';
-
+import { CategoriaService } from '../../../../core/services/categoria.service';
+import { CategoriaInsumos } from '../../../../core/models/categoria.model';
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,21 +26,21 @@ import Swal from 'sweetalert2';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatOptionModule
+    MatOptionModule,
   ],
   templateUrl: './ingrediente-form.component.html',
-  styleUrls: ['./ingrediente-form.component.css']
+  styleUrls: ['./ingrediente-form.component.css'],
 })
 export class IngredienteFormComponent implements OnInit {
-
   ingrediente: Insumo;
+  categorias: CategoriaInsumos[] = []; // ← Aquí guardaremos las categorías
 
   constructor(
     private ingredienteService: IngredienteService,
+    private categoriaService: CategoriaService, // ← Inyectamos el servicio
     private dialogRef: MatDialogRef<IngredienteFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { ingrediente?: Insumo }
   ) {
-    // Si viene un ingrediente para editar, lo clonamos
     this.ingrediente = data?.ingrediente
       ? { ...data.ingrediente }
       : {
@@ -51,19 +52,31 @@ export class IngredienteFormComponent implements OnInit {
           Stock_Min: 0,
           Stock_Max: 0,
           Estado: 'A',
-          Fecha_Registro: ''
+          Fecha_Registro: '',
         };
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadCategorias();
+  }
 
-  // 💾 Guardar ingrediente
+  // 📥 Cargar categorías de insumos
+  loadCategorias() {
+    this.categoriaService.getCategoriasInsumos().subscribe({
+      next: (data) => {
+        this.categorias = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías', err);
+      },
+    });
+  }
+
   saveIngrediente() {
     if (!this.ingrediente.Nombre.trim()) {
       Swal.fire('Error', 'El nombre del ingrediente es obligatorio', 'warning');
       return;
     }
-
     if (this.ingrediente.ID_Insumo === 0) {
       // Crear nuevo
       this.ingredienteService.createIngrediente(this.ingrediente).subscribe({
@@ -74,20 +87,22 @@ export class IngredienteFormComponent implements OnInit {
         error: (err) => {
           console.error('Error al crear ingrediente', err);
           Swal.fire('Error', 'No se pudo crear el ingrediente', 'error');
-        }
+        },
       });
     } else {
       // Actualizar existente
-      this.ingredienteService.updateIngrediente(this.ingrediente.ID_Insumo, this.ingrediente).subscribe({
-        next: () => {
-          Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error('Error al actualizar ingrediente', err);
-          Swal.fire('Error', 'No se pudo actualizar el ingrediente', 'error');
-        }
-      });
+      this.ingredienteService
+        .updateIngrediente(this.ingrediente.ID_Insumo, this.ingrediente)
+        .subscribe({
+          next: () => {
+            Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
+            this.dialogRef.close(true);
+          },
+          error: (err) => {
+            console.error('Error al actualizar ingrediente', err);
+            Swal.fire('Error', 'No se pudo actualizar el ingrediente', 'error');
+          },
+        });
     }
   }
 

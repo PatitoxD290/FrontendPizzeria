@@ -1,4 +1,3 @@
-// src/app/dashboard/components/receta-list/receta-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Receta } from '../../../../core/models/receta.model';
@@ -13,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RecetaFormComponent } from '../receta-form/receta-form.component';
+import { VerRecetaDetalleComponent } from '../ver-receta-detalle/ver-receta-detalle.component';
 
 @Component({
   selector: 'app-receta-list',
@@ -70,28 +70,35 @@ export class RecetaListComponent implements OnInit {
   }
 
   openRecetaForm(receta?: Receta) {
-  if (receta?.id_receta) {
-    this.recetaService.getDetallesPorReceta(receta.id_receta).subscribe({
-      next: (detalles) => {
-        const dialogRef = this.dialog.open(RecetaFormComponent, {
-          width: '700px',
-          data: { receta, detalles }
-        });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) this.loadRecetas();
-        });
-      },
-      error: (err) => console.error('Error al cargar detalles', err)
-    });
-  } else {
-    const dialogRef = this.dialog.open(RecetaFormComponent, {
+    if (receta?.ID_Receta) {
+      this.recetaService.getDetallesPorReceta(receta.ID_Receta).subscribe({
+        next: (detalles) => {
+          const dialogRef = this.dialog.open(RecetaFormComponent, {
+            width: '700px',
+            data: { receta, detalles }
+          });
+          dialogRef.afterClosed().subscribe(result => {
+            if (result) this.loadRecetas();
+          });
+        },
+        error: (err) => console.error('Error al cargar detalles', err)
+      });
+    } else {
+      const dialogRef = this.dialog.open(RecetaFormComponent, {
+        width: '700px',
+        data: {}
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) this.loadRecetas();
+      });
+    }
+  }
+
+  // 🚀 Modificado para abrir VerRecetaDetalleComponent
+  viewRecetaDetails(id: number) {
+    this.dialog.open(VerRecetaDetalleComponent, {
       width: '700px',
-      data: {}
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadRecetas();
+      data: { recetaId: id }
     });
   }
-}
-
 }

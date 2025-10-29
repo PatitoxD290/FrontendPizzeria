@@ -25,20 +25,20 @@ export class RecetaService {
 
   // 📗 Crear receta con detalles
   createRecetaConDetalle(data: {
-    nombre: string;
-    descripcion?: string;
-    tiempo_preparacion?: string;
-    detalles: RecetaDetalle[];
+    Nombre: string;
+    Descripcion?: string;
+    Tiempo_Preparacion?: string;
+    Detalles: RecetaDetalle[];
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/recetas`, data);
   }
 
   // 📙 Actualizar receta (y/o sus detalles)
   updateReceta(id: number, data: {
-    nombre?: string;
-    descripcion?: string;
-    tiempo_preparacion?: string;
-    detalles?: RecetaDetalle[];
+    Nombre?: string;
+    Descripcion?: string;
+    Tiempo_Preparacion?: string;
+    Detalles?: RecetaDetalle[];
   }): Observable<any> {
     return this.http.put(`${this.apiUrl}/recetas/${id}`, data);
   }

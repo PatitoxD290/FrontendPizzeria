@@ -8,7 +8,7 @@ export interface Proveedor {
   Direccion: string;
   Telefono: string;
   Email: string;
-  Persona_contacto: string;
+  Persona_Contacto: string;
   Estado: 'A' | 'I';
   Fecha_registro: string;
 }

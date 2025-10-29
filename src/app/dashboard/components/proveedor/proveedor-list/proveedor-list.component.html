@@ -11,57 +11,57 @@
 
     <ng-container matColumnDef="proveedor_id">
       <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let p">{{ p.proveedor_id }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.ID_Proveedor }}</td>
     </ng-container>
 
     <ng-container matColumnDef="nombre_proveedor">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
-      <td mat-cell *matCellDef="let p">{{ p.nombre_proveedor }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Nombre }}</td>
     </ng-container>
 
     <ng-container matColumnDef="ruc">
       <th mat-header-cell *matHeaderCellDef>RUC</th>
-      <td mat-cell *matCellDef="let p">{{ p.ruc }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Ruc }}</td>
     </ng-container>
 
     <ng-container matColumnDef="direccion">
       <th mat-header-cell *matHeaderCellDef>Dirección</th>
-      <td mat-cell *matCellDef="let p">{{ p.direccion }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Direccion }}</td>
     </ng-container>
 
     <ng-container matColumnDef="telefono">
       <th mat-header-cell *matHeaderCellDef>Teléfono</th>
-      <td mat-cell *matCellDef="let p">{{ p.telefono }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Telefono }}</td>
     </ng-container>
 
     <ng-container matColumnDef="email">
       <th mat-header-cell *matHeaderCellDef>Email</th>
-      <td mat-cell *matCellDef="let p">{{ p.email }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Email }}</td>
     </ng-container>
 
     <ng-container matColumnDef="persona_contacto">
       <th mat-header-cell *matHeaderCellDef>Contacto</th>
-      <td mat-cell *matCellDef="let p">{{ p.persona_contacto }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Persona_Contacto }}</td>
     </ng-container>
 
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let p">
-        {{ p.estado === 'A' ? 'Activo' : 'Inactivo' }}
+        {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}
       </td>
     </ng-container>
 
 
     <ng-container matColumnDef="fecha_registro">
       <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
-      <td mat-cell *matCellDef="let p">{{ p.fecha_registro | date:'short' }}</td>
+      <td mat-cell *matCellDef="let p">{{ p.Fecha_Registro | date:'short' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let p">
         <button mat-icon-button color="primary" (click)="openProveedorForm(p)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button color="warn" (click)="deleteProveedor(p.proveedor_id!)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="deleteProveedor(p.ID_Proveedor!)"><mat-icon>delete</mat-icon></button>
       </td>
     </ng-container>
 
