@@ -20,13 +20,8 @@
     <!-- Categoría -->
     <mat-form-field appearance="fill">
       <mat-label>Categoría</mat-label>
-<<<<<<< HEAD
       <mat-select [(ngModel)]="producto.ID_Categoria_P" name="id_categoria_p" required>
         <mat-option *ngFor="let c of CategoriaProducto" [value]="c.ID_Categoria_P">
-=======
-      <mat-select [(ngModel)]="producto.ID_Categoria_P" name="ID_Categoria_P" required>
-        <mat-option *ngFor="let c of categorias" [value]="c.ID_Categoria_P">
->>>>>>> abner
           {{ c.Nombre }}
         </mat-option>
       </mat-select>
@@ -38,11 +33,7 @@
       <mat-label>Receta</mat-label>
       <mat-select [(ngModel)]="producto.ID_Receta" name="ID_Receta">
         <mat-option [value]="0">Sin receta</mat-option>
-<<<<<<< HEAD
         <mat-option *ngFor="let r of Receta" [value]="r.ID_Receta">
-=======
-        <mat-option *ngFor="let r of recetas" [value]="r.ID_Receta">
->>>>>>> abner
           {{ r.Nombre }}
         </mat-option>
       </mat-select>

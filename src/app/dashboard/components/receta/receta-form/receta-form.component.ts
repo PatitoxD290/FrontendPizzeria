@@ -112,13 +112,8 @@ export class RecetaFormComponent implements OnInit {
     const recetaConDetalles = {
       Nombre: this.receta.Nombre,
       Descripcion: this.receta.Descripcion,
-<<<<<<< HEAD
       Tiempo_Preparacion: this.receta.Tiempo_Preparacion,
       Detalles: this.detalles
-=======
-      Tiempo_preparacion: this.receta.Tiempo_preparacion,
-      detalles: this.detalles
->>>>>>> abner
     };
 
     if (!this.receta.ID_Receta || this.receta.ID_Receta === 0) {
@@ -130,6 +125,7 @@ export class RecetaFormComponent implements OnInit {
       });
     } else {
       // 🟦 Actualizar receta existente
+      console.log(recetaConDetalles);
       this.recetaService.updateReceta(this.receta.ID_Receta, recetaConDetalles).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar receta', err)
