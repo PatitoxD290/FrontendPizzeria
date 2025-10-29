@@ -17,41 +17,39 @@
     </mat-card>
   </div>
 
-  <!-- 📋 Tabla de detalles -->
-  <div *ngIf="!loading && !error">
+  <!-- 📝 Notas del pedido -->
+  <div *ngIf="!loading && !error && notas" class="detalle-texto">
     <mat-card>
       <mat-card-content>
-        <table class="detalle-table" *ngIf="detalles.length > 0; else sinDatos">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Categoría</th>
-              <th>Cantidad</th>
-              <th>Precio Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let d of detalles">
-              <td>{{ d.nombre_producto }}</td>
-              <td>{{ d.nombre_categoria }}</td>
-              <td>{{ d.Cantidad }}</td>
-              <td>S/ {{ d.PrecioTotal | number:'1.2-2' }}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-right"><strong>Total:</strong></td>
-              <td><strong>S/ {{ getTotal() | number:'1.2-2' }}</strong></td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <ng-template #sinDatos>
-          <p class="text-gray-500 text-center">No hay detalles disponibles para este pedido.</p>
-        </ng-template>
+        <p><strong>Notas:</strong></p>
+        <p>{{ notas }}</p>
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- 📦 Detalles como cards -->
+  <div *ngIf="!loading && !error && detalles.length > 0; else sinDatos">
+    <mat-card *ngFor="let d of detalles" class="detalle-card">
+      <mat-card-content>
+        <p><strong>Producto:</strong> {{ d.nombre_producto }}</p>
+        <p><strong>Categoría:</strong> {{ d.nombre_categoria }}</p>
+        <p><strong>Tamaño:</strong> {{ d.nombre_tamano }}</p>
+        <p><strong>Cantidad:</strong> {{ d.Cantidad }}</p>
+        <p><strong>SubTotal:</strong> S/ {{ d.PrecioTotal | number:'1.2-2' }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Total -->
+    <mat-card class="total-card">
+      <mat-card-content>
+        <p><strong>Total del pedido:</strong> S/ {{ getTotal() | number:'1.2-2' }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <ng-template #sinDatos>
+    <p class="text-gray-500 text-center">No hay detalles disponibles para este pedido.</p>
+  </ng-template>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

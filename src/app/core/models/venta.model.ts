@@ -11,7 +11,8 @@ export interface Venta {
   Total: number;
 
   Nombre_cliente: string;
-  Productos: VentaProducto[]; 
+  Productos: VentaProducto[];
+  Fecha_Registro: string; 
 }
 
 // ===========================================

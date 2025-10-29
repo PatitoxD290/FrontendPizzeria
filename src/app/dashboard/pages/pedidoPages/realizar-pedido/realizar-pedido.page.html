@@ -1,11 +1,45 @@
-<div class="realizar-pedido-container">
-  <div class="menu-section">
-    <h2>Menú de Productos</h2>
-    <app-menu-pedido></app-menu-pedido>
-  </div>
+<div class="botones-toggle">
+  <button
+    mat-stroked-button
+    color="primary"
+    [class.active]="vistaActual === 'realizar'"
+    (click)="cambiarVista('realizar')"
+  >
+    <mat-icon>shopping_cart</mat-icon>
+    Realizar Pedido
+  </button>
 
-  <div class="detalle-section">
-    <h2>Detalle del Pedido</h2>
-    <app-detalle-pedido></app-detalle-pedido>
-  </div>
+  <button
+    mat-stroked-button
+    color="accent"
+    [class.active]="vistaActual === 'registro'"
+    (click)="cambiarVista('registro')"
+  >
+    <mat-icon>list_alt</mat-icon>
+    Registro de Pedidos
+  </button>
 </div>
+
+<!-- 🔹 Contenido principal -->
+<section class="pedido-content">
+  <!-- Vista de Realizar Pedido -->
+  <ng-container *ngIf="vistaActual === 'realizar'">
+    <div class="menu-section">
+      <h2>Menú</h2>
+      <app-menu-pedido></app-menu-pedido>
+    </div>
+
+    <div class="detalle-section">
+      <h2>Detalle del Pedido</h2>
+      <app-detalle-pedido></app-detalle-pedido>
+    </div>
+  </ng-container>
+
+  <!-- Vista de Registro de Pedidos -->
+  <ng-container *ngIf="vistaActual === 'registro'">
+    <div class="registro-section">
+      <h2>Registro de Pedidos</h2>
+      <app-pedido-list></app-pedido-list>
+    </div>
+  </ng-container>
+</section>

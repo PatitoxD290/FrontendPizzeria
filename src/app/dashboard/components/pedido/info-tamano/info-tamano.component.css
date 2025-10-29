@@ -1,0 +1,26 @@
+.info-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+}
+
+.full-width {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.total-text {
+  text-align: right;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}

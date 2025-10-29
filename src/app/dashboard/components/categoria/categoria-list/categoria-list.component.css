@@ -1,5 +1,15 @@
+/* Contenedor de los cards */
+.categoria-cards-container {
+  display: flex;
+  flex-wrap: wrap;       /* permite que los cards bajen a la siguiente fila si no caben */
+  gap: 15px;             /* espacio entre cards */
+  justify-content: flex-start; /* alinear al inicio */
+}
+
+/* 🔹 Estilo de cada card */
 .categoria-card {
-  margin-bottom: 15px;
+  flex: 0 0 auto;        /* no crecer ni encoger automáticamente */
+  width: 200px;          /* ancho fijo de cada card, ajusta según necesites */
   padding: 10px;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.1s, background-color 0.2s;
@@ -31,4 +41,12 @@
   background-color: #e3f2fd;
   border: 2px solid #2196f3;
   transform: scale(1.02);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column; /* botones apilados verticalmente */
+  align-items: flex-start; /* alineación al lado izquierdo */
+  gap: 10px;              
+  margin-bottom: 15px;    
 }

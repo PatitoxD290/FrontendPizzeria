@@ -102,7 +102,7 @@ export class ProductoFormComponent implements OnInit {
 
     if (this.selectedFile) {
       const formData = new FormData();
-      formData.append('imagen', this.selectedFile);
+      formData.append('file', this.selectedFile);
       formData.append('nombre', this.producto.Nombre);
       formData.append('descripcion', this.producto.Descripcion || '');
       formData.append('precio_base', String(this.producto.Precio_Base));

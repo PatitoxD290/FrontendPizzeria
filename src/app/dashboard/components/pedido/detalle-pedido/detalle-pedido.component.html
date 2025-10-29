@@ -1,3 +1,17 @@
+<!-- 🔹 Campo opcional de cliente -->
+<div class="cliente-input-container">
+  <mat-form-field appearance="outline" class="cliente-field">
+    <mat-label>Nombre del cliente (opcional)</mat-label>
+    <input
+      matInput
+      [(ngModel)]="nombreCliente"
+      placeholder="Ejemplo: Juan Pérez"
+    />
+    <mat-icon matSuffix>person</mat-icon>
+  </mat-form-field>
+</div>
+
+<!-- 🔹 Tabla de detalle -->
 <table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
 
   <!-- Producto -->
@@ -9,6 +23,15 @@
     </td>
   </ng-container>
 
+  <!-- Tamaño -->
+  <ng-container matColumnDef="tamano">
+    <th mat-header-cell *matHeaderCellDef>Tamaño</th>
+   <td mat-cell *matCellDef="let d">
+    <span class="tamano-badge">{{ d.nombre_tamano }}</span>
+  </td>
+
+  </ng-container>
+
   <!-- Cantidad -->
   <ng-container matColumnDef="cantidad">
     <th mat-header-cell *matHeaderCellDef>Cant.</th>
@@ -17,7 +40,7 @@
         <button mat-mini-button (click)="aumentarCantidad(d)">
           <mat-icon>keyboard_arrow_up</mat-icon>
         </button>
-        <span>{{ d.cantidad }}</span>
+        <span>{{ d.Cantidad }}</span>
         <button mat-mini-button (click)="reducirCantidad(d)">
           <mat-icon>keyboard_arrow_down</mat-icon>
         </button>
@@ -25,11 +48,12 @@
     </td>
   </ng-container>
 
-  <!-- Precio Unitario -->
+
+  <!-- Precio -->
   <ng-container matColumnDef="precio">
     <th mat-header-cell *matHeaderCellDef>Precio</th>
     <td mat-cell *matCellDef="let d">
-      S/ {{ (d.precio_total / d.cantidad) | number:'1.2-2' }}
+      S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}
     </td>
   </ng-container>
 
@@ -37,7 +61,7 @@
   <ng-container matColumnDef="subtotal">
     <th mat-header-cell *matHeaderCellDef>Subtotal</th>
     <td mat-cell *matCellDef="let d">
-      S/ {{ d.precio_total | number:'1.2-2' }}
+      S/ {{ d.PrecioTotal | number:'1.2-2' }}
     </td>
   </ng-container>
 
@@ -45,7 +69,7 @@
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let d">
-      <button mat-icon-button color="warn" (click)="eliminar(d.id_producto)">
+      <button mat-icon-button color="warn" (click)="eliminar(d.ID_Producto)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>
@@ -55,9 +79,11 @@
   <tr mat-row *matRowDef="let d; columns: displayedColumns;"></tr>
 </table>
 
+<!-- 🔹 Total y botón -->
 <div class="total-container">
   <h3>Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
   <button mat-raised-button color="primary" (click)="realizarPedido()">
+    <mat-icon>send</mat-icon>
     Realizar pedido
   </button>
 </div>

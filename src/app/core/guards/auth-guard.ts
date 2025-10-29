@@ -8,30 +8,31 @@ export const authGuard: CanActivateFn = () => {
 
   const token = auth.getToken();
 
+  // 🔹 Si no hay token, redirige al login
   if (!token) {
     return redirectToLogin(router, auth);
   }
 
+  // 🔹 Verificar validez del token
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const isExpired = Date.now() >= payload.exp * 1000;
 
     if (isExpired) {
-      auth.logout();
+      console.warn('Token expirado');
       return redirectToLogin(router, auth);
     }
   } catch {
-    auth.logout();
+    console.error('Token inválido');
     return redirectToLogin(router, auth);
   }
 
   return true;
 };
 
-// 🔁 Función auxiliar
+// 🔁 Función auxiliar para limpiar sesión y redirigir
 function redirectToLogin(router: Router, auth: AuthService) {
-  // Limpia datos y redirige
-  auth.logout();
+  auth.logout(); // elimina token y usuario
   router.navigate(['/dashboard/login']);
   return false;
 }

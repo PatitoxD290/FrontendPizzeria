@@ -15,67 +15,59 @@ export class OrdenService {
   constructor() {}
 
   // 🟩 Agregar producto al pedido
-  agregarProducto(producto: Producto & { nombre_categoria?: string }) {
-    const existente = this.detalles.find(d => d.ID_Producto === producto.ID_Producto);
+agregarProducto(detalle: PedidoDetalle) {
+  const existente = this.detalles.find(d => d.ID_Producto === detalle.ID_Producto && d.ID_Tamano === detalle.ID_Tamano);
+  if (existente) {
+    existente.Cantidad += detalle.Cantidad;
+    existente.PrecioTotal += detalle.PrecioTotal;
+  } else {
+    this.detalles.push({ ...detalle });
+  }
+  this.detallesSubject.next([...this.detalles]);
+}
 
-    if (existente) {
-      existente.Cantidad = (existente.Cantidad || 1) + 1;
-      existente.PrecioTotal = (existente.Cantidad || 1) * (producto.Precio_Base || 0);
-    } else {
-      const nuevo: PedidoDetalle = {
-        ID_Pedido_D: 0, // se asignará en el backend
-        ID_Pedido: 0,
-        ID_Producto: producto.ID_Producto,
-        ID_Tamano: 0, // si no aplica, puede omitirse
-        Cantidad: 1,
-        PrecioTotal: producto.Precio_Base || 0,
-        nombre_producto: producto.Nombre || 'Sin nombre',
-        nombre_categoria: producto.nombre_categoria || 'Sin categoría'
-      };
-      this.detalles.push(nuevo);
-    }
 
+// ⬆️ Aumentar cantidad
+aumentarCantidad(idProducto: number, idTamano: number, precioBase: number) {
+  const detalle = this.detalles.find(d => d.ID_Producto === idProducto && d.ID_Tamano === idTamano);
+  if (detalle) {
+    detalle.Cantidad++;
+    detalle.PrecioTotal = detalle.Cantidad * precioBase;
     this.detallesSubject.next([...this.detalles]);
   }
+}
 
-  // 🟥 Eliminar producto del pedido
-  eliminarProducto(id: number) {
-    this.detalles = this.detalles.filter(p => p.ID_Producto !== id);
+// ⬇️ Reducir cantidad
+reducirCantidad(idProducto: number, idTamano: number, precioBase: number) {
+  const detalle = this.detalles.find(d => d.ID_Producto === idProducto && d.ID_Tamano === idTamano);
+  if (detalle && detalle.Cantidad > 1) {
+    detalle.Cantidad--;
+    detalle.PrecioTotal = detalle.Cantidad * precioBase;
     this.detallesSubject.next([...this.detalles]);
+  } else if (detalle && detalle.Cantidad === 1) {
+    this.eliminarProducto(idProducto, idTamano);
   }
+}
 
-  // 🧹 Limpiar el pedido (vaciar carrito)
+// 🟥 Eliminar producto con tamaño
+eliminarProducto(idProducto: number, idTamano: number) {
+  this.detalles = this.detalles.filter(d => !(d.ID_Producto === idProducto && d.ID_Tamano === idTamano));
+  this.detallesSubject.next([...this.detalles]);
+}
+
+
+  // 🧹 Limpiar carrito
   limpiar() {
     this.detalles = [];
     this.detallesSubject.next([...this.detalles]);
   }
 
-  // ⬆️ Aumentar cantidad de un producto
-  aumentarCantidad(id: number, precioBase: number) {
-    const detalle = this.detalles.find(d => d.ID_Producto === id);
-    if (detalle) {
-      detalle.Cantidad = (detalle.Cantidad || 1) + 1;
-      detalle.PrecioTotal = (detalle.Cantidad || 1) * precioBase;
-      this.detallesSubject.next([...this.detalles]);
-    }
-  }
-
-  // ⬇️ Reducir cantidad de un producto
-  reducirCantidad(id: number, precioBase: number) {
-    const detalle = this.detalles.find(d => d.ID_Pedido === id);
-    if (detalle && detalle.Cantidad && detalle.Cantidad > 1) {
-      detalle.Cantidad -= 1;
-      detalle.PrecioTotal = detalle.Cantidad * precioBase;
-      this.detallesSubject.next([...this.detalles]);
-    }
-  }
-
-  // 🔹 Obtener total del pedido
+  // 🔹 Total general
   obtenerTotal(): number {
     return this.detalles.reduce((acc, d) => acc + (d.PrecioTotal || 0), 0);
   }
 
-  // 🔹 Obtener los detalles actuales
+  // 🔹 Obtener detalles
   obtenerDetalles(): PedidoDetalle[] {
     return [...this.detalles];
   }

@@ -1,0 +1,43 @@
+.venta-card {
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 1200px;
+  background: #fafafa;
+  border-radius: 12px;
+}
+
+.titulo {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.sin-datos {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}
