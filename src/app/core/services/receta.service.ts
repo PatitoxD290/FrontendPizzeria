@@ -43,7 +43,7 @@ export class RecetaService {
     return this.http.put(`${this.apiUrl}/recetas/${id}`, data);
   }
 
-  // 📕 Eliminar receta (y sus detalles)
+  // 📕 Eliminar receta (y sus detalls)
   deleteReceta(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/recetas/${id}`);
   }
