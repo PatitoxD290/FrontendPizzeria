@@ -13,8 +13,8 @@
         <h3>{{ p.Nombre }}</h3>
         <p><strong>ID:</strong> {{ p.ID_Producto }}</p>
         <p><strong>Descripción:</strong> {{ p.Descripcion }}</p>
-        <p><strong>Categoría:</strong> {{ p.nombre_categoria }}</p>
-        <p><strong>Receta:</strong> {{ p.nombre_receta }}</p>
+        <p><strong>Categoría:</strong> {{ p.ID_Categoria_P }}</p>
+        <p><strong>Receta:</strong> {{ p.ID_Receta }}</p>
         <p><strong>Precio:</strong> S/ {{ p.Precio_Base | number:'1.2-2' }}</p>
         <p><strong>Estado:</strong> {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}</p>
         <p><strong>Fecha Registro:</strong> {{ p.Fecha_Registro | date:'short' }}</p>

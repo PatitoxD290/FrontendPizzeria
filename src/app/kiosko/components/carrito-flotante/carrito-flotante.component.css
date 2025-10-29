@@ -1,19 +1,27 @@
 /* === BOTÓN FLOTANTE === */
 .boton-carrito {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 27px;
+  right: 29px;
   z-index: 1200;
+  width: 60px;
+  height: 60px;
+}
+
+.icono-carrito {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
 }
 
 /* === BADGE DEL NÚMERO === */
 .badge-icon {
   position: absolute;
-  top: -28px;
+  top: -29px;
   right: -22px;
   background: #d32f2f;
   color: #fff;
-  padding: 2px 6px;
+  padding: 3px;
   border-radius: 50%;
   font-size: 12px;
   min-width: 20px;
@@ -76,11 +84,12 @@
   padding: 10px;
   border-radius: 8px;
   transition: background 0.2s;
+  background: #e7f6f2;
 }
 
-.item-carrito:hover {
+/* .item-carrito:hover {
   background: #f9f9f9;
-}
+} */
 
 .item-carrito img {
   width: 56px;
@@ -141,7 +150,8 @@
 
 .resumen-total strong {
   color: #2e7d32;
-  right: -5px;
+  position: relative;
+  right: -8px !important;
 }
 
 /* === BOTONES FIJOS === */
@@ -154,6 +164,16 @@
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
   position: sticky;
   bottom: 0;
+}
+
+.confirmar-pedido{
+  background-color: #108d74 !important;
+}
+
+.volver{
+  background-color: #E74C3C !important;
+  color: white !important;
+  border: none;
 }
 
 .acciones-fijas button {

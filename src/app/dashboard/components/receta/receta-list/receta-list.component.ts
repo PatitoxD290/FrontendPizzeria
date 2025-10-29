@@ -32,7 +32,7 @@ import { RecetaFormComponent } from '../receta-form/receta-form.component';
   styleUrls: ['./receta-list.component.css']
 })
 export class RecetaListComponent implements OnInit {
-  displayedColumns: string[] = ['receta_id', 'nombre_receta', 'descripcion_receta', 'tiempo_estimado_minutos', 'acciones'];
+  displayedColumns: string[] = ['ID_Receta', 'Nombre', 'Descripcion', 'Tiempo_Preparacion', 'acciones'];
   recetas: Receta[] = [];
   loading = false;
 
@@ -70,8 +70,8 @@ export class RecetaListComponent implements OnInit {
   }
 
   openRecetaForm(receta?: Receta) {
-  if (receta?.id_receta) {
-    this.recetaService.getDetallesPorReceta(receta.id_receta).subscribe({
+  if (receta?.ID_Receta) {
+    this.recetaService.getDetallesPorReceta(receta.ID_Receta).subscribe({
       next: (detalles) => {
         const dialogRef = this.dialog.open(RecetaFormComponent, {
           width: '700px',

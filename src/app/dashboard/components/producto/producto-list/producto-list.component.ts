@@ -66,8 +66,8 @@ export class ProductoListComponent implements OnInit {
 
       this.productos = (productos || []).map(p => ({
         ...p,
-        nombre_categoria: this.categorias.find(c => c.id_categoria_p === p.ID_Categoria_P)?.nombre || 'Sin categoría',
-        nombre_receta: this.recetas.find(r => r.id_receta === p.ID_Receta)?.nombre || 'Sin receta'
+        ID_Categoria_P: this.categorias.find(c => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre || 'Sin categoría',
+        ID_Receta: this.recetas.find(r => r.ID_Receta === p.ID_Receta)?.Nombre || 'Sin receta'
       }));
 
       this.setPage(0);

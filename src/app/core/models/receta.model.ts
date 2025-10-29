@@ -2,7 +2,7 @@
 // RECETA
 // ===========================================
 export interface Receta {
-  id_receta: number;
+  ID_Receta: number;
   Nombre: string;
   Descripcion: string;
   Tiempo_preparacion: string;
@@ -12,11 +12,11 @@ export interface Receta {
 // RECETA DETALLE
 // ===========================================
 export interface RecetaDetalle {
-  id_receta_d: number;
-  id_receta: number;
-  id_insumo: number;
-  cantidad: number;
-  uso: string;
+  ID_Receta_D: number;
+  ID_Receta: number;
+  ID_Insumo: number;
+  Cantidad: number;
+  Uso: string;
 
   nombre_ingrediente?: string;
 }
