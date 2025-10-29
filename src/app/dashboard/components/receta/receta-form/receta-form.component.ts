@@ -112,8 +112,13 @@ export class RecetaFormComponent implements OnInit {
     const recetaConDetalles = {
       Nombre: this.receta.Nombre,
       Descripcion: this.receta.Descripcion,
+<<<<<<< HEAD
       Tiempo_Preparacion: this.receta.Tiempo_Preparacion,
       Detalles: this.detalles
+=======
+      Tiempo_preparacion: this.receta.Tiempo_preparacion,
+      detalles: this.detalles
+>>>>>>> abner
     };
 
     if (!this.receta.ID_Receta || this.receta.ID_Receta === 0) {

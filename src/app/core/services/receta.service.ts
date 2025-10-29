@@ -27,8 +27,13 @@ export class RecetaService {
   createRecetaConDetalle(data: {
     Nombre: string;
     Descripcion?: string;
+<<<<<<< HEAD
     Tiempo_Preparacion?: string;
     Detalles: RecetaDetalle[];
+=======
+    Tiempo_preparacion?: string;
+    detalles: RecetaDetalle[];
+>>>>>>> abner
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/recetas`, data);
   }
@@ -37,8 +42,13 @@ export class RecetaService {
   updateReceta(id: number, data: {
     Nombre?: string;
     Descripcion?: string;
+<<<<<<< HEAD
     Tiempo_Preparacion?: string;
     Detalles?: RecetaDetalle[];
+=======
+    Tiempo_preparacion?: string;
+    detalles?: RecetaDetalle[];
+>>>>>>> abner
   }): Observable<any> {
     return this.http.put(`${this.apiUrl}/recetas/${id}`, data);
   }

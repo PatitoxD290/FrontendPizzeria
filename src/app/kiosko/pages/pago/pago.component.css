@@ -97,6 +97,7 @@ h2, h3, p {
   height: auto;
   min-height: 60px;
   line-height: 1.2;
+  background-color: #e2ecf4 !important;
 }
 
 /* Ajustar iconos en botones horizontales */
@@ -114,6 +115,8 @@ h2, h3, p {
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  color: #263747;
+  font-size: 15px;
 }
 
 /* BOTONES VERTICALES (Yape, Plin) */

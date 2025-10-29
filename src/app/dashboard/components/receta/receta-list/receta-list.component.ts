@@ -32,7 +32,7 @@ import { VerRecetaDetalleComponent } from '../ver-receta-detalle/ver-receta-deta
   styleUrls: ['./receta-list.component.css']
 })
 export class RecetaListComponent implements OnInit {
-  displayedColumns: string[] = ['receta_id', 'nombre_receta', 'descripcion_receta', 'tiempo_estimado_minutos', 'acciones'];
+  displayedColumns: string[] = ['ID_Receta', 'Nombre', 'Descripcion', 'Tiempo_Preparacion', 'acciones'];
   recetas: Receta[] = [];
   loading = false;
 
@@ -70,6 +70,7 @@ export class RecetaListComponent implements OnInit {
   }
 
   openRecetaForm(receta?: Receta) {
+<<<<<<< HEAD
     if (receta?.ID_Receta) {
       this.recetaService.getDetallesPorReceta(receta.ID_Receta).subscribe({
         next: (detalles) => {
@@ -97,6 +98,23 @@ export class RecetaListComponent implements OnInit {
   // 🚀 Modificado para abrir VerRecetaDetalleComponent
   viewRecetaDetails(id: number) {
     this.dialog.open(VerRecetaDetalleComponent, {
+=======
+  if (receta?.ID_Receta) {
+    this.recetaService.getDetallesPorReceta(receta.ID_Receta).subscribe({
+      next: (detalles) => {
+        const dialogRef = this.dialog.open(RecetaFormComponent, {
+          width: '700px',
+          data: { receta, detalles }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) this.loadRecetas();
+        });
+      },
+      error: (err) => console.error('Error al cargar detalles', err)
+    });
+  } else {
+    const dialogRef = this.dialog.open(RecetaFormComponent, {
+>>>>>>> abner
       width: '700px',
       data: { recetaId: id }
     });

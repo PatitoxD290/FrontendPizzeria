@@ -13,6 +13,7 @@
   <table mat-table [dataSource]="ingredientes" class="mat-elevation-z8" *ngIf="!loading">
 
     <!-- ID -->
+<<<<<<< HEAD
    <ng-container matColumnDef="ID_Insumo">
   <th mat-header-cell *matHeaderCellDef>ID</th>
   <td mat-cell *matCellDef="let i">{{ i.ID_Insumo }}</td>
@@ -73,6 +74,77 @@
     </button>
   </td>
 </ng-container>
+=======
+    <ng-container matColumnDef="ID_Insumo">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let i">{{ i.ID_Insumo }}</td>
+    </ng-container>
+
+    <!-- Nombre -->
+    <ng-container matColumnDef="Nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let i">{{ i.Nombre }}</td>
+    </ng-container>
+
+    <!-- Descripción -->
+    <ng-container matColumnDef="Descripcion">
+      <th mat-header-cell *matHeaderCellDef>Descripción</th>
+      <td mat-cell *matCellDef="let i">{{ i.Descripcion }}</td>
+    </ng-container>
+
+    <!-- Unidad -->
+    <ng-container matColumnDef="Unidad_Med">
+      <th mat-header-cell *matHeaderCellDef>Unidad</th>
+      <td mat-cell *matCellDef="let i">{{ i.Unidad_Med }}</td>
+    </ng-container>
+
+    <!-- Categoría -->
+    <ng-container matColumnDef="ID_Categoria_I">
+      <th mat-header-cell *matHeaderCellDef>ID Categoría</th>
+      <td mat-cell *matCellDef="let i">{{ i.ID_Categoria_I }}</td>
+    </ng-container>
+
+    <!-- Stock mínimo -->
+    <ng-container matColumnDef="Stock_Min">
+      <th mat-header-cell *matHeaderCellDef>Stock Mínimo</th>
+      <td mat-cell *matCellDef="let i">{{ i.stock_min }}</td>
+    </ng-container>
+
+    <!-- Stock máximo -->
+    <ng-container matColumnDef="Stock_Max">
+      <th mat-header-cell *matHeaderCellDef>Stock Máximo</th>
+      <td mat-cell *matCellDef="let i">{{ i.stock_max }}</td>
+    </ng-container>
+
+    <!-- Estado -->
+    <ng-container matColumnDef="Estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let i">
+        <span [ngClass]="{ 'activo': i.estado === 'A', 'inactivo': i.estado === 'D' }">
+          {{ i.estado === 'A' ? 'Activo' : 'Desactivado' }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Fecha registro -->
+    <ng-container matColumnDef="Fecha_registro">
+      <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
+      <td mat-cell *matCellDef="let i">{{ i.Fecha_registro | date:'short' }}</td>
+    </ng-container>
+
+    <!-- Acciones -->
+    <ng-container matColumnDef="Acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let i">
+        <button mat-icon-button color="primary" (click)="openIngredienteForm(i)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteIngrediente(i.id_insumo)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+>>>>>>> abner
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

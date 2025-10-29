@@ -108,6 +108,7 @@ onFileSelected(event: any) {
 
     if (this.selectedFile) {
       const formData = new FormData();
+<<<<<<< HEAD
       formData.append('file', this.selectedFile);
       formData.append('nombre', this.producto.Nombre);
       formData.append('descripcion', this.producto.Descripcion || '');
@@ -115,6 +116,15 @@ onFileSelected(event: any) {
       formData.append('id_categoria_p', String(this.producto.ID_Categoria_P));
       formData.append('id_receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
       formData.append('estado', this.producto.Estado);
+=======
+      formData.append('imagen', this.selectedFile);
+      formData.append('Nombre', this.producto.Nombre);
+      formData.append('Descripcion', this.producto.Descripcion || '');
+      formData.append('Precio_Base', String(this.producto.Precio_Base));
+      formData.append('ID_Categoria_P', String(this.producto.ID_Categoria_P));
+      formData.append('ID_Receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
+      formData.append('Estado', this.producto.Estado);
+>>>>>>> abner
 
       if (!this.producto.ID_Producto || this.producto.ID_Producto === 0) {
         this.productoService.createProductoFormData(formData).subscribe({

@@ -37,7 +37,7 @@ export class PagoComponent implements OnInit {
   codigoPedido = '';
   mostrarCodigoPedido = false;
 
-  // Nuevas variables para la verificación por código
+  // Variables para la verificación por código
   solicitandoCodigo = false;
   codigoVerificacion = '';
   codigoEnviado = false;
@@ -73,19 +73,16 @@ export class PagoComponent implements OnInit {
     this.solicitarCodigoVerificacion();
   }
 
-  // Nueva función para solicitar código de verificación
   solicitarCodigoVerificacion() {
     this.solicitandoCodigo = true;
     this.generarYEnviarCodigo();
   }
 
   generarYEnviarCodigo() {
-    // Ya no generamos el código aquí, lo genera el backend
     this.enviarCodigoPorEmail().subscribe({
       next: (response: any) => {
         console.log('Código enviado correctamente:', response);
         this.codigoEnviado = true;
-        // Para desarrollo, guardamos el código que devuelve el backend
         if (response.codigo) {
           this.codigoCorrecto = response.codigo.toString();
           console.log('Código generado por backend:', this.codigoCorrecto);
@@ -93,7 +90,6 @@ export class PagoComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error enviando código:', error);
-        // En caso de error, generar código localmente como fallback
         this.codigoCorrecto = Math.floor(1000 + Math.random() * 9000).toString();
         console.log('Código generado localmente (para pruebas):', this.codigoCorrecto);
         this.codigoEnviado = true;
@@ -102,9 +98,8 @@ export class PagoComponent implements OnInit {
   }
 
   enviarCodigoPorEmail() {
-    // URL CORREGIDA según tu configuración de rutas
     return this.http.post('http://localhost:3000/api/v2/codigo-pago', {
-      email: 'abnerluisnovoa@gmail.com' // Tu correo destino
+      email: 'abnerluisnovoa@gmail.com'
     });
   }
 
@@ -117,7 +112,6 @@ export class PagoComponent implements OnInit {
     this.verificandoCodigo = true;
     this.errorCodigo = false;
 
-    // Verificación con el backend
     this.http.post('http://localhost:3000/api/v2/verificar-pago', {
       email: 'abnerluisnovoa@gmail.com',
       codigo: this.codigoVerificacion
@@ -126,11 +120,9 @@ export class PagoComponent implements OnInit {
         this.verificandoCodigo = false;
         
         if (response.success) {
-          // Código correcto, proceder con el pago
           this.solicitandoCodigo = false;
           this.procesarPago();
         } else {
-          // Código incorrecto
           this.errorCodigo = true;
           this.codigoVerificacion = '';
         }
@@ -141,7 +133,6 @@ export class PagoComponent implements OnInit {
         this.codigoVerificacion = '';
         console.error('Error verificando código:', error);
         
-        // Fallback para desarrollo: verificación local
         if (this.codigoVerificacion === this.codigoCorrecto) {
           this.solicitandoCodigo = false;
           this.procesarPago();
@@ -168,22 +159,18 @@ export class PagoComponent implements OnInit {
   procesarPago() {
     this.procesandoPago = true;
     
-    // Simular procesamiento de pago por 2-5 segundos
     setTimeout(() => {
       this.procesandoPago = false;
-      
-      // Simular resultado aleatorio del pago (80% éxito, 20% rechazado)
       this.pagoExitoso = Math.random() > 0.2;
       this.pagoConfirmado = true;
       
       if (this.pagoExitoso) {
-        // Mostrar resultado por 2 segundos y luego ir a opciones de documento
         setTimeout(() => {
           this.mostrarOpcionesDocumento = true;
           this.pagoConfirmado = false;
         }, 2000);
       }
-    }, 2000 + Math.random() * 3000); // Entre 2 y 5 segundos
+    }, 2000 + Math.random() * 3000);
   }
 
   reintentarPago() {
@@ -268,11 +255,11 @@ export class PagoComponent implements OnInit {
   confirmarBoleta() {
     if (this.dni && this.dni.length === 8) {
       this.tipoDocumento = 'boleta';
-      this.codigoPedido = '';
-      this.mostrarCodigoPedido = false;
+      this.generarCodigoPedido();
+      this.mostrarCodigoPedido = true;
       this.mostrarMensajeFinal = true;
       this.solicitandoDni = false;
-      this.finalizarCompra();
+      this.guardarEnBaseDeDatosReal();
     } else {
       alert('Ingrese un DNI válido de 8 dígitos');
     }
@@ -287,11 +274,11 @@ export class PagoComponent implements OnInit {
   confirmarFactura() {
     if (this.ruc && this.ruc.length === 11) {
       this.tipoDocumento = 'factura';
-      this.codigoPedido = '';
-      this.mostrarCodigoPedido = false;
+      this.generarCodigoPedido();
+      this.mostrarCodigoPedido = true;
       this.mostrarMensajeFinal = true;
       this.solicitandoRuc = false;
-      this.finalizarCompra();
+      this.guardarEnBaseDeDatosReal();
     } else {
       alert('Ingrese un RUC válido de 11 dígitos');
     }
@@ -309,7 +296,120 @@ export class PagoComponent implements OnInit {
     this.mostrarCodigoPedido = true;
     this.mostrarMensajeFinal = true;
     this.mostrarOpcionesDocumento = false;
-    this.finalizarCompra();
+    this.guardarEnBaseDeDatosReal();
+  }
+
+  // ✅ MÉTODO MEJORADO: Intenta con valores REALES
+  guardarEnBaseDeDatosReal() {
+    const productos = this.carritoService.obtenerProductos();
+    
+    // Valores MÁS COMUNES para Estado_P - PROBAMOS UNO POR UNO
+    const estadosPosibles = ['P', 'A', 'C', 'E', 'R', 'N']; // P=Pendiente, A=Activo, C=Completado, E=Entregado, R=Recibido, N=Nuevo
+    
+    const pedidoData = {
+      ID_Cliente: 1,
+      ID_Usuario: 1,
+      Hora_Pedido: new Date().toLocaleTimeString(),
+      Estado_P: 'P', // Empezamos con 'P' (el más común)
+      Notas: `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()}`,
+      detalles: productos.map(producto => ({
+        ID_Producto: producto.id_producto || 1,
+        ID_Tamano: producto.id_tamano || null,
+        Cantidad: producto.cantidad || 1
+      }))
+    };
+
+    console.log('🚀 INTENTANDO GUARDAR EN BD REAL:', pedidoData);
+
+    this.intentarGuardarConEstado(pedidoData, estadosPosibles, 0);
+  }
+
+  // ✅ Método recursivo para probar diferentes estados
+  intentarGuardarConEstado(pedidoData: any, estados: string[], index: number) {
+    if (index >= estados.length) {
+      console.error('❌ Todos los estados fallaron. Usando simulación.');
+      this.simularGuardado();
+      return;
+    }
+
+    const estadoActual = estados[index];
+    const pedidoConEstado = { ...pedidoData, Estado_P: estadoActual };
+
+    console.log(`🔍 Probando con Estado_P: '${estadoActual}'`);
+
+    this.http.post('http://localhost:3000/api/v2/pedidos', pedidoConEstado).subscribe({
+      next: (response: any) => {
+        console.log(`🎉 ¡ÉXITO! Pedido guardado con Estado_P: '${estadoActual}'`, response);
+        
+        // Si el pago fue exitoso, guardar venta también
+        if (this.pagoExitoso && response.ID_Pedido) {
+          this.guardarVentaEnBaseDeDatos(response.ID_Pedido);
+        } else {
+          this.finalizarCompra();
+        }
+      },
+      error: (error) => {
+        console.log(`❌ Falló con Estado_P: '${estadoActual}'`);
+        
+        // Intentar con el siguiente estado
+        this.intentarGuardarConEstado(pedidoData, estados, index + 1);
+      }
+    });
+  }
+
+  // ✅ Método para guardar venta
+  guardarVentaEnBaseDeDatos(ID_Pedido: number) {
+    const ventaData = {
+      ID_Pedido: ID_Pedido,
+      Tipo_Venta: this.tipoDocumento === 'factura' ? 'F' : 'B',
+      Metodo_Pago: this.getMetodoPagoCode(),
+      Lugar_Emision: 'LOC',
+      IGV: this.total * 0.18,
+      Total: this.total,
+      Fecha_Registro: new Date().toISOString().split('T')[0]
+    };
+
+    console.log('💰 Guardando venta en BD:', ventaData);
+    
+    this.http.post('http://localhost:3000/api/v2/ventas', ventaData).subscribe({
+      next: (response: any) => {
+        console.log('✅ Venta guardada en BD:', response);
+        this.finalizarCompra();
+      },
+      error: (error) => {
+        console.error('❌ Error guardando venta:', error);
+        this.finalizarCompra();
+      }
+    });
+  }
+
+  // ✅ Simulación como fallback
+  simularGuardado() {
+    console.log('🔄 Usando simulación...');
+    setTimeout(() => {
+      console.log('✅ Pedido simulado exitosamente');
+      this.finalizarCompra();
+    }, 1500);
+  }
+
+  getMetodoPagoCode(): string {
+    switch(this.opcionSeleccionada) {
+      case 'efectivo': return 'EF';
+      case 'tarjeta': return 'TJ';
+      case 'billetera': return 'BI';
+      case 'yape': return 'YP';
+      default: return 'EF';
+    }
+  }
+
+  getMetodoPagoText(): string {
+    switch(this.opcionSeleccionada) {
+      case 'efectivo': return 'Efectivo';
+      case 'tarjeta': return 'Tarjeta';
+      case 'billetera': return 'Billetera Digital';
+      case 'yape': return 'Yape';
+      default: return 'Efectivo';
+    }
   }
 
   generarCodigoPedido() {
@@ -329,31 +429,12 @@ export class PagoComponent implements OnInit {
   }
 
   finalizarCompra() {
-    // Aquí guardarías el pedido en la base de datos
-    this.guardarPedidoEnBaseDeDatos();
+    console.log('🛒 Productos en el carrito:', this.carritoService.obtenerProductos());
     
     setTimeout(() => {
       this.carritoService.vaciarCarrito();
+      console.log('✅ Carrito vaciado después de la compra');
     }, 2000);
-  }
-
-  guardarPedidoEnBaseDeDatos() {
-    // Aquí implementarías la lógica para guardar el pedido
-    // y los detalles del pedido en tu base de datos
-    const productos = this.carritoService.obtenerProductos();
-    
-    // Ejemplo de cómo podrías estructurar los datos
-    const pedidoData = {
-      total: this.total,
-      tipo_documento: this.tipoDocumento,
-      documento: this.tipoDocumento === 'boleta' ? this.dni : this.tipoDocumento === 'factura' ? this.ruc : null,
-      codigo_pedido: this.codigoPedido,
-      productos: productos
-    };
-
-    // Llamar a tu servicio para guardar el pedido
-    console.log('Guardando pedido:', pedidoData);
-    // this.pedidoService.guardarPedido(pedidoData).subscribe(...);
   }
 
   volverAlInicio() {

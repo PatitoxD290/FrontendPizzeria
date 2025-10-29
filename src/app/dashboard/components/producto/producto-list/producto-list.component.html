@@ -15,6 +15,7 @@
       <p>Cargando productos...</p>
     </div>
 
+<<<<<<< HEAD
     <!-- Grid de productos -->
     <div *ngIf="!loading" class="content-container">
       <div class="stats-bar">
@@ -23,6 +24,19 @@
             Total: {{ productos.length }}
           </mat-chip>
         </mat-chip-set>
+=======
+  <div class="card-grid" *ngIf="!loading && paginatedProductos.length > 0">
+    <mat-card *ngFor="let p of paginatedProductos" class="producto-card">
+      <div class="card-content">
+        <h3>{{ p.Nombre }}</h3>
+        <p><strong>ID:</strong> {{ p.ID_Producto }}</p>
+        <p><strong>Descripción:</strong> {{ p.Descripcion }}</p>
+        <p><strong>Categoría:</strong> {{ p.ID_Categoria_P }}</p>
+        <p><strong>Receta:</strong> {{ p.ID_Receta }}</p>
+        <p><strong>Precio:</strong> S/ {{ p.Precio_Base | number:'1.2-2' }}</p>
+        <p><strong>Estado:</strong> {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}</p>
+        <p><strong>Fecha Registro:</strong> {{ p.Fecha_Registro | date:'short' }}</p>
+>>>>>>> abner
       </div>
 
       <div class="card-grid" *ngIf="paginatedProductos.length > 0">

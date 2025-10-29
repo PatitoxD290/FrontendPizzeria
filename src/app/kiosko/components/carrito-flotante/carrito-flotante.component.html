@@ -1,6 +1,6 @@
 <!-- BOTÓN FLOTANTE DEL CARRITO -->
 <button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" *ngIf="!visible && !esPaginaPago()">
-  <mat-icon>shopping_cart</mat-icon>
+  <mat-icon class="icono-carrito">shopping_cart</mat-icon>
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
     {{ cantidadItemsDistintos }}
   </span>
@@ -12,7 +12,7 @@
   <div class="panel-header">
     <div class="titulo-carrito">
       <img src="assets/imgs/carrito_compras.png" alt="Carrito" class="img-icono-carrito">
-      <h3>Tu carrito</h3>
+      <h3>Tu Carrito</h3>
     </div>
     <button mat-icon-button (click)="volver()" class="btn-cerrar">
       <mat-icon>close</mat-icon>
@@ -62,8 +62,8 @@
 
   <!-- BOTONES ABAJO -->
   <div class="acciones-fijas" *ngIf="carritoService.obtenerProductos().length > 0">
-    <button mat-stroked-button color="warn" (click)="volver()">Volver</button>
-    <button mat-flat-button color="primary" (click)="confirmarPedido()">
+    <button mat-stroked-button class="volver" (click)="volver()">Volver</button>
+    <button mat-flat-button class="confirmar-pedido" (click)="confirmarPedido()">
       Confirmar Pedido
     </button>
   </div>

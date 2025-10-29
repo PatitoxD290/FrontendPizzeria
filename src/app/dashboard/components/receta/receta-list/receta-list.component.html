@@ -10,26 +10,31 @@
   <table mat-table [dataSource]="recetas" class="mat-elevation-z8" *ngIf="!loading">
 
     <!-- ID -->
-    <ng-container matColumnDef="receta_id">
+    <ng-container matColumnDef="ID_Receta">
       <th mat-header-cell *matHeaderCellDef>ID</th>
       <td mat-cell *matCellDef="let receta">{{ receta.ID_Receta }}</td>
     </ng-container>
 
     <!-- Nombre -->
-    <ng-container matColumnDef="nombre_receta">
+    <ng-container matColumnDef="Nombre">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
       <td mat-cell *matCellDef="let receta">{{ receta.Nombre }}</td>
     </ng-container>
 
     <!-- Descripción -->
-    <ng-container matColumnDef="descripcion_receta">
+    <ng-container matColumnDef="Descripcion">
       <th mat-header-cell *matHeaderCellDef>Descripción</th>
       <td mat-cell *matCellDef="let receta">{{ receta.Descripcion }}</td>
     </ng-container>
 
     <!-- Tiempo estimado -->
+<<<<<<< HEAD
     <ng-container matColumnDef="tiempo_estimado_minutos">
       <th mat-header-cell *matHeaderCellDef>Tiempo Estimado (HH-MM-SS)</th>
+=======
+    <ng-container matColumnDef="Tiempo_Preparacion">
+      <th mat-header-cell *matHeaderCellDef>Tiempo Estimado (min)</th>
+>>>>>>> abner
       <td mat-cell *matCellDef="let receta">{{ receta.Tiempo_Preparacion || '—' }}</td>
     </ng-container>
 
