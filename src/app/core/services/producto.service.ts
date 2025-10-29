@@ -37,22 +37,13 @@ export class ProductoService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  // ----------------------------
-  // NUEVOS MÉTODOS: manejar FormData (imagen + campos)
-  // ----------------------------
-  /**
-   * Crear producto enviando FormData (multipart/form-data).
-   * Ej: formData.append('imagen', file); formData.append('nombre_producto', 'Pizza');
-   */
+  // Crear un nuevo producto con FormData (para subir imágenes)
   createProductoFormData(formData: FormData): Observable<any> {
     // NO seteamos headers Content-Type: el navegador lo hará automáticamente.
     return this.http.post(this.apiUrl, formData);
   }
 
-  /**
-   * Actualizar producto enviando FormData (multipart/form-data).
-   * Ej: PUT /productos/:id
-   */
+  // Actualizar un producto existente con FormData (para subir imágenes)
   updateProductoFormData(id: number, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, formData);
   }

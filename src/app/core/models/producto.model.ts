@@ -7,7 +7,7 @@ export interface Producto {
   Descripcion: string;
   Precio_Base: number;
   ID_Categoria_P: number;
-  ID_Receta: number;
+  ID_Receta?: number;
   Estado: 'A' | 'I';
   Fecha_Registro: string;
 

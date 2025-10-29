@@ -34,8 +34,8 @@ import { MatOptionModule } from '@angular/material/core';
 export class ProductoFormComponent implements OnInit {
 
   producto: Producto;
-  categorias: any[] = [];
-  recetas: any[] = [];
+  CategoriaProducto: any[] = [];
+  Receta: any[] = [];
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
 
@@ -67,27 +67,33 @@ export class ProductoFormComponent implements OnInit {
 
   loadCategorias() {
     this.categoriaService.getCategoriasProducto().subscribe({
-      next: (data) => (this.categorias = data),
+      next: (data) => (this.CategoriaProducto = data),
       error: (err) => console.error('Error al cargar categorías', err)
     });
   }
 
   loadRecetas() {
     this.recetaService.getRecetas().subscribe({
-      next: (data) => (this.recetas = data),
+      next: (data) => (this.Receta = data),
       error: (err) => console.error('Error al cargar recetas', err)
     });
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = (e) => (this.imagePreview = e.target?.result || null);
-      reader.readAsDataURL(file);
-    }
+onFileSelected(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview = e.target?.result || null;
+      console.log('Archivo seleccionado:', this.selectedFile); // Verificar el archivo seleccionado
+    };
+    reader.readAsDataURL(file);
+  } else {
+    console.log('No se seleccionó ningún archivo.');
   }
+}
+
 
   saveProducto() {
     if (!this.producto.Nombre || !this.producto.Precio_Base || !this.producto.ID_Categoria_P) {
@@ -102,13 +108,15 @@ export class ProductoFormComponent implements OnInit {
 
     if (this.selectedFile) {
       const formData = new FormData();
-      formData.append('imagen', this.selectedFile);
-      formData.append('nombre', this.producto.Nombre);
-      formData.append('descripcion', this.producto.Descripcion || '');
-      formData.append('precio_base', String(this.producto.Precio_Base));
-      formData.append('id_categoria_p', String(this.producto.ID_Categoria_P));
-      formData.append('id_receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
-      formData.append('estado', this.producto.Estado);
+      formData.append('file', this.selectedFile);
+      formData.append('Nombre', this.producto.Nombre);
+      formData.append('Descripcion', this.producto.Descripcion || '');
+      formData.append('Precio_Base', String(this.producto.Precio_Base));
+      formData.append('Id_Categoria_P', String(this.producto.ID_Categoria_P));
+      formData.append('Id_Receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
+      formData.append('Estado', this.producto.Estado);
+
+    console.log('FormData:', formData); // Verifica los datos antes de enviarlos
 
       if (!this.producto.ID_Producto || this.producto.ID_Producto === 0) {
         this.productoService.createProductoFormData(formData).subscribe({

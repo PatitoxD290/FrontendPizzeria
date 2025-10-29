@@ -21,8 +21,8 @@
     <mat-form-field appearance="fill">
       <mat-label>Categoría</mat-label>
       <mat-select [(ngModel)]="producto.ID_Categoria_P" name="id_categoria_p" required>
-        <mat-option *ngFor="let c of categorias" [value]="c.id_categoria_p">
-          {{ c.nombre }}
+        <mat-option *ngFor="let c of CategoriaProducto" [value]="c.ID_Categoria_P">
+          {{ c.Nombre }}
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -32,8 +32,8 @@
       <mat-label>Receta</mat-label>
       <mat-select [(ngModel)]="producto.ID_Receta" name="id_receta">
         <mat-option [value]="0">Sin receta</mat-option>
-        <mat-option *ngFor="let r of recetas" [value]="r.id_receta">
-          {{ r.nombre }}
+        <mat-option *ngFor="let r of Receta" [value]="r.ID_Receta">
+          {{ r.Nombre }}
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -56,7 +56,7 @@
     <!-- Imagen -->
     <div style="margin-top: 1rem;">
       <label for="imagen">Imagen del producto (opcional):</label>
-      <input type="file" id="file" (change)="onFileSelected($event)" accept="image/*" />
+      <input type="file" id="file" (change)="onFileSelected($event)" accept="image/*" name="file"/>
       <div *ngIf="imagePreview" style="margin-top: 10px; text-align: center;">
         <img [src]="imagePreview" alt="Vista previa" style="max-width: 150px; border-radius: 8px;" />
       </div>
