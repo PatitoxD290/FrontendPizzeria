@@ -1,20 +1,33 @@
-h2 {
-  margin-bottom: 10px;
+/* 🔹 Espaciado superior para bajar todo el contenido */
+:host {
+  display: block;
+  padding-top: 40px; /* Ajusta este valor según lo que necesites */
+}
+
+/* Header de productos con botón de limpiar */
+.producto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+.producto-header h2 {
+  margin: 0;
   font-weight: 600;
+  font-size: 1.5rem;
 }
 
-button {
-  margin-bottom: 10px;
-}
-
-hr {
-  margin: 15px 0;
+.clear-filter-btn {
+  white-space: nowrap;
 }
 
 /* Layout flex: productos a la izquierda, categorías a la derecha */
+/* 🔹 Contenedor principal */
 .producto-categoria-container {
   display: flex;
-  gap: 20px; /* espacio entre columnas */
+  gap: 20px; 
 }
 
 /* Productos ocupa más espacio */
@@ -22,34 +35,41 @@ hr {
   flex: 2;
 }
 
-/* Panel de categorías vertical, ocupa menos */
+/* Panel de categorías + tamaños ocupa menos */
 .categoria-list {
   flex: 1;
-  max-width: 250px; /* reduce el ancho del panel */
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* ahora los hijos se apilan verticalmente (header + contenido) */
   gap: 15px;
 }
 
-/* Header del panel con botón */
-.categoria-header {
+/* Contenedor para categorías y tamaños lado a lado */
+.categoria-tamano-container {
   display: flex;
-  justify-content: space-between; /* título a la izquierda, botón a la derecha */
-  align-items: center;
-  width: 100%;
-  gap: 10px; /* espacio entre h3 y el botón si se reducen */
+  gap: 15px;
 }
 
-/* Ajusta el icono dentro del botón */
-.categoria-header button mat-icon {
-  margin-right: 5px; /* separa el icono del texto "Nueva Categoría" */
+/* Cada columna ocupa la mitad del contenedor */
+.categoria-column,
+.tamano-column {
+  flex: 1;
 }
 
-/* Opcional: ajusta tamaño del h3 si el panel es estrecho */
-.categoria-header h3 {
-  margin: 0;
+/* Ajustes de títulos */
+.categoria-column h4,
+.tamano-column h4 {
+  margin: 0 0 10px 0;
   font-size: 1.1rem;
-  white-space: nowrap; /* evita que el texto se rompa */
+  font-weight: 600;
 }
 
+/* Responsive: apilar en móvil */
+@media (max-width: 768px) {
+  .producto-categoria-container {
+    flex-direction: column;
+  }
 
+  .categoria-tamano-container {
+    flex-direction: column;
+  }
+}

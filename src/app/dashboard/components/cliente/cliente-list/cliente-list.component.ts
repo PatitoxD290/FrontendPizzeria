@@ -1,4 +1,3 @@
-// src/app/dashboard/components/cliente-list/cliente-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -39,7 +38,7 @@ import Swal from 'sweetalert2';
 })
 export class ClienteListComponent implements OnInit {
 
-  displayedColumns: string[] = ['cliente_id', 'nombre_completo', 'dni', 'telefono', 'fecha_registro', 'acciones'];
+  displayedColumns: string[] = ['ID_Cliente', 'nombre_completo', 'DNI', 'Telefono', 'Fecha_Registro', 'acciones'];
   clientes: Cliente[] = [];
   loading = false;
   searchTerm: string = '';
@@ -79,6 +78,7 @@ export class ClienteListComponent implements OnInit {
     const term = this.searchTerm.toLowerCase();
     return this.clientes.filter(c =>
       (c.Nombre?.toLowerCase().includes(term)) ||
+      (c.Apellido?.toLowerCase().includes(term)) ||
       (c.DNI?.toLowerCase().includes(term)) ||
       (c.Telefono?.toLowerCase().includes(term))
     );

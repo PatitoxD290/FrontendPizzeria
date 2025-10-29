@@ -23,9 +23,10 @@ export class ClienteService {
   }
 
   // Crear cliente
-  createCliente(cliente: Cliente): Observable<any> {
-    return this.http.post(this.apiUrl, cliente);
-  }
+  createCliente(cliente: Partial<Cliente>): Observable<Cliente> {
+  return this.http.post<Cliente>(this.apiUrl, cliente);
+}
+
 
   // Actualizar cliente
   updateCliente(id: number, cliente: Cliente): Observable<any> {

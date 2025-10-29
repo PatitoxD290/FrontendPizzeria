@@ -1,66 +1,68 @@
 <mat-card>
-
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>
   </div>
 
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">
-
-    <!-- ID -->
-    <ng-container matColumnDef="pedido_id">
+    <!-- ID Pedido -->
+    <ng-container matColumnDef="ID_Pedido">
       <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let pedido">{{ pedido.id_pedido }}</td>
+      <td mat-cell *matCellDef="let pedido">{{ pedido.ID_Pedido }}</td>
     </ng-container>
 
     <!-- Cliente -->
-    <ng-container matColumnDef="cliente_id">
+    <ng-container matColumnDef="ID_Cliente">
       <th mat-header-cell *matHeaderCellDef>Cliente</th>
-      <td mat-cell *matCellDef="let pedido">{{ getNombreCliente(pedido.cliente_id) }}</td>
+      <td mat-cell *matCellDef="let pedido">{{ getNombreCliente(pedido.ID_Cliente) }}</td>
     </ng-container>
 
     <!-- Fecha / Hora -->
-    <ng-container matColumnDef="fecha_hora">
+    <ng-container matColumnDef="Fecha_Registro">
       <th mat-header-cell *matHeaderCellDef>Fecha / Hora</th>
-      <td mat-cell *matCellDef="let pedido">{{ formatFechaHora(pedido.fecha_pedido, pedido.hora_pedido) }}</td>
+      <td mat-cell *matCellDef="let pedido">
+        {{ formatFechaHora(pedido.Fecha_Registro, pedido.Hora_Pedido) }}
+      </td>
     </ng-container>
 
-    <!-- Subtotal -->
-    <ng-container matColumnDef="subtotal">
-      <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-      <td mat-cell *matCellDef="let pedido">{{ formatMoneda(pedido.subtotal) }}</td>
+    <!-- Precio Total -->
+    <ng-container matColumnDef="PrecioTotal">
+      <th mat-header-cell *matHeaderCellDef>Precio Total</th>
+      <td mat-cell *matCellDef="let pedido">{{ formatMoneda(pedido.PrecioTotal) }}</td>
     </ng-container>
 
-    <!-- Descuento -->
-    <ng-container matColumnDef="monto_descuento">
-      <th mat-header-cell *matHeaderCellDef>Descuento</th>
-      <td mat-cell *matCellDef="let pedido">{{ formatMoneda(pedido.monto_descuento) }}</td>
-    </ng-container>
-
-    <!-- Total -->
-    <ng-container matColumnDef="total">
-      <th mat-header-cell *matHeaderCellDef>Total</th>
-      <td mat-cell *matCellDef="let pedido">{{ formatMoneda(pedido.total) }}</td>
+    <!-- Notas -->
+    <ng-container matColumnDef="Notas">
+      <th mat-header-cell *matHeaderCellDef>Notas</th>
+      <td mat-cell *matCellDef="let pedido">{{ pedido.Notas }}</td>
     </ng-container>
 
     <!-- Estado -->
-    <ng-container matColumnDef="estado_pedido">
+    <ng-container matColumnDef="Estado_P">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let pedido">{{ pedido.estado_pedido }}</td>
+      <td mat-cell *matCellDef="let pedido">
+        <span [ngClass]="{
+          'estado-pendiente': pedido.Estado_P === 'P',
+          'estado-completado': pedido.Estado_P === 'C',
+          'estado-en-proceso': pedido.Estado_P === 'E',
+          'estado-descartado': pedido.Estado_P === 'D'
+        }">
+          {{ getEstadoTexto(pedido.Estado_P) }}
+        </span>
+      </td>
     </ng-container>
 
     <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let pedido">
-        <button mat-icon-button color="primary" (click)="viewDetallePedido(pedido.pedido_id)">
+        <button mat-icon-button color="primary" (click)="viewDetallePedido(pedido.ID_Pedido)">
           <mat-icon>visibility</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deletePedido(pedido.pedido_id)">
-          <mat-icon>cancel</mat-icon>
+        <button mat-icon-button color="warn" (click)="deletePedido(pedido.ID_Pedido)">
+          <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
-
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

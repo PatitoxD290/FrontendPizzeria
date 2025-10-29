@@ -1,0 +1,31 @@
+<mat-card class="info-card">
+  <mat-card-header>
+    <mat-card-title>{{ producto.Nombre }}</mat-card-title>
+    <mat-card-subtitle>S/ {{ producto.Precio_Base | number:'1.2-2' }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p>{{ producto.Descripcion }}</p>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Tamaño</mat-label>
+      <mat-select [(value)]="tamanoSeleccionado">
+        <mat-option *ngFor="let t of tamanos" [value]="t">
+          {{ t.Tamano }} (+S/ {{ t.Variacion_Precio | number:'1.2-2' }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Cantidad</mat-label>
+      <input matInput type="number" [(ngModel)]="cantidad" min="1">
+    </mat-form-field>
+
+    <h3 class="total-text">Total: S/ {{ getPrecioTotal() | number:'1.2-2' }}</h3>
+  </mat-card-content>
+
+  <mat-card-actions class="actions">
+    <button mat-raised-button color="primary" (click)="agregarAlPedido()">Agregar</button>
+    <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
+  </mat-card-actions>
+</mat-card>

@@ -1,55 +1,36 @@
-import { Component, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { ProductoListComponent } from '../../components/producto/producto-list/producto-list.component';
-import { ProductoFormComponent } from '../../components/producto/producto-form/producto-form.component';
 import { CategoriaListComponent } from '../../components/categoria/categoria-list/categoria-list.component';
-import { CategoriaFormComponent } from '../../components/categoria/categoria-form/categoria-form.component';
+import { TamanoListComponent } from '../../components/tamano/tamano-list/tamano-list.component';
 
 @Component({
   selector: 'app-producto',
   standalone: true,
   imports: [
     CommonModule,
+    NgIf,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
     ProductoListComponent,
-    CategoriaListComponent
+    CategoriaListComponent,
+    TamanoListComponent
   ],
   templateUrl: './producto.page.html',
   styleUrls: ['./producto.page.css']
 })
 export class ProductoPage {
-  @ViewChild(ProductoListComponent) productoList!: ProductoListComponent;
+  mostrarProductos = true;  // por defecto se muestra la lista de productos
+  mostrarCategorias = false;
 
-  constructor(private dialog: MatDialog) {}
-
-  openNuevoProducto() {
-    const dialogRef = this.dialog.open(ProductoFormComponent, {
-      width: '500px',
-      data: {}
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.productoList.loadProductos();
-    });
-  }
-
-  openNuevaCategoria() {
-    const dialogRef = this.dialog.open(CategoriaFormComponent, {
-      width: '400px'
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // 🔹 Aquí podrías refrescar categorías si tu <app-categoria-list> tuviera un método público
-      }
-    });
-  }
-
-  onCategoriaSeleccionada(categoriaId: number) {
-    this.productoList.filterByCategoria(categoriaId);
+  mostrarLista(lista: 'productos' | 'categorias') {
+    this.mostrarProductos = lista === 'productos';
+    this.mostrarCategorias = lista === 'categorias';
   }
 }

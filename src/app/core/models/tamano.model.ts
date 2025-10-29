@@ -2,7 +2,7 @@
 // TAMAÑO
 // ===========================================
 export interface Tamano {
-  id_tamano: number;
+  ID_Tamano: number;
   Tamano: string;
-  Variacion_precio: number;
+  Variacion_Precio: number;
 }

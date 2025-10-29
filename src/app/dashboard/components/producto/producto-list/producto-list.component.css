@@ -1,55 +1,384 @@
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+:host {
+  display: block;
+  padding: 12px;
 }
 
+/* Header y acciones más compactos */
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.add-button {
+  align-self: flex-start;
+  height: 36px;
+  font-size: 0.875rem;
+}
+
+.add-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+/* Filtros más compactos */
+.filters-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  width: 160px;
+  font-size: 0.875rem;
+}
+
+.filter-field .mat-form-field-wrapper {
+  padding-bottom: 0;
+}
+
+.filter-field .mat-form-field-outline {
+  font-size: 0.875rem;
+}
+
+.clear-filters {
+  height: 36px;
+  font-size: 0.875rem;
+  margin-top: 0;
+}
+
+.clear-filters mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+/* Loading más compacto */
 .spinner-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin: 20px 0;
+  padding: 40px 0;
+  color: #666;
 }
 
+.spinner-container p {
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+
+/* Stats bar más compacta */
+.stats-bar {
+  margin-bottom: 12px;
+}
+
+.stats-bar mat-chip {
+  font-size: 0.75rem;
+  height: 24px;
+}
+
+/* Grid de productos más compacto */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 .producto-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 16px;
+  height: 100%;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  overflow: hidden;
   border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
 }
 
 .producto-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.card-content p {
-  margin: 4px 0;
+/* Card header más compacto */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px 4px;
+  background: #f8f9fa;
+}
+
+.estado-chip {
+  font-size: 0.7rem;
+  font-weight: 500;
+  height: 20px;
+}
+
+.producto-id {
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Imagen más pequeña */
+.producto-img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Contenido más compacto */
+.card-content {
+  flex: 1;
+  padding: 12px;
+}
+
+.producto-nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #333;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: 2.4em;
+}
+
+.producto-descripcion {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: 2.6em;
+}
+
+/* Información del producto más compacta */
+.producto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+/* Precio más compacto */
+.precio-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.precio-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.precio-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Fecha más compacta */
+.fecha-registro {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: #888;
+  margin: 0;
+}
+
+.fecha-icon {
   font-size: 14px;
+  width: 14px;
+  height: 14px;
 }
 
+/* Acciones más compactas */
 .card-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 4px;
+  padding: 6px 12px 12px;
 }
 
+.card-actions button {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.card-actions mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Sin datos más compacto */
 .no-data {
   text-align: center;
+  padding: 40px 20px;
   color: #666;
-  margin-top: 20px;
 }
 
-mat-paginator {
-  margin-top: 15px;
+.no-data-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  color: #ccc;
+}
+
+.no-data h3 {
+  margin: 0 0 6px 0;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.no-data p {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+}
+
+.no-data button {
+  height: 36px;
+  font-size: 0.875rem;
+}
+
+.no-data button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+/* Paginación más compacta */
+.custom-paginator {
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  font-size: 0.875rem;
+}
+
+/* Responsive para diseño compacto */
+@media (max-width: 768px) {
+  :host {
+    padding: 8px;
+  }
+
+  .header-actions {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-field {
+    width: 100%;
+  }
+
+  .clear-filters {
+    align-self: stretch;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+    padding: 6px 10px 4px;
+  }
+
+  .producto-info {
+    gap: 4px;
+  }
+
+  .info-item {
+    font-size: 0.75rem;
+  }
+
+  .producto-nombre,
+  .producto-descripcion {
+    -webkit-line-clamp: 1;
+    max-height: 1.2em;
+  }
+
+  .producto-img {
+    height: 80px;
+  }
+}
+
+/* Estilos para alta densidad en pantallas grandes */
+@media (min-width: 1200px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* Utilidades para texto truncado */
+.text-truncate-2 {
+  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 2.6em;
+  line-height: 1.3em;
+}
+
+.text-truncate-1 {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

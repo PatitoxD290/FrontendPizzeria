@@ -2,7 +2,7 @@
   <div class="header">
     <mat-form-field appearance="outline">
       <mat-label>Buscar</mat-label>
-      <input matInput placeholder="Nombre, DNI o Teléfono" [(ngModel)]="searchTerm">
+      <input matInput placeholder="Nombre, Apellido, DNI o Teléfono" [(ngModel)]="searchTerm">
     </mat-form-field>
   </div>
 
@@ -13,43 +13,43 @@
   <table mat-table [dataSource]="filteredClientes" class="mat-elevation-z8" *ngIf="!loading">
 
     <!-- ID -->
-    <ng-container matColumnDef="cliente_id">
+    <ng-container matColumnDef="ID_Cliente">
       <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.cliente_id }}</td>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.ID_Cliente }}</td>
     </ng-container>
 
-    <!-- Nombre -->
+    <!-- Nombre Completo -->
     <ng-container matColumnDef="nombre_completo">
       <th mat-header-cell *matHeaderCellDef>Nombre Completo</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.nombre_completo }}</td>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.Nombre }} {{ cliente.Apellido }}</td>
     </ng-container>
 
     <!-- DNI -->
-    <ng-container matColumnDef="dni">
+    <ng-container matColumnDef="DNI">
       <th mat-header-cell *matHeaderCellDef>DNI</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.dni }}</td>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.DNI }}</td>
     </ng-container>
 
     <!-- Teléfono -->
-    <ng-container matColumnDef="telefono">
+    <ng-container matColumnDef="Telefono">
       <th mat-header-cell *matHeaderCellDef>Teléfono</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.telefono || '—' }}</td>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.Telefono || '—' }}</td>
     </ng-container>
 
     <!-- Fecha Registro -->
-    <ng-container matColumnDef="fecha_registro">
+    <ng-container matColumnDef="Fecha_Registro">
       <th mat-header-cell *matHeaderCellDef>Fecha de Registro</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.fecha_registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
+      <td mat-cell *matCellDef="let cliente">{{ cliente.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
     </ng-container>
 
     <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let cliente">
-        <button *ngIf="cliente.cliente_id !== 1" mat-icon-button color="primary" (click)="openClienteForm(cliente)">
+        <button *ngIf="cliente.ID_Cliente !== 1" mat-icon-button color="primary" (click)="openClienteForm(cliente)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button *ngIf="cliente.cliente_id !== 1" mat-icon-button color="warn" (click)="deleteCliente(cliente.cliente_id!)">
+        <button *ngIf="cliente.ID_Cliente !== 1" mat-icon-button color="warn" (click)="deleteCliente(cliente.ID_Cliente)">
           <mat-icon>delete</mat-icon>
         </button>
       </td>

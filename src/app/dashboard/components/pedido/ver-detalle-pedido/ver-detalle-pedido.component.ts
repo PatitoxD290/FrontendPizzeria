@@ -22,6 +22,7 @@ import { PedidoDetalle } from '../../../../core/models/pedido.model';
 })
 export class VerDetallePedidoComponent implements OnInit {
   detalles: PedidoDetalle[] = [];
+  notas: string = '';
   loading = true;
   error = '';
 
@@ -35,11 +36,11 @@ export class VerDetallePedidoComponent implements OnInit {
     this.cargarDetalles();
   }
 
-  /** 🔹 Cargar los detalles del pedido */
   private cargarDetalles(): void {
-    this.pedidoService.getPedidoDetalles(this.data.pedido_id).subscribe({
+    this.pedidoService.getPedidoById(this.data.pedido_id).subscribe({
       next: (res) => {
-        this.detalles = res || [];
+        this.detalles = res.detalles || [];
+        this.notas = res.Notas || '';
         this.loading = false;
       },
       error: (err) => {
@@ -54,7 +55,6 @@ export class VerDetallePedidoComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  /** 🔹 Calcular total del pedido */
   getTotal(): number {
     return this.detalles.reduce((acc, d) => acc + (Number(d.PrecioTotal) || 0), 0);
   }

@@ -10,7 +10,15 @@ export interface Pedido {
   Estado_P: 'P' | 'C' | 'E' | 'D';
   Fecha_Registro: string;
   Hora_Pedido: string;
+
+  // 🔹 Nuevo campo opcional: total del pedido (suma de todos los detalles)
+  PrecioTotal?: number;
 }
+
+export interface PedidoConDetalle extends Pedido {
+  detalles?: PedidoDetalle[];
+}
+
 
 // ===========================================
 // PEDIDO DETALLE
@@ -25,4 +33,5 @@ export interface PedidoDetalle {
 
   nombre_producto: string;
   nombre_categoria: string;
+  nombre_tamano?: string;
 }

@@ -12,3 +12,21 @@ mat-card {
   padding: 20px;
   margin: 20px;
 }
+
+/* Colores visuales para estados */
+.estado-pendiente {
+  color: orange;
+  font-weight: 600;
+}
+.estado-completado {
+  color: green;
+  font-weight: 600;
+}
+.estado-en-proceso {
+  color: blue;
+  font-weight: 600;
+}
+.estado-descartado {
+  color: red;
+  font-weight: 600;
+}

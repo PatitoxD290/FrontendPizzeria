@@ -1,26 +1,35 @@
-<h2>Gestión de Productos</h2>
-
-<!-- Botón para nuevo producto -->
-<button mat-flat-button color="primary" (click)="openNuevoProducto()">
-  <mat-icon>add</mat-icon> Nuevo Producto
-</button>
-
-<hr />
+<div class="botones-toggle">
+  <button mat-raised-button color="primary" (click)="mostrarLista('productos')">
+    Configuración Productos
+  </button>
+  <button mat-raised-button color="accent" (click)="mostrarLista('categorias')">
+     Categorías y Tamaños
+  </button>
+</div>
 
 <div class="producto-categoria-container">
-  <div class="producto-list">
-    <app-producto-list #productoList></app-producto-list>
+  <!-- Lista de productos -->
+  <div class="producto-list" *ngIf="mostrarProductos">
+    <app-producto-list></app-producto-list>
   </div>
 
-  <div class="categoria-list">
+  <!-- Panel de categorías + tamaños -->
+  <div class="categoria-list" *ngIf="mostrarCategorias">
     <div class="categoria-header">
-      <h3>Categorías</h3>
-      <button mat-flat-button color="accent" (click)="openNuevaCategoria()">
-        <mat-icon>add</mat-icon> Nueva Categoría
-      </button>
+      <h3>Categorías y Tamaños</h3>
     </div>
 
-    <!-- Capturamos el evento de selección -->
-    <app-categoria-list (categoriaSeleccionada)="onCategoriaSeleccionada($event)"></app-categoria-list>
+    <!-- Contenedor flex para mostrar lado a lado -->
+    <div class="categoria-tamano-container">
+      <div class="categoria-column">
+        <h4>Categorías</h4>
+        <app-categoria-list></app-categoria-list>
+      </div>
+
+      <div class="tamano-column">
+        <h4>Tamaños</h4>
+        <app-tamano-list></app-tamano-list>
+      </div>
+    </div>
   </div>
 </div>

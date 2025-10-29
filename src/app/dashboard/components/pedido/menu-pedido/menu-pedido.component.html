@@ -1,12 +1,43 @@
-<div class="menu-grid">
-  <mat-card *ngFor="let p of productos" class="producto-card" (click)="agregarAlCarrito(p)">
+<!-- Botones de categorías -->
+<div class="categorias-container">
+  <button
+    mat-raised-button
+    color="{{ categoriaSeleccionada === null ? 'primary' : '' }}"
+    (click)="filtrarPorCategoria(null)">
+    Todos
+  </button>
+
+  <button
+    *ngFor="let cat of categorias"
+    mat-raised-button
+    [color]="categoriaSeleccionada === cat.ID_Categoria_P ? 'primary' : ''"
+    (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
+    {{ cat.Nombre }}
+  </button>
+</div>
+
+<!-- Lista de productos -->
+<div class="menu-scroll">
+  <mat-card *ngFor="let p of productosFiltrados" class="producto-card">
+    <img mat-card-image src="assets/imgs/logo.png" alt="{{ p.Nombre }}" class="producto-img">
+
     <mat-card-header>
       <mat-card-title>{{ p.Nombre }}</mat-card-title>
       <mat-card-subtitle>{{ p.nombre_categoria }}</mat-card-subtitle>
     </mat-card-header>
+
     <mat-card-content>
       <p>{{ p.Descripcion }}</p>
       <h3>S/ {{ p.Precio_Base | number:'1.2-2' }}</h3>
     </mat-card-content>
+
+    <!-- Botón Agregar -->
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="agregarAlCarrito(p)">
+        <mat-icon>add_shopping_cart</mat-icon>
+        Agregar
+      </button>
+    </mat-card-actions>
   </mat-card>
 </div>
+

@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { Producto } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { RecetaService } from '../../../../core/services/receta.service';
+import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 
 // Angular Material
@@ -13,6 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductoFormComponent } from '../producto-form/producto-form.component';
 
 @Component({
@@ -20,24 +24,27 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
   standalone: true,
   imports: [
     CommonModule,
-    NgIf,
+    FormsModule,
     MatPaginatorModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
     MatCardModule,
-    MatDialogModule
+    MatDialogModule,
+    MatChipsModule,
+    MatTooltipModule
   ],
   templateUrl: './producto-list.component.html',
   styleUrls: ['./producto-list.component.css']
 })
-export class ProductoListComponent implements OnInit {
-
+export class ProductoListComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
+  paginatedProductos: Producto[] = [];
   categorias: any[] = [];
   recetas: any[] = [];
-  paginatedProductos: Producto[] = [];
   loading = false;
+
+  private destroy$ = new Subject<void>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -50,6 +57,11 @@ export class ProductoListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProductos();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadProductos() {
@@ -66,26 +78,21 @@ export class ProductoListComponent implements OnInit {
 
       this.productos = (productos || []).map(p => ({
         ...p,
-        nombre_categoria: this.categorias.find(c => c.id_categoria_p === p.ID_Categoria_P)?.nombre || 'Sin categoría',
-        nombre_receta: this.recetas.find(r => r.id_receta === p.ID_Receta)?.nombre || 'Sin receta'
+        nombre_categoria: this.categorias.find(c => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre || 'Sin categoría',
+        nombre_receta: this.recetas.find(r => r.id_receta === p.ID_Receta)?.Nombre || 'Sin receta'
       }));
 
       this.setPage(0);
     } catch (err) {
       console.error('Error al cargar datos', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al cargar productos',
-        text: 'No se pudieron cargar los datos.',
-        confirmButtonColor: '#d33'
-      });
+      this.showError('Error al cargar productos', 'No se pudieron cargar los datos.');
     } finally {
       this.loading = false;
     }
   }
 
   setPage(pageIndex: number) {
-    const pageSize = this.paginator?.pageSize || 5;
+    const pageSize = this.paginator?.pageSize || 8;
     const startIndex = pageIndex * pageSize;
     this.paginatedProductos = this.productos.slice(startIndex, startIndex + pageSize);
   }
@@ -94,69 +101,55 @@ export class ProductoListComponent implements OnInit {
     this.setPage(event.pageIndex);
   }
 
-  deleteProducto(id: number) {
+  deleteProducto(producto: Producto) {
     Swal.fire({
-      title: '¿Eliminar este producto?',
+      title: '¿Eliminar producto?',
+      html: `¿Estás seguro de eliminar <strong>"${producto.Nombre}"</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6'
+      cancelButtonColor: '#6c757d'
     }).then(result => {
       if (result.isConfirmed) {
-        this.productoService.deleteProducto(id).subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Producto eliminado',
-              text: 'El producto fue eliminado correctamente.',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            this.loadProductos();
-          },
-          error: err => {
-            console.error(err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo eliminar el producto.',
-              confirmButtonColor: '#d33'
-            });
-          }
-        });
+        this.productoService.deleteProducto(producto.ID_Producto)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.showSuccess('Producto eliminado', 'El producto fue eliminado correctamente.');
+              this.loadProductos();
+            },
+            error: () => this.showError('Error', 'No se pudo eliminar el producto.')
+          });
       }
     });
   }
 
   openProductoForm(producto?: Producto) {
     const dialogRef = this.dialog.open(ProductoFormComponent, {
-      width: '500px',
-      data: { producto }
+      width: '600px',
+      data: { producto, categorias: this.categorias, recetas: this.recetas }
     });
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) this.loadProductos();
     });
   }
 
-  filterByCategoria(categoriaId: number) {
-    if (!categoriaId) {
-      this.paginatedProductos = this.productos;
-      return;
-    }
+  getEstadoColor(estado: string): string {
+    return estado === 'A' ? 'success' : 'warn';
+  }
 
-    this.paginatedProductos = this.productos.filter(p => p.ID_Categoria_P === categoriaId);
+  getEstadoText(estado: string): string {
+    return estado === 'A' ? 'Activo' : 'Inactivo';
+  }
 
-    if (this.paginatedProductos.length === 0) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Sin productos',
-        text: 'No hay productos en esta categoría.',
-        timer: 1500,
-        showConfirmButton: false
-      });
-    }
+  private showSuccess(title: string, text: string) {
+    Swal.fire({ icon: 'success', title, text, timer: 2000, showConfirmButton: false });
+  }
+
+  private showError(title: string, text: string) {
+    Swal.fire({ icon: 'error', title, text, confirmButtonColor: '#d33' });
   }
 }
-  

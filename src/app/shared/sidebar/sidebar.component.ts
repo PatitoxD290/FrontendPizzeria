@@ -46,74 +46,74 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentRoute = '';
 
   // Rutas del sidebar organizadas por categorías
-  menuSections: { label?: string; items: MenuItem[] }[] = [
-    {
-      items: [
-        { 
-          label: 'Inicio', 
-          route: '/dashboard/home', 
-          icon: 'home'
-        }
-      ]
-    },
-    {
-      items: [
+ menuSections: { label?: string; items: MenuItem[] }[] = [
+  {
+    items: [
+      { 
+        label: 'Inicio', 
+        route: '/dashboard/home', 
+        icon: 'home'
+      }
+    ]
+  },
+  {
+    items: [
       { 
         label: 'Pedidos', 
-        icon: 'local_pizza',
+        route: '/dashboard/realizarpedido',  // ✅ va directo a realizarpedido
+        icon: 'local_pizza'                  // puedes dejar el ícono de pizza si quieres
+      },
+      { 
+        label: 'Ventas', 
+        route: '/dashboard/venta', 
+        icon: 'point_of_sale'
+      },
+      { 
+        label: 'Historial de Clientes', 
+        route: '/dashboard/cliente', 
+        icon: 'groups'
+      }
+    ]
+  },
+  {
+    label: 'Configuración del Menú',
+    items: [
+      { 
+        label: 'Productos y Categorias', 
+        route: '/dashboard/producto', 
+        icon: 'fastfood' 
+      },
+      { label: 'Recetas', 
+        route: '/dashboard/receta', 
+        icon: 'restaurant_menu' 
+      },
+      { label: 'Stock',
+        route: '/dashboard/stock', 
+        icon: 'inventory' 
+      },
+      { 
+        label: 'Administración de Insumos', 
+        icon: 'warehouse', 
         children: [
-          { label: 'Realizar Pedido', route: '/dashboard/realizarpedido', icon: 'add_shopping_cart' },
-          { label: 'Registro de Pedidos', route: '/dashboard/registropedidos', icon: 'receipt_long' }
+          { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'egg' },
+          { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' },
         ],
         isExpanded: false
-      },
-        { 
-          label: 'Registro de Ventas', 
-          route: '/dashboard/venta', 
-          icon: 'point_of_sale'
-        },
-        { 
-          label: 'Historial de Clientes', 
-          route: '/dashboard/cliente', 
-          icon: 'groups'
-        }
-      ]
-    },
-    {
-      label: 'Inventario',
-      items: [
-        { 
-          label: 'Configuración del Menú', 
-          icon: 'inventory_2', 
-          children: [
-            { label: 'Productos y Categorias', route: '/dashboard/producto', icon: 'fastfood' },
-            { label: 'Recetas', route: '/dashboard/receta', icon: 'restaurant_menu' },
-          ],
-          isExpanded: false
-        },
-        { 
-          label: 'Gestión de Insumos', 
-          icon: 'warehouse', 
-          children: [
-            { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'egg' },
-            { label: 'Stock', route: '/dashboard/stock', icon: 'inventory' },
-            { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' },
-          ],
-          isExpanded: false
-        }
-      ]
-    },
-    {
-      label: '',
-      items: [
-        { 
-          label: 'Analíticas', 
-          route: '/dashboard/reportes', 
-          icon: 'analytics'
-        }
-      ]
-    },
-  ];
+      }
+    ]
+  },
+  {
+    label: '',
+    items: [
+      { 
+        label: 'Analíticas', 
+        route: '/dashboard/reportes', 
+        icon: 'analytics'
+      }
+    ]
+  },
+];
+
 
   constructor(
     private router: Router, 
