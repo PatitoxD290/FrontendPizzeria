@@ -1,9 +1,10 @@
 .pago-container {
   max-width: 400px;
-  margin: 20px auto;
+  margin: 36px auto;
   text-align: center;
   padding: 20px;
   background: #fff;
+  border: 1px solid #bebebe;
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   box-sizing: border-box;
@@ -310,7 +311,7 @@ h2, h3, p {
 }
 
 .btn-no-documento {
-  background-color: #34495E !important;
+  background-color: #243445 !important;
   color: white !important;
 }
 
@@ -425,7 +426,7 @@ h2, h3, p {
   padding: 20px;
   background: #fff;
   border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  /* box-shadow: 0 4px 10px rgba(0,0,0,0.1); */
   box-sizing: border-box;
 }
 
@@ -602,13 +603,17 @@ h2, h3, p {
 }
 
 .boton-renviar {
-  min-width: 150px;
+  min-width: 180px;
   margin: 10px;
+  background-color: #85929E !important;
+  color: white !important;
+  margin-top: -3px;
 }
 
 .boton-cancelar {
-  min-width: 120px;
+  min-width: 180px;
   margin: 10px;
+  margin-top: -3px;
 }
 
 .action-buttons {
@@ -617,3 +622,5 @@ h2, h3, p {
   gap: 10px;
   align-items: center;
 }
+
+
