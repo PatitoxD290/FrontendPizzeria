@@ -32,16 +32,21 @@
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
+  height: 100%;
+  overflow-y: auto; /* Scroll para todo el sidebar */
   z-index: 1000;
   border: none;
-  color: white !important; /* Garantiza que TODO el texto sea blanco */
+  color: white !important;
+  overflow: hidden; /* <- Evita scroll aquí */
+  transition: width 0.3s ease-in-out;
+
 }
 
 .sidenav-container {
   height: 100vh;
   display: flex;
   background: hwb(0 11% 47%);
+  flex-direction: column;
 }
 
 .sidenav.collapsed {
@@ -209,12 +214,13 @@
 .sidebar-nav {
   flex: 1;
   padding: 16px 0;
-  overflow-y: auto;
+  overflow-y: auto; /* Scroll solo cuando sea necesario */
   display: flex;
   flex-direction: column;
   gap: 4px;
   color: white !important;
 }
+
 
 /* Items del menú - TEXTO BLANCO */
 .menu-item {
@@ -337,8 +343,12 @@
   background: rgba(0, 0, 0, 0.15);
   margin: 0 0 4px !important;
   border-radius: 0 !important;
+  max-height: 500px;
+  opacity: 1;
   overflow: hidden;
   animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+
 }
 
 @keyframes slideDown {
@@ -355,6 +365,8 @@
 }
 
 .sidenav.collapsed .submenu {
+  max-height: 0;
+  opacity: 0;
   display: none;
 }
 
@@ -483,37 +495,36 @@
 }
 
 /* ============================================= */
-/* ESTADOS COLAPSADO */
+/* ESTADOS COLAPSADO - CORREGIDO PARA CSS PURO */
 /* ============================================= */
-.sidenav.collapsed {
-  .sidebar-header,
-  .section-label,
-  .section-divider,
-  .user-details {
-    display: none;
-  }
-  
-  .menu-item {
-    justify-content: center;
-    padding: 0 8px !important;
-    margin: 2px 0 !important;
-  }
-  
-  .menu-content {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .menu-icon {
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .user-info {
-    justify-content: center;
-  }
+.sidenav.collapsed .sidebar-header,
+.sidenav.collapsed .section-label,
+.sidenav.collapsed .section-divider,
+.sidenav.collapsed .user-details {
+  display: none !important;
 }
+
+.sidenav.collapsed .menu-item {
+  justify-content: center;
+  padding: 0 8px !important;
+  margin: 2px 0 !important;
+}
+
+.sidenav.collapsed .menu-content {
+  justify-content: center;
+  width: 100%;
+}
+
+.sidenav.collapsed .menu-icon {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.sidenav.collapsed .user-info {
+  justify-content: center;
+}
+
 
 /* ============================================= */
 /* SCROLLBAR */
@@ -583,10 +594,13 @@
 
 .menu-item,
 .submenu-item {
-  color: white !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: flex !important;
+  margin: 0 !important;   /* Elimina margen que puede generar espacios */
+  border-radius: 0 !important;
+}
+
+.menu-item:hover,
+.submenu-item:hover {
+  transform: none; /* evita que se mueva y deje huecos */
 }
 
 /* ============================================= */

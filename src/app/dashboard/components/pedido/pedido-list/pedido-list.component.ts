@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
-import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model'; // ✅ Importamos ambos
+import { FormsModule } from '@angular/forms';
+import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
+
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +12,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+
 import { VerDetallePedidoComponent } from '../ver-detalle-pedido/ver-detalle-pedido.component';
 import Swal from 'sweetalert2';
 
@@ -19,26 +25,33 @@ import Swal from 'sweetalert2';
   imports: [
     CommonModule,
     NgIf,
+    FormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
     MatCardModule,
-    MatDialogModule
+    MatDialogModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './pedido-list.component.html',
   styleUrls: ['./pedido-list.component.css']
 })
 export class PedidoListComponent implements OnInit {
   displayedColumns: string[] = [
-    'ID_Pedido', 'ID_Cliente', 'Fecha_Registro',
-    'PrecioTotal', 'Notas', 'Estado_P', 'acciones'
+    'ID_Pedido', 'Notas', 'ID_Cliente', 'PrecioTotal', 'Estado_P', 'Fecha_Registro', 'acciones'
   ];
 
   dataSource = new MatTableDataSource<Pedido>();
   clientesMap: Map<number, string> = new Map();
   loading = false;
+
+  searchTerm: string = '';
+  fechaInicio: Date | null = null;
+  fechaFin: Date | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -59,54 +72,79 @@ export class PedidoListComponent implements OnInit {
   }
 
   viewDetallePedido(ID_Pedido: number) {
-  this.dialog.open(VerDetallePedidoComponent, {
-    width: '650px',
-    data: { pedido_id: ID_Pedido } // coincide con el nombre esperado
-  });
-}
+    this.dialog.open(VerDetallePedidoComponent, {
+      width: '650px',
+      data: { pedido_id: ID_Pedido }
+    });
+  }
 
+  // ✅ Cargar pedidos y calcular total
+  loadPedidos(): void {
+    this.loading = true;
+    this.pedidoService.getPedidos().subscribe({
+      next: pedidos => {
+        pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
+        const pedidosConTotales: Pedido[] = [];
 
-  // ✅ Cargar pedidos y calcular el PrecioTotal sumando todos los detalles
-loadPedidos(): void {
-  this.loading = true;
-  this.pedidoService.getPedidos().subscribe({
-    next: pedidos => {
-      pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
+        const promises = pedidos.map(pedido =>
+          this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise()
+            .then((detalles: PedidoDetalle[] | undefined) => {
+              const listaDetalles = detalles ?? [];
+              const total = listaDetalles.reduce((acc, det) => acc + (det.PrecioTotal || 0), 0);
+              pedidosConTotales.push({ ...pedido, PrecioTotal: total });
+            })
+            .catch(() => pedidosConTotales.push({ ...pedido, PrecioTotal: 0 }))
+        );
 
-      const pedidosConTotales: Pedido[] = [];
+        Promise.all(promises).then(() => {
+          this.dataSource = new MatTableDataSource(pedidosConTotales);
+          this.dataSource.paginator = this.paginator;
+          this.loadClientes();
 
-      const promises = pedidos.map(pedido =>
-        this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise()
-          .then((detalles: PedidoDetalle[] | undefined) => {
-            const listaDetalles: PedidoDetalle[] = detalles ?? []; // ✅ si undefined, usa []
+          // ✅ Definir filtro personalizado
+          this.dataSource.filterPredicate = (pedido: Pedido, filter: string) => {
+            const term = filter.trim().toLowerCase();
 
-            // ✅ Sumar el PrecioTotal de todos los detalles
-            const total = listaDetalles.reduce((acc, det) => acc + (det.PrecioTotal || 0), 0);
+            const clienteNombre = this.getNombreCliente(pedido.ID_Cliente).toLowerCase();
+            const nota = pedido.Notas?.toLowerCase() || '';
+            const fecha = this.formatFechaHora(pedido.Fecha_Registro, pedido.Hora_Pedido).toLowerCase();
 
-            pedidosConTotales.push({ ...pedido, PrecioTotal: total });
-          })
-          .catch(() => pedidosConTotales.push({ ...pedido, PrecioTotal: 0 }))
-      );
+            const coincideTexto =
+              clienteNombre.includes(term) ||
+              nota.includes(term) ||
+              fecha.includes(term);
 
-      Promise.all(promises).then(() => {
-        this.dataSource.data = pedidosConTotales;
-        this.loadClientes();
-      });
-    },
-    error: err => {
-      console.error('Error al cargar pedidos:', err);
-      this.loading = false;
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudieron cargar los pedidos',
-        confirmButtonColor: '#d33'
-      });
-    }
-  });
-}
+            // ✅ Filtro por rango de fecha
+            let coincideFecha = true;
+            if (this.fechaInicio && this.fechaFin && pedido.Fecha_Registro) {
+              const fechaPedido = new Date(pedido.Fecha_Registro);
+              coincideFecha = fechaPedido >= this.fechaInicio && fechaPedido <= this.fechaFin;
+            }
 
-  // 🔹 Cargar los nombres de los clientes
+            return coincideTexto && coincideFecha;
+          };
+
+          this.loading = false;
+        });
+      },
+      error: err => {
+        console.error('Error al cargar pedidos:', err);
+        this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los pedidos', 'error');
+      }
+    });
+  }
+
+  // ✅ Filtro en tiempo real
+  applyFilter() {
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  }
+
+  applyDateFilter() {
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+  }
+
   loadClientes(): void {
     this.clienteService.getClientes().subscribe({
       next: clientes => {
@@ -116,18 +154,8 @@ loadPedidos(): void {
             this.clientesMap.set(c.ID_Cliente, nombreCompleto || 'Sin nombre');
           }
         });
-        this.loading = false;
       },
-      error: err => {
-        console.error('Error al cargar clientes:', err);
-        this.loading = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudieron cargar los clientes',
-          confirmButtonColor: '#d33'
-        });
-      }
+      error: err => console.error('Error al cargar clientes', err)
     });
   }
 
@@ -144,12 +172,8 @@ loadPedidos(): void {
       fecha.setMinutes(hora.getUTCMinutes());
     }
     return fecha.toLocaleString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true
     });
   }
 
@@ -173,31 +197,18 @@ loadPedidos(): void {
       text: 'Esta acción no se puede deshacer',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
         this.pedidoService.deletePedido(ID_Pedido).subscribe({
           next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Eliminado',
-              text: 'El pedido fue eliminado correctamente',
-              timer: 1500,
-              showConfirmButton: false
-            });
+            Swal.fire('Eliminado', 'El pedido fue eliminado correctamente', 'success');
             this.loadPedidos();
           },
           error: err => {
             console.error('Error al eliminar pedido:', err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo eliminar el pedido. Intenta nuevamente.',
-              confirmButtonColor: '#d33'
-            });
+            Swal.fire('Error', 'No se pudo eliminar el pedido', 'error');
           }
         });
       }

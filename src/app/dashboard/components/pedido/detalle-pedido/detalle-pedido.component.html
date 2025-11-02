@@ -1,15 +1,26 @@
 <!-- 🔹 Campo opcional de cliente -->
 <div class="cliente-input-container">
   <mat-form-field appearance="outline" class="cliente-field">
-    <mat-label>Nombre del cliente (opcional)</mat-label>
+    <mat-label>Cliente (opcional)</mat-label>
     <input
       matInput
       [(ngModel)]="nombreCliente"
-      placeholder="Ejemplo: Juan Pérez"
+      placeholder="Nombre del cliente"
+      autocomplete="off"
     />
-    <mat-icon matSuffix>person</mat-icon>
+    <button
+      *ngIf="nombreCliente"
+      mat-icon-button
+      matSuffix
+      aria-label="Borrar"
+      (click)="nombreCliente = ''"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-icon matSuffix class="cliente-icon">person</mat-icon>
   </mat-form-field>
 </div>
+
 
 <!-- 🔹 Tabla de detalle -->
 <table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
@@ -33,20 +44,21 @@
   </ng-container>
 
   <!-- Cantidad -->
-  <ng-container matColumnDef="cantidad">
-    <th mat-header-cell *matHeaderCellDef>Cant.</th>
-    <td mat-cell *matCellDef="let d">
-      <div class="cantidad-control-vertical">
-        <button mat-mini-button (click)="aumentarCantidad(d)">
-          <mat-icon>keyboard_arrow_up</mat-icon>
-        </button>
-        <span>{{ d.Cantidad }}</span>
-        <button mat-mini-button (click)="reducirCantidad(d)">
-          <mat-icon>keyboard_arrow_down</mat-icon>
-        </button>
-      </div>
-    </td>
-  </ng-container>
+<ng-container matColumnDef="cantidad">
+  <th mat-header-cell *matHeaderCellDef>Cant.</th>
+  <td mat-cell *matCellDef="let d">
+    <div class="cantidad-control-horizontal">
+      <button mat-mini-button (click)="reducirCantidad(d)">
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span>{{ d.Cantidad }}</span>
+      <button mat-mini-button (click)="aumentarCantidad(d)">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </td>
+</ng-container>
+
 
 
   <!-- Precio -->
@@ -69,7 +81,7 @@
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let d">
-      <button mat-icon-button color="warn" (click)="eliminar(d.ID_Producto)">
+      <button mat-icon-button color="warn" (click)="eliminar(d)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>

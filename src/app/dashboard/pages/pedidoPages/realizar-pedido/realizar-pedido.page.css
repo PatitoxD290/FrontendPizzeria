@@ -1,68 +1,9 @@
-/* 🔹 Contenedor principal */
-.realizar-pedido-container {
-  display: flex;
-  flex-direction: column; /* botones arriba, contenido abajo */
-  gap: 20px;
-  padding: 20px;
-}
-
-/* 🔹 Botones centrados */
-.botones-toggle {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 25px 0 20px 0; /* ↑40px para bajar los botones */
-}
-
-
-.botones-toggle button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  font-size: 0.95rem;
-  border-radius: 8px;
-  padding: 8px 14px;
-  transition: all 0.3s ease;
-  border: 1px solid #ddd;
-  background-color: white;
-  color: #333;
-}
-
-.botones-toggle button mat-icon {
-  font-size: 20px;
-  color: #555;
-}
-
-.botones-toggle button:hover {
-  background-color: #2196f3;
-  color: white;
-  border-color: #1976d2;
-  transform: translateY(-2px);
-}
-
-.botones-toggle button:hover mat-icon {
-  color: white;
-}
-
-.botones-toggle .active {
-  background-color: #2196f3;
-  color: white;
-  border-color: #1976d2;
-}
-
-.botones-toggle .active mat-icon {
-  color: white;
-}
-
-/* 🔹 Contenido principal: grid con menú a la izquierda y detalle a la derecha */
 .pedido-content {
   display: grid;
   grid-template-columns: 2fr 1fr; /* menú 2/3 y detalle 1/3 */
   gap: 20px;
 }
 
-/* 🔹 Secciones del contenido */
 .menu-section,
 .detalle-section {
   background: #fff;
@@ -71,22 +12,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 🔹 Vista de registro de pedidos ocupa todo el ancho */
-.registro-section {
-  grid-column: span 2;
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 🔹 Responsive: apilar secciones en móviles */
 @media (max-width: 768px) {
   .pedido-content {
     grid-template-columns: 1fr;
-  }
-
-  .registro-section {
-    grid-column: span 1;
   }
 }

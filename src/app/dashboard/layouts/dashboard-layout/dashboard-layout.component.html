@@ -1,11 +1,8 @@
 <div class="dashboard-wrapper">
-  <app-sidebar [isCollapsed]="isSidebarCollapsed"></app-sidebar>
+  <app-sidebar [isCollapsed]="isSidebarCollapsed" (toggleSidebarEvent)="toggleSidebar()"></app-sidebar>
 
   <div class="main-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
-    <app-navbar 
-      (toggleSidebarEvent)="toggleSidebar()" 
-      [isSidebarCollapsed]="isSidebarCollapsed">
-    </app-navbar>
+    <app-navbar (toggleSidebarEvent)="toggleSidebar()" [isSidebarCollapsed]="isSidebarCollapsed"></app-navbar>
 
     <main class="main-content">
       <router-outlet></router-outlet>

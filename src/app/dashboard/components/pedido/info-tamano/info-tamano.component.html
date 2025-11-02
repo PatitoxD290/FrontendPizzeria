@@ -7,7 +7,8 @@
   <mat-card-content>
     <p>{{ producto.Descripcion }}</p>
 
-    <mat-form-field appearance="fill" class="full-width">
+    <!-- 🔹 Campo de tamaño SOLO si la categoría lo permite -->
+    <mat-form-field *ngIf="mostrarTamano" appearance="fill" class="full-width">
       <mat-label>Tamaño</mat-label>
       <mat-select [(value)]="tamanoSeleccionado">
         <mat-option *ngFor="let t of tamanos" [value]="t">
@@ -16,11 +17,22 @@
       </mat-select>
     </mat-form-field>
 
+    <!-- 🔹 Campo cantidad validado -->
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Cantidad</mat-label>
-      <input matInput type="number" [(ngModel)]="cantidad" min="1">
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="cantidad"
+        (input)="validarCantidad($event)"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        minlength="1"
+        maxlength="3"
+      />
     </mat-form-field>
 
+    <!-- 🔹 Total dinámico -->
     <h3 class="total-text">Total: S/ {{ getPrecioTotal() | number:'1.2-2' }}</h3>
   </mat-card-content>
 

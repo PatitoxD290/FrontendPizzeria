@@ -4,6 +4,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Producto } from '../models/producto.model';
 import { PedidoDetalle } from '../models/pedido.model';
 
+import Swal from 'sweetalert2';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,15 +18,31 @@ export class OrdenService {
 
   // 🟩 Agregar producto al pedido
 agregarProducto(detalle: PedidoDetalle) {
-  const existente = this.detalles.find(d => d.ID_Producto === detalle.ID_Producto && d.ID_Tamano === detalle.ID_Tamano);
+  if (!detalle.Cantidad || detalle.Cantidad <= 0) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Cantidad inválida',
+      text: 'No puedes agregar un producto con cantidad 0.',
+      confirmButtonColor: '#1976d2'
+    });
+    return;
+  }
+
+  const existente = this.detalles.find(
+    d => d.ID_Producto === detalle.ID_Producto && d.ID_Tamano === detalle.ID_Tamano
+  );
+
   if (existente) {
     existente.Cantidad += detalle.Cantidad;
     existente.PrecioTotal += detalle.PrecioTotal;
   } else {
     this.detalles.push({ ...detalle });
   }
+
   this.detallesSubject.next([...this.detalles]);
 }
+
+
 
 
 // ⬆️ Aumentar cantidad

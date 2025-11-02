@@ -1,12 +1,34 @@
+/* 🔹 Centrar el campo */
 .cliente-input-container {
-  margin-bottom: 15px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* centra horizontalmente */
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
+/* 🔹 Reducir tamaño y bordes redondeados */
 .cliente-field {
-  width: 300px;
+  width: 250px; /* más pequeño */
+  border-radius: 25px !important; /* bordes redondeados */
 }
+
+/* 🔹 Personalizar el contorno del mat-form-field */
+::ng-deep .mat-mdc-form-field-outline {
+  border-radius: 25px !important;
+}
+
+/* 🔹 Input más limpio y moderno */
+::ng-deep .mat-mdc-input-element {
+  text-align: center; /* texto centrado */
+  font-size: 14px;
+}
+
+/* 🔹 Ícono del cliente */
+.cliente-icon {
+  color: #2196f3;
+}
+
 
 .full-width {
   width: 100%;
@@ -23,27 +45,32 @@
   color: #2196f3;
 }
 
-.cantidad-control-vertical {
+.cantidad-control-horizontal {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  gap: 8px;
 }
 
-.cantidad-control-vertical button {
+.cantidad-control-horizontal button {
   min-width: 26px;
   height: 26px;
   line-height: 0;
   padding: 0;
-  border: none;
+  border: 1px solid transparent;
   background: transparent !important;
   color: #333;
+  transition: all 0.2s ease;
 }
 
-.cantidad-control-vertical button:hover {
-  background: rgba(33, 150, 243, 0.1);
-  border-radius: 50%;
+.cantidad-control-horizontal button:hover {
+  background: rgba(33, 150, 243, 0.08);
+  border: 1px solid rgba(33, 150, 243, 0.4);
+  border-radius: 6px; /* sutilmente cuadrado */
+  color: #1976d2;
 }
+
+
 
 .total-container {
   text-align: right;

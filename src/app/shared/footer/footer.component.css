@@ -1,14 +1,14 @@
 .footer {
   background-color: #ffffff !important;
   color: #2c2c2c !important;
-  font-size: 15px;
+  font-size: 14px; /* Ligeramente menor */
   justify-content: center;
-  min-height: 40px;
+  min-height: 28px; /* 🔹 Reducida de 40px a 28px */
   width: 100%;
   text-align: center;
-  padding: 10px 0;
+  padding: 2px 0; /* 🔹 Menos espacio vertical */
   border-top: 1px solid #ddd;
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
   z-index: 100;
-  /* 🔹 Elimina completamente position: sticky y bottom */
+  /* No se utiliza position: sticky ni bottom */
 }

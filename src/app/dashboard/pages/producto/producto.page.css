@@ -1,16 +1,9 @@
-/* 🔹 Espaciado superior para bajar todo el contenido */
-:host {
-  display: block;
-  padding-top: 40px; /* Ajusta este valor según lo que necesites */
-}
-
-/* Header de productos con botón de limpiar */
+/* Header */
 .producto-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  gap: 15px;
 }
 
 .producto-header h2 {
@@ -19,57 +12,16 @@
   font-size: 1.5rem;
 }
 
-.clear-filter-btn {
-  white-space: nowrap;
-}
-
-/* Layout flex: productos a la izquierda, categorías a la derecha */
-/* 🔹 Contenedor principal */
-.producto-categoria-container {
+/* Contenedor principal */
+.producto-container {
   display: flex;
-  gap: 20px; 
-}
-
-/* Productos ocupa más espacio */
-.producto-list {
-  flex: 2;
-}
-
-/* Panel de categorías + tamaños ocupa menos */
-.categoria-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column; /* ahora los hijos se apilan verticalmente (header + contenido) */
+  flex-direction: column;
   gap: 15px;
 }
 
-/* Contenedor para categorías y tamaños lado a lado */
-.categoria-tamano-container {
-  display: flex;
-  gap: 15px;
-}
-
-/* Cada columna ocupa la mitad del contenedor */
-.categoria-column,
-.tamano-column {
-  flex: 1;
-}
-
-/* Ajustes de títulos */
-.categoria-column h4,
-.tamano-column h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Responsive: apilar en móvil */
+/* Responsive */
 @media (max-width: 768px) {
-  .producto-categoria-container {
-    flex-direction: column;
-  }
-
-  .categoria-tamano-container {
+  .producto-container {
     flex-direction: column;
   }
 }

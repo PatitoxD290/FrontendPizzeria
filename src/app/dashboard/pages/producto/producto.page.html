@@ -1,35 +1,5 @@
-<div class="botones-toggle">
-  <button mat-raised-button color="primary" (click)="mostrarLista('productos')">
-    Configuración Productos
-  </button>
-  <button mat-raised-button color="accent" (click)="mostrarLista('categorias')">
-     Categorías y Tamaños
-  </button>
-</div>
 
-<div class="producto-categoria-container">
-  <!-- Lista de productos -->
-  <div class="producto-list" *ngIf="mostrarProductos">
-    <app-producto-list></app-producto-list>
-  </div>
-
-  <!-- Panel de categorías + tamaños -->
-  <div class="categoria-list" *ngIf="mostrarCategorias">
-    <div class="categoria-header">
-      <h3>Categorías y Tamaños</h3>
-    </div>
-
-    <!-- Contenedor flex para mostrar lado a lado -->
-    <div class="categoria-tamano-container">
-      <div class="categoria-column">
-        <h4>Categorías</h4>
-        <app-categoria-list></app-categoria-list>
-      </div>
-
-      <div class="tamano-column">
-        <h4>Tamaños</h4>
-        <app-tamano-list></app-tamano-list>
-      </div>
-    </div>
-  </div>
+<!-- Lista de productos -->
+<div class="producto-container">
+  <app-producto-list></app-producto-list>
 </div>

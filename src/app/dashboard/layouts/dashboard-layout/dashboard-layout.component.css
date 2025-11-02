@@ -1,48 +1,71 @@
-/* Contenedor principal */
+/* ==== CONTENEDOR PRINCIPAL ==== */
 .dashboard-wrapper {
   display: flex;
-  min-height: 100vh;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
   background-color: #ffffff;
 }
 
-/* Sidebar fijo */
+/* ==== SIDEBAR ==== */
 app-sidebar {
+  width: var(--sidebar-width, 280px);
+  background-color: #722F37;
+  height: 100vh;
   position: sticky;
   top: 0;
-  height: 100vh;
+  left: 0;
+  transition: width 0.3s ease;
   overflow-y: auto;
-  flex-shrink: 0;
+  z-index: 900;
 }
 
-/* Contenedor principal con scroll */
+/* Sidebar colapsado */
+app-sidebar.collapsed {
+  width: var(--sidebar-collapsed, 80px);
+}
+
+/* ==== MAIN WRAPPER ==== */
 .main-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  min-height: 100vh;
+  min-height: 100vh; /* que el footer quede al final */
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-/* Navbar fijo */
+/* Ajuste según el estado del sidebar */
+.main-wrapper.sidebar-collapsed {
+  margin-left: 0;
+}
+
+/* ==== NAVBAR ==== */
 app-navbar {
   position: sticky;
   top: 0;
-  flex-shrink: 0;
   width: 100%;
   z-index: 1000;
+  background-color: #fff;
 }
 
-/* Contenido principal - crece naturalmente */
+/* ==== CONTENIDO PRINCIPAL ==== */
 .main-content {
-  flex: 1;
-  padding: 3rem;
+  flex: 1; /* ocupa el espacio restante */
+  overflow-y: auto;
+  padding: calc(var(--navbar-height, 70px) + 1rem) 2rem 1rem 2rem;
   background-color: #f5f6f8;
-  /* El contenido determina la altura total */
+  transition: padding 0.3s ease;
 }
 
-/* Footer al final del contenido */
+/* ==== FOOTER ==== */
 app-footer {
   flex-shrink: 0;
   width: 100%;
+  background-color: #fff;
+  text-align: center;
+  padding: 0.2rem; /* 🔹 más bajo */
+  font-size: 0.8rem; /* 🔹 texto más compacto */
+  color: #555;
+  border-top: 1px solid #ddd;
 }

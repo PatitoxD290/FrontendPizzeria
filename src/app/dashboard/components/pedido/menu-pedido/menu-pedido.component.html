@@ -1,3 +1,13 @@
+<!-- Buscador -->
+<div class="buscador-container">
+  <mat-icon>search</mat-icon>
+  <input
+    type="text"
+    placeholder="Buscar por nombre o categoría..."
+    [(ngModel)]="terminoBusqueda"
+    (input)="buscarProducto()" />
+</div>
+
 <!-- Botones de categorías -->
 <div class="categorias-container">
   <button
@@ -16,11 +26,12 @@
   </button>
 </div>
 
-<!-- Lista de productos -->
+<!-- Lista de productos con paginación -->
 <div class="menu-scroll">
-  <mat-card *ngFor="let p of productosFiltrados" class="producto-card">
-    <img mat-card-image src="assets/imgs/logo.png" alt="{{ p.Nombre }}" class="producto-img">
-
+  <mat-card
+    *ngFor="let p of paginatedProductos"
+    class="producto-card"
+    (click)="agregarAlCarrito(p)">
     <mat-card-header>
       <mat-card-title>{{ p.Nombre }}</mat-card-title>
       <mat-card-subtitle>{{ p.nombre_categoria }}</mat-card-subtitle>
@@ -30,14 +41,13 @@
       <p>{{ p.Descripcion }}</p>
       <h3>S/ {{ p.Precio_Base | number:'1.2-2' }}</h3>
     </mat-card-content>
-
-    <!-- Botón Agregar -->
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="agregarAlCarrito(p)">
-        <mat-icon>add_shopping_cart</mat-icon>
-        Agregar
-      </button>
-    </mat-card-actions>
   </mat-card>
 </div>
 
+<!-- 🔹 Paginador Angular Material -->
+<mat-paginator
+  [length]="productosFiltrados.length"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[3, 6, 9, 12]"
+  (page)="onPageChange($event)">
+</mat-paginator>

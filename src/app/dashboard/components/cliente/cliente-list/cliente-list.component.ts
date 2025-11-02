@@ -5,7 +5,7 @@ import { Cliente } from '../../../../core/models/cliente.model';
 import { ClienteService } from '../../../../core/services/cliente.service';
 
 // Angular Material
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,8 +13,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
+import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,7 +33,9 @@ import Swal from 'sweetalert2';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
-    MatInputModule
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './cliente-list.component.html',
   styleUrls: ['./cliente-list.component.css']
@@ -39,9 +43,11 @@ import Swal from 'sweetalert2';
 export class ClienteListComponent implements OnInit {
 
   displayedColumns: string[] = ['ID_Cliente', 'nombre_completo', 'DNI', 'Telefono', 'Fecha_Registro', 'acciones'];
-  clientes: Cliente[] = [];
+  dataSource = new MatTableDataSource<Cliente>([]);
   loading = false;
   searchTerm: string = '';
+  fechaInicio?: Date;
+  fechaFin?: Date;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -58,13 +64,32 @@ export class ClienteListComponent implements OnInit {
     this.loading = true;
     this.clienteService.getClientes().subscribe({
       next: data => {
-        this.clientes = data;
-        this.loading = false;
-        setTimeout(() => {
-          if (this.paginator) {
-            this.paginator.length = this.filteredClientes.length;
+        const sortedData = data.sort((a, b) => b.ID_Cliente - a.ID_Cliente);
+        this.dataSource = new MatTableDataSource(sortedData);
+        this.dataSource.paginator = this.paginator;
+
+        // ✅ Filtro combinado (texto + fechas)
+        this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
+          const term = filter.trim().toLowerCase();
+          const matchText =
+            cliente.Nombre?.toLowerCase().includes(term) ||
+            cliente.Apellido?.toLowerCase().includes(term) ||
+            cliente.DNI?.toLowerCase().includes(term) ||
+            cliente.Telefono?.toLowerCase().includes(term);
+
+          // ✅ Filtrado por fecha si ambas fechas existen
+          if (this.fechaInicio && this.fechaFin) {
+            const fecha = new Date(cliente.Fecha_Registro);
+            return (
+              matchText &&
+              fecha >= this.fechaInicio &&
+              fecha <= this.fechaFin
+            );
           }
-        });
+          return matchText;
+        };
+
+        this.loading = false;
       },
       error: err => {
         console.error('Error al cargar clientes', err);
@@ -73,15 +98,10 @@ export class ClienteListComponent implements OnInit {
     });
   }
 
-  get filteredClientes(): Cliente[] {
-    if (!this.searchTerm.trim()) return this.clientes;
-    const term = this.searchTerm.toLowerCase();
-    return this.clientes.filter(c =>
-      (c.Nombre?.toLowerCase().includes(term)) ||
-      (c.Apellido?.toLowerCase().includes(term)) ||
-      (c.DNI?.toLowerCase().includes(term)) ||
-      (c.Telefono?.toLowerCase().includes(term))
-    );
+  // ✅ Filtro combinado
+  applyFilters() {
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   deleteCliente(id: number) {

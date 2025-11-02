@@ -77,13 +77,37 @@ export class DetallePedidoComponent implements OnInit {
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
+  if (detalle.Cantidad > 1) {
     const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
     this.ordenService.reducirCantidad(detalle.ID_Producto, detalle.ID_Tamano, precioUnitario);
+    }
   }
 
-  eliminar(detalle: PedidoDetalle) {
-    this.ordenService.eliminarProducto(detalle.ID_Producto, detalle.ID_Tamano);
-  }
+
+eliminar(detalle: PedidoDetalle) {
+  Swal.fire({
+    title: '¿Eliminar producto?',
+    text: `Se eliminará ${detalle.nombre_producto} (${detalle.nombre_tamano}).`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.ordenService.eliminarProducto(detalle.ID_Producto, detalle.ID_Tamano);
+      Swal.fire({
+        title: 'Eliminado',
+        text: 'El producto fue eliminado del pedido.',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500, 
+        timerProgressBar: true
+      });
+    }
+  });
+}
+
 
   getTotal(): number {
     return this.detalles.reduce((acc, d) => acc + (d.PrecioTotal || 0), 0);
@@ -107,8 +131,20 @@ export class DetallePedidoComponent implements OnInit {
   }
 
 realizarPedido() {
-  if (this.detalles.length === 0) {
+   if (this.detalles.length === 0) {
     Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de realizar el pedido.' });
+    return;
+  }
+
+  // 🔹 Evitar enviar productos con cantidad 0
+  const conCantidadCero = this.detalles.some(d => d.Cantidad <= 0);
+  if (conCantidadCero) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Cantidad inválida detectada',
+      text: 'Hay productos con cantidad igual a 0 en el pedido. Corrige antes de continuar.',
+      confirmButtonColor: '#1976d2'
+    });
     return;
   }
 

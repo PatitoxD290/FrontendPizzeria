@@ -1,8 +1,31 @@
 <mat-card>
-  <div class="header">
-    <mat-form-field appearance="outline">
-      <mat-label>Buscar</mat-label>
-      <input matInput placeholder="Nombre, Apellido, DNI o Teléfono" [(ngModel)]="searchTerm">
+  <div class="filtros-container">
+    <!-- 🔍 Buscador -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar cliente</mat-label>
+      <input
+        matInput
+        placeholder="Nombre, Apellido, DNI o Teléfono"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()">
+      <button mat-icon-button matSuffix (click)="applyFilters()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <!-- 📅 Filtro por fecha -->
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Desde</mat-label>
+      <input matInput [matDatepicker]="inicioPicker" [(ngModel)]="fechaInicio" (dateChange)="applyFilters()">
+      <mat-datepicker-toggle matSuffix [for]="inicioPicker"></mat-datepicker-toggle>
+      <mat-datepicker #inicioPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Hasta</mat-label>
+      <input matInput [matDatepicker]="finPicker" [(ngModel)]="fechaFin" (dateChange)="applyFilters()">
+      <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+      <mat-datepicker #finPicker></mat-datepicker>
     </mat-form-field>
   </div>
 
@@ -10,46 +33,41 @@
     <mat-spinner></mat-spinner>
   </div>
 
-  <table mat-table [dataSource]="filteredClientes" class="mat-elevation-z8" *ngIf="!loading">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">
 
-    <!-- ID -->
+    <!-- Columnas -->
     <ng-container matColumnDef="ID_Cliente">
       <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.ID_Cliente }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.ID_Cliente }}</td>
     </ng-container>
 
-    <!-- Nombre Completo -->
     <ng-container matColumnDef="nombre_completo">
       <th mat-header-cell *matHeaderCellDef>Nombre Completo</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.Nombre }} {{ cliente.Apellido }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.Nombre }} {{ c.Apellido }}</td>
     </ng-container>
 
-    <!-- DNI -->
     <ng-container matColumnDef="DNI">
       <th mat-header-cell *matHeaderCellDef>DNI</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.DNI }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.DNI }}</td>
     </ng-container>
 
-    <!-- Teléfono -->
     <ng-container matColumnDef="Telefono">
       <th mat-header-cell *matHeaderCellDef>Teléfono</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.Telefono || '—' }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.Telefono || '—' }}</td>
     </ng-container>
 
-    <!-- Fecha Registro -->
     <ng-container matColumnDef="Fecha_Registro">
       <th mat-header-cell *matHeaderCellDef>Fecha de Registro</th>
-      <td mat-cell *matCellDef="let cliente">{{ cliente.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
     </ng-container>
 
-    <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
-      <td mat-cell *matCellDef="let cliente">
-        <button *ngIf="cliente.ID_Cliente !== 1" mat-icon-button color="primary" (click)="openClienteForm(cliente)">
+      <td mat-cell *matCellDef="let c">
+        <button mat-icon-button color="primary" (click)="openClienteForm(c)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button *ngIf="cliente.ID_Cliente !== 1" mat-icon-button color="warn" (click)="deleteCliente(cliente.ID_Cliente)">
+        <button mat-icon-button color="warn" (click)="deleteCliente(c.ID_Cliente)">
           <mat-icon>delete</mat-icon>
         </button>
       </td>

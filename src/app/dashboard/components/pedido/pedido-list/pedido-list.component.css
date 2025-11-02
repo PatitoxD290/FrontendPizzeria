@@ -13,20 +13,28 @@ mat-card {
   margin: 20px;
 }
 
-/* Colores visuales para estados */
-.estado-pendiente {
-  color: orange;
-  font-weight: 600;
+/* 🧭 Filtros arriba */
+.filtros-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-end;
 }
-.estado-completado {
-  color: green;
-  font-weight: 600;
+
+.search-field {
+  flex: 1;
+  min-width: 280px;
 }
-.estado-en-proceso {
-  color: blue;
-  font-weight: 600;
+
+.date-filters {
+  display: flex;
+  gap: 10px;
 }
-.estado-descartado {
-  color: red;
-  font-weight: 600;
-}
+
+/* Colores de estado */
+.estado-pendiente { color: orange; font-weight: 600; }
+.estado-completado { color: green; font-weight: 600; }
+.estado-en-proceso { color: blue; font-weight: 600; }
+.estado-descartado { color: red; font-weight: 600; }

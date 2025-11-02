@@ -1,11 +1,14 @@
-<h2>Gestión de Categorías</h2>
 
-<!-- Botón para abrir modal de nueva categoría -->
-<button mat-flat-button color="primary" (click)="openNuevaCategoria(categoriaList)">
-  <mat-icon>add</mat-icon> Nueva Categoría
-</button>
+<div class="categoria-tamano-container">
+  <!-- Columna de categorías -->
+  <div class="categoria-column">
+    <h4>Categorías</h4>
+    <app-categoria-list></app-categoria-list>
+  </div>
 
-<hr />
-
-<!-- Lista de categorías -->
-<app-categoria-list #categoriaList></app-categoria-list>
+  <!-- Columna de tamaños -->
+  <div class="tamano-column">
+    <h4>Tamaños</h4>
+    <app-tamano-list></app-tamano-list>
+  </div>
+</div>

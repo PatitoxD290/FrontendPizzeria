@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -11,6 +11,11 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { filter, Subscription } from 'rxjs';
 
+
+
+// ============================
+// INTERFACE DEL MENU
+// ============================
 export interface MenuItem {
   label: string;
   route?: string;
@@ -21,6 +26,9 @@ export interface MenuItem {
   badgeColor?: 'primary' | 'accent' | 'warn';
 }
 
+// ============================
+// COMPONENTE
+// ============================
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -40,108 +48,92 @@ export interface MenuItem {
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   @Input() isCollapsed = false;
+  @Output() toggleSidebarEvent = new EventEmitter<boolean>(); // <-- Agregado
 
   isLoggedIn = false;
-  private routerSubscription!: Subscription;
   currentRoute = '';
+  private routerSubscription!: Subscription;
 
-  // Rutas del sidebar organizadas por categorías
- menuSections: { label?: string; items: MenuItem[] }[] = [
+  // ============================
+  // MENU DEL SIDEBAR
+  // ============================
+menuSections: { label?: string; items: MenuItem[] }[] = [
   {
     items: [
-      { 
-        label: 'Inicio', 
-        route: '/dashboard/home', 
-        icon: 'home'
-      }
+      { label: 'Inicio', route: '/dashboard/home', icon: 'home' }
     ]
   },
   {
     items: [
-      { 
-        label: 'Pedidos', 
-        route: '/dashboard/realizarpedido',  // ✅ va directo a realizarpedido
-        icon: 'local_pizza'                  // puedes dejar el ícono de pizza si quieres
-      },
-      { 
-        label: 'Ventas', 
-        route: '/dashboard/venta', 
-        icon: 'point_of_sale'
-      },
-      { 
-        label: 'Historial de Clientes', 
-        route: '/dashboard/cliente', 
-        icon: 'groups'
-      }
+      { label: 'Caja', route: '/dashboard/realizarpedido', icon: 'payments' }, // pago en caja
+      { label: 'Pedidos', route: '/dashboard/registropedidos', icon: 'assignment' }, // registro de pedidos
+      { label: 'Ventas', route: '/dashboard/venta', icon: 'sell' }, // icono de venta
+      { label: 'Historial de Clientes', route: '/dashboard/cliente', icon: 'people_alt' } // clientes
     ]
   },
   {
     label: 'Configuración del Menú',
     items: [
-      { 
-        label: 'Productos y Categorias', 
-        route: '/dashboard/producto', 
-        icon: 'fastfood' 
-      },
-      { label: 'Recetas', 
-        route: '/dashboard/receta', 
-        icon: 'restaurant_menu' 
-      },
-      { label: 'Stock',
-        route: '/dashboard/stock', 
-        icon: 'inventory' 
-      },
-      { 
-        label: 'Administración de Insumos', 
-        icon: 'warehouse', 
+      { label: 'Productos', route: '/dashboard/producto', icon: 'fastfood' }, // comida
+      { label: 'Categorías y Tamaños', route: '/dashboard/categoria', icon: 'category' }, // ícono corregido
+      { label: 'Recetas', route: '/dashboard/receta', icon: 'menu_book' }, // libro de recetas
+    ]
+  },
+  {
+    label: 'Configuración de Inventario',
+    items: [
+      { label: 'Stock', route: '/dashboard/stock', icon: 'inventory_2' }, // inventario
+      {
+        label: 'Administración de Insumos',
+        icon: 'kitchen', // cocina
         children: [
-          { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'egg' },
-          { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' },
+          { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'emoji_food_beverage' }, // ingredientes
+          { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' } // transporte/proveedor
         ],
         isExpanded: false
       }
     ]
   },
   {
-    label: '',
+    label: 'Configuración de Empleados',
     items: [
-      { 
-        label: 'Analíticas', 
-        route: '/dashboard/reportes', 
-        icon: 'analytics'
-      }
+      { label: 'Usuarios', route: '/dashboard/usuario', icon: 'manage_accounts' } // configuración de empleados
     ]
   },
+  {
+    items: [
+      { label: 'Analíticas', route: '/dashboard/reportes', icon: 'insights' } // reportes
+    ]
+  }
 ];
 
 
-  constructor(
-    private router: Router, 
-    private authService: AuthService
-  ) {}
+
+
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.checkUser();
-    this.setupRouteTracking();
+    this.trackRouteChanges();
     this.autoExpandActiveMenu();
   }
 
   ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.routerSubscription?.unsubscribe();
   }
 
+  // ============================
+  // FUNCIONES
+  // ============================
   private checkUser(): void {
-    const user = this.authService.getUser();
-    this.isLoggedIn = !!user;
+    this.isLoggedIn = !!this.authService.getUser();
   }
 
-  private setupRouteTracking(): void {
+  private trackRouteChanges(): void {
     this.currentRoute = this.router.url;
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+      .subscribe((event: NavigationEnd) => {
         this.currentRoute = event.url;
         this.autoExpandActiveMenu();
       });
@@ -151,20 +143,28 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.menuSections.forEach(section => {
       section.items.forEach(item => {
         if (item.children) {
-          const hasActiveChild = item.children.some(child => 
-            child.route && this.isRouteActive(child.route)
-          );
-          item.isExpanded = hasActiveChild;
+          item.isExpanded = item.children.some(child => this.isRouteActive(child.route!));
         }
       });
     });
   }
 
-  toggleSubMenu(menuItem: MenuItem): void {
-    if (menuItem.children && !this.isCollapsed) {
-      menuItem.isExpanded = !menuItem.isExpanded;
+  toggleSubMenu(item: MenuItem): void {
+  if (item.children && !this.isCollapsed) {
+    // Cierra los demás submenús antes de abrir este
+    this.menuSections.forEach(section => {
+      section.items.forEach(i => {
+        if (i !== item && i.children) {
+          i.isExpanded = false;
+        }
+      });
+    });
+
+    // Alterna el actual
+    item.isExpanded = !item.isExpanded;
     }
   }
+
 
   isRouteActive(route: string): boolean {
     return this.currentRoute.includes(route);
@@ -172,9 +172,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   navigateTo(route?: string, event?: Event): void {
     event?.stopPropagation();
-    if (route) {
-      this.router.navigate([route]);
-    }
+    if (route) this.router.navigate([route]);
   }
 
   getBadgeCount(item: MenuItem): number {
@@ -182,10 +180,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onMenuItemClick(item: MenuItem, event?: Event): void {
-    if (item.children) {
-      this.toggleSubMenu(item);
-    } else if (item.route) {
-      this.navigateTo(item.route, event);
-    }
+    if (item.children) this.toggleSubMenu(item);
+    else if (item.route) this.navigateTo(item.route, event);
   }
+
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
+    this.toggleSidebarEvent.emit(this.isCollapsed);
+  }
+
 }

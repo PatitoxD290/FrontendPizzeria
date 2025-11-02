@@ -1,12 +1,37 @@
-h2 {
-  margin-bottom: 10px;
+
+/* Título principal */
+.categoria-header h2 {
+  margin: 0 0 20px 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+/* Contenedor principal lado a lado */
+.categoria-tamano-container {
+  display: flex;
+  gap: 20px;
+}
+
+/* Cada columna ocupa la mitad del espacio */
+.categoria-column,
+.tamano-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Títulos secundarios */
+.categoria-column h4,
+.tamano-column h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
-button {
-  margin-bottom: 10px;
-}
-
-hr {
-  margin: 15px 0;
+/* Responsivo: apilar en pantallas pequeñas */
+@media (max-width: 768px) {
+  .categoria-tamano-container {
+    flex-direction: column;
+  }
 }

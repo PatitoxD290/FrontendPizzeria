@@ -1,21 +1,35 @@
+mat-card {
+  padding: 20px;
+  margin: 20px;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.filtros-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.search-field {
+  flex: 1 1 300px;
+}
+
+.date-field {
+  width: 200px;
+}
+
 table {
   width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .spinner-container {
   display: flex;
   justify-content: center;
   margin: 20px 0;
-}
-
-mat-card {
-  padding: 20px;
-  margin: 20px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
 }
