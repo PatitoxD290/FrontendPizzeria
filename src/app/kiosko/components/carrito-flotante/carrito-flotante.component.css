@@ -17,7 +17,7 @@
 /* === BADGE DEL NÚMERO === */
 .badge-icon {
   position: absolute;
-  top: -29px;
+  top: -35px;
   right: -22px;
   background: #d32f2f;
   color: #fff;
@@ -213,3 +213,4 @@
   height: auto;
   display: block;
 }
+
