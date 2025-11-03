@@ -1,109 +1,110 @@
-<mat-sidenav-container class="sidenav-container" *ngIf="isLoggedIn">
-  <mat-sidenav mode="side" [opened]="!isCollapsed" class="sidenav" [class.collapsed]="isCollapsed">
-    
-    <!-- Encabezado del Sidebar -->
-    <div class="sidebar-header">
-      </div>
+<div class="sidenav" [class.collapsed]="isCollapsed" *ngIf="isLoggedIn">
   
+  <!-- Encabezado del Sidebar - VACÍO, solo espacio reservado para el navbar -->
+  <div class="sidebar-header"></div>
 
-    <!-- Navegación -->
-    <mat-nav-list class="sidebar-nav">
-      <ng-container *ngFor="let section of menuSections; let sectionIndex = index">
+  <!-- Navegación -->
+  <nav class="sidebar-nav">
+    <ng-container *ngFor="let section of menuSections; let sectionIndex = index">
+      
+      <!-- Título de sección -->
+      <div class="section-label" *ngIf="section.label && !isCollapsed">
+        {{ section.label }}
+      </div>
+      
+      <!-- Items de la sección -->
+      <ng-container *ngFor="let item of section.items">
         
-        <!-- Título de sección -->
-        <div class="section-label" *ngIf="section.label && !isCollapsed">
-          {{ section.label }}
-        </div>
-        
-        <!-- Items de la sección -->
-        <ng-container *ngFor="let item of section.items; let itemIndex = index">
-          
-          <!-- Item con submenú -->
-          <ng-container *ngIf="item.children; else simpleItem">
-            <mat-list-item 
-              class="menu-item has-children"
-              [class.expanded]="item.isExpanded"
-              [class.active]="isRouteActive(item.route || '')"
-              (click)="onMenuItemClick(item, $event)"
-              [matTooltip]="isCollapsed ? item.label : ''"
-              matTooltipPosition="right">
+        <!-- Item con submenú -->
+        <ng-container *ngIf="item.children; else simpleItem">
+          <div 
+            class="menu-item has-children"
+            [class.expanded]="item.isExpanded"
+            [class.active]="isRouteActive(item.route || '')"
+            (click)="onMenuItemClick(item, $event)"
+            [matTooltip]="isCollapsed ? item.label : ''"
+            matTooltipPosition="right">
+            
+            <div class="menu-content">
+              <mat-icon class="menu-icon">
+                {{ item.icon }}
+              </mat-icon>
               
-              <div class="menu-content">
-                <mat-icon class="menu-icon">
-                  {{ item.icon }}
+              <span class="menu-label" *ngIf="!isCollapsed">
+                {{ item.label }}
+                <mat-icon class="expand-icon" [class.rotated]="item.isExpanded">
+                  expand_more
                 </mat-icon>
-                
-                <span class="menu-label" *ngIf="!isCollapsed">
-                  {{ item.label }}
-                  <mat-icon class="expand-icon" [class.rotated]="item.isExpanded">
-                    expand_more
-                  </mat-icon>
-                </span>
+              </span>
 
-                <!-- Badge simplificado -->
-                <span *ngIf="getBadgeCount(item) > 0 && !isCollapsed" class="custom-badge" [class]="item.badgeColor || 'warn'">
-                  {{ getBadgeCount(item) }}
-                </span>
-              </div>
-            </mat-list-item>
-
-            <!-- Submenú -->
-            <div *ngIf="!isCollapsed && item.isExpanded" class="submenu">
-              <a 
-                mat-list-item 
-                class="submenu-item"
-                *ngFor="let child of item.children; let childIndex = index"
-                [routerLink]="child.route"
-                routerLinkActive="active"
-                [class.active]="isRouteActive(child.route!)"
-                (click)="navigateTo(child.route, $event)">
-                
-                <div class="submenu-content">
-                  <mat-icon class="submenu-icon">{{ child.icon }}</mat-icon>
-                  <span class="submenu-label">{{ child.label }}</span>
-                  
-                  <!-- Badge simplificado para submenú -->
-                  <span *ngIf="getBadgeCount(child) > 0" class="custom-badge small" [class]="child.badgeColor || 'warn'">
-                    {{ getBadgeCount(child) }}
-                  </span>
-                </div>
-              </a>
+              <!-- Badge -->
+              <span *ngIf="getBadgeCount(item) > 0 && !isCollapsed" 
+                    class="custom-badge" 
+                    [class]="item.badgeColor || 'warn'">
+                {{ getBadgeCount(item) }}
+              </span>
             </div>
-          </ng-container>
+          </div>
 
-          <!-- Item simple -->
-          <ng-template #simpleItem>
+          <!-- Submenú -->
+          <div *ngIf="!isCollapsed && item.isExpanded" class="submenu">
             <a 
-              mat-list-item 
-              class="menu-item"
-              [routerLink]="item.route"
+              class="submenu-item"
+              *ngFor="let child of item.children"
+              [routerLink]="child.route"
               routerLinkActive="active"
-              [class.active]="isRouteActive(item.route!)"
-              (click)="navigateTo(item.route, $event)"
-              [matTooltip]="isCollapsed ? item.label : ''"
-              matTooltipPosition="right">
+              [class.active]="isRouteActive(child.route!)"
+              (click)="navigateTo(child.route, $event)">
               
-              <div class="menu-content">
-                <mat-icon class="menu-icon">
-                  {{ item.icon }}
-                </mat-icon>
+              <div class="submenu-content">
+                <mat-icon class="submenu-icon">{{ child.icon }}</mat-icon>
+                <span class="submenu-label">{{ child.label }}</span>
                 
-                <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
-
-                <!-- Badge simplificado -->
-                <span *ngIf="getBadgeCount(item) > 0 && !isCollapsed" class="custom-badge" [class]="item.badgeColor || 'warn'">
-                  {{ getBadgeCount(item) }}
+                <!-- Badge para submenú -->
+                <span *ngIf="getBadgeCount(child) > 0" 
+                      class="custom-badge small" 
+                      [class]="child.badgeColor || 'warn'">
+                  {{ getBadgeCount(child) }}
                 </span>
               </div>
             </a>
-          </ng-template>
+          </div>
         </ng-container>
-        
-        <!-- Separador entre secciones -->
-        <div class="section-divider" *ngIf="sectionIndex < menuSections.length - 1 && !isCollapsed"></div>
-      </ng-container>
-    </mat-nav-list>
 
-    
+        <!-- Item simple -->
+        <ng-template #simpleItem>
+          <a 
+            class="menu-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [class.active]="isRouteActive(item.route!)"
+            (click)="navigateTo(item.route, $event)"
+            [matTooltip]="isCollapsed ? item.label : ''"
+            matTooltipPosition="right">
+            
+            <div class="menu-content">
+              <mat-icon class="menu-icon">
+                {{ item.icon }}
+              </mat-icon>
+              
+              <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+
+              <!-- Badge -->
+              <span *ngIf="getBadgeCount(item) > 0 && !isCollapsed" 
+                    class="custom-badge" 
+                    [class]="item.badgeColor || 'warn'">
+                {{ getBadgeCount(item) }}
+              </span>
+            </div>
+          </a>
+        </ng-template>
+      </ng-container>
       
-    
+      <!-- Separador entre secciones -->
+      <div class="section-divider" 
+           *ngIf="sectionIndex < menuSections.length - 1 && !isCollapsed">
+      </div>
+    </ng-container>
+  </nav>
+
+</div>

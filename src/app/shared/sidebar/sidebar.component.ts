@@ -50,7 +50,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   @Input() isCollapsed = false;
   @Output() toggleSidebarEvent = new EventEmitter<boolean>(); // <-- Agregado
 
-  isLoggedIn = false;
+  isLoggedIn = true;
   currentRoute = '';
   private routerSubscription!: Subscription;
 

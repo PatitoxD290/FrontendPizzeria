@@ -4,8 +4,6 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { FooterComponent } from '../../../shared/footer/footer.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
-
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -17,9 +15,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 export class DashboardLayoutComponent {
   isSidebarCollapsed = false;
 
-  toggleSidebar() {
-  this.isSidebarCollapsed = !this.isSidebarCollapsed;
-}
-
-
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
 }

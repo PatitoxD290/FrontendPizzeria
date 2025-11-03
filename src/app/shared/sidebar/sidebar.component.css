@@ -20,116 +20,40 @@
 }
 
 /* ============================================= */
-/* ESTILOS BASE - TODAS LAS LETRAS BLANCAS */
+/* ESTILOS BASE */
 /* ============================================= */
 .sidenav {
-  width: var(--sidebar-width);
+  width: 100%;
+  height: 100%;
   background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
+  transition: none;
   box-shadow: var(--shadow);
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100%;
-  overflow-y: auto; /* Scroll para todo el sidebar */
-  z-index: 1000;
+  position: relative;
+  overflow: hidden;
   border: none;
   color: white !important;
-  overflow: hidden; /* <- Evita scroll aquí */
-  transition: width 0.3s ease-in-out;
-
-}
-
-.sidenav-container {
-  height: 100vh;
-  display: flex;
-  background: hwb(0 11% 47%);
-  flex-direction: column;
-}
-
-.sidenav.collapsed {
-  width: var(--sidebar-collapsed);
 }
 
 /* ============================================= */
-/* ENCABEZADO - BLANCO */
+/* ENCABEZADO - VACÍO CON ALTURA FIJA */
 /* ============================================= */
 .sidebar-header {
-  padding: 24px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  height: 70px; /* Misma altura que el navbar */
   background: rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidenav.collapsed .sidebar-header {
-  padding: 20px 12px;
-}
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sidenav.collapsed .sidebar-logo {
-  justify-content: center;
-}
-
-.logo-container {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
+  /* Sin padding ni contenido, solo espacio reservado */
 }
 
-.logo-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.logo-icon {
-  color: var(--primary-color) !important;
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sidenav.collapsed .logo-text {
-  display: none;
-}
-
-.logo-primary {
-  font-weight: 700;
-  font-size: 18px;
-  color: white !important;
-  line-height: 1;
-}
-
-.logo-subtitle {
-  font-size: 11px;
-  color: white !important;
-  font-weight: 500;
-  line-height: 1;
-  opacity: 0.9;
+/* Mantiene la misma altura cuando está colapsado */
+.sidenav.collapsed .sidebar-header {
+  height: 70px; /* Misma altura siempre */
 }
 
 /* ============================================= */
-/* TÍTULOS DE SECCIÓN - BLANCOS */
+/* TÍTULOS DE SECCIÓN - CON ALTURA FIJA */
 /* ============================================= */
 .section-label {
   padding: 16px 20px 8px;
@@ -139,98 +63,40 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.8;
-}
-
-/* Estilos para cualquier título o texto en el sidebar */
-.sidenav h1,
-.sidenav h2,
-.sidenav h3,
-.sidenav h4,
-.sidenav h5,
-.sidenav h6,
-.sidenav .section-title,
-.sidenav .menu-title,
-.sidenav .category-title {
-  color: white !important;
-  font-weight: 600;
-}
-
-/* Títulos específicos como "Inicio", "Clientes", "Inventario" */
-.sidenav .main-section-title,
-.sidenav .category-header,
-.sidenav .group-title {
-  color: white !important;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
-  margin: 0;
+  flex-shrink: 0;
+  min-height: 40px; /* Altura fija para consistencia */
 }
 
 .section-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.3);
   margin: 8px 16px;
+  flex-shrink: 0;
 }
 
 /* ============================================= */
-/* BADGES PERSONALIZADOS - BLANCOS */
-/* ============================================= */
-.custom-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
-  font-size: 10px;
-  font-weight: 600;
-  color: white !important;
-  background: rgba(255, 255, 255, 0.3);
-  margin-left: auto;
-}
-
-.custom-badge.small {
-  min-width: 16px;
-  height: 16px;
-  font-size: 9px;
-}
-
-.custom-badge.primary {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.custom-badge.accent {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.custom-badge.warn {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* ============================================= */
-/* NAVEGACIÓN - TODOS LOS TEXTOS BLANCOS */
+/* NAVEGACIÓN - CLAVE PARA ARREGLAR EL ESPACIADO */
 /* ============================================= */
 .sidebar-nav {
   flex: 1;
-  padding: 16px 0;
-  overflow-y: auto; /* Scroll solo cuando sea necesario */
+  padding: 0; /* Eliminamos padding superior/inferior */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0; /* Sin gap general */
   color: white !important;
 }
 
-
-/* Items del menú - TEXTO BLANCO */
+/* Items del menú */
 .menu-item {
   display: flex !important;
   align-items: center;
   min-height: 44px !important;
+  height: 44px; /* Altura fija */
   padding: 0 16px !important;
   cursor: pointer;
   transition: var(--transition);
-  margin: 2px 0 !important;
+  margin: 0 !important; /* SIN MARGEN */
   border-radius: 0 !important;
   text-decoration: none;
   color: white !important;
@@ -238,16 +104,16 @@
   position: relative;
   opacity: 1 !important;
   visibility: visible !important;
+  flex-shrink: 0; /* Altura fija, no se comprime */
 }
 
 .menu-item:hover {
   background: var(--bg-hover);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(4px);
   border-radius: 0 !important;
 }
 
-/* Estado activo - BLANCO */
+/* Estado activo */
 .menu-item.active[href] {
   background: var(--bg-active);
   border-left: 4px solid white !important;
@@ -280,7 +146,7 @@
   gap: 0;
 }
 
-/* Iconos - SIEMPRE BLANCOS */
+/* Iconos */
 .menu-icon {
   font-size: 20px !important;
   width: 20px !important;
@@ -293,7 +159,11 @@
   color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
-  margin-left: 2px;
+  margin: 0; /* Sin margen */
+}
+
+.sidenav.collapsed .menu-icon {
+  margin: 0 auto;
 }
 
 .menu-item:hover .menu-icon,
@@ -302,7 +172,7 @@
   transform: scale(1.1);
 }
 
-/* Labels del menú - BLANCOS */
+/* Labels del menú */
 .menu-label {
   flex: 1;
   font-size: 14px;
@@ -312,13 +182,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sidenav.collapsed .menu-label {
   display: none;
 }
 
-/* Icono de expansión - BLANCO */
+/* Icono de expansión */
 .expand-icon {
   font-size: 18px !important;
   width: 18px !important;
@@ -326,6 +199,7 @@
   transition: var(--transition);
   color: white !important;
   opacity: 0.9;
+  margin-left: auto; /* Alinea a la derecha */
 }
 
 .sidenav.collapsed .expand-icon {
@@ -337,18 +211,18 @@
 }
 
 /* ============================================= */
-/* SUBMENÚ - TODOS LOS TEXTOS BLANCOS */
+/* SUBMENÚ - ARREGLADO PARA FLUJO CORRECTO */
 /* ============================================= */
 .submenu {
   background: rgba(0, 0, 0, 0.15);
-  margin: 0 0 4px !important;
+  margin: 0 !important; /* SIN MARGEN */
   border-radius: 0 !important;
   max-height: 500px;
   opacity: 1;
   overflow: hidden;
   animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transition: max-height 0.3s ease, opacity 0.3s ease;
-
+  flex-shrink: 0; /* No se comprime */
 }
 
 @keyframes slideDown {
@@ -374,6 +248,7 @@
   display: flex !important;
   align-items: center;
   min-height: 36px !important;
+  height: 36px; /* Altura fija */
   padding: 0 16px 0 48px !important;
   cursor: pointer;
   transition: var(--transition);
@@ -383,16 +258,15 @@
   opacity: 1 !important;
   visibility: visible !important;
   border-radius: 0 !important;
-  margin: 0 !important;
+  margin: 0 !important; /* SIN MARGEN */
+  flex-shrink: 0; /* No se comprime */
 }
 
 .submenu-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
   border-radius: 0 !important;
 }
 
-/* Submenú activo - BLANCO */
 .submenu-item.active {
   background: rgba(255, 255, 255, 0.15);
   color: white !important;
@@ -415,6 +289,7 @@
   opacity: 0.9 !important;
   visibility: visible !important;
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .submenu-item:hover .submenu-icon,
@@ -441,73 +316,42 @@
 }
 
 /* ============================================= */
-/* PIE DE PÁGINA - BLANCO */
+/* BADGES */
 /* ============================================= */
-.sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.1);
-  color: white !important;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, white 0%, #e0e0e0 100%);
-  display: flex;
+.custom-badge {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.3);
+  margin-left: auto;
   flex-shrink: 0;
 }
 
-.user-avatar mat-icon {
-  color: var(--primary-color) !important;
-  font-size: 20px !important;
-  width: 20px !important;
-  height: 20px !important;
-  opacity: 1 !important;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.user-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: white !important;
-}
-
-.user-role {
-  font-size: 11px;
-  color: white !important;
-  font-weight: 500;
-  opacity: 0.9;
+.custom-badge.small {
+  min-width: 16px;
+  height: 16px;
+  font-size: 9px;
 }
 
 /* ============================================= */
-/* ESTADOS COLAPSADO - CORREGIDO PARA CSS PURO */
+/* ESTADOS COLAPSADO */
 /* ============================================= */
-.sidenav.collapsed .sidebar-header,
 .sidenav.collapsed .section-label,
-.sidenav.collapsed .section-divider,
-.sidenav.collapsed .user-details {
+.sidenav.collapsed .section-divider {
   display: none !important;
 }
 
 .sidenav.collapsed .menu-item {
   justify-content: center;
-  padding: 0 8px !important;
-  margin: 2px 0 !important;
+  padding: 0 !important;
+  height: 44px;
 }
 
 .sidenav.collapsed .menu-content {
@@ -515,46 +359,32 @@
   width: 100%;
 }
 
-.sidenav.collapsed .menu-icon {
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-}
-
-.sidenav.collapsed .user-info {
-  justify-content: center;
-}
-
-
 /* ============================================= */
 /* SCROLLBAR */
 /* ============================================= */
 .sidebar-nav::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 .sidebar-nav::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    margin: 10px 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin: 10px 0;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 2px;
-    min-height: 30px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+  min-height: 30px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.7);
-    width: 6px;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 /* ============================================= */
-/* GARANTIZAR QUE TODO SEA BLANCO Y VISIBLE */
+/* GARANTIZAR COLORES BLANCOS */
 /* ============================================= */
-
-/* Asegurar que todos los íconos sean blancos */
 .sidenav mat-icon {
   color: white !important;
   opacity: 1 !important;
@@ -562,86 +392,15 @@
   display: flex !important;
 }
 
-/* Asegurar que todos los textos sean blancos */
 .sidenav,
 .sidenav *:not(button):not(input):not(textarea):not(select) {
   color: white !important;
 }
 
-.sidenav span,
-.sidenav div,
-.sidenav p,
-.sidenav a,
-.sidenav label {
-  color: white !important;
-}
-
-/* Específicamente para todos los elementos de texto */
 .menu-label,
 .submenu-label,
-.section-label,
-.logo-primary,
-.logo-subtitle,
-.user-name,
-.user-role,
-.section-title,
-.menu-title,
-.category-title {
+.section-label {
   color: white !important;
   opacity: 1 !important;
   visibility: visible !important;
-}
-
-.menu-item,
-.submenu-item {
-  margin: 0 !important;   /* Elimina margen que puede generar espacios */
-  border-radius: 0 !important;
-}
-
-.menu-item:hover,
-.submenu-item:hover {
-  transform: none; /* evita que se mueva y deje huecos */
-}
-
-/* ============================================= */
-/* ESTILOS PARA TEXTOS ESPECÍFICOS DEL SIDEBAR */
-/* ============================================= */
-
-/* Para títulos como "Inicio", "Clientes", "Inventario", "Analíticos" */
-.sidenav .nav-section-header,
-.sidenav .nav-category,
-.sidenav .nav-group {
-  color: white !important;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Para cualquier texto adicional en el sidebar */
-.sidenav .nav-description,
-.sidenav .nav-hint,
-.sidenav .nav-info {
-  color: white !important;
-  opacity: 0.8;
-  font-size: 12px;
-}
-
-/* Estados activos y de hover mantienen el color blanco */
-.sidenav *:active,
-.sidenav *:focus,
-.sidenav *:hover {
-  color: white !important;
-}
-
-/* Para elementos de lista adicionales */
-.sidenav li,
-.sidenav ul,
-.sidenav ol {
-  color: white !important;
-}
-
-.sidenav li::before,
-.sidenav li::after {
-  color: white !important;
 }

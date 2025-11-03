@@ -27,12 +27,18 @@ import { MatCardModule } from '@angular/material/card';
   styleUrls: ['./usuario-list.component.css']
 })
 export class UsuarioListComponent implements OnInit {
-
-  @Output() openEdit = new EventEmitter<Usuario>(); // 👈 Aquí se define el evento
+  @Output() openEdit = new EventEmitter<Usuario>();
 
   displayedColumns: string[] = [
-    'usuario_id', 'dni', 'nombre_completo', 'rol', 'estado', 'fecha_registro', 'acciones'
+    'ID_Usuario',
+    'Correo',
+    'Perfil',
+    'Roll',
+    'Estado',
+    'Fecha_Registro',
+    'acciones'
   ];
+
   usuarios: Usuario[] = [];
   loading = false;
 
@@ -51,13 +57,11 @@ export class UsuarioListComponent implements OnInit {
         this.usuarios = data;
         this.loading = false;
         setTimeout(() => {
-          if (this.paginator) {
-            this.paginator.length = this.usuarios.length;
-          }
+          if (this.paginator) this.paginator.length = this.usuarios.length;
         });
       },
       error: err => {
-        console.error(err);
+        console.error('Error al cargar usuarios', err);
         this.loading = false;
       }
     });

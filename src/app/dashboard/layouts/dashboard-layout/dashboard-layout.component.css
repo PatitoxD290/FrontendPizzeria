@@ -9,20 +9,21 @@
 
 /* ==== SIDEBAR ==== */
 app-sidebar {
-  width: var(--sidebar-width, 280px);
+  width: 280px; /* ancho expandido */
   background-color: #722F37;
   height: 100vh;
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   transition: width 0.3s ease;
   overflow-y: auto;
   z-index: 900;
+  flex-shrink: 0;
 }
 
-/* Sidebar colapsado */
+/* Cuando el sidebar está colapsado - IMPORTANTE */
 app-sidebar.collapsed {
-  width: var(--sidebar-collapsed, 80px);
+  width: 70px !important;
 }
 
 /* ==== MAIN WRAPPER ==== */
@@ -30,14 +31,17 @@ app-sidebar.collapsed {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* que el footer quede al final */
+  min-height: 100vh;
+  margin-left: 280px; /* mismo ancho que el sidebar expandido */
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 280px);
 }
 
-/* Ajuste según el estado del sidebar */
+/* Ajuste cuando el sidebar está colapsado */
 .main-wrapper.sidebar-collapsed {
-  margin-left: 0;
+  margin-left: 70px; /* mismo ancho que el sidebar colapsado */
+  width: calc(100% - 70px);
 }
 
 /* ==== NAVBAR ==== */
@@ -51,7 +55,7 @@ app-navbar {
 
 /* ==== CONTENIDO PRINCIPAL ==== */
 .main-content {
-  flex: 1; /* ocupa el espacio restante */
+  flex: 1;
   overflow-y: auto;
   padding: calc(var(--navbar-height, 70px) + 1rem) 2rem 1rem 2rem;
   background-color: #f5f6f8;
@@ -64,8 +68,8 @@ app-footer {
   width: 100%;
   background-color: #fff;
   text-align: center;
-  padding: 0.2rem; /* 🔹 más bajo */
-  font-size: 0.8rem; /* 🔹 texto más compacto */
+  padding: 0.2rem;
+  font-size: 0.8rem;
   color: #555;
   border-top: 1px solid #ddd;
 }

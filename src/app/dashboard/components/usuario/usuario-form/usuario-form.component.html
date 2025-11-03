@@ -1,44 +1,44 @@
-<h2 mat-dialog-title>
-  {{ usuario.id_usuario ? 'Editar Usuario' : 'Nuevo Usuario' }}
-</h2>
+<h2 mat-dialog-title>{{ usuario.ID_Usuario ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
 
 <mat-dialog-content>
   <form #form="ngForm" (ngSubmit)="saveUsuario()">
-
-    <mat-form-field appearance="fill">
-      <mat-label>DNI</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.Correo" name="dni" required />
+    <!-- Correo o DNI -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Correo / DNI</mat-label>
+      <input matInput type="text" [(ngModel)]="usuario.Correo" name="Correo" required />
     </mat-form-field>
 
     <!-- Campo de contraseña solo si es nuevo -->
-    <ng-container *ngIf="usuario.id_usuario === 0">
-      <mat-form-field appearance="fill">
+    <ng-container *ngIf="usuario.ID_Usuario === 0">
+      <mat-form-field appearance="outline" class="w-full">
         <mat-label>Contraseña</mat-label>
-        <input matInput type="password" [(ngModel)]="usuario.Password" name="password" required />
+        <input matInput type="password" [(ngModel)]="usuario.Password" name="Password" required />
       </mat-form-field>
     </ng-container>
 
-    <mat-form-field appearance="fill">
+    <!-- Nombre completo -->
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Nombre completo</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.Perfil" name="nombre_completo" required />
+      <input matInput type="text" [(ngModel)]="usuario.Perfil" name="Perfil" required />
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <!-- Rol -->
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Rol</mat-label>
-      <mat-select [(ngModel)]="usuario.Roll" name="rol" required>
-        <mat-option value="A">ADMIN</mat-option>
-        <mat-option value="E">EMPLEADO</mat-option>
+      <mat-select [(ngModel)]="usuario.Roll" name="Roll" required>
+        <mat-option value="A">Administrador</mat-option>
+        <mat-option value="E">Empleado</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <!-- Estado -->
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="usuario.Estado" name="estado" required>
+      <mat-select [(ngModel)]="usuario.Estado" name="Estado" required>
         <mat-option value="A">Activo</mat-option>
         <mat-option value="I">Inactivo</mat-option>
       </mat-select>
     </mat-form-field>
-
   </form>
 </mat-dialog-content>
 

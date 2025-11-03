@@ -1,13 +1,21 @@
 <div class="dashboard-wrapper">
-  <app-sidebar [isCollapsed]="isSidebarCollapsed" (toggleSidebarEvent)="toggleSidebar()"></app-sidebar>
-
+  <!-- Agrega la clase 'collapsed' al app-sidebar cuando esté colapsado -->
+  <app-sidebar 
+    [class.collapsed]="isSidebarCollapsed"
+    [isCollapsed]="isSidebarCollapsed" 
+    (toggleSidebarEvent)="toggleSidebar()">
+  </app-sidebar>
+  
   <div class="main-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
-    <app-navbar (toggleSidebarEvent)="toggleSidebar()" [isSidebarCollapsed]="isSidebarCollapsed"></app-navbar>
-
+    <app-navbar 
+      (toggleSidebarEvent)="toggleSidebar()" 
+      [isSidebarCollapsed]="isSidebarCollapsed">
+    </app-navbar>
+    
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>
-
+    
     <app-footer></app-footer>
   </div>
 </div>

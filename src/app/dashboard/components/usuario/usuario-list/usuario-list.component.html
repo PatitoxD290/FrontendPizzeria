@@ -6,43 +6,46 @@
   </div>
 
   <table mat-table [dataSource]="usuarios" class="mat-elevation-z8" *ngIf="!loading">
-
     <!-- ID -->
-    <ng-container matColumnDef="usuario_id">
+    <ng-container matColumnDef="ID_Usuario">
       <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.usuario_id }}</td>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.ID_Usuario }}</td>
     </ng-container>
 
-    <!-- DNI -->
-    <ng-container matColumnDef="dni">
-      <th mat-header-cell *matHeaderCellDef>DNI</th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.dni }}</td>
+    <!-- Correo -->
+    <ng-container matColumnDef="Correo">
+      <th mat-header-cell *matHeaderCellDef>Correo / DNI</th>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.Correo }}</td>
     </ng-container>
 
-    <!-- Nombre completo -->
-    <ng-container matColumnDef="nombre_completo">
+    <!-- Perfil -->
+    <ng-container matColumnDef="Perfil">
       <th mat-header-cell *matHeaderCellDef>Nombre Completo</th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.nombre_completo }}</td>
+      <td mat-cell *matCellDef="let usuario">{{ usuario.Perfil }}</td>
     </ng-container>
 
     <!-- Rol -->
-    <ng-container matColumnDef="rol">
+    <ng-container matColumnDef="Roll">
       <th mat-header-cell *matHeaderCellDef>Rol</th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.rol }}</td>
-    </ng-container>
-
-    <!-- Estado -->
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let usuario">
-        {{ usuario.estado === 'A' ? 'Activo' : 'Inactivo' }}
+        {{ usuario.Roll === 'A' ? 'Administrador' : 'Empleado' }}
       </td>
     </ng-container>
 
-    <!-- Fecha registro -->
-    <ng-container matColumnDef="fecha_registro">
+    <!-- Estado -->
+    <ng-container matColumnDef="Estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let usuario">
+        {{ usuario.Estado === 'A' ? 'Activo' : 'Inactivo' }}
+      </td>
+    </ng-container>
+
+    <!-- Fecha -->
+    <ng-container matColumnDef="Fecha_Registro">
       <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
-      <td mat-cell *matCellDef="let usuario"> {{ usuario.fecha_registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
+      <td mat-cell *matCellDef="let usuario">
+        {{ usuario.Fecha_Registro | date: 'dd/MM/yyyy, hh:mm a' }}
+      </td>
     </ng-container>
 
     <!-- Acciones -->
@@ -50,16 +53,16 @@
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let usuario">
         <button mat-icon-button color="primary" (click)="openEdit.emit(usuario)">
-            <mat-icon>edit</mat-icon>
+          <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deleteUsuario(usuario.usuario_id)">
-            <mat-icon>delete</mat-icon>
+        <button mat-icon-button color="warn" (click)="deleteUsuario(usuario.ID_Usuario)">
+          <mat-icon>delete</mat-icon>
         </button>
-       </td>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
   <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]"></mat-paginator>

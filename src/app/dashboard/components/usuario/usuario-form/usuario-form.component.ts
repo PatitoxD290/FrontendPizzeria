@@ -27,7 +27,6 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrls: ['./usuario-form.component.css']
 })
 export class UsuarioFormComponent {
-
   usuario: Usuario;
 
   constructor(
@@ -36,18 +35,18 @@ export class UsuarioFormComponent {
     @Inject(MAT_DIALOG_DATA) public data: { usuario?: Usuario }
   ) {
     this.usuario = data?.usuario ?? {
-      id_usuario: 0,
+      ID_Usuario: 0,
       Correo: '',
       Password: '',
       Perfil: '',
       Roll: 'E',
       Estado: 'A',
-      Fecha_registro: ''
+      Fecha_Registro: ''
     };
   }
 
   saveUsuario() {
-    if (this.usuario.id_usuario === 0) {
+    if (this.usuario.ID_Usuario === 0) {
       // Crear nuevo usuario
       this.usuarioService.createUsuario(this.usuario).subscribe({
         next: () => this.dialogRef.close(true),
@@ -55,7 +54,7 @@ export class UsuarioFormComponent {
       });
     } else {
       // Actualizar usuario existente
-      this.usuarioService.updateUsuario(this.usuario.id_usuario, this.usuario).subscribe({
+      this.usuarioService.updateUsuario(this.usuario.ID_Usuario, this.usuario).subscribe({
         next: () => this.dialogRef.close(true),
         error: (err) => console.error('Error al actualizar usuario', err)
       });

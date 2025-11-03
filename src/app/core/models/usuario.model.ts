@@ -2,11 +2,11 @@
 // USUARIO
 // ===========================================
 export interface Usuario {
-  id_usuario: number;
-  Perfil: string;
-  Correo: string;
+  ID_Usuario: number;
+  Perfil: string;         // Nombre completo del usuario
+  Correo: string;         // Correo o DNI (según tu backend)
   Password: string;
-  Roll: 'A' | 'E';
-  Estado: 'A' | 'I';
-  Fecha_registro: string;
+  Roll: 'A' | 'E';        // A = Admin, E = Empleado
+  Estado: 'A' | 'I';      // A = Activo, I = Inactivo
+  Fecha_Registro: string; // Fecha en formato string
 }
