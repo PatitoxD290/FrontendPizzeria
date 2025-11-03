@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 
@@ -8,6 +8,9 @@ import { CarritoFlotanteComponent } from '../../components/carrito-flotante/carr
 // 🧱 Componentes compartidos
 import { HeaderComponent } from '../../../shared/header/header.component';
 import { FooterComponent } from '../../../shared/footer/footer.component';
+
+// 🧠 Servicio de detección de inactividad
+import { IdleService } from '../../../core/services/Idle.service';
 
 @Component({
   selector: 'app-kiosko-layout',
@@ -22,8 +25,16 @@ import { FooterComponent } from '../../../shared/footer/footer.component';
   templateUrl: './kiosko-layout.component.html',
   styleUrls: ['./kiosko-layout.component.css']
 })
-export class KioskoLayoutComponent {
-  constructor(private router: Router) {}
+export class KioskoLayoutComponent implements OnInit {
+  constructor(
+    private router: Router,
+    private idleService: IdleService 
+  ) {}
+
+  ngOnInit(): void {
+    // 🔹 No necesitas llamar nada explícitamente:
+    // el servicio se auto-inicializa al ser inyectado.
+  }
 
   // ✅ Oculta header y footer solo en /iniciar
   mostrarHeaderFooter(): boolean {

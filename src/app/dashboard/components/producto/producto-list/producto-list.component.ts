@@ -32,10 +32,10 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
     MatCardModule,
     MatDialogModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './producto-list.component.html',
-  styleUrls: ['./producto-list.component.css']
+  styleUrls: ['./producto-list.component.css'],
 })
 export class ProductoListComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
@@ -63,6 +63,21 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+  // Método para obtener la ruta de la imagen
+ getProductoImage(idProducto: number): string {
+  const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
+  for (const ext of extensiones) {
+    const url = `http://localhost:3000/imagenesCata/producto_${idProducto}_1.${ext}`;
+    return url;
+  }
+  return 'assets/imgs/logo.png';
+}
+
+
+  // Método para fallback si la imagen falla al cargar
+  onImageError(event: any) {
+    event.target.src = 'assets/imgs/logo.png';
+  }
 
   async loadProductos() {
     this.loading = true;
@@ -70,16 +85,19 @@ export class ProductoListComponent implements OnInit, OnDestroy {
       const [categorias, recetas, productos] = await Promise.all([
         this.categoriaService.getCategoriasProducto().toPromise(),
         this.recetaService.getRecetas().toPromise(),
-        this.productoService.getProductos().toPromise()
+        this.productoService.getProductos().toPromise(),
       ]);
 
       this.categorias = categorias || [];
       this.recetas = recetas || [];
 
-      this.productos = (productos || []).map(p => ({
+      this.productos = (productos || []).map((p) => ({
         ...p,
-        nombre_categoria: this.categorias.find(c => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre || 'Sin categoría',
-        nombre_receta: this.recetas.find(r => r.id_receta === p.ID_Receta)?.Nombre || 'Sin receta'
+        nombre_categoria:
+          this.categorias.find((c) => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre ||
+          'Sin categoría',
+        nombre_receta:
+          this.recetas.find((r) => r.id_receta === p.ID_Receta)?.Nombre || 'Sin receta',
       }));
 
       this.setPage(0);
@@ -110,17 +128,18 @@ export class ProductoListComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d'
-    }).then(result => {
+      cancelButtonColor: '#6c757d',
+    }).then((result) => {
       if (result.isConfirmed) {
-        this.productoService.deleteProducto(producto.ID_Producto)
+        this.productoService
+          .deleteProducto(producto.ID_Producto)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
               this.showSuccess('Producto eliminado', 'El producto fue eliminado correctamente.');
               this.loadProductos();
             },
-            error: () => this.showError('Error', 'No se pudo eliminar el producto.')
+            error: () => this.showError('Error', 'No se pudo eliminar el producto.'),
           });
       }
     });
@@ -129,12 +148,15 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   openProductoForm(producto?: Producto) {
     const dialogRef = this.dialog.open(ProductoFormComponent, {
       width: '600px',
-      data: { producto, categorias: this.categorias, recetas: this.recetas }
+      data: { producto, categorias: this.categorias, recetas: this.recetas },
     });
 
-    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
-      if (result) this.loadProductos();
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) this.loadProductos();
+      });
   }
 
   getEstadoColor(estado: string): string {

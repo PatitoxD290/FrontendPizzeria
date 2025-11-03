@@ -34,7 +34,7 @@ export class TamanoFormComponent {
   ) {
     this.form = this.fb.group({
       Tamano: [data?.Tamano || '', Validators.required],
-      Variacion_Precio: [data?.Variacion_Precio || 0, [Validators.required, Validators.min(0)]]
+      Variacion_Precio: [data?.Variacion_Precio || 0, [Validators.required]]
     });
   }
 

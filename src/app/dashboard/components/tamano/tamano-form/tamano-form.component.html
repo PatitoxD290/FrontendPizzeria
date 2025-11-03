@@ -12,7 +12,6 @@
       <mat-label>Variación de Precio</mat-label>
       <input matInput type="number" formControlName="Variacion_Precio">
       <mat-error *ngIf="form.get('Variacion_Precio')?.hasError('required')">Requerido</mat-error>
-      <mat-error *ngIf="form.get('Variacion_Precio')?.hasError('min')">Debe ser >= 0</mat-error>
     </mat-form-field>
 
   </mat-dialog-content>

@@ -1,5 +1,5 @@
 <mat-card class="compact-card">
-  
+
   <mat-card-content class="compact-content">
     <!-- Header con solo el botón -->
     <div class="header-actions">
@@ -34,7 +34,9 @@
             <span class="producto-id">#{{ p.ID_Producto }}</span>
           </div>
 
-          <img src="assets/imgs/logo.png" alt="{{ p.Nombre }}" class="producto-img">
+          <img [src]="getProductoImage(p.ID_Producto)" alt="{{ p.Nombre }}" class="producto-img"
+            (error)="onImageError($event)">
+
 
           <mat-card-content class="card-content">
             <h3 class="producto-nombre text-truncate-2">{{ p.Nombre }}</h3>
@@ -87,12 +89,8 @@
 
   <!-- Paginación -->
   <mat-card-footer *ngIf="!loading && productos.length > 0">
-    <mat-paginator
-      [length]="productos.length"
-      [pageSize]="12"
-      [pageSizeOptions]="[12, 24, 48]"
-      (page)="onPageChange($event)"
-      class="custom-paginator">
+    <mat-paginator [length]="productos.length" [pageSize]="12" [pageSizeOptions]="[12, 24, 48]"
+      (page)="onPageChange($event)" class="custom-paginator">
     </mat-paginator>
   </mat-card-footer>
 </mat-card>

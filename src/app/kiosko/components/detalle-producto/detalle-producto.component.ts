@@ -1,53 +1,81 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { UpperCasePipe, CommonModule } from '@angular/common';
 import { CarritoService } from '../../../core/services/carrito.service';
+import { TamanoService } from '../../../core/services/tamano.service';
+import { Tamano } from '../../../core/models/tamano.model';
 
 @Component({
   selector: 'app-detalle-producto',
   templateUrl: './detalle-producto.component.html',
-  styleUrls: ['./detalle-producto.component.css']
+  standalone: true,
+  imports: [UpperCasePipe, CommonModule],
+  styleUrls: ['./detalle-producto.component.css'],
 })
-export class DetalleProductoComponent {
+export class DetalleProductoComponent implements OnInit {
   cantidad: number = 0;
-  tamanoSeleccionado: string = 'mediana';
+  tamanoSeleccionado: Tamano | null = null;
   precioActual: number = 0;
-
-  // Multiplicadores de precio según el tamaño
-  private multiplicadoresPrecio: { [key: string]: number } = {
-    kids: 0.6,      // 40% menos que mediana
-    personal: 0.8,  // 20% menos que mediana
-    mediana: 1,     // Precio base
-    grande: 1.3,    // 30% más que mediana
-    familiar: 1.6   // 60% más que mediana
-  };
+  tamanos: Tamano[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<DetalleProductoComponent>,
-    private carritoService: CarritoService
+    private carritoService: CarritoService,
+    private tamanoService: TamanoService
   ) {
-    this.precioActual = this.data.precio;
+    this.precioActual = this.data.precio; // Precio base del producto
   }
 
-  seleccionarTamano(tamano: string) {
+  ngOnInit(): void {
+    this.cargarTamanos();
+  }
+
+  // 🔹 Cargar tamaños desde el backend
+  private cargarTamanos(): void {
+    this.tamanoService.getTamanos().subscribe({
+      next: (tamanos) => {
+        this.tamanos = tamanos;
+        console.log('Tamaños cargados:', tamanos);
+        if (tamanos.length > 0) {
+          const defaultTamano =
+            tamanos.find((t) => t.Tamano.toLowerCase() === 'personal') || tamanos[0];
+          this.tamanoSeleccionado = defaultTamano;
+          this.actualizarPrecio();
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar tamaños:', err);
+      },
+    });
+  }
+
+  // 🔹 Cuando se selecciona un tamaño
+  seleccionarTamano(tamano: Tamano): void {
     this.tamanoSeleccionado = tamano;
-    this.precioActual = this.data.precio * this.multiplicadoresPrecio[tamano];
+    this.actualizarPrecio();
   }
 
-  incrementarCantidad() {
+  // 🔹 Calcular precio según la variación
+  private actualizarPrecio(): void {
+    if (!this.tamanoSeleccionado) return;
+    this.precioActual = this.data.precio + this.tamanoSeleccionado.Variacion_Precio;
+  }
+
+  incrementarCantidad(): void {
     this.cantidad++;
   }
 
-  decrementarCantidad() {
+  decrementarCantidad(): void {
     if (this.cantidad > 0) this.cantidad--;
   }
 
-  cerrar() {
+  cerrar(): void {
     this.dialogRef.close();
   }
 
-  agregarCarrito() {
-    if (this.cantidad <= 0) return;
+  agregarCarrito(): void {
+    if (this.cantidad <= 0 || !this.tamanoSeleccionado) return;
 
     const subtotal = this.precioActual * this.cantidad;
 
@@ -57,7 +85,8 @@ export class DetalleProductoComponent {
       cantidad: this.cantidad,
       imagen: this.data.imagen,
       subtotal: subtotal,
-      tamano: this.tamanoSeleccionado
+      tamano: this.tamanoSeleccionado.Tamano,
+      idTamano: this.tamanoSeleccionado.ID_Tamano,
     };
 
     this.carritoService.agregarProducto(producto);

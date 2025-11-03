@@ -1,34 +1,22 @@
 <div class="detalle-container">
-  <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen">
+  <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen" />
 
   <h2>{{ data.nombre }}</h2>
   <p class="precio">S/. {{ precioActual.toFixed(2) }}</p>
 
-  <!-- Botones de tamaño de pizza -->
-  <div class="tamanos-container">
+  <div class="tamanos-container" *ngIf="tamanos.length > 0; else cargandoTamanos">
     <div class="tamanos-pizza">
-      <button class="boton-tamano {{ tamanoSeleccionado === 'kids' ? 'boton-seleccionado' : '' }}"
-        (click)="seleccionarTamano('kids')">
-        <span class="texto-tamano">KIDS</span>
-      </button>
-      <button class="boton-tamano {{ tamanoSeleccionado === 'personal' ? 'boton-seleccionado' : '' }}"
-        (click)="seleccionarTamano('personal')">
-        <span class="texto-tamano">PERSONAL</span>
-      </button>
-      <button class="boton-tamano {{ tamanoSeleccionado === 'mediana' ? 'boton-seleccionado' : '' }}"
-        (click)="seleccionarTamano('mediana')">
-        <span class="texto-tamano">MEDIANA</span>
-      </button>
-      <button class="boton-tamano {{ tamanoSeleccionado === 'grande' ? 'boton-seleccionado' : '' }}"
-        (click)="seleccionarTamano('grande')">
-        <span class="texto-tamano">GRANDE</span>
-      </button>
-      <button class="boton-tamano {{ tamanoSeleccionado === 'familiar' ? 'boton-seleccionado' : '' }}"
-        (click)="seleccionarTamano('familiar')">
-        <span class="texto-tamano">FAMILIAR</span>
+      <button *ngFor="let t of tamanos" class="boton-tamano"
+        [class.boton-seleccionado]="tamanoSeleccionado?.ID_Tamano === t.ID_Tamano" (click)="seleccionarTamano(t)">
+        <span class="texto-tamano">{{ t?.Tamano ? (t.Tamano | uppercase) : '' }}</span>
       </button>
     </div>
   </div>
+
+  <ng-template #cargandoTamanos>
+    <p class="cargando">Cargando tamaños...</p>
+  </ng-template>
+
 
   <div class="cantidad">
     <button mat-mini-fab color="warn" (click)="decrementarCantidad()">−</button>

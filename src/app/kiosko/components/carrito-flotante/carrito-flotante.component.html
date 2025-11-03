@@ -27,7 +27,9 @@
 
       <div class="info">
         <p class="nombre">{{ item.nombre }}</p>
-        <p class="descripcion">{{item.descripcion}}</p>
+        <p class="descripcion">{{item.descripcion }}</p>
+        <p clsss="tamano" *ngIf="item.tamano"><b>Tamaño:</b> {{ item.tamano | uppercase }}</p>
+        <p class="precio"> subtotal S/. {{ (item.precio * item.cantidad) | number:'1.2-2' }}</p>
         <div class="cantidad-control">
           <button mat-mini-fab color="warn" (click)="decrementarCantidad(i)">
             <mat-icon>remove</mat-icon>

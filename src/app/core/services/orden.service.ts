@@ -1,7 +1,6 @@
 // src/app/dashboard/services/orden.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Producto } from '../models/producto.model';
 import { PedidoDetalle } from '../models/pedido.model';
 
 import Swal from 'sweetalert2';

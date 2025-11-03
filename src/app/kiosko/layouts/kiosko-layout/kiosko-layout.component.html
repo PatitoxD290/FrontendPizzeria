@@ -1,11 +1,11 @@
-<div class="kiosko-container">
-  <!-- Header y carrito solo si no estás en /iniciar -->
+<div class="kiosko-layout">
   <app-header *ngIf="mostrarHeaderFooter()"></app-header>
 
-  <main class="main-content">
+  <main class="kiosko-main">
     <router-outlet></router-outlet>
-    <app-carrito-flotante *ngIf="mostrarHeaderFooter()"></app-carrito-flotante>
   </main>
+
+  <app-carrito-flotante *ngIf="mostrarHeaderFooter()"></app-carrito-flotante>
 
   <app-footer *ngIf="mostrarHeaderFooter()"></app-footer>
 </div>

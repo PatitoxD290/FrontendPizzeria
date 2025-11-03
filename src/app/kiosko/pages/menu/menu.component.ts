@@ -23,7 +23,8 @@ interface Producto {
   precio: number;
   imagen: string;
   cantidad?: number;
-  detallesTexto?: string; // 👈 Para combos
+  detallesTexto?: string;
+  idTamano?: number;
 }
 
 @Component({
@@ -102,34 +103,52 @@ export class MenuComponent implements OnInit {
     });
   }
 
+  // 🔍 Función para verificar cuál imagen existe
+  private async verificarImagenProducto(urlBase: string): Promise<string> {
+    const extensiones = ['png', 'jpg', 'jpeg'];
+    for (const ext of extensiones) {
+      const url = `${urlBase}.${ext}`;
+      try {
+        const resp = await fetch(url, { method: 'HEAD' });
+        if (resp.ok) return url;
+      } catch {
+        // ignoramos errores
+      }
+    }
+    return '/assets/imgs/logo.png';
+  }
+
   // ✅ Cargar productos y combos combinados
   private cargarProductosYCombos(): void {
     this.productoService.getProductos().subscribe({
-      next: (data: any) => {
+      next: async (data: any) => {
         const rawArray = Array.isArray(data) ? data : data ? [data] : [];
         const productosActivos = rawArray.filter(
           (item: any) => item.estado === 'A' || item.estado === undefined
         );
 
-        const productosMapeados = productosActivos.map((item: any) => ({
+        // Mapear productos con verificación de imagen
+        const productosPromesas = productosActivos.map(async (item: any) => ({
           id: item.ID_Producto ?? item.id ?? 0,
           nombre: item.Nombre ?? 'Sin nombre',
           descripcion: item.Descripcion ?? '',
           categoria: item.ID_Categoria_P ?? 0,
           precio: Number(item.Precio_Base ?? 0) || 0,
-          imagen: `http://localhost:3000/imagenesCata/producto_${
-            item.ID_Producto ?? 0
-          }_1.png`,
+          imagen: await this.verificarImagenProducto(
+            `http://localhost:3000/imagenesCata/producto_${item.ID_Producto ?? 0}_1`
+          ),
         }));
+
+        let productosMapeados = await Promise.all(productosPromesas);
 
         // Ahora cargamos los combos y los unimos
         this.combosService.getCombos().subscribe({
-          next: (combos: any[]) => {
+          next: async (combos: any[]) => {
             const combosActivos = combos.filter(
               (item) => item.Estado === 'A' || item.estado === 'A'
             );
 
-            const combosMapeados = combosActivos.map((item: any) => {
+            const combosPromesas = combosActivos.map(async (item: any) => {
               const detallesTexto = Array.isArray(item.detalles)
                 ? item.detalles
                     .map(
@@ -145,14 +164,15 @@ export class MenuComponent implements OnInit {
                 descripcion: item.Descripcion ?? '',
                 categoria: 999, // Combos
                 precio: Number(item.Precio ?? 0),
-                imagen: `http://localhost:3000/imagenesCata/combo_${
-                  item.ID_Combo ?? 0
-                }_1.png`,
+                imagen: await this.verificarImagenProducto(
+                  `http://localhost:3000/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
+                ),
                 detallesTexto,
               };
             });
 
-            // ✅ Unimos productos + combos
+            const combosMapeados = await Promise.all(combosPromesas);
+
             this.productos = [...productosMapeados, ...combosMapeados];
             this.productosOriginales = [...this.productos];
           },
@@ -207,7 +227,12 @@ export class MenuComponent implements OnInit {
   }
 
   agregarAlCarrito(producto: Producto): void {
-    this.carritoService.agregarProducto({ ...producto, cantidad: 1 });
+    this.carritoService.agregarProducto({
+      ...producto,
+      cantidad: 1,
+      tamano: 'PERSONAL',
+      idTamano: 1,
+    });
   }
 
   abrirPersonalizacion(producto: Producto): void {
@@ -223,6 +248,8 @@ export class MenuComponent implements OnInit {
           ...producto,
           ...result.producto,
           cantidad: 1,
+          tamano: 'PERSONAL',
+          idTamano: 1,
         });
       }
     });
