@@ -37,4 +37,11 @@ export class ClienteService {
   deleteCliente(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // ============================
+  // 🔍 Buscar cliente por DNI o RUC
+  // ============================
+  buscarClientePorDocumento(doc: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/buscar/${doc}`);
+  }
 }

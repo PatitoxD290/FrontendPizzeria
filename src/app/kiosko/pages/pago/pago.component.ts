@@ -7,6 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { CarritoService } from '../../../core/services/carrito.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { PedidoService } from '../../../core/services/pedido.service';
+import { VentaService } from '../../../core/services/venta.service';
+import { ClienteService } from '../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-pago',
@@ -21,6 +24,7 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './pago.component.html',
   styleUrls: ['./pago.component.css']
 })
+
 export class PagoComponent implements OnInit {
   total = 0;
   opcionSeleccionada: string | null = null;
