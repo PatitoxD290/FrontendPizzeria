@@ -3,8 +3,6 @@ import { KioskoLayoutComponent } from './layouts/kiosko-layout/kiosko-layout.com
 import { IniciarComponent } from './pages/iniciar/iniciar.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { PagoComponent } from './pages/pago/pago.component';
-import { RegistrarComponent } from './pages/registrar/registrar.component';
-
 // rutas del kiosko: http://localhost:4200/kiosko/
 
 export const KIOSKO_ROUTES: Routes = [
@@ -30,11 +28,6 @@ export const KIOSKO_ROUTES: Routes = [
           subtitle: 'Revisa y confirma tu compra'
         }
       },
-      { path: 'registrar', component: RegistrarComponent },
-      // 404 interno de kiosko
-      { path: '**', loadComponent: () =>
-          import('../shared/not-found/not-found.component').then(m => m.NotFoundComponent)
-      }
     ]
   }
 ];

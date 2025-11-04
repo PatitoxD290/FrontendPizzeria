@@ -1,5 +1,5 @@
 // ===========================================
-// VENTAS
+// VENTA (para leer datos)
 // ===========================================
 export interface Venta {
   id_venta: number;
@@ -16,7 +16,7 @@ export interface Venta {
 }
 
 // ===========================================
-// PRODUCTO EN VENTA
+// PRODUCTO EN VENTA (para leer datos)
 // ===========================================
 export interface VentaProducto {
   id_producto: number;
@@ -25,3 +25,16 @@ export interface VentaProducto {
   precio_unitario: number;
   subtotal: number;
 }
+
+
+// ===========================================
+// VENTA CREACION DTO (para escribir datos)
+// 🟢 ESTE ES EL TIPO QUE USAMOS PARA CREAR VENTAS
+// ===========================================
+export type VentaCreacionDTO = {
+  ID_Pedido: number;
+  Tipo_Venta: 'B' | 'F' | 'N';
+  Metodo_Pago: 'E' | 'T' | 'B';
+  Lugar_Emision: 'A' | 'B';
+  IGV_Porcentaje: number; // El backend espera el porcentaje
+};

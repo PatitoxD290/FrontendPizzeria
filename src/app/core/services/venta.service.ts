@@ -1,8 +1,8 @@
-// src/app/dashboard/services/venta.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Venta } from '../models/venta.model';
+// 🟢 CORREGIDO: Importa Venta y el nuevo VentaCreacionDTO
+import { Venta, VentaCreacionDTO } from '../models/venta.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,15 +22,10 @@ export class VentaService {
   }
 
   // 📙 Crear una nueva venta
-  createVenta(venta: {
-    id_pedido: number;
-    tipo_venta: 'B' | 'F' | 'N';
-    metodo_pago: 'E' | 'T' | 'B';
-    lugar_emision: 'A' | 'B';
-    igv?: number;
-    total?: number;
-  }): Observable<any> {
-    return this.http.post(this.apiUrl, venta);
+  // 🟢 CORREGIDO: El parámetro ahora usa el DTO correcto (PascalCase)
+  createVenta(ventaData: VentaCreacionDTO): Observable<any> {
+    // ventaData ya tiene el formato { ID_Pedido: ... } que el backend espera
+    return this.http.post(this.apiUrl, ventaData);
   }
 
   // 📒 Actualizar venta existente
