@@ -73,6 +73,11 @@ export class CategoriaFormComponent {
 
   // 💾 Guardar categoría
   saveCategoria() {
+     // Convertir nombre en Capitalizado
+    if (this.categoria.Nombre) {
+      this.categoria.Nombre = this.capitalizeWords(this.categoria.Nombre.trim());
+    }
+
     if (!this.categoria.Nombre.trim()) {
       Swal.fire('Error', 'El nombre de la categoría es obligatorio', 'warning');
       return;
@@ -118,6 +123,13 @@ export class CategoriaFormComponent {
       }
     }
   }
+  
+  private capitalizeWords(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
 
   close() {
     this.dialogRef.close(false);

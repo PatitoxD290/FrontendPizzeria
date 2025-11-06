@@ -244,62 +244,105 @@ export class PagoComponent implements OnInit {
   // ================================================================
 
   confirmarBoleta() {
-    if (!this.dni || this.dni.length !== 8) {
-      alert('Ingrese un DNI válido de 8 dígitos');
-      return;
-    }
-
-    this.procesandoPago = true;
-    this.tipoDocumento = 'boleta';
-    this.solicitandoDni = false;
-    this.mostrarMensajeFinal = true;
-
-    console.log(`🔍 Buscando cliente DNI: ${this.dni}`);
-    this.clienteService.buscarClientePorDocumento(this.dni).subscribe({
-      next: (cliente) => {
-        console.log('✅ Cliente encontrado:', cliente);
-        this.idClienteParaGuardar = cliente.ID_Cliente;
-        this.guardarEnBaseDeDatosReal();
-      },
-      error: (err) => {
-        console.warn('⚠️ Cliente no encontrado, usando cliente genérico (ID 1)');
-        this.idClienteParaGuardar = 1;
-        this.guardarEnBaseDeDatosReal();
-      }
-    });
+  if (!this.dni || this.dni.length !== 8) {
+    alert('Ingrese un DNI válido de 8 dígitos');
+    return;
   }
 
+  this.procesandoPago = true;
+  this.tipoDocumento = 'boleta';
+  this.solicitandoDni = false;
+  this.mostrarMensajeFinal = true;
+
+  console.log(`🔍 Buscando cliente DNI: ${this.dni}`);
+  this.clienteService.buscarClientePorDocumento(this.dni).subscribe({
+    next: (response) => {
+      console.log('✅ Respuesta completa del servicio:', response);
+      
+      // 🟢 CORRECCIÓN: Manejar diferentes estructuras de respuesta
+      let clienteEncontrado;
+      
+      if (response.cliente) {
+        // Caso: Cliente encontrado en BD
+        clienteEncontrado = response.cliente;
+      } else if (response.ID_Cliente) {
+        // Caso: La respuesta ES el cliente directamente
+        clienteEncontrado = response;
+      } else {
+        // Caso: Estructura inesperada, intentar extraer datos
+        clienteEncontrado = response;
+      }
+
+      if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
+        this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+        console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
+      } else {
+        console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
+        this.idClienteParaGuardar = 1;
+      }
+      
+      this.guardarEnBaseDeDatosReal();
+    },
+    error: (err) => {
+      console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
+      this.idClienteParaGuardar = 1;
+      this.guardarEnBaseDeDatosReal();
+    }
+  });
+}
   cancelarDni() {
     this.solicitandoDni = false;
     this.mostrarOpcionesDocumento = true;
     this.dni = '';
   }
 
-  confirmarFactura() {
-    if (!this.ruc || this.ruc.length !== 11) {
-      alert('Ingrese un RUC válido de 11 dígitos');
-      return;
-    }
-
-    this.procesandoPago = true;
-    this.tipoDocumento = 'factura';
-    this.solicitandoRuc = false;
-    this.mostrarMensajeFinal = true;
-
-    console.log(`🔍 Buscando cliente RUC: ${this.ruc}`);
-    this.clienteService.buscarClientePorDocumento(this.ruc).subscribe({
-      next: (cliente) => {
-        console.log('✅ Cliente encontrado:', cliente);
-        this.idClienteParaGuardar = cliente.ID_Cliente;
-        this.guardarEnBaseDeDatosReal();
-      },
-      error: (err) => {
-        console.warn('⚠️ Cliente no encontrado, usando cliente genérico (ID 1)');
-        this.idClienteParaGuardar = 1;
-        this.guardarEnBaseDeDatosReal();
-      }
-    });
+confirmarFactura() {
+  if (!this.ruc || this.ruc.length !== 11) {
+    alert('Ingrese un RUC válido de 11 dígitos');
+    return;
   }
+
+  this.procesandoPago = true;
+  this.tipoDocumento = 'factura';
+  this.solicitandoRuc = false;
+  this.mostrarMensajeFinal = true;
+
+  console.log(`🔍 Buscando cliente RUC: ${this.ruc}`);
+  this.clienteService.buscarClientePorDocumento(this.ruc).subscribe({
+    next: (response) => {
+      console.log('✅ Respuesta completa del servicio:', response);
+      
+      // 🟢 CORRECCIÓN: Manejar diferentes estructuras de respuesta
+      let clienteEncontrado;
+      
+      if (response.cliente) {
+        // Caso: Cliente encontrado en BD
+        clienteEncontrado = response.cliente;
+      } else if (response.ID_Cliente) {
+        // Caso: La respuesta ES el cliente directamente
+        clienteEncontrado = response;
+      } else {
+        // Caso: Estructura inesperada, intentar extraer datos
+        clienteEncontrado = response;
+      }
+
+      if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
+        this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+        console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
+      } else {
+        console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
+        this.idClienteParaGuardar = 1;
+      }
+      
+      this.guardarEnBaseDeDatosReal();
+    },
+    error: (err) => {
+      console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
+      this.idClienteParaGuardar = 1;
+      this.guardarEnBaseDeDatosReal();
+    }
+  });
+}
 
   cancelarRuc() {
     this.solicitandoRuc = false;

@@ -2,15 +2,15 @@
 // VENTA (para leer datos)
 // ===========================================
 export interface Venta {
-  id_venta: number;
-  id_pedido: number;
-  Tipo_venta: 'B' | 'F' | 'N'; // Boleta | Factura | Nota
-  Metodo_pago: 'E' | 'T' | 'B'; // Efectivo | Tarjeta | Banco
-  Lugar_emision: 'A' | 'B'; // A: Almacén | B: Bar (por ejemplo)
+  ID_Venta: number;
+  ID_Pedido: number;
+  Tipo_Venta: 'B' | 'F' | 'N'; // Boleta | Factura | Nota
+  Metodo_Pago: 'E' | 'T' | 'B'; // Efectivo | Tarjeta | Banco
+  Lugar_Emision: 'A' | 'B'; // A: Almacén | B: Bar (por ejemplo)
   IGV: number;
   Total: number;
 
-  Nombre_cliente: string;
+  Cliente_Nombre: string;
   Productos: VentaProducto[];
   Fecha_Registro: string; 
 }

@@ -93,7 +93,7 @@ export class CategoriaListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        const id = (categoria as any).id_categoria_p || (categoria as any).id_categoria_i;
+        const id = (categoria as any).ID_Categoria_P || (categoria as any).ID_Categoria_I;
 
         const deleteObs =
           this.tipoCategoria === 'producto'

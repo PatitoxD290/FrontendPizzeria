@@ -10,7 +10,6 @@
 /* ==== SIDEBAR ==== */
 app-sidebar {
   width: 280px; /* ancho expandido */
-  background-color: #722F37;
   height: 100vh;
   position: fixed;
   top: 0;
@@ -32,7 +31,7 @@ app-sidebar.collapsed {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  margin-left: 280px; /* mismo ancho que el sidebar expandido */
+  margin-left: 280px;
   overflow: hidden;
   transition: margin-left 0.3s ease;
   width: calc(100% - 280px);
@@ -40,7 +39,7 @@ app-sidebar.collapsed {
 
 /* Ajuste cuando el sidebar está colapsado */
 .main-wrapper.sidebar-collapsed {
-  margin-left: 70px; /* mismo ancho que el sidebar colapsado */
+  margin-left: 70px;
   width: calc(100% - 70px);
 }
 
@@ -50,7 +49,7 @@ app-navbar {
   top: 0;
   width: 100%;
   z-index: 1000;
-  background-color: #fff;
+
 }
 
 /* ==== CONTENIDO PRINCIPAL ==== */
@@ -71,5 +70,5 @@ app-footer {
   padding: 0.2rem;
   font-size: 0.8rem;
   color: #555;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #ffffff;
 }

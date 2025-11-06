@@ -1,31 +1,28 @@
 <div class="login-container">
   <div class="login-card">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <div class="login-icon">
-      <i class="fas fa-user"></i>
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      />
+      <img src="/assets/imgs/redondo.png" alt="Login" />
     </div>
 
-    <h2 class="login-title">LOGIN</h2>
+    <h2 class="login-title">Iniciar Sesión</h2>
+    <p class="login-subtitle"></p>
 
     <form (ngSubmit)="login()" class="login-form">
       <!-- Campo Correo -->
       <div class="form-group">
+        <label class="input-label">Correo Electrónico</label>
         <div class="input-container">
-          <i class="fas fa-id-card input-icon"></i>
+          <i class="fas fa-envelope input-icon"></i>
           <input
             #CorreoInput
-            type="text"
+            type="email"
             class="form-control"
             [(ngModel)]="Correo"
             name="Correo"
             required
-            inputmode="numeric"
-            pattern="[0-9]*"
             (input)="onCorreoInput($event)"
-            placeholder="Correo"
+            placeholder="ejemplo@dominio.com"
           />
         </div>
         <div class="error-message" *ngIf="CorreoError">{{ CorreoError }}</div>
@@ -33,6 +30,7 @@
 
       <!-- Campo Contraseña -->
       <div class="form-group">
+        <label class="input-label">Contraseña</label>
         <div class="input-container">
           <i class="fas fa-lock input-icon"></i>
           <input
@@ -41,9 +39,8 @@
             [(ngModel)]="Password"
             name="Password"
             required
-            placeholder="Contraseña"
+            placeholder="Ingresa tu contraseña"
           />
-          <!-- Icono del ojo corregido -->
           <i
             class="fas toggle-password"
             [class.fa-eye-slash]="hidePassword"
@@ -54,15 +51,22 @@
         </div>
       </div>
 
+      <!-- Recordarme y olvidé contraseña -->
+      <div class="form-options">
+        <label class="checkbox-container">
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+          <span class="checkmark"></span>
+          Recordarme
+        </label>
+        <a href="/dashboard/recuperar-contraseña" class="forgot-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
       <!-- Botón -->
       <button type="submit" class="login-button">
         <i class="fas fa-sign-in-alt"></i> Ingresar
       </button>
 
-      <!-- Enlace de olvido de contraseña -->
-      <div class="forgot-password">
-        <a href="/dashboard/recuperar-controseña" class="forgot-link">¿Olvidaste tu contraseña? Haz clic aquí</a>
-      </div>
+
     </form>
   </div>
 </div>

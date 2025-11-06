@@ -1,46 +1,78 @@
-<h2 mat-dialog-title>{{ usuario.ID_Usuario ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+<h2 mat-dialog-title>
+  {{ mode === 'password' ? 'Cambiar Contraseña' : (usuario.ID_Usuario ? 'Editar Usuario' : 'Nuevo Usuario') }}
+</h2>
+
 
 <mat-dialog-content>
-  <form #form="ngForm" (ngSubmit)="saveUsuario()">
-    <!-- Correo o DNI -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Correo / DNI</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.Correo" name="Correo" required />
-    </mat-form-field>
+  <form #form="ngForm" (ngSubmit)="saveUsuario()" class="form-content">
+    
+    <!-- FORMULARIO NORMAL -->
+    <ng-container *ngIf="mode === 'form'">
 
-    <!-- Campo de contraseña solo si es nuevo -->
-    <ng-container *ngIf="usuario.ID_Usuario === 0">
+      <!-- Correo -->
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Contraseña</mat-label>
-        <input matInput type="password" [(ngModel)]="usuario.Password" name="Password" required />
+        <mat-label>Correo / DNI</mat-label>
+        <input matInput type="text" [(ngModel)]="usuario.Correo" name="Correo" required />
+      </mat-form-field>
+
+      <!-- Password solo cuando es nuevo -->
+      <ng-container *ngIf="usuario.ID_Usuario === 0">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" [(ngModel)]="usuario.Password" name="Password" required />
+        </mat-form-field>
+      </ng-container>
+
+      <!-- Perfil -->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Nombre completo</mat-label>
+        <input matInput 
+        type="text" 
+        [(ngModel)]="usuario.Perfil" 
+        name="Perfil" 
+        required
+        (keydown)="soloLetras($event)"
+        (input)="formatNombreCompleto()" />
+
+      </mat-form-field>
+
+
+      <!-- Rol -->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Rol</mat-label>
+        <mat-select [(ngModel)]="usuario.Roll" name="Roll" required>
+          <mat-option value="A">Administrador</mat-option>
+          <mat-option value="E">Empleado</mat-option>
+        </mat-select>
       </mat-form-field>
     </ng-container>
 
-    <!-- Nombre completo -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Nombre completo</mat-label>
-      <input matInput type="text" [(ngModel)]="usuario.Perfil" name="Perfil" required />
-    </mat-form-field>
+    <!-- SOLO CAMBIAR CONTRASEÑA -->
+    <ng-container *ngIf="mode === 'password'">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Nueva Contraseña</mat-label>
+        <input matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              [(ngModel)]="usuario.Password"
+              name="Password"
+              required />
 
-    <!-- Rol -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Rol</mat-label>
-      <mat-select [(ngModel)]="usuario.Roll" name="Roll" required>
-        <mat-option value="A">Administrador</mat-option>
-        <mat-option value="E">Empleado</mat-option>
-      </mat-select>
-    </mat-form-field>
+        <button mat-icon-button
+        matSuffix
+        type="button"
+        (click)="hidePassword = !hidePassword">
 
-    <!-- Estado -->
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="usuario.Estado" name="Estado" required>
-        <mat-option value="A">Activo</mat-option>
-        <mat-option value="I">Inactivo</mat-option>
-      </mat-select>
-    </mat-form-field>
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+
+      </mat-form-field>
+    </ng-container>
+
+
   </form>
 </mat-dialog-content>
+
+
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="close()">Cancelar</button>

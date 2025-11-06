@@ -12,3 +12,10 @@ mat-card {
   padding: 20px;
   margin: 20px;
 }
+
+.acciones-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+}
+

@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
+
+// Angular Material
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +26,7 @@ import { saveAs } from 'file-saver';
     CommonModule,
     FormsModule,
     MatTableModule,
+    MatPaginatorModule,
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
@@ -37,14 +41,14 @@ import { saveAs } from 'file-saver';
 })
 export class VentaListComponent implements OnInit {
 
-  ventas: Venta[] = [];
-  ventasFiltradas: Venta[] = [];
+  displayedColumns: string[] = ['id', 'cliente', 'tipo', 'metodo', 'igv', 'total', 'fecha'];
+  dataSource = new MatTableDataSource<Venta>([]);
 
   filtroTexto: string = '';
   fechaInicio: string = '';
   fechaFin: string = '';
 
-  displayedColumns: string[] = ['id', 'cliente', 'tipo', 'metodo', 'igv', 'total', 'fecha'];
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(private ventaService: VentaService) {}
 
@@ -55,18 +59,20 @@ export class VentaListComponent implements OnInit {
   cargarVentas(): void {
     this.ventaService.getVentas().subscribe({
       next: (data) => {
-        this.ventas = data;
-        this.ventasFiltradas = data;
+        this.dataSource = new MatTableDataSource(data.sort((a, b) => b.ID_Venta - a.ID_Venta));
+        this.dataSource.paginator = this.paginator;
+        this.configurarFiltro();
       },
       error: (err) => console.error('Error al cargar ventas:', err)
     });
   }
 
-  aplicarFiltros(): void {
-    this.ventasFiltradas = this.ventas.filter(v => {
+  configurarFiltro() {
+    this.dataSource.filterPredicate = (v: Venta, filter: string) => {
+      const txt = filter.toLowerCase();
       const coincideTexto =
-        v.Nombre_cliente.toLowerCase().includes(this.filtroTexto.toLowerCase()) ||
-        v.id_venta.toString().includes(this.filtroTexto);
+        v.Cliente_Nombre.toLowerCase().includes(txt) ||
+        v.ID_Venta.toString().includes(txt);
 
       const fechaVenta = new Date(v.Fecha_Registro);
       const desde = this.fechaInicio ? new Date(this.fechaInicio) : null;
@@ -76,22 +82,42 @@ export class VentaListComponent implements OnInit {
         (!desde || fechaVenta >= desde) && (!hasta || fechaVenta <= hasta);
 
       return coincideTexto && coincideFecha;
-    });
+    };
+  }
+
+  aplicarFiltros(): void {
+    this.dataSource.filter = this.filtroTexto.trim().toLowerCase();
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   limpiarFiltros(): void {
     this.filtroTexto = '';
     this.fechaInicio = '';
     this.fechaFin = '';
-    this.ventasFiltradas = this.ventas;
+    this.dataSource.filter = '';
+  }
+
+  obtenerTipoVentaTexto(code: 'B' | 'F' | 'N'): string {
+    return code === 'B' ? 'BOLETA' : code === 'F' ? 'FACTURA' : 'NOTA';
+  }
+
+  obtenerMetodoPagoTexto(code: 'E' | 'T' | 'B'): string {
+    return code === 'E' ? 'EFECTIVO' : code === 'T' ? 'TARJETA' : 'BILLETERA DIGITAL';
+  }
+
+  formatearFecha(fecha: string): string {
+    return new Date(fecha).toLocaleString('es-PE', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
   exportarExcel(): void {
-    const hoja = XLSX.utils.json_to_sheet(this.ventasFiltradas.map(v => ({
-      ID_Venta: v.id_venta,
-      Cliente: v.Nombre_cliente,
-      Tipo: v.Tipo_venta,
-      Método_Pago: v.Metodo_pago,
+    const hoja = XLSX.utils.json_to_sheet(this.dataSource.filteredData.map(v => ({
+      ID_Venta: v.ID_Venta,
+      Cliente: v.Cliente_Nombre,
+      Tipo: v.Tipo_Venta,
+      Método_Pago: this.obtenerMetodoPagoTexto(v.Metodo_Pago),
       IGV: v.IGV,
       Total: v.Total,
       Fecha_Registro: v.Fecha_Registro,
@@ -101,7 +127,6 @@ export class VentaListComponent implements OnInit {
     XLSX.utils.book_append_sheet(libro, hoja, 'Ventas');
 
     const buffer = XLSX.write(libro, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { type: 'application/octet-stream' });
-    saveAs(blob, `Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    saveAs(new Blob([buffer]), `Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 }

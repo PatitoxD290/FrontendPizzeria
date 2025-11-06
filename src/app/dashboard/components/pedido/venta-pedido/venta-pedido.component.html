@@ -1,1 +1,47 @@
-<p>venta-pedido works!</p>
+<h2 mat-dialog-title>Registrar Pago</h2>
+
+<mat-dialog-content>
+
+  <!-- Selección de Método -->
+  <div class="metodos-wrapper">
+    <mat-button-toggle-group [(ngModel)]="metodoPago">
+      <mat-button-toggle value="EFECTIVO">Efectivo</mat-button-toggle>
+      <mat-button-toggle value="BILLETERA">Billetera Digital</mat-button-toggle>
+      <mat-button-toggle value="TARJETA">Tarjeta</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- EFECTIVO -->
+  <div *ngIf="metodoPago === 'EFECTIVO'">
+    <mat-form-field appearance="fill">
+      <mat-label>Total a Pagar</mat-label>
+      <input matInput [value]="data.total | number:'1.2-2'" readonly>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Recibe</mat-label>
+      <input matInput type="number" [(ngModel)]="recibe" (input)="calcularVuelto()">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Vuelto</mat-label>
+      <input matInput [value]="vuelto | number:'1.2-2'" readonly>
+    </mat-form-field>
+  </div>
+
+  <!-- BILLETERA DIGITAL -->
+  <div *ngIf="metodoPago === 'BILLETERA'" class="info-box">
+    Pago por **Yape** o **Plin**. Confirme una vez recibido.
+  </div>
+
+  <!-- TARJETA -->
+  <div *ngIf="metodoPago === 'TARJETA'" class="info-box">
+    Pago con tarjeta (POS Visa/Mastercard).
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button color="warn" (click)="cerrar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirmar()">Confirmar Pago</button>
+</mat-dialog-actions>

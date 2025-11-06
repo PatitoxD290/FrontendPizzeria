@@ -36,7 +36,7 @@ export class NavbarComponent {
   @Input() isSidebarCollapsed = false;
 
   // Establecido a 'ADMIN' o el rol, ya que el HTML usa el texto fijo 'ADMIN'
-  nombreUsuario: string = 'ADMIN'; 
+  nombreUsuario: string = '';
   searchQuery: string = '';
   isDarkMode = false;
   notificationsCount = 3;
@@ -44,10 +44,9 @@ export class NavbarComponent {
   showSuggestions = false;
 
   constructor(private router: Router, private authService: AuthService) {
-    // Si quieres que el menú desplegable muestre el nombre real, descomenta estas líneas.
-    // Si no, puedes mantener 'ADMIN' fijo.
-    // const user = this.authService.getUser();
-    // this.nombreUsuario = user?.nombre ?? 'ADMIN'; 
+
+    const user = this.authService.getUser();
+    this.nombreUsuario = user?.Nombre || user?.nombre || 'Usuario';
     
     this.isDarkMode = localStorage.getItem('darkMode') === 'true';
     this.updateBodyClass();

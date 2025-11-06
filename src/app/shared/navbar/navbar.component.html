@@ -7,7 +7,7 @@
 
     <div class="logo-container" (click)="navigateTo('/dashboard/home')">
       <div class="logo-icon">
-        <img src="/assets/imgs/logo-dash.png" alt="Logo Pizzería" class="logo-img">
+        <img src="/assets/imgs/logop.jpg" alt="Logo Pizzería" class="logo-img">
       </div>
     </div>
   </div>
@@ -80,11 +80,13 @@
     </button>
 
     <button mat-button class="profile-btn admin-profile-btn" [matMenuTriggerFor]="userMenu">
+      <span class="user-name">{{ nombreUsuario }}</span> <!-- Aquí -->
       <div class="user-avatar">
         <mat-icon class="avatar-icon">person</mat-icon>
       </div>
       <mat-icon class="dropdown-icon">expand_more</mat-icon>
     </button>
+
     </div>
 
   <mat-menu #userMenu="matMenu" class="user-menu">

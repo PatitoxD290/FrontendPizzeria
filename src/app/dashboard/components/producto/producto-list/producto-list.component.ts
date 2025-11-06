@@ -97,7 +97,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
           this.categorias.find((c) => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre ||
           'Sin categoría',
         nombre_receta:
-          this.recetas.find((r) => r.id_receta === p.ID_Receta)?.Nombre || 'Sin receta',
+          this.recetas.find((r) => r.ID_Receta === p.ID_Receta)?.Nombre || 'Sin receta',
       }));
 
       this.setPage(0);

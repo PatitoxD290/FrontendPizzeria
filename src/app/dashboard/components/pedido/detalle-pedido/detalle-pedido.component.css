@@ -24,9 +24,34 @@
   font-size: 14px;
 }
 
+/* 🔹 Contenedor para los íconos del matSuffix */
+.icon-suffix-container {
+  display: flex;
+  align-items: center;      /* centra verticalmente */
+  justify-content: center;  /* centra horizontalmente dentro del matSuffix */
+  gap: 6px;                 /* separación sutil entre íconos */
+  height: 100%;             /* iguala altura al input */
+  margin-right: 4px;        /* pequeño margen derecho */
+}
+
 /* 🔹 Ícono del cliente */
 .cliente-icon {
   color: #2196f3;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔹 Ajuste del botón 'close' */
+.icon-suffix-container button {
+  width: 26px;
+  height: 26px;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 

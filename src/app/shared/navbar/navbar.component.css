@@ -1,4 +1,4 @@
-/* Variables CSS con rojo vino */
+/* ------------------- VARIABLES ------------------- */
 :root {
   --sidebar-width: 280px;
   --sidebar-collapsed: 80px;
@@ -18,15 +18,15 @@
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.15);
   --navbar-height: 70px;
-  --icon-color: #666666; /* Color gris más claro */
+  --icon-color: #666666;
 }
 
-/* Navbar Principal - ROJO VINO */
+/* ------------------- NAVBAR ------------------- */
 .navbar {
   display: flex;
   align-items: center;
-  background: #ffffff;
-  color: rgb(34, 34, 34);
+  background: #8d1717;
+  color: rgb(185, 176, 176);
   padding: 0 24px;
   height: var(--navbar-height);
   transition: all var(--transition);
@@ -44,7 +44,7 @@
   left: var(--sidebar-collapsed);
 }
 
-/* Sección Izquierda - Logo y Menú */
+/* ------------------- SECCIÓN IZQUIERDA ------------------- */
 .navbar-left {
   display: flex;
   align-items: center;
@@ -53,7 +53,7 @@
 }
 
 .menu-btn {
-  color: var(--icon-color); /* Gris en lugar de blanco */
+  color: var(--icon-color);
   width: 40px;
   height: 40px;
   display: flex;
@@ -62,92 +62,104 @@
   border-radius: var(--border-radius);
   transition: var(--transition);
   cursor: pointer;
-  border: none; /* Quitar bordes */
-  background: none; /* Quitar fondo */
+  border: none;
+  margin-left: -8px; /* Ajuste hacia la izquierda */
+  color: #ffffff !important; /* Botón en blanco */
 }
 
 .menu-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(216, 208, 208, 0);
   transform: scale(1.05);
 }
 
-/* LOGO: Solo imagen, con bordes más ajustados */
 .logo-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 2px 3px;           /* 🔹 Reducido para pegar los bordes a la imagen */
-  height: var(--navbar-height);
-  border-radius: 10px;
+  gap: 34px;
+  padding: 8px 12px;
+  border-radius: var(--border-radius);
   transition: var(--transition);
+  cursor: pointer;
+  text-decoration: none;
   border: none;
-  background: transparent;
-  gap: 0;                     /* 🔹 Elimina cualquier espacio entre elementos internos */
 }
 
 .logo-container:hover {
-  transform: scale(1.05);
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0);
 }
 
-/* Imagen del logo */
-.logo-img {
-  height: 54px;               /* 🔹 Mantiene una buena proporción dentro del navbar */
-  width: 110px;               /* 🔹 Un ancho visualmente equilibrado */
-  object-fit: contain;        /* Mantiene proporción sin deformar */
+.logo-icon {
+  width: 90px;
+  height: 48px;
   border-radius: 6px;
+  padding: 2px 8px;  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
   transition: var(--transition);
-  display: block;             /* 🔹 Elimina espacios fantasmas de inline */
 }
 
 .logo-container:hover .logo-img {
   transform: scale(1.05);
 }
 
+.pizza-icon {
+  display: none;
+}
 
-/* Sección Central - Búsqueda CON FONDO BLANCO */
+/* ------------------- SECCIÓN CENTRAL ------------------- */
 .navbar-center {
   flex: 1;
   display: flex;
-  justify-content: center;
-  max-width: 600px;
-  margin: 0 auto;
+  justify-content: flex-start;
+  max-width: 900px;
+  margin: 0;
+  margin-left: 100px;
 }
 
 .search-container {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: 460px;
 }
 
 .search-bar {
   display: flex;
   align-items: center;
-  background: #ffffff; /* Fondo blanco */
-  border: 1px solid #d1d5db; /* Borde gris claro */
-  border-radius: 25px;
-  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 16px;
   transition: var(--transition);
 }
 
 .search-bar:focus-within {
-  background: #ffffff; /* Mantener fondo blanco al enfocar */
-  border-color: #722F37; /* Borde rojo vino al enfocar */
-  box-shadow: 0 0 0 2px rgba(114, 47, 55, 0.1); /* Sombra sutil roja */
-  transform: translateY(-1px);
+  background: #ffffff;
+  border-color: #722F37;
+  box-shadow: 0 0 0 2px rgba(241, 241, 241, 0.767);
+  transform: none;
 }
 
 .search-icon {
-  color: var(--icon-color); /* Gris en lugar de blanco */
+  color: var(--icon-color);
   font-size: 20px;
-  margin-right: 12px;
+  margin-right: 9px;
   transition: var(--transition);
   flex-shrink: 0;
 }
 
 .search-bar:focus-within .search-icon {
-  color: var(--icon-color); /* Mantener gris al enfocar */
+  color: var(--icon-color);
 }
 
 .search-input {
@@ -157,18 +169,13 @@
   color: rgb(68, 65, 65);
   font-size: 14px;
   font-weight: 400;
-  padding: 4px 0;
+  padding: 2px 0;
   outline: none;
-  min-width: 200px;
-}
-
-.search-input::placeholder {
-  color: #6b7280; /* Color gris para el placeholder */
-  font-weight: 300;
+  min-width: 150px;
 }
 
 .clear-btn {
-  color: var(--icon-color); /* Gris en lugar de blanco */
+  color: var(--icon-color);
   width: 24px;
   height: 24px;
   margin-left: 8px;
@@ -178,17 +185,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none; /* Quitar bordes */
-  background: none; /* Quitar fondo */
+  border: none;
+  background: none;
 }
 
 .clear-btn:hover {
-  color: #333030; /* Gris más oscuro al hover */
-  background: rgba(255, 255, 255, 0.15);
+  color: #fff8f800;
+  background: rgba(255, 255, 255, 0);
   border-radius: 50%;
 }
 
-/* Sección Derecha - Acciones */
+/* ------------------- SECCIÓN DERECHA ------------------- */
 .navbar-right {
   display: flex;
   align-items: center;
@@ -196,9 +203,8 @@
   flex: 0 0 auto;
 }
 
-/* Botones de Acción */
 .action-btn {
-  color: var(--icon-color); /* Gris en lugar de blanco */
+  color: var(--icon-color);
   width: 40px;
   height: 40px;
   display: flex;
@@ -208,22 +214,20 @@
   transition: var(--transition);
   position: relative;
   cursor: pointer;
-  border: none; /* Quitar bordes */
-  background: none; /* Quitar fondo */
+  border: none;
+  background: none;
 }
 
 .action-btn:hover {
-  background: rgba(233, 228, 228, 0.904);
+  background: rgba(233, 228, 228, 0);
   transform: scale(1.05);
 }
 
-/* FORZAR COLOR GRIS EN TODOS LOS ICONOS DE ACCIÓN */
 .action-btn mat-icon,
 .action-btn .material-icons {
-  color: #646060 !important; /* Gris forzado */
+  color: #ffffff !important;
 }
 
-/* Notificaciones */
 .notification-wrapper {
   position: relative;
   display: flex;
@@ -247,53 +251,53 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: none; 
-  border: none; 
+  box-shadow: none;
+  border: none;
 }
 
-/* Perfil de Usuario - CORREGIDO PARA HORIZONTAL */
+/* ------------------- BOTÓN PERFIL MEJORADO ------------------- */
 .profile-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px 6px 8px;
-  border-radius: 20px;
-  transition: var(--transition);
+  gap: 10px;
+  padding: 6px 16px;
+  border-radius: 25px;
+  transition: all 0.4s ease;
   color: rgb(20, 13, 13);
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(78, 73, 73, 0.979);
-  min-width: auto;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(78, 73, 73, 0.7);
   cursor: pointer;
   height: 45px;
-  /* FORZAR CONTENEDOR HORIZONTAL */
-  flex-direction: row;
-  justify-content: flex-start;
+  flex-direction: row; /* Asegura dirección horizontal */
+  justify-content: center; /* Centra los elementos */
   white-space: nowrap;
   line-height: 1;
-  /* Eliminar cualquier wrap */
-  flex-wrap: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .profile-btn:hover {
-  background: rgba(112, 112, 112, 0.719);
-  border-color: rgba(99, 90, 90, 0.863);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(78, 73, 73, 0.9);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(15, 6, 6, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   overflow: hidden;
-  border: none;
-  margin: 0;
-  /* Mantener en línea */
-  display: inline-flex;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.profile-btn:hover .user-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .user-avatar img {
@@ -302,52 +306,35 @@
   object-fit: cover;
 }
 
-/* CAMBIO ESPECÍFICO: Icono de perfil en color gris */
-.avatar-icon {
-  color: #666666 !important; /* Color gris forzado */
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Asegurar que esté en línea */
-  display: inline-block;
-}
-
 .user-name {
   font-size: 14px;
-  font-weight: 500;
-  color: rgb(66, 61, 61);
+  font-weight: 600;
+  color: rgb(33, 30, 30);
   white-space: nowrap;
   line-height: 1;
   margin: 0;
-  /* FORZAR TEXTO EN LÍNEA */
-  display: inline;
-  vertical-align: middle;
-  /* Eliminar cualquier margin/padding que cause salto */
   padding: 0;
+  display: inline-flex; /* Cambiado de inline a inline-flex */
+  align-items: center; /* Añadido */
+  transition: color 0.3s ease;
+}
+
+.profile-btn:hover .user-name {
+  color: #000;
 }
 
 .dropdown-icon {
-  color: var(--icon-color);
+  color: rgba(51, 51, 51, 0.8);
   font-size: 20px;
-  width: 20px;
-  height: 20px;
-  transition: var(--transition);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Mantener en línea */
-  display: inline-flex;
+  transition: all 0.3s ease;
 }
 
 .profile-btn:hover .dropdown-icon {
+  transform: rotate(90deg);
   color: #2b2828;
 }
 
-/* Menú de Usuario */
+/* ------------------- MENÚ DE USUARIO ------------------- */
 .user-menu {
   margin-top: 8px;
   border-radius: var(--border-radius);
@@ -367,7 +354,7 @@
   color: var(--text-primary);
   transition: var(--transition);
   min-height: 40px;
-  border: none; /* Quitar bordes */
+  border: none;
 }
 
 .user-menu .mat-menu-item:hover {
@@ -378,7 +365,7 @@
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: var(--icon-color); /* Gris en lugar de rojo */
+  color: var(--icon-color);
   flex-shrink: 0;
 }
 
@@ -395,13 +382,13 @@
   border-top-color: var(--border-color);
 }
 
-/* Estados de búsqueda */
+/* ------------------- ESTADOS BÚSQUEDA ------------------- */
 .search-active .search-bar {
   background: #ffffff;
-  border-color: #722F37;
+  border-color: #1b1717;
 }
 
-/* Responsive */
+/* ------------------- RESPONSIVE ------------------- */
 @media (max-width: 1024px) {
   .navbar-center {
     max-width: 400px;
@@ -414,30 +401,27 @@
     gap: 12px;
     left: 0 !important;
   }
-  
   .logo-text {
     display: none;
   }
-  
   .user-name {
     display: none;
   }
-  
   .navbar-center {
     margin: 0 8px;
     max-width: 300px;
   }
-  
   .search-input {
     min-width: 150px;
   }
-  
   .profile-btn {
     padding: 6px;
   }
-  
   .navbar-right {
     gap: 4px;
+  }
+  .admin-profile-btn .admin-text {
+    display: none !important;
   }
 }
 
@@ -447,35 +431,38 @@
     gap: 8px;
     height: 60px;
   }
-  
   .action-btn:not(.notification-btn) {
     display: none;
   }
-  
   .search-input::placeholder {
     font-size: 12px;
   }
-  
   .search-input {
     min-width: 120px;
     font-size: 12px;
   }
-  
   .logo-container {
     padding: 6px;
   }
-  
   .navbar-center {
     max-width: 200px;
   }
-  
-  .menu-btn, .action-btn {
+  .menu-btn,
+  .action-btn {
     width: 36px;
     height: 36px;
   }
-  
   .user-avatar {
     width: 28px;
     height: 28px;
   }
+}
+
+/* ------------------- ADMIN PERSONALIZADO ------------------- */
+.admin-profile-btn {
+  background-color: rgba(245, 246, 247, 0.219) !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 20px !important;
+  padding: 4px 12
 }

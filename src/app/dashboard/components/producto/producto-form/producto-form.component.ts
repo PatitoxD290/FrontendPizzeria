@@ -97,6 +97,10 @@ export class ProductoFormComponent implements OnInit {
   }
 
   saveProducto() {
+      if (this.producto.Nombre) {
+    this.producto.Nombre = this.capitalizeWords(this.producto.Nombre.trim());
+    }
+
     if (!this.producto.Nombre || !this.producto.Precio_Base || !this.producto.ID_Categoria_P) {
       Swal.fire({
         icon: 'warning',
@@ -148,6 +152,13 @@ export class ProductoFormComponent implements OnInit {
       }
     }
   }
+
+  private capitalizeWords(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
 
   private handleSuccess(title: string, text: string) {
     Swal.fire({

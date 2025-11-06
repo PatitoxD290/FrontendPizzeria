@@ -112,11 +112,13 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
 
   constructor(private router: Router, private authService: AuthService) {}
 
-  ngOnInit(): void {
-    this.checkUser();
-    this.trackRouteChanges();
-    this.autoExpandActiveMenu();
-  }
+ngOnInit(): void {
+  this.checkUser();
+  this.filtrarMenuPorRol(); 
+  this.trackRouteChanges();
+  this.autoExpandActiveMenu();
+}
+
 
   ngOnDestroy(): void {
     this.routerSubscription?.unsubscribe();
@@ -188,5 +190,28 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
     this.isCollapsed = !this.isCollapsed;
     this.toggleSidebarEvent.emit(this.isCollapsed);
   }
+
+  private filtrarMenuPorRol(): void {
+  const rol = this.authService.getUserRol(); // 'A' o 'E'
+
+  if (rol === 'E') {
+    // Empleado solo ve: Caja, Pedidos, Ventas, Historial de Clientes + Inicio
+    this.menuSections = [
+      {
+        items: [
+          { label: 'Inicio', route: '/dashboard/home', icon: 'home' }
+        ]
+      },
+      {
+        items: [
+          { label: 'Caja', route: '/dashboard/realizarpedido', icon: 'payments' },
+          { label: 'Pedidos', route: '/dashboard/registropedidos', icon: 'assignment' },
+          { label: 'Ventas', route: '/dashboard/venta', icon: 'sell' },
+          { label: 'Historial de Clientes', route: '/dashboard/cliente', icon: 'people_alt' }
+        ]
+      }
+    ];
+  }
+}
 
 }

@@ -38,49 +38,62 @@ export class TamanoFormComponent {
     });
   }
 
-  submit() {
-    if (this.form.invalid) return;
+submit() {
+  if (this.form.invalid) return;
 
-    const payload = this.form.value;
+  // Normalizar nombre del tamaño antes de enviar
+  const tamanoValue = this.form.get('Tamano')?.value;
+  this.form.patchValue({
+    Tamano: this.capitalizeWords(tamanoValue.trim())
+  });
 
-    if (this.data) {
-      // Editar
-      this.tamanoService.updateTamano(this.data.ID_Tamano, payload).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Actualizado',
-            text: 'El tamaño fue actualizado correctamente',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo actualizar el tamaño', 'error');
-        }
-      });
-    } else {
-      // Crear
-      this.tamanoService.createTamano(payload).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Creado',
-            text: 'El tamaño fue registrado correctamente',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo crear el tamaño', 'error');
-        }
-      });
-    }
+  const payload = this.form.value;
+
+  if (this.data) {
+    // Editar
+    this.tamanoService.updateTamano(this.data.ID_Tamano, payload).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Actualizado',
+          text: 'El tamaño fue actualizado correctamente',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        this.dialogRef.close(true);
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'No se pudo actualizar el tamaño', 'error');
+      }
+    });
+  } else {
+    // Crear
+    this.tamanoService.createTamano(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Creado',
+          text: 'El tamaño fue registrado correctamente',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        this.dialogRef.close(true);
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'No se pudo crear el tamaño', 'error');
+      }
+    });
   }
+}
+
+  private capitalizeWords(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 
   cancel() {
     this.dialogRef.close(false);

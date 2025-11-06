@@ -1,0 +1,38 @@
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 5px;
+}
+
+.metodos-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.metodos-wrapper .mat-button-toggle-group {
+  background: #f3f3f3;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.mat-button-toggle {
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.info-box {
+  margin-top: 8px;
+  background: #f8f8f8;
+  padding: 12px;
+  border-left: 4px solid #3f51b5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}

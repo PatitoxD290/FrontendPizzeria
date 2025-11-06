@@ -50,4 +50,10 @@ export class UsuarioService {
   changePassword(id: number, password: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/password`, { password }, { headers: this.getHeaders() });
   }
+
+  // Cambiar estado (A <-> I)
+  statusUsuario(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/status`, {}, { headers: this.getHeaders() });
+  }
+
 }
