@@ -2,34 +2,30 @@
   <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen" />
 
   <h2>{{ data.nombre }}</h2>
+
+  <!-- Mostrar tamaño seleccionado debajo del nombre -->
+  <p *ngIf="tamanoSeleccionado" class="tamano-seleccionado">
+    Tamaño: <b>{{ tamanoSeleccionado.Tamano }}</b>
+  </p>
+
+  <!-- Precio -->
   <p class="precio">S/. {{ precioActual.toFixed(2) }}</p>
 
-  <div class="tamanos-container" *ngIf="tamanos.length > 0; else cargandoTamanos">
-    <div class="tamanos-pizza">
-      <button *ngFor="let t of tamanos" class="boton-tamano"
-        [class.boton-seleccionado]="tamanoSeleccionado?.ID_Tamano === t.ID_Tamano" (click)="seleccionarTamano(t)">
-        <span class="texto-tamano">{{ t?.Tamano ? (t.Tamano | uppercase) : '' }}</span>
-      </button>
-    </div>
-  </div>
-
-  <ng-template #cargandoTamanos>
-    <p class="cargando">Cargando tamaños...</p>
-  </ng-template>
-
-
+  <!-- Cantidad -->
   <div class="cantidad">
     <button mat-mini-fab color="warn" (click)="decrementarCantidad()">−</button>
     <span>{{ cantidad }}</span>
     <button mat-mini-fab color="primary" (click)="incrementarCantidad()">+</button>
   </div>
 
-  <div class="subtotal">
-    <p><b>Subtotal:</b> S/. {{ (precioActual * cantidad).toFixed(2) }}</p>
-  </div>
+  <!-- Elegir tamaño BUTTON - Nuevo estilo -->
+  <button class="boton-elegir-tamano" (click)="abrirModalTamanos()">
+    Elegir Tamaño
+  </button>
 
+  <!-- Botones abajo -->
   <div class="acciones">
     <button mat-raised-button color="warn" (click)="cerrar()">Volver</button>
-    <button mat-raised-button color="primary" (click)="agregarCarrito()">Agregar al carrito</button>
+    <button mat-raised-button color="primary" (click)="agregarCarrito()">Agregar</button>
   </div>
 </div>

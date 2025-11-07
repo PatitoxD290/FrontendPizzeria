@@ -4,113 +4,6 @@
   padding: 20px;
 }
 
-/* 🎯 FILTRO DE BOTONES - ESTILO ELEGANTE Y SIMPLE */
-.filtro-botones {
-  margin-bottom: 30px;
-  margin-top: -10px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 0 20px;
-}
-
-.mat-button-toggle-group {
-  border: 2px solid #afafaf !important;
-  border-radius: 25px !important;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 4px;
-  gap: 2px;
-}
-
-.mat-button-toggle {
-  border: none !important;
-  border-radius: 20px !important;
-  background: transparent !important;
-  color: #333 !important;
-  font-weight: 500;
-  font-size: 14px;
-  min-width: 100px;
-}
-
-.mat-button-toggle:hover {
-  background: #f8f8f8 !important;
-  color: #C0392B !important;
-}
-
-.mat-button-toggle.mat-button-toggle-checked {
-  background: #C0392B !important;
-  color: white !important;
-}
-
-.mat-button-toggle .mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  margin-right: 6px;
-}
-
-.mat-button-toggle:not(.mat-button-toggle-checked) .mat-icon {
-  color: #666;
-}
-
-.mat-button-toggle.mat-button-toggle-checked .mat-icon {
-  color: white;
-}
-
-.mat-button-toggle-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .filtro-botones {
-    gap: 8px;
-    padding: 0 10px;
-  }
-  
-  .mat-button-toggle {
-    min-width: 80px;
-    font-size: 13px;
-  }
-  
-  .mat-button-toggle-label {
-    padding: 6px 12px;
-  }
-  
-  .mat-button-toggle .mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
-  }
-}
-
-@media (max-width: 480px) {
-  .filtro-botones {
-    gap: 6px;
-  }
-  
-  .mat-button-toggle {
-    min-width: 70px;
-    font-size: 12px;
-  }
-  
-  .mat-button-toggle-label {
-    padding: 5px 10px;
-  }
-  
-  .mat-button-toggle .mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-  }
-}
-
 /* CONTENEDOR PRINCIPAL */
 .contenedor-principal {
   display: grid;
@@ -402,7 +295,7 @@
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .carrito-lateral {
     position: relative;
     top: 0;
@@ -414,38 +307,28 @@
   .menu-container {
     padding: 15px;
   }
-  
-  .filtro-botones {
-    gap: 8px;
-    padding: 0 10px;
-  }
-  
-  .boton-filtro {
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-  
+
   .productos-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 15px;
   }
-  
+
   .producto-imagen-container {
     height: 140px;
   }
-  
+
   .producto-info {
     padding: 12px;
   }
-  
+
   .producto-nombre {
     font-size: 1.1em;
   }
-  
+
   .producto-precio {
     font-size: 1.2em;
   }
-  
+
   .producto-acciones {
     flex-direction: column;
     gap: 8px;
@@ -453,41 +336,25 @@
 }
 
 @media (max-width: 480px) {
-  .filtro-botones {
-    gap: 6px;
-  }
-  
-  .boton-filtro {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-  
-  .boton-filtro mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
-  
   .productos-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .producto-imagen-container {
     height: 120px;
   }
-  
+
   .producto-nombre {
     font-size: 1em;
   }
-  
+
   .producto-precio {
     font-size: 1.1em;
   }
 }
 
 /* Agregar al final del CSS existente */
-
 /* Ajuste para cuando hay carrito lateral */
 .productos-grid {
   display: grid;
@@ -537,4 +404,3 @@ app-carrito-flotante {
   flex: 1;
   width: 100%;
 }
-

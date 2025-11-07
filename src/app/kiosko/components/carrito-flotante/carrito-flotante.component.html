@@ -1,6 +1,6 @@
 <!-- BOTÓN FLOTANTE DEL CARRITO -->
 <button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" *ngIf="!visible && !esPaginaPago()">
-  <mat-icon class="icono-carrito">shopping_cart</mat-icon>
+  <mat-icon class="icono-carrito">shopping_bag</mat-icon>
   <span class="texto-carrito">Ver Pedido</span>
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
     {{ cantidadItemsDistintos }}
@@ -13,8 +13,8 @@
   <!-- ENCABEZADO -->
   <div class="panel-header">
     <div class="titulo-carrito">
-      <img src="assets/imgs/carrito_compras.png" alt="Carrito" class="img-icono-carrito">
-      <h3>Tu Carrito</h3>
+      <mat-icon class="icono-header-carrito">shopping_bag</mat-icon>
+      <h3>Tu Pedido</h3>
     </div>
     <button mat-icon-button (click)="volver()" class="btn-cerrar">
       <mat-icon>close</mat-icon>
@@ -52,7 +52,7 @@
   <!-- CARRITO VACÍO -->
   <ng-template #vacio>
     <div class="carrito-vacio">
-      <p>Tu carrito está vacío 🛒</p>
+      <p>Tu pedido está vacío</p>
     </div>
   </ng-template>
 

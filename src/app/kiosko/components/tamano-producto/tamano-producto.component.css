@@ -1,0 +1,113 @@
+.titulo {
+  text-align: center;
+  margin-bottom: 20px; /* Aumentado de 15px a 20px */
+  font-weight: bold;
+  color: #e51d1d; /* Color principal aplicado */
+  font-size: 1.4rem;
+}
+
+.grid-tamanos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px; /* Aumentado de 12px a 16px */
+  padding: 8px; /* Espacio interno adicional */
+}
+
+.card-tamano {
+  padding: 16px 12px; /* Aumentado padding vertical */
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card-tamano:hover {
+  border-color: #e51d1d; /* Color principal en hover */
+  background: #e51d1d; /* Color principal */
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(229, 29, 29, 0.3);
+}
+
+.card-tamano.selected {
+  border-color: #e51d1d; /* Color principal */
+  background: #e51d1d; /* Color principal */
+  color: white;
+  box-shadow: 0 6px 15px rgba(229, 29, 29, 0.4);
+  transform: translateY(-4px);
+}
+
+.card-tamano h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.card-tamano p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* Estados específicos para mejorar la legibilidad */
+.card-tamano:not(.selected):not(:hover) h3 {
+  color: #333;
+}
+
+.card-tamano:not(.selected):not(:hover) p {
+  color: #e51d1d; /* Color principal para el precio */
+}
+
+/* Efecto de pulso para la selección */
+.card-tamano.selected {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translateY(-4px) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.05);
+  }
+  100% {
+    transform: translateY(-4px) scale(1);
+  }
+}
+
+/* Mejoras responsive */
+@media (max-width: 480px) {
+  .grid-tamanos {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    padding: 5px;
+  }
+  
+  .card-tamano {
+    padding: 14px 8px;
+  }
+  
+  .card-tamano h3 {
+    font-size: 0.9rem;
+  }
+  
+  .card-tamano p {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-tamanos {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 18px;
+  }
+  
+  .card-tamano {
+    padding: 18px 14px;
+  }
+}

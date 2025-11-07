@@ -6,7 +6,7 @@
   z-index: 1200;
   width: auto;
   height: 60px;
-  background: #be1b1c;
+  background: #e51d1d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +18,7 @@
 }
 
 .boton-carrito:hover {
-  background: #a51617;
+  background: #c01919;
   transform: translateY(-2px);
 }
 
@@ -238,4 +238,10 @@
   height: auto;
   display: block;
 }
+
+.icono-header-carrito {
+  font-size: 25px;
+  color: #e51d1d; /* el mismo color rojo del botón flotante para mantener identidad */
+}
+
 

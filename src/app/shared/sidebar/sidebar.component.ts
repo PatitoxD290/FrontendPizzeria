@@ -99,11 +99,6 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
     items: [
       { label: 'Usuarios', route: '/dashboard/usuario', icon: 'manage_accounts' } // configuración de empleados
     ]
-  },
-  {
-    items: [
-      { label: 'Analíticas', route: '/dashboard/reportes', icon: 'insights' } // reportes
-    ]
   }
 ];
 

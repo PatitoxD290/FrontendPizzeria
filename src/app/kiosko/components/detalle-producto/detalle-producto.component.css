@@ -1,11 +1,13 @@
 .detalle-container {
   text-align: center;
+  padding: 15px;
+  position: relative;
 }
 
 /* 📸 Imagen uniforme */
 .detalle-imagen {
   width: 100%;
-  height: 300px;              /* 👈 Tamaño fijo para todas */
+  height: 200px;              /* 👈 Tamaño fijo para todas */
   object-fit: cover;          /* Mantiene proporción y recorta */
   border-radius: 8px;
   margin-bottom: 15px;
@@ -13,8 +15,16 @@
 
 .precio {
   font-size: 1.5rem;
-  color: #d32f2f;
+  color: #e51d1d; /* Color principal aplicado */
   margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.tamano-seleccionado {
+  margin-top: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e51d1d; /* Color principal aplicado */
 }
 
 .cantidad {
@@ -26,9 +36,25 @@
   margin: 15px 0;
 }
 
-.subtotal {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+/* Botones de cantidad con color relacionado */
+.cantidad button {
+  background-color: #e51d1d !important;
+  color: white !important;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cantidad button:hover {
+  background-color: #c01818 !important; /* Versión más oscura para hover */
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.4);
 }
 
 /* BOTONES */
@@ -36,7 +62,9 @@
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  margin-top: 20px;
+  margin-top: 10px; /* Más espacio arriba */
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0; /* Línea separadora */
 }
 
 .acciones button {
@@ -47,32 +75,36 @@
   border-radius: 8px;
   text-transform: uppercase;
   transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 /* 🟥 Botón "Volver" */
-.acciones button[color="warn"] {
-  background-color: #d32f2f;
-  color: #fff;
-  border: none;
+.acciones button:first-child {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 2px solid #e0e0e0;
 }
 
-.acciones button[color="warn"]:hover {
-  background-color: #b71c1c;
+.acciones button:first-child:hover {
+  background-color: #e0e0e0;
+  border-color: #e51d1d;
+  color: #e51d1d;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 🟩 Botón "Agregar al carrito" */
-.acciones button[color="primary"] {
-  background-color: #2e7d32;
+/* 🟥 Botón "Agregar al carrito" con color principal */
+.acciones button:last-child {
+  background-color: #e51d1d; /* Color principal */
   color: #fff;
-  border: none;
+  border: 2px solid #e51d1d;
 }
 
-.acciones button[color="primary"]:hover {
-  background-color: #1b5e20;
+.acciones button:last-child:hover {
+  background-color: #c01818; /* Versión más oscura */
+  border-color: #c01818;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+  box-shadow: 0 4px 15px rgba(229, 29, 29, 0.4);
 }
 
 /* ✨ Animación click */
@@ -81,7 +113,43 @@
   box-shadow: none;
 }
 
+/* Botón Elegir Tamaño - Estilo similar a "Agregar" */
+.boton-elegir-tamano {
+  background-color: #e51d1d !important; /* Mismo color que Agregar */
+  color: white !important;
+  border: 2px solid #e51d1d !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+  width: 100%;
+  margin: 14px 0 !important;
+  cursor: pointer;
+}
 
+.boton-elegir-tamano:hover {
+  background-color: #c01818 !important; /* Mismo hover que Agregar */
+  border-color: #c01818 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(229, 29, 29, 0.4) !important;
+}
+
+.boton-elegir-tamano:active {
+  transform: scale(0.97) !important;
+  box-shadow: none !important;
+}
+
+/* Estado cuando no hay tamaño seleccionado */
+.boton-elegir-tamano:disabled {
+  background-color: #cccccc !important;
+  border-color: #cccccc !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
 .tamanos-container {
   margin: 20px 0;
@@ -112,16 +180,16 @@
 
 .boton-tamano:hover {
   background-color: #e9ecef;
-  border-color: #3f51b5;
+  border-color: #e51d1d; /* Color principal en hover */
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(229, 29, 29, 0.15);
 }
 
 .boton-seleccionado {
-  background-color: #3f51b5;
+  background-color: #e51d1d; /* Color principal para seleccionado */
   color: white;
-  border-color: #3f51b5;
-  box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3);
+  border-color: #e51d1d;
+  box-shadow: 0 4px 8px rgba(229, 29, 29, 0.3);
 }
 
 .texto-tamano {
@@ -148,6 +216,11 @@
   .boton-tamano {
     padding: 10px 2px;
     min-height: 40px;
+  }
+  
+  .boton-elegir-tamano {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
   }
 }
 

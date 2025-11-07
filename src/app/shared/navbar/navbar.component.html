@@ -15,49 +15,75 @@
   <div class="navbar-center">
     <div class="search-container">
       <div class="search-bar" [class.search-active]="showSuggestions">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input 
-          type="text" 
-          placeholder="Buscar pedidos, clientes, productos..." 
-          [(ngModel)]="searchQuery"
-          (keyup.enter)="onSearch()"
-          (focus)="onSearchFocus()"
-          (blur)="onSearchBlur()"
-          class="search-input">
-        <button mat-icon-button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
+        <div class="search-input-container">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            placeholder="Buscar pedidos, clientes, productos..." 
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            (focus)="onSearchFocus()"
+            (blur)="onSearchBlur()"
+            class="search-input">
+          <button mat-icon-button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
       </div>
       
+      <!-- SUGERENCIAS DE BÚSQUEDA MEJORADAS -->
       <div class="search-suggestions" *ngIf="showSuggestions && searchQuery">
         <div class="suggestion-header">
-          <span>Búsquedas sugeridas</span>
+          <mat-icon class="suggestion-header-icon">search</mat-icon>
+          <span class="suggestion-header-text">Resultados para "{{ searchQuery }}"</span>
         </div>
-        <div class="suggestion-item" (click)="searchByType('pedido')">
-          <div class="suggestion-icon">
-            <mat-icon>receipt_long</mat-icon>
+        
+        <div class="suggestion-category">
+          <div class="category-title">Búsqueda rápida</div>
+          <div class="suggestion-item" (click)="searchByType('pedido')">
+            <div class="suggestion-icon-wrapper">
+              <div class="suggestion-icon-bg pedido">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+            </div>
+            <div class="suggestion-content">
+              <span class="suggestion-title">Pedidos</span>
+              <span class="suggestion-desc">Buscar en pedidos</span>
+            </div>
+            <div class="suggestion-shortcut">
+              <span class="shortcut-text">Enter</span>
+            </div>
           </div>
-          <div class="suggestion-content">
-            <span class="suggestion-title">Buscar pedidos</span>
-            <span class="suggestion-query">"{{ searchQuery }}"</span>
+          
+          <div class="suggestion-item" (click)="searchByType('cliente')">
+            <div class="suggestion-icon-wrapper">
+              <div class="suggestion-icon-bg cliente">
+                <mat-icon>person</mat-icon>
+              </div>
+            </div>
+            <div class="suggestion-content">
+              <span class="suggestion-title">Clientes</span>
+              <span class="suggestion-desc">Buscar en clientes</span>
+            </div>
+          </div>
+          
+          <div class="suggestion-item" (click)="searchByType('producto')">
+            <div class="suggestion-icon-wrapper">
+              <div class="suggestion-icon-bg producto">
+                <mat-icon>inventory_2</mat-icon>
+              </div>
+            </div>
+            <div class="suggestion-content">
+              <span class="suggestion-title">Productos</span>
+              <span class="suggestion-desc">Buscar en productos</span>
+            </div>
           </div>
         </div>
-        <div class="suggestion-item" (click)="searchByType('cliente')">
-          <div class="suggestion-icon">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div class="suggestion-content">
-            <span class="suggestion-title">Buscar clientes</span>
-            <span class="suggestion-query">"{{ searchQuery }}"</span>
-          </div>
-        </div>
-        <div class="suggestion-item" (click)="searchByType('producto')">
-          <div class="suggestion-icon">
-            <mat-icon>inventory_2</mat-icon>
-          </div>
-          <div class="suggestion-content">
-            <span class="suggestion-title">Buscar productos</span>
-            <span class="suggestion-query">"{{ searchQuery }}"</span>
+
+        <div class="suggestion-footer">
+          <div class="footer-tip">
+            <mat-icon>keyboard</mat-icon>
+            <span>Presiona Enter para búsqueda general</span>
           </div>
         </div>
       </div>
@@ -79,32 +105,78 @@
       <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
 
-    <button mat-button class="profile-btn admin-profile-btn" [matMenuTriggerFor]="userMenu">
-      <span class="user-name">{{ nombreUsuario }}</span> <!-- Aquí -->
-      <div class="user-avatar">
-        <mat-icon class="avatar-icon">person</mat-icon>
+    <!-- BOTÓN DE PERFIL CON ÍCONO Y TEXTO -->
+    <button mat-button class="profile-btn" [matMenuTriggerFor]="userMenu">
+      <div class="profile-content">
+        <div class="user-avatar-small">
+          <div class="avatar-circle">
+            <mat-icon class="avatar-icon">person</mat-icon>
+          </div>
+        </div>
+        <div class="user-info-compact">
+          <span class="user-name">{{ nombreUsuario }}</span>
+          <span class="user-role">Administrador</span>
+        </div>
+        <mat-icon class="dropdown-icon">expand_more</mat-icon>
       </div>
-      <mat-icon class="dropdown-icon">expand_more</mat-icon>
     </button>
+  </div>
 
+  <!-- MENÚ DE USUARIO CON ÍCONO -->
+  <mat-menu #userMenu="matMenu" class="user-menu" yPosition="below" xPosition="before">
+    <!-- Header del usuario CON ÍCONO -->
+    <div class="user-menu-header">
+      <div class="user-avatar-large">
+        <div class="avatar-circle-large">
+          <mat-icon class="avatar-icon-large">person</mat-icon>
+        </div>
+      </div>
+      <div class="user-info">
+        <span class="user-name-large">{{ nombreUsuario }}</span>
+        <span class="user-email">usuario@ejemplo.com</span>
+      </div>
     </div>
-
-  <mat-menu #userMenu="matMenu" class="user-menu">
-    
     
     <mat-divider></mat-divider>
-    <button mat-menu-item (click)="navigateTo('/dashboard/perfil')">
-      <mat-icon>person</mat-icon>
-      <span>Mi Perfil</span>
+    
+    <!-- Opciones del menú -->
+    <button mat-menu-item (click)="navigateTo('/dashboard/cambiar-contrasena')" class="menu-item">
+      <div class="menu-item-content">
+        <div class="menu-icon-wrapper">
+          <mat-icon class="menu-icon">lock</mat-icon>
+        </div>
+        <span>Cambiar contraseña</span>
+      </div>
     </button>
-    <button mat-menu-item (click)="navigateTo('/dashboard/configuracion')">
-      <mat-icon>settings</mat-icon>
-      <span>Configuración</span>
+    
+    <button mat-menu-item (click)="navigateTo('/dashboard/configuracion')" class="menu-item">
+      <div class="menu-item-content">
+        <div class="menu-icon-wrapper">
+          <mat-icon class="menu-icon">settings</mat-icon>
+        </div>
+        <span>Configuración</span>
+      </div>
     </button>
+    
+    <button mat-menu-item (click)="navigateTo('/dashboard/ayuda')" class="menu-item">
+      <div class="menu-item-content">
+        <div class="menu-icon-wrapper">
+          <mat-icon class="menu-icon">help</mat-icon>
+        </div>
+        <span>Centro de Ayuda</span>
+      </div>
+    </button>
+    
     <mat-divider></mat-divider>
-    <button mat-menu-item (click)="logout()" class="logout-item">
-      <mat-icon>logout</mat-icon>
-      <span>Cerrar sesión</span>
+    
+    <!-- Opción de cierre de sesión -->
+    <button mat-menu-item (click)="logout()" class="logout-item menu-item">
+      <div class="menu-item-content">
+        <div class="menu-icon-wrapper">
+          <mat-icon class="menu-icon logout-icon">logout</mat-icon>
+        </div>
+        <span>Cerrar sesión</span>
+      </div>
     </button>
   </mat-menu>
 </mat-toolbar>

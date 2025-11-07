@@ -1,59 +1,21 @@
 <div class="menu-container">
-  <!-- 📌 Filtro dinámico -->
-  <div class="filtro-botones">
-    <mat-button-toggle-group
-      [(ngModel)]="filtroCategoria"
-      aria-label="Filtro de categorías"
-    >
-      <mat-button-toggle value="">
-        <mat-icon>list</mat-icon>
-        Todos
-      </mat-button-toggle>
-
-      <mat-button-toggle
-        *ngFor="let cat of categorias"
-        [value]="cat.nombre"
-      >
-        <mat-icon>{{ getIconoCategoria(cat.nombre) }}</mat-icon>
-        {{ cat.nombre }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-
   <!-- 🧾 Lista de productos -->
-<div class="productos-grid">
-  <div
-    *ngFor="let p of productosFiltrados"
-    class="producto-card"
-    (click)="abrirPersonalizacion(p)"
-    style="cursor: pointer;"
-  >
-    <div class="producto-imagen-container">
-      <img
-        [src]="p.imagen"
-        (error)="p.imagen = '/assets/imgs/logo.png'"
-        [alt]="p.nombre"
-        class="producto-imagen"
-      />
-    </div>
-
-    <div class="producto-info">
-      <h3 class="producto-nombre">{{ p.nombre }}</h3>
-      <p class="producto-descripcion">{{ p.descripcion }}</p>
-
-      <p
-        *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto"
-        class="producto-detalles"
-      >
-        {{ p.detallesTexto }}
-      </p>
-
-      <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
-      <p class="producto-precio">S/. {{ p.precio }}</p>
+  <div class="productos-grid">
+    <div *ngFor="let p of productosFiltrados" class="producto-card" (click)="abrirPersonalizacion(p)" style="cursor: pointer;">
+      <div class="producto-imagen-container">
+        <img [src]="p.imagen" (error)="p.imagen = '/assets/imgs/logo.png'" [alt]="p.nombre" class="producto-imagen" />
+      </div>
+      <div class="producto-info">
+        <h3 class="producto-nombre">{{ p.nombre }}</h3>
+        <p class="producto-descripcion">{{ p.descripcion }}</p>
+        <p *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto" class="producto-detalles">
+          {{ p.detallesTexto }}
+        </p>
+        <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
+        <p class="producto-precio">S/. {{ p.precio }}</p>
+      </div>
     </div>
   </div>
-</div>
-
 
   <!-- Carrito flotante -->
   <app-carrito-flotante></app-carrito-flotante>

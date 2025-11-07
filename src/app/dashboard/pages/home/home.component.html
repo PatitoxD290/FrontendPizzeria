@@ -1,120 +1,64 @@
-<div class="dashboard-container">
+ <div class="dashboard-container">
+        <!-- Cards principales -->
+        <div class="stats-cards">
+            <!-- Ventas Totales -->
+            <div class="stat-card sales-card">
+                <div class="icon-container sales">
+                    <span class="material-icons">trending_up</span>
+                </div>
+                <div class="card-content">
+                    <h3>Ventas Totales</h3>
+                    <p class="stat-value">S/ 8,562.00</p>
+                    <div class="trend-container">
+                        <span class="trend-indicator trend-up">+12.5%</span>
+                        <span class="trend-text">vs mes anterior</span>
+                    </div>
+                </div>
+            </div>
 
-  <!-- Main Stats Cards -->
-  <div class="stats-cards">
-    <!-- Ventas Totales -->
-    <div class="stat-card ventas">
-      <div class="card-icon">
-        <i class="fas fa-sack-dollar"></i>
-      </div>
-      <div class="card-content">
-        <h3>Ventas Totales</h3>
-        <div class="stat-value">S/ 5000</div>
-        <div class="stat-comparison positive">
-          <span>25% más que el mes pasado</span>
+            <!-- Pedidos Hoy - Card Roja -->
+            <div class="stat-card orders-card">
+                <div class="icon-container orders">
+                    <span class="material-icons">shopping_bag</span>
+                </div>
+                <div class="card-content">
+                    <h3>Pedidos Hoy</h3>
+                    <p class="stat-value">42</p>
+                    <div class="trend-container">
+                        <span class="trend-indicator trend-up">+8.2%</span>
+                        <span class="trend-text">vs ayer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Producto Estrella -->
+            <div class="stat-card product-card">
+                <div class="icon-container product">
+                    <span class="material-icons">star</span>
+                </div>
+                <div class="card-content">
+                    <h3>Producto Estrella</h3>
+                    <p class="stat-value">Pizza Americana</p>
+                    <div class="trend-container">
+                        <span class="trend-indicator trend-up">+32 uds</span>
+                        <span class="trend-text">este mes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Clientes -->
+            <div class="stat-card clients-card">
+                <div class="icon-container clients">
+                    <span class="material-icons">people</span>
+                </div>
+                <div class="card-content">
+                    <h3>Total Clientes</h3>
+                    <p class="stat-value">1,548</p>
+                    <div class="trend-container">
+                        <span class="trend-indicator trend-up">+5.7%</span>
+                        <span class="trend-text">+84 nuevos</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-
-    <!-- Clientes -->
-    <div class="stat-card clientes">
-      <div class="card-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <div class="card-content">
-        <h3>Total de Clientes</h3>
-        <div class="stat-value"> S/400</div>
-      </div>
-    </div>
-
-    <!-- Pedidos -->
-    <div class="stat-card pedidos">
-      <div class="card-icon">
-        <i class="fas fa-receipt"></i>
-      </div>
-      <div class="card-content">
-        <h3>Pedidos Totales</h3>
-        <div class="stat-value">S/ 2000</div>
-      </div>
-    </div>
-
-    <!-- Productos más vendidos -->
-    <div class="stat-card productos">
-      <div class="card-icon">
-        <i class="fas fa-pizza-slice"></i>
-      </div>
-      <div class="card-content">
-        <h3>Producto Más Vendido</h3>
-        <div class="stat-value">Pizza Americana</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts Section -->
-  <div class="charts-section">
-
-    <!-- Income Chart -->
-    <div class="chart-card income-chart">
-      <div class="chart-header">
-        <h3><i class="fas fa-chart-line"></i> Venta Total</h3>
-        <div class="chart-filter">
-          <span>Últimos 6 meses</span>
-          <i class="fas fa-chevron-down"></i>
-        </div>
-      </div>
-      <div class="chart-container">
-        <div class="chart-bars">
-          <div class="bar-group"><div class="bar" style="height: 40%"></div><span>Mar</span></div>
-          <div class="bar-group"><div class="bar" style="height: 60%"></div><span>Feb</span></div>
-          <div class="bar-group"><div class="bar" style="height: 30%"></div><span>Abr</span></div>
-          <div class="bar-group"><div class="bar" style="height: 80%"></div><span>May</span></div>
-          <div class="bar-group"><div class="bar" style="height: 70%"></div><span>Jun</span></div>
-          <div class="bar-group"><div class="bar" style="height: 90%"></div><span>Jul</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tipos de Pago -->
-    <div class="chart-card activity-chart">
-      <div class="chart-header">
-        <h3><i class="fas fa-wallet"></i> Tipos de Pago</h3>
-        <div class="chart-filter">
-          <span>Este mes</span>
-          <i class="fas fa-chevron-down"></i>
-        </div>
-      </div>
-      <div class="activity-content">
-        <div class="categories-list">
-          <div class="category-item">
-            <div class="category-info">
-              <span class="category-name"><i class="fas fa-credit-card"></i> Tarjeta</span>
-              <span class="category-percent">32%</span>
-            </div>
-            <div class="category-bar">
-              <div class="bar-fill" style="width: 32%"></div>
-            </div>
-          </div>
-          <div class="category-item">
-            <div class="category-info">
-              <span class="category-name"><i class="fas fa-money-bill-wave"></i> Crédito</span>
-              <span class="category-percent">25%</span>
-            </div>
-            <div class="category-bar">
-              <div class="bar-fill" style="width: 25%"></div>
-            </div>
-          </div>
-          <div class="category-item">
-            <div class="category-info">
-              <span class="category-name"><i class="fas fa-mobile-alt"></i> Yape</span>
-              <span class="category-percent">17%</span>
-            </div>
-            <div class="category-bar">
-              <div class="bar-fill" style="width: 17%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>

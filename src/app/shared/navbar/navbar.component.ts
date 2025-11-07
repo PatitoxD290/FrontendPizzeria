@@ -35,26 +35,39 @@ export class NavbarComponent {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
   @Input() isSidebarCollapsed = false;
 
-  // Establecido a 'ADMIN' o el rol, ya que el HTML usa el texto fijo 'ADMIN'
-  nombreUsuario: string = '';
   searchQuery: string = '';
   isDarkMode = false;
   notificationsCount = 3;
   mostrarNavbar: boolean = true;
   showSuggestions = false;
+  nombreUsuario: string = '';
 
   constructor(private router: Router, private authService: AuthService) {
-
+    // Obtener información del usuario autenticado
     const user = this.authService.getUser();
     this.nombreUsuario = user?.Nombre || user?.nombre || 'Usuario';
     
+    // Configurar modo oscuro
     this.isDarkMode = localStorage.getItem('darkMode') === 'true';
     this.updateBodyClass();
 
+    // Controlar visibilidad del navbar
     this.router.events.subscribe(() => {
       const url = this.router.url;
       this.mostrarNavbar = !url.includes('/dashboard/login');
     });
+  }
+
+  // Función para obtener las iniciales del usuario
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    
+    const names = name.split(' ');
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
+    } else {
+      return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+    }
   }
 
   navigateTo(route: string) {
@@ -82,6 +95,7 @@ export class NavbarComponent {
 
   openNotifications() {
     console.log('Abriendo notificaciones...');
+    // Aquí puedes implementar la lógica para abrir notificaciones
   }
 
   toggleSidebar() {
@@ -92,6 +106,7 @@ export class NavbarComponent {
     if (this.searchQuery.trim()) {
       console.log('Buscando:', this.searchQuery);
       this.showSuggestions = false;
+      // Aquí puedes implementar la lógica de búsqueda
     }
   }
 
@@ -124,6 +139,7 @@ export class NavbarComponent {
   }
 
   onSearchBlur() {
+    // Timeout para permitir hacer clic en las sugerencias antes de ocultarlas
     setTimeout(() => {
       this.showSuggestions = false;
     }, 200);

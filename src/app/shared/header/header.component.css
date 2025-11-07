@@ -1,31 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Lily+Script+One&display=swap');
 
-/* ---------- HEADER (LOGO + TÍTULOS) ---------- */
+/* ---------- HEADER (LOGO + TÍTULOS + CATEGORÍAS) ---------- */
 .header {
-  text-align: center;
-  padding: 15px;
-  background-color: #be1b1c; /* rojo oscuro para el header */
+  padding: 15px 20px;
+  background-color: #e51d1d;
   color: white;
   display: flex;
-  align-items: center;         /* centra verticalmente imagen y texto */
-  justify-content: center;     /* centra todo horizontalmente */
-  gap: 20px;                   /* espacio entre imagen y texto */
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
+/* Contenedor superior: logo a la izquierda + textos a la derecha */
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* IMAGEN AGRANDADA - Cambios principales aquí */
 .header-img {
-  width: 75px;
-  height: 75px;
-  object-fit: cover;
-  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
   flex-shrink: 0;
+  padding: 2px;
 }
 
 .textos {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  /* 🔽 NUEVO: Bajar solo el texto con transform */
-  transform: translateY(15.5px);
+  align-items: flex-start;
+  gap: 5px;
 }
 
 .header h1 {
@@ -34,22 +45,164 @@
   font-weight: bold;
   min-height: 28px;
   line-height: 28px;
-  /* 🔽 NUEVO: Personalizar fuente */
   font-family: 'Roboto', 'Arial', sans-serif;
   letter-spacing: 0.5px;
 }
 
 .subtitulo {
-  margin-top: 5px;
+  margin: 0;
   font-size: 20px;
   font-weight: 400;
   min-height: 22px;
   line-height: 22px;
-  /* 🔽 NUEVO: Personalizar fuente */
   font-family: 'Lily Script One', cursive;
   letter-spacing: 0.3px;
 }
 
 .empty {
-  visibility: hidden; /* Oculta el texto si está vacío, pero mantiene el espacio */
+  visibility: hidden;
+}
+
+/* 🎯 FILTRO DE BOTONES - BOTONES INDEPENDIENTES */
+.filtro-botones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 0 10px;
+  width: 100%;
+  max-width: 1400px;
+  margin-top: 15px;
+  box-sizing: border-box;
+}
+
+/* Estilos para botones de categoría individuales */
+.categoria-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px; 
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 20px;
+  min-width: 180px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.categoria-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.categoria-btn.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #be1b1c;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.categoria-btn .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+
+.categoria-btn:not(.active) .mat-icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.categoria-btn.active .mat-icon {
+  color: #be1b1c;
+}
+
+/* Responsive - Actualizado con los nuevos tamaños */
+@media (max-width: 768px) {
+  .header {
+    padding: 15px 10px;
+  }
+
+  .header-top {
+    gap: 20px;
+  }
+
+  .header-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .subtitulo {
+    font-size: 18px;
+  }
+
+  .filtro-botones {
+    gap: 6px;
+    padding: 0 5px;
+  }
+
+  .categoria-btn {
+    min-width: 75px;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .categoria-btn .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 8px;
+  }
+
+  .header-top {
+    gap: 15px;
+  }
+
+  .header-img {
+    width: 65px;
+    height: 65px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .subtitulo {
+    font-size: 16px;
+  }
+
+  .filtro-botones {
+    gap: 5px;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  .categoria-btn {
+    min-width: 65px;
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
+  .categoria-btn .mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    margin-right: 3px;
+  }
 }

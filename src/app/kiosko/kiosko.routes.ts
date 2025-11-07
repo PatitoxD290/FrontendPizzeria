@@ -3,8 +3,8 @@ import { KioskoLayoutComponent } from './layouts/kiosko-layout/kiosko-layout.com
 import { IniciarComponent } from './pages/iniciar/iniciar.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { PagoComponent } from './pages/pago/pago.component';
-// rutas del kiosko: http://localhost:4200/kiosko/
 
+// rutas del kiosko: http://localhost:4200/kiosko/
 export const KIOSKO_ROUTES: Routes = [
   {
     path: '',
@@ -14,19 +14,20 @@ export const KIOSKO_ROUTES: Routes = [
       { path: 'iniciar', component: IniciarComponent },
       { 
         path: 'menu', 
-        component: MenuComponent,
-        data: {
-          title: 'Bienvenido a AITA PIZZA',
-          subtitle: 'Selecciona tu pizza favorita'
-        }
+        component: MenuComponent, 
+        data: { 
+          title: 'Bienvenido a AITA PIZZA', 
+          subtitle: 'Selecciona tu pizza favorita',
+          mostrarCategorias: true // ✅ Nuevo flag para mostrar categorías
+        } 
       },
       { 
         path: 'pago', 
-        component: PagoComponent,
-        data: {
-          title: 'Confirmar tu pedido',
-          subtitle: 'Revisa y confirma tu compra'
-        }
+        component: PagoComponent, 
+        data: { 
+          title: 'Confirmar tu pedido', 
+          subtitle: 'Revisa y confirma tu compra' 
+        } 
       },
     ]
   }

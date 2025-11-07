@@ -363,81 +363,110 @@ confirmarFactura() {
   }
 
   guardarEnBaseDeDatosReal() {
-    const productos = this.carritoService.obtenerProductos();
-    const idCliente = this.idClienteParaGuardar;
-    const idUsuario = 1;
+  const productos = this.carritoService.obtenerProductos();
+  const idCliente = this.idClienteParaGuardar;
+  const idUsuario = 1;
 
-    console.log(`👤 Kiosko autoservicio - ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
+  console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
+  console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
 
-    const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
-      const idTamano = this.obtenerIdTamanoValidoExistente(producto);
-      return {
-        ID_Producto: producto.id_producto || 1,
-        ID_Tamano: idTamano,
-        Cantidad: producto.cantidad || 1,
-      };
-    });
-
-    let notasDePedido: string;
-    if (this.tipoDocumento === null) {
-      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    } else {
-      notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    }
-
-    const pedidoData: PedidoCreacionDTO = {
-      ID_Cliente: idCliente,
-      ID_Usuario: idUsuario,
-      Notas: notasDePedido,
-      Estado_P: 'P',
-      Fecha_Registro: new Date().toISOString().split('T')[0],
-      Hora_Pedido: new Date().toTimeString().split(' ')[0],
-      detalles: detalles
+  // ✅ CORRECCIÓN: Mapear correctamente los datos del carrito
+  const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
+    // Obtener ID_Producto (múltiples intentos)
+    const idProducto = producto.ID_Producto || producto.id || producto.id_producto || 0;
+    
+    // Obtener ID_Tamano (múltiples intentos)
+    const idTamano = producto.ID_Tamano || producto.idTamano || producto.id_tamano || 1;
+    
+    // Obtener cantidad
+    const cantidad = producto.cantidad || 1;
+    
+    console.log(`📝 Detalle: Producto=${idProducto}, Tamaño=${idTamano}, Cantidad=${cantidad}`);
+    
+    return {
+      ID_Producto: idProducto,
+      ID_Tamano: idTamano,
+      Cantidad: cantidad
     };
+  });
 
-    console.log('🚀 ENVIANDO PEDIDO (con PedidoService):', JSON.stringify(pedidoData, null, 2));
-
-    this.pedidoService.createPedido(pedidoData as any).subscribe({
-      next: (response: any) => {
-        console.log('✅ PEDIDO guardado exitosamente:', response);
-        
-        let pedidoId = null;
-        if (response.ID_Pedido) {
-          pedidoId = response.ID_Pedido;
-        } else if (response.id_pedido) {
-          pedidoId = response.id_pedido;
-        } else if (response.pedidoId) {
-          pedidoId = response.pedidoId;
-        } else if (response.data?.ID_Pedido) {
-          pedidoId = response.data.ID_Pedido;
-        } else if (response.insertId) { 
-          pedidoId = response.insertId;
-        }
-        
-        if (pedidoId) {
-          console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
-          this.guardarVentaEnBaseDeDatos(pedidoId);
-        } else {
-          console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
-          this.finalizarCompra();
-        }
-      },
-      error: (error) => {
-        console.error('❌ ERROR guardando pedido:', error);
-        console.log('🔄 Intentando con ID_Tamano seguro (fallback)...');
-        this.guardarConIdTamanoSeguro();
-      }
-    });
+  // Validar que todos los detalles tengan IDs válidos
+  const detallesInvalidos = detalles.filter(d => !d.ID_Producto || d.ID_Producto === 0);
+  if (detallesInvalidos.length > 0) {
+    console.error('❌ ERROR: Hay productos sin ID válido:', detallesInvalidos);
+    alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
+    return;
   }
+
+  let notasDePedido: string;
+  if (this.tipoDocumento === null) {
+    notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  } else {
+    notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  }
+
+  const pedidoData: PedidoCreacionDTO = {
+    ID_Cliente: idCliente,
+    ID_Usuario: idUsuario,
+    Notas: notasDePedido,
+    Estado_P: 'P',
+    Fecha_Registro: new Date().toISOString().split('T')[0],
+    Hora_Pedido: new Date().toTimeString().split(' ')[0],
+    detalles: detalles
+  };
+
+  console.log('🚀 ENVIANDO PEDIDO:', JSON.stringify(pedidoData, null, 2));
+
+  this.pedidoService.createPedido(pedidoData as any).subscribe({
+    next: (response: any) => {
+      console.log('✅ PEDIDO guardado exitosamente:', response);
+      
+      let pedidoId = null;
+      if (response.ID_Pedido) {
+        pedidoId = response.ID_Pedido;
+      } else if (response.id_pedido) {
+        pedidoId = response.id_pedido;
+      } else if (response.pedidoId) {
+        pedidoId = response.pedidoId;
+      } else if (response.data?.ID_Pedido) {
+        pedidoId = response.data.ID_Pedido;
+      } else if (response.insertId) { 
+        pedidoId = response.insertId;
+      }
+      
+      if (pedidoId) {
+        console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
+        this.guardarVentaEnBaseDeDatos(pedidoId);
+      } else {
+        console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
+        this.finalizarCompra();
+      }
+    },
+    error: (error) => {
+      console.error('❌ ERROR guardando pedido:', error);
+      alert('Error al guardar el pedido. Por favor, intente nuevamente.');
+    }
+  });
+}
 
   obtenerIdTamanoValidoExistente(producto: any): number {
-    const tamanosExistentes = [1, 2, 3];
-    if (producto.id_tamano && tamanosExistentes.includes(producto.id_tamano)) {
-      return producto.id_tamano;
-    }
-    console.log(`🔍 Usando ID_Tamano seguro: 1 (Personal)`);
-    return 1;
+  const tamanosExistentes = [1, 2, 3];
+  
+  // ✅ Buscar primero idTamano (camelCase) que es como se guarda en el carrito
+  if (producto.idTamano && tamanosExistentes.includes(producto.idTamano)) {
+    console.log(`✅ ID_Tamano encontrado: ${producto.idTamano}`);
+    return producto.idTamano;
   }
+  
+  // Fallback a id_tamano por si acaso
+  if (producto.id_tamano && tamanosExistentes.includes(producto.id_tamano)) {
+    console.log(`✅ ID_Tamano encontrado (snake_case): ${producto.id_tamano}`);
+    return producto.id_tamano;
+  }
+  
+  console.warn('⚠️ No se encontró ID_Tamano válido. Usando 1 (Personal) como fallback');
+  return 1;
+}
 
   guardarConIdTamanoSeguro() {
     const productos = this.carritoService.obtenerProductos();
