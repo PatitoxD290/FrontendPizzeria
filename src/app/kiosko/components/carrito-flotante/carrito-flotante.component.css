@@ -4,15 +4,39 @@
   bottom: 27px;
   right: 29px;
   z-index: 1200;
-  width: 60px;
+  width: auto;
   height: 60px;
+  background: #be1b1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-radius: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.boton-carrito:hover {
+  background: #a51617;
+  transform: translateY(-2px);
 }
 
 .icono-carrito {
   font-size: 28px;
   width: 28px;
   height: 28px;
+  color: white;
 }
+
+.texto-carrito {
+  margin-left: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  vertical-align: middle;
+  color: white;
+}
+
 
 /* === BADGE DEL NÚMERO === */
 .badge-icon {

@@ -21,53 +21,39 @@
   </div>
 
   <!-- 🧾 Lista de productos -->
-  <div class="productos-grid">
-    <div *ngFor="let p of productosFiltrados" class="producto-card">
-      <div class="producto-imagen-container">
-        <img
-          [src]="p.imagen"
-          (error)="p.imagen = '/assets/imgs/logo.png'"
-          [alt]="p.nombre"
-          class="producto-imagen"
-        />
-      </div>
+<div class="productos-grid">
+  <div
+    *ngFor="let p of productosFiltrados"
+    class="producto-card"
+    (click)="abrirPersonalizacion(p)"
+    style="cursor: pointer;"
+  >
+    <div class="producto-imagen-container">
+      <img
+        [src]="p.imagen"
+        (error)="p.imagen = '/assets/imgs/logo.png'"
+        [alt]="p.nombre"
+        class="producto-imagen"
+      />
+    </div>
 
-      <div class="producto-info">
-        <h3 class="producto-nombre">{{ p.nombre }}</h3>
-        <p class="producto-descripcion">{{ p.descripcion }}</p>
+    <div class="producto-info">
+      <h3 class="producto-nombre">{{ p.nombre }}</h3>
+      <p class="producto-descripcion">{{ p.descripcion }}</p>
 
-        <!-- 🔹 Solo para combos -->
-        <p
-          *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto"
-          class="producto-detalles"
-        >
-          {{ p.detallesTexto }}
-        </p>
+      <p
+        *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto"
+        class="producto-detalles"
+      >
+        {{ p.detallesTexto }}
+      </p>
 
-        <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
-        <p class="producto-precio">S/. {{ p.precio }}</p>
-
-        <div class="producto-acciones">
-          <button
-            *ngIf="getNombreCategoria(p.categoria) !== 'Bebidas'"
-            class="btn-personalizar"
-            (click)="abrirPersonalizacion(p)"
-          >
-            Personalizar
-          </button>
-
-          <button
-            class="btn-agregar"
-            [class.btn-agregar-solo]="getNombreCategoria(p.categoria) === 'Bebidas'"
-            (click)="agregarAlCarrito(p)"
-          >
-            <img src="assets/imgs/agregar.png" alt="Agregar" style="width: 19px; height: 19px; vertical-align: middle; margin-top: -5px;">
-            <span style="vertical-align: middle; right: -1.5px; position: relative;">Agregar</span>
-          </button>
-        </div>
-      </div>
+      <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
+      <p class="producto-precio">S/. {{ p.precio }}</p>
     </div>
   </div>
+</div>
+
 
   <!-- Carrito flotante -->
   <app-carrito-flotante></app-carrito-flotante>

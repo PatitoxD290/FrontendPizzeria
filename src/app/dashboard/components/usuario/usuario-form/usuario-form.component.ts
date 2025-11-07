@@ -46,7 +46,10 @@ constructor(
   this.mode = data?.mode || 'form';
 
   this.usuario = data?.usuario
-    ? { ...data.usuario }
+    ? { 
+        ...data.usuario,
+        Password: ''   
+      }
     : {
         ID_Usuario: 0,
         Correo: '',
@@ -57,6 +60,7 @@ constructor(
         Fecha_Registro: ''
       };
 }
+
 
 
 

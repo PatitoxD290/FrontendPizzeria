@@ -243,17 +243,15 @@ export class MenuComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result && result.agregar) {
+      if (result && result.agregar && result.producto) {
         this.carritoService.agregarProducto({
           ...producto,
           ...result.producto,
-          cantidad: 1,
-          tamano: 'PERSONAL',
-          idTamano: 1,
         });
       }
     });
   }
+
 
   calcularTotalCarrito(): number {
     return this.carritoService

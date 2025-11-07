@@ -1,10 +1,12 @@
 <!-- BOTÓN FLOTANTE DEL CARRITO -->
 <button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" *ngIf="!visible && !esPaginaPago()">
   <mat-icon class="icono-carrito">shopping_cart</mat-icon>
+  <span class="texto-carrito">Ver Pedido</span>
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
     {{ cantidadItemsDistintos }}
   </span>
 </button>
+
 
 <!-- PANEL LATERAL DEL CARRITO -->
 <div class="panel-carrito" [class.abierto]="visible && !esPaginaPago()">
