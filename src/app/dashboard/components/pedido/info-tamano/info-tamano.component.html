@@ -1,21 +1,21 @@
 <mat-card class="info-card">
   <mat-card-header>
     <mat-card-title>{{ producto.Nombre }}</mat-card-title>
-    <mat-card-subtitle>S/ {{ producto.Precio_Base | number:'1.2-2' }}</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="primerTamano">
+      S/ {{ primerTamano.Precio | number:'1.2-2' }} - {{ primerTamano.nombre_tamano || 'Tamaño único' }}
+    </mat-card-subtitle>
+    <mat-card-subtitle *ngIf="!primerTamano" class="text-warn">
+      Producto no disponible
+    </mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
     <p>{{ producto.Descripcion }}</p>
 
-    <!-- 🔹 Campo de tamaño SOLO si la categoría lo permite -->
-    <mat-form-field *ngIf="mostrarTamano" appearance="fill" class="full-width">
-      <mat-label>Tamaño</mat-label>
-      <mat-select [(value)]="tamanoSeleccionado">
-        <mat-option *ngFor="let t of tamanos" [value]="t">
-          {{ t.Tamano }} (+S/ {{ t.Variacion_Precio | number:'1.2-2' }})
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- 🔹 Información del tamaño seleccionado automáticamente -->
+    <div *ngIf="primerTamano" class="tamano-info">
+      <strong>Tamaño:</strong> {{ primerTamano.nombre_tamano || 'Tamaño único' }}
+    </div>
 
     <!-- 🔹 Campo cantidad validado -->
     <mat-form-field appearance="fill" class="full-width">
@@ -32,12 +32,31 @@
       />
     </mat-form-field>
 
+    <!-- 🔹 Botones de incremento/decremento (opcional) -->
+    <div class="cantidad-controls" *ngIf="primerTamano">
+      <button mat-mini-button (click)="decrementarCantidad()" [disabled]="cantidad <= 1">
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="cantidad-display">{{ cantidad }}</span>
+      <button mat-mini-button (click)="incrementarCantidad()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
     <!-- 🔹 Total dinámico -->
-    <h3 class="total-text">Total: S/ {{ getPrecioTotal() | number:'1.2-2' }}</h3>
+    <h3 class="total-text" *ngIf="primerTamano">Total: S/ {{ getPrecioTotal() | number:'1.2-2' }}</h3>
+    
+    <div *ngIf="!primerTamano" class="error-message">
+      Este producto no está disponible actualmente.
+    </div>
   </mat-card-content>
 
   <mat-card-actions class="actions">
-    <button mat-raised-button color="primary" (click)="agregarAlPedido()">Agregar</button>
+    <button mat-raised-button color="primary" 
+            (click)="agregarAlPedido()"
+            [disabled]="!primerTamano || cantidad <= 0">
+      Agregar al Pedido
+    </button>
     <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
   </mat-card-actions>
 </mat-card>

@@ -1,5 +1,4 @@
 <!-- 🔹 Campo opcional de cliente -->
-<!-- 🔹 Selección de tipo de documento -->
 <div class="cliente-input-container">
   <mat-form-field appearance="outline" class="tipo-doc-field">
     <mat-label>Tipo de documento</mat-label>
@@ -10,35 +9,31 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="cliente-field">
-  <mat-label>{{ tipoDocumento }} del cliente</mat-label>
-  <input
-    matInput
-    [(ngModel)]="numeroDocumento"
-    [maxlength]="tipoDocumento === 'DNI' ? 8 : 11"
-    autocomplete="off"
-    inputmode="numeric"
-    pattern="[0-9]*"
-    (keypress)="($event.key >= '0' && $event.key <= '9') ? true : $event.preventDefault()"
-    (input)="soloNumeros($event)"
-  />
+    <mat-label>{{ tipoDocumento }} del cliente</mat-label>
+    <input
+      matInput
+      [(ngModel)]="numeroDocumento"
+      [maxlength]="tipoDocumento === 'DNI' ? 8 : 11"
+      autocomplete="off"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      (keypress)="($event.key >= '0' && $event.key <= '9') ? true : $event.preventDefault()"
+      (input)="soloNumeros($event)"
+    />
 
-
-
-  <span matSuffix class="icon-suffix-container">
-    <button
-      *ngIf="numeroDocumento"
-      mat-icon-button
-      aria-label="Borrar"
-      (click)="numeroDocumento = ''"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-    <mat-icon class="cliente-icon">badge</mat-icon>
-  </span>
-</mat-form-field>
-
+    <span matSuffix class="icon-suffix-container">
+      <button
+        *ngIf="numeroDocumento"
+        mat-icon-button
+        aria-label="Borrar"
+        (click)="numeroDocumento = ''"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon class="cliente-icon">badge</mat-icon>
+    </span>
+  </mat-form-field>
 </div>
-
 
 <!-- 🔹 Tabla de detalle -->
 <table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
@@ -55,29 +50,26 @@
   <!-- Tamaño -->
   <ng-container matColumnDef="tamano">
     <th mat-header-cell *matHeaderCellDef>Tamaño</th>
-   <td mat-cell *matCellDef="let d">
-    <span class="tamano-badge">{{ d.nombre_tamano }}</span>
-  </td>
-
+    <td mat-cell *matCellDef="let d">
+      <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
+    </td>
   </ng-container>
 
   <!-- Cantidad -->
-<ng-container matColumnDef="cantidad">
-  <th mat-header-cell *matHeaderCellDef>Cant.</th>
-  <td mat-cell *matCellDef="let d">
-    <div class="cantidad-control-horizontal">
-      <button mat-mini-button (click)="reducirCantidad(d)">
-        <mat-icon>remove</mat-icon>
-      </button>
-      <span>{{ d.Cantidad }}</span>
-      <button mat-mini-button (click)="aumentarCantidad(d)">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-  </td>
-</ng-container>
-
-
+  <ng-container matColumnDef="cantidad">
+    <th mat-header-cell *matHeaderCellDef>Cant.</th>
+    <td mat-cell *matCellDef="let d">
+      <div class="cantidad-control-horizontal">
+        <button mat-mini-button (click)="reducirCantidad(d)">
+          <mat-icon>remove</mat-icon>
+        </button>
+        <span>{{ d.Cantidad }}</span>
+        <button mat-mini-button (click)="aumentarCantidad(d)">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </td>
+  </ng-container>
 
   <!-- Precio -->
   <ng-container matColumnDef="precio">

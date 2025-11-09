@@ -33,8 +33,8 @@ mat-card {
   gap: 10px;
 }
 
-/* Colores de estado */
+/* ✅ Colores de estado CORREGIDOS */
 .estado-pendiente { color: orange; font-weight: 600; }
-.estado-completado { color: green; font-weight: 600; }
-.estado-en-proceso { color: blue; font-weight: 600; }
-.estado-descartado { color: red; font-weight: 600; }
+.estado-entregado { color: green; font-weight: 600; }
+.estado-no-entregado { color: red; font-weight: 600; }
+.estado-no-disponible { color: gray; font-weight: 600; }

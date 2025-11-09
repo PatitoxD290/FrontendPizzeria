@@ -1,8 +1,7 @@
-// src/app/dashboard/services/orden.service.ts
+// src/app/core/services/orden.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { PedidoDetalle } from '../models/pedido.model';
-
 import Swal from 'sweetalert2';
 
 @Injectable({
@@ -16,37 +15,36 @@ export class OrdenService {
   constructor() {}
 
   // 🟩 Agregar producto al pedido
-agregarProducto(detalle: PedidoDetalle) {
-  if (!detalle.Cantidad || detalle.Cantidad <= 0) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Cantidad inválida',
-      text: 'No puedes agregar un producto con cantidad 0.',
-      confirmButtonColor: '#1976d2'
-    });
-    return;
+  agregarProducto(detalle: PedidoDetalle) {
+    if (!detalle.Cantidad || detalle.Cantidad <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Cantidad inválida',
+        text: 'No puedes agregar un producto con cantidad 0.',
+        confirmButtonColor: '#1976d2'
+      });
+      return;
+    }
+
+    // ✅ Usar ID_Producto_T en lugar de ID_Producto
+    const existente = this.detalles.find(
+      d => d.ID_Producto_T === detalle.ID_Producto_T
+    );
+
+    if (existente) {
+      existente.Cantidad += detalle.Cantidad;
+      existente.PrecioTotal += detalle.PrecioTotal;
+    } else {
+      this.detalles.push({ ...detalle });
+    }
+
+    this.detallesSubject.next([...this.detalles]);
   }
 
-  const existente = this.detalles.find(
-    d => d.ID_Producto === detalle.ID_Producto && d.ID_Tamano === detalle.ID_Tamano
-  );
-
-  if (existente) {
-    existente.Cantidad += detalle.Cantidad;
-    existente.PrecioTotal += detalle.PrecioTotal;
-  } else {
-    this.detalles.push({ ...detalle });
-  }
-
-  this.detallesSubject.next([...this.detalles]);
-}
-
-
-
-
-// ⬆️ Aumentar cantidad
-aumentarCantidad(idProducto: number, idTamano: number, precioBase: number) {
-  const detalle = this.detalles.find(d => d.ID_Producto === idProducto && d.ID_Tamano === idTamano);
+  // ⬆️ Aumentar cantidad
+ // En orden.service.ts - verificar que los métodos usen ID_Producto_T
+aumentarCantidad(idProductoTamano: number, precioBase: number) {
+  const detalle = this.detalles.find(d => d.ID_Producto_T === idProductoTamano);
   if (detalle) {
     detalle.Cantidad++;
     detalle.PrecioTotal = detalle.Cantidad * precioBase;
@@ -54,24 +52,21 @@ aumentarCantidad(idProducto: number, idTamano: number, precioBase: number) {
   }
 }
 
-// ⬇️ Reducir cantidad
-reducirCantidad(idProducto: number, idTamano: number, precioBase: number) {
-  const detalle = this.detalles.find(d => d.ID_Producto === idProducto && d.ID_Tamano === idTamano);
+reducirCantidad(idProductoTamano: number, precioBase: number) {
+  const detalle = this.detalles.find(d => d.ID_Producto_T === idProductoTamano);
   if (detalle && detalle.Cantidad > 1) {
     detalle.Cantidad--;
     detalle.PrecioTotal = detalle.Cantidad * precioBase;
     this.detallesSubject.next([...this.detalles]);
   } else if (detalle && detalle.Cantidad === 1) {
-    this.eliminarProducto(idProducto, idTamano);
+    this.eliminarProducto(idProductoTamano);
   }
 }
 
-// 🟥 Eliminar producto con tamaño
-eliminarProducto(idProducto: number, idTamano: number) {
-  this.detalles = this.detalles.filter(d => !(d.ID_Producto === idProducto && d.ID_Tamano === idTamano));
+eliminarProducto(idProductoTamano: number) {
+  this.detalles = this.detalles.filter(d => d.ID_Producto_T !== idProductoTamano);
   this.detallesSubject.next([...this.detalles]);
 }
-
 
   // 🧹 Limpiar carrito
   limpiar() {

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CarritoService } from '../../../core/services/carrito.service';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { ModalStateService } from '../../../core/services/modal-state.service'; // ✅ Nuevo import
+import { Subscription } from 'rxjs'; // ✅ Nuevo import
 
 @Component({
   selector: 'app-carrito-flotante',
@@ -12,29 +15,53 @@ import { Router } from '@angular/router';
   templateUrl: './carrito-flotante.component.html',
   styleUrls: ['./carrito-flotante.component.css']
 })
-export class CarritoFlotanteComponent {
-  visible = false;
+export class CarritoFlotanteComponent implements OnInit, OnDestroy {
+  esPaginaCarrito = false;
+  modalAbierto = false; // ✅ Nueva propiedad
+  private modalSubscription!: Subscription; // ✅ Nueva suscripción
 
   constructor(
     public carritoService: CarritoService,
-    public router: Router
+    public router: Router,
+    private location: Location,
+    private modalStateService: ModalStateService // ✅ Inyectar servicio
   ) {}
 
-  // Nueva función para verificar si estamos en la página de pago
+  ngOnInit() {
+    this.esPaginaCarrito = this.router.url.includes('/carrito');
+    
+    // ✅ Suscribirse al estado de los modales
+    this.modalSubscription = this.modalStateService.modalAbierto$.subscribe(
+      (abierto) => {
+        this.modalAbierto = abierto;
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    // ✅ Limpiar suscripción
+    if (this.modalSubscription) {
+      this.modalSubscription.unsubscribe();
+    }
+  }
+
   esPaginaPago(): boolean {
     return this.router.url.includes('/pago');
   }
 
   toggleCarrito() {
-    // No permitir abrir el carrito en la página de pago
-    if (this.esPaginaPago()) {
+    // ✅ No hacer nada si hay modales abiertos
+    if (this.modalAbierto || this.esPaginaPago()) {
       return;
     }
-    this.visible = !this.visible;
+    
+    this.router.navigate(['/kiosko/carrito']);
   }
 
   volver() {
-    this.visible = false;
+    if (this.esPaginaCarrito) {
+      this.location.back();
+    }
   }
 
   eliminarProducto(index: number) {
@@ -55,30 +82,18 @@ export class CarritoFlotanteComponent {
       return;
     }
     
-    // Ocultar completamente el carrito antes de navegar
-    this.visible = false;
-    
-    // Navegar a la página de pago
-    this.router.navigate(['kiosko/pago']).then(() => {
-      // Forzar un cambio de detección para asegurar que el carrito se oculte
-      setTimeout(() => {
-        this.visible = false;
-      }, 0);
-    });
+    this.router.navigate(['kiosko/pago']);
   }
 
-  /** ✅ Nueva función para vaciar todo el carrito */
   vaciarCarrito() {
     this.carritoService.vaciarCarrito();
   }
 
-  get total(): number {
-    return this.carritoService
-      .obtenerProductos()
-      .reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-  }
-
   get cantidadItemsDistintos(): number {
     return this.carritoService.obtenerProductos().length;
+  }
+
+  get total(): number {
+    return this.carritoService.obtenerTotal();
   }
 }

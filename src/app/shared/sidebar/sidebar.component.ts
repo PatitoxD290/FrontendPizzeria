@@ -68,23 +68,23 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
       { label: 'Caja', route: '/dashboard/realizarpedido', icon: 'payments' }, // pago en caja
       { label: 'Pedidos', route: '/dashboard/registropedidos', icon: 'assignment' }, // registro de pedidos
       { label: 'Ventas', route: '/dashboard/venta', icon: 'sell' }, // icono de venta
-      { label: 'Historial de Clientes', route: '/dashboard/cliente', icon: 'people_alt' } // clientes
+      { label: 'Clientes', route: '/dashboard/cliente', icon: 'people_alt' } // clientes
     ]
   },
   {
-    label: 'Configuración del Menú',
+    label: ' Menú',
     items: [
       { label: 'Productos', route: '/dashboard/producto', icon: 'fastfood' }, // comida
-      { label: 'Categorías y Tamaños', route: '/dashboard/categoria', icon: 'category' }, // ícono corregido
+      { label: 'Categorías', route: '/dashboard/categoria', icon: 'category' }, // ícono corregido
       { label: 'Recetas', route: '/dashboard/receta', icon: 'menu_book' }, // libro de recetas
     ]
   },
   {
-    label: 'Configuración de Inventario',
+    label: 'Inventario',
     items: [
       { label: 'Stock', route: '/dashboard/stock', icon: 'inventory_2' }, // inventario
       {
-        label: 'Administración de Insumos',
+        label: ' Insumos',
         icon: 'kitchen', // cocina
         children: [
           { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'emoji_food_beverage' }, // ingredientes
@@ -95,9 +95,14 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
     ]
   },
   {
-    label: 'Configuración de Empleados',
+    label: 'Configuración ',
     items: [
       { label: 'Usuarios', route: '/dashboard/usuario', icon: 'manage_accounts' } // configuración de empleados
+    ]
+  },
+  {
+    items: [
+      { label: 'Analíticas', route: '/dashboard/reportes', icon: 'insights' } // reportes
     ]
   }
 ];
@@ -202,7 +207,7 @@ ngOnInit(): void {
           { label: 'Caja', route: '/dashboard/realizarpedido', icon: 'payments' },
           { label: 'Pedidos', route: '/dashboard/registropedidos', icon: 'assignment' },
           { label: 'Ventas', route: '/dashboard/venta', icon: 'sell' },
-          { label: 'Historial de Clientes', route: '/dashboard/cliente', icon: 'people_alt' }
+          { label: ' Clientes', route: '/dashboard/cliente', icon: 'people_alt' }
         ]
       }
     ];

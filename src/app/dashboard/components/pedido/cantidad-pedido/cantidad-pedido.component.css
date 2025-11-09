@@ -1,0 +1,230 @@
+.modal-container {
+  padding: 0;
+  border-radius: 12px;
+  background: white;
+  min-width: 400px;
+  max-width: 450px;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-button {
+  color: #666;
+}
+
+.close-button:hover {
+  background-color: #f5f5f5;
+}
+
+/* Información del producto */
+.producto-info {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.producto-nombre {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.producto-detalles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.categoria {
+  color: #2196f3;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.separator {
+  color: #999;
+}
+
+.tamano {
+  color: #ff9800;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.producto-descripcion {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Precio unitario */
+.precio-info {
+  padding: 16px 24px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.precio-unitario {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* Control de cantidad */
+.cantidad-container {
+  padding: 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cantidad-label {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.cantidad-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.cantidad-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #2196f3;
+  color: #2196f3;
+  background: white;
+}
+
+.cantidad-btn:hover:not([disabled]) {
+  background-color: #2196f3;
+  color: white;
+}
+
+.cantidad-btn[disabled] {
+  border-color: #ccc;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.cantidad-input {
+  width: 80px;
+}
+
+::ng-deep .cantidad-input .mat-mdc-form-field-outline {
+  border-radius: 8px !important;
+}
+
+::ng-deep .cantidad-input .mat-mdc-input-element {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.disponible-text {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Total */
+.total-container {
+  padding: 20px 24px;
+}
+
+.total-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+  margin-bottom: 16px;
+}
+
+.total-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.total-precio {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+/* Botones de acción */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  color: #666;
+  font-weight: 500;
+}
+
+.cancel-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.add-btn {
+  flex: 2;
+  padding: 10px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.add-btn mat-icon {
+  margin-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-container {
+    min-width: unset;
+    max-width: 90vw;
+  }
+  
+  .modal-header,
+  .producto-info,
+  .precio-info,
+  .cantidad-container,
+  .total-container,
+  .action-buttons {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

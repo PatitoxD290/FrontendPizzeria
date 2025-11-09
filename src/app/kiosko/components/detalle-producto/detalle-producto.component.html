@@ -1,31 +1,46 @@
 <div class="detalle-container">
-  <img [src]="data.imagen" alt="{{ data.nombre }}" class="detalle-imagen" />
+  <img [src]="data.imagen" alt="{{ data.Nombre }}" class="detalle-imagen" />
 
-  <h2>{{ data.nombre }}</h2>
+  <h2>{{ data.Nombre }}</h2>
+  <p class="producto-descripcion">{{ data.Descripcion }}</p>
 
-  <!-- Mostrar tamaño seleccionado debajo del nombre -->
-  <p *ngIf="tamanoSeleccionado" class="tamano-seleccionado">
-    Tamaño: <b>{{ tamanoSeleccionado.Tamano }}</b>
-  </p>
-
-  <!-- Precio -->
-  <p class="precio">S/. {{ precioActual.toFixed(2) }}</p>
-
-  <!-- Cantidad -->
-  <div class="cantidad">
-    <button mat-mini-fab color="warn" (click)="decrementarCantidad()">−</button>
-    <span>{{ cantidad }}</span>
-    <button mat-mini-fab color="primary" (click)="incrementarCantidad()">+</button>
+  <!-- 🔹 INFORMACIÓN DEL TAMAÑO, PRECIO Y CANTIDAD -->
+  <div *ngIf="data.tamanos && data.tamanos.length > 0" class="tamano-info">
+    <p class="tamano-nombre"><strong>{{ nombreTamanoActual }}</strong></p>
+    
+    <!-- 🔹 PRECIO QUE VARÍA SEGÚN LA CANTIDAD -->
+    <p class="precio-info">S/. {{ precioTotal | number:'1.2-2' }}</p>
+    
+    <!-- Controles de cantidad integrados -->
+    <div class="cantidad-container">
+      <div class="cantidad-controls">
+        <button (click)="decrementarCantidad()">−</button>
+        <span class="cantidad-display">{{ cantidad }}</span>
+        <button (click)="incrementarCantidad()">+</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Elegir tamaño BUTTON - Nuevo estilo -->
-  <button class="boton-elegir-tamano" (click)="abrirModalTamanos()">
-    Elegir Tamaño
-  </button>
+  <!-- 🔹 NUEVO BOTÓN: Añadir Complementos - SOLO SI NO ES BEBIDA -->
+  <div class="complementos-section" *ngIf="!esBebida">
+    <!-- ✅ INDICADOR DE COMPLEMENTOS SELECCIONADOS -->
+    <div *ngIf="tieneComplementos" class="complemento-indicador">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ cantidadComplementos }} complemento(s) seleccionado(s)</span>
+    </div>
+    
+    <button class="btn-complementos" (click)="abrirComplementos()">
+      <mat-icon>local_cafe</mat-icon>
+      Añadir Complementos
+    </button>
+  </div>
 
   <!-- Botones abajo -->
   <div class="acciones">
-    <button mat-raised-button color="warn" (click)="cerrar()">Volver</button>
-    <button mat-raised-button color="primary" (click)="agregarCarrito()">Agregar</button>
+    <button class="btn-volver" (click)="cerrar()">Volver</button>
+    <button class="btn-agregar" (click)="agregarCarrito()">
+      <mat-icon>add_shopping_cart</mat-icon>
+      Agregar al Pedido
+    </button>
   </div>
 </div>

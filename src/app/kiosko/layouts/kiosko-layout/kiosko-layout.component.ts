@@ -27,7 +27,7 @@ import { IdleService } from '../../../core/services/Idle.service';
 })
 export class KioskoLayoutComponent implements OnInit {
   constructor(
-    private router: Router,
+    public router: Router, // ✅ Cambiar a público
     private idleService: IdleService 
   ) {}
 

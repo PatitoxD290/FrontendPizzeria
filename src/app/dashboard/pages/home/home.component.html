@@ -31,21 +31,20 @@
                 </div>
             </div>
 
-            <!-- Producto Estrella -->
-            <div class="stat-card product-card">
-                <div class="icon-container product">
-                    <span class="material-icons">star</span>
-                </div>
-                <div class="card-content">
-                    <h3>Producto Estrella</h3>
-                    <p class="stat-value">Pizza Americana</p>
-                    <div class="trend-container">
-                        <span class="trend-indicator trend-up">+32 uds</span>
-                        <span class="trend-text">este mes</span>
-                    </div>
-                </div>
-            </div>
-
+        <!-- Ventas de hoy -->
+<div class="stat-card product-card">
+    <div class="icon-container sales">
+        <span class="material-icons">shopping_cart</span>
+    </div>
+    <div class="card-content">
+        <h3>Ventas de hoy</h3>
+        <p class="stat-value"> S/ 123</p>
+        <div class="trend-container">
+            <span class="trend-indicator trend-up">+12%</span>
+            <span class="trend-text">vs ayer</span>
+        </div>
+    </div>
+</div>
             <!-- Total Clientes -->
             <div class="stat-card clients-card">
                 <div class="icon-container clients">
@@ -62,3 +61,68 @@
             </div>
         </div>
     </div>
+<div class="contenedor-grafico">
+  <div class="header-grafico">
+    <h2>Ventas Semanales</h2>
+    <select>
+      <option>Esta Semana</option>
+      <option>Semana Pasada</option>
+      <option>Último Mes</option>
+    </select>
+  </div>
+
+  <div class="grafico">
+    <div class="eje-y">
+      <span>S/ 500</span>
+      <span>S/ 400</span>
+      <span>S/ 300</span>
+      <span>S/ 200</span>
+      <span>S/ 100</span>
+      <span>S/ 0</span>
+    </div>
+
+    <div class="lineas-referencia">
+      <div class="linea-referencia" style="top: 0%"></div>
+      <div class="linea-referencia" style="top: 20%"></div>
+      <div class="linea-referencia" style="top: 40%"></div>
+      <div class="linea-referencia" style="top: 60%"></div>
+      <div class="linea-referencia" style="top: 80%"></div>
+    </div>
+
+    <div class="barras">
+      <div class="barra" style="--valor: 60%;">
+        <span class="valor">S/ 30</span>
+      </div>
+      <div class="barra" style="--valor: 45%;">
+        <span class="valor">S/ 22</span>
+      </div>
+      <div class="barra" style="--valor: 35%;">
+        <span class="valor">S/ 18</span>
+      </div>
+      <div class="barra" style="--valor: 75%;">
+        <span class="valor">S/ 38</span>
+      </div>
+      <div class="barra" style="--valor: 90%;">
+        <span class="valor">S/ 45</span>
+      </div>
+      <div class="barra" style="--valor: 65%;">
+        <span class="valor">S/ 33</span>
+      </div>
+      <div class="barra" style="--valor: 50%;">
+        <span class="valor">S/ 25</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Días debajo -->
+  <div class="dias">
+    <span>Lun</span>
+    <span>Mar</span>
+    <span>Mié</span>
+    <span>Jue</span>
+    <span>Vie</span>
+    <span>Sáb</span>
+    <span>Dom</span>
+  </div>
+</div>
+ 

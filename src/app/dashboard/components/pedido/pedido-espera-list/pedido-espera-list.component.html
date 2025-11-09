@@ -1,0 +1,125 @@
+<div class="pedidos-container">
+  <!-- Header -->
+  <div class="header">
+    <h2>Pedidos en Espera</h2>
+    <button mat-raised-button color="primary" (click)="refrescar()">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando pedidos...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button (click)="refrescar()">Reintentar</button>
+  </div>
+
+  <!-- Lista de pedidos -->
+  <div *ngIf="!isLoading && !error" class="pedidos-content">
+    <!-- Mensaje si no hay pedidos -->
+    <div *ngIf="pedidos.length === 0" class="no-pedidos">
+      <mat-icon>restaurant</mat-icon>
+      <h3>No hay pedidos en espera</h3>
+      <p>Todos los pedidos han sido atendidos</p>
+    </div>
+
+    <!-- Cards de pedidos paginados -->
+    <div *ngIf="pedidos.length > 0" class="pedidos-section">
+      <div class="pedidos-grid">
+        <!-- Cards de pedidos -->
+        <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card">
+          <mat-card-header class="pedido-header">
+            <mat-card-title class="pedido-title">
+              Pedido #{{ pedido.ID_Pedido }}
+            </mat-card-title>
+            <mat-card-subtitle class="pedido-subtitle">
+              {{ getHoraFormateada(pedido.Hora_Pedido) }} • {{ pedido.Fecha_Registro | date:'dd/MM/yyyy' }}
+            </mat-card-subtitle>
+            
+            <!-- Chip de estado -->
+            <div class="estado-chip">
+              <mat-chip [color]="getEstadoColor(pedido.Estado_P)" selected>
+                {{ getEstadoTexto(pedido.Estado_P) }}
+              </mat-chip>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content class="pedido-content">
+            <!-- Información del cliente -->
+            <div class="cliente-info">
+              <mat-icon>person</mat-icon>
+              <span class="cliente-nombre">{{ getNombreCliente(pedido) }}</span>
+            </div>
+
+            <!-- Notas del pedido -->
+            <div *ngIf="pedido.Notas" class="notas-container">
+              <mat-icon>notes</mat-icon>
+              <span class="notas-texto">{{ pedido.Notas }}</span>
+            </div>
+
+            <!-- Lista de productos -->
+            <div class="productos-list">
+              <h4>Productos:</h4>
+              <div *ngFor="let detalle of pedido.detallesCompletos" class="producto-item">
+                <div class="producto-info">
+                  <span class="producto-nombre">
+                    {{ detalle.productoInfo?.Nombre || detalle.nombre_producto || 'Producto' }}
+                  </span>
+                  <span class="producto-tamano">
+                    ({{ detalle.tamanoInfo }}) x{{ detalle.Cantidad }}
+                  </span>
+                </div>
+                <span class="producto-precio">
+                  S/ {{ detalle.PrecioTotal | number:'1.2-2' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="total-container">
+              <span class="total-label">Total:</span>
+              <span class="total-precio">S/ {{ pedido.SubTotal | number:'1.2-2' }}</span>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions align="end" class="pedido-actions">
+            <!-- Solo mostrar botón Entregar para pedidos pendientes -->
+            <button *ngIf="pedido.Estado_P === 'P'" 
+                    mat-raised-button 
+                    color="primary"
+                    (click)="actualizarEstado(pedido, 'E')">
+              <mat-icon>check_circle</mat-icon>
+              Entregar
+            </button>
+
+            <!-- Botón cancelar para todos los estados pendientes -->
+            <button *ngIf="pedido.Estado_P === 'P'" 
+                    mat-button 
+                    color="warn" 
+                    (click)="actualizarEstado(pedido, 'C')">
+              <mat-icon>cancel</mat-icon>
+              Cancelar
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Paginación -->
+      <mat-paginator
+        [length]="pedidos.length"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        aria-label="Seleccionar página">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

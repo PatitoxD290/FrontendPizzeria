@@ -15,10 +15,13 @@ export interface Combo {
 export interface ComboDetalle {
   ID_Combo_D: number;
   ID_Combo: number;
-  ID_Producto: number;
-  ID_Tamano: number;
+
+  // ✅ Campo correcto según backend
+  ID_Producto_T: number;
+
   Cantidad: number;
 
-  Producto_Nombre: string;
-  Tamano_Nombre: string; 
+  // ✅ Campos solo para mostrar en pantallas (opcionales)
+  Producto_Nombre?: string;
+  Tamano_Nombre?: string;
 }

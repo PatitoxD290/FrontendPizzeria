@@ -1,156 +1,153 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { UpperCasePipe, CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { CommonModule, NgIf } from '@angular/common';
 import { CarritoService } from '../../../core/services/carrito.service';
-import { TamanoService } from '../../../core/services/tamano.service';
-import { Tamano } from '../../../core/models/tamano.model';
-
-import { MatDialog } from '@angular/material/dialog';
-import { TamanoProductoComponent } from '../tamano-producto/tamano-producto.component';
+import { ComplementoService } from '../../../core/services/complemento.service';
+import { ProductoTamano } from '../../../core/models/producto.model';
+import { ComplementoProductoComponent } from '../complemento-producto/complemento-producto.component';
+import { MatIconModule } from '@angular/material/icon';
+import { ModalStateService } from '../../../core/services/modal-state.service'; // ✅ Nuevo import
 
 @Component({
   selector: 'app-detalle-producto',
   templateUrl: './detalle-producto.component.html',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   styleUrls: ['./detalle-producto.component.css'],
 })
-export class DetalleProductoComponent implements OnInit {
+export class DetalleProductoComponent implements OnInit, OnDestroy {
   cantidad: number = 1;
-  tamanoSeleccionado: Tamano | null = null;
-  precioActual: number = 0;
-  tamanos: Tamano[] = [];
+  tieneComplementos: boolean = false;
+  esBebida: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<DetalleProductoComponent>,
     private carritoService: CarritoService,
-    private tamanoService: TamanoService,
-    private dialog: MatDialog
-
-  ) {
-    this.precioActual = this.data.precio; // Precio base del producto
-  }
+    public complementoService: ComplementoService,
+    private dialog: MatDialog,
+    private modalStateService: ModalStateService // ✅ Inyectar servicio
+  ) {}
 
   ngOnInit(): void {
-    this.cargarTamanos();
+    // ✅ Notificar que el modal está abierto
+    this.modalStateService.setModalAbierto(true);
+    
+    this.verificarSiEsBebida();
+    this.verificarComplementos();
   }
 
-  // 🔹 Cargar tamaños desde el backend
-private cargarTamanos(): void {
-  this.tamanoService.getTamanos().subscribe({
-    next: (tamanos) => {
-      this.tamanos = tamanos;
-      console.log('Tamaños cargados:', tamanos);
-
-      // ✅ Buscar tamaño "Personal"
-      const tamanoPersonal = this.tamanos.find(t => t.Tamano.toLowerCase() === "personal");
-
-      if (tamanoPersonal) {
-        this.tamanoSeleccionado = tamanoPersonal;
-        this.actualizarPrecio(); // ✅ Recalcular precio con variación
-      } else {
-        // 🟡 Si no existe "Personal", usar precio base
-        this.tamanoSeleccionado = null;
-        this.precioActual = this.data.precio;
-      }
-    },
-    error: (err) => {
-      console.error('Error al cargar tamaños:', err);
-    },
-  });
-}
-
-
-
-  // 🔹 Cuando se selecciona un tamaño
-seleccionarTamano(t: Tamano) {
-  this.dialogRef.close(t); // ✅ Devolver solo el tamaño
-}
-
-
-  // 🔹 Calcular precio según la variación
-  private actualizarPrecio(): void {
-  if (!this.tamanoSeleccionado) return;
-  this.precioActual = this.data.precio + this.tamanoSeleccionado.Variacion_Precio;
+  ngOnDestroy(): void {
+    // ✅ Notificar que el modal se cerró
+    this.modalStateService.setModalAbierto(false);
   }
 
+  // ✅ Método para verificar si el producto es una bebida
+  verificarSiEsBebida(): void {
+    const nombreCategoria = this.data.nombre_categoria?.toLowerCase() || '';
+    this.esBebida = nombreCategoria.includes('bebida') || 
+                    nombreCategoria.includes('bebidas');
+    
+    console.log('Categoría del producto:', this.data.nombre_categoria);
+    console.log('¿Es bebida?:', this.esBebida);
+  }
+
+  verificarComplementos(): void {
+    this.tieneComplementos = this.complementoService.tieneComplementos();
+  }
 
   incrementarCantidad(): void {
     this.cantidad++;
   }
 
   decrementarCantidad(): void {
-  if (this.cantidad > 1) this.cantidad--;
+    if (this.cantidad > 1) this.cantidad--;
   }
 
-
   cerrar(): void {
+    this.complementoService.limpiarComplementosTemporales();
     this.dialogRef.close();
   }
 
-  agregarCarrito(): void {
-  if (this.cantidad <= 0 || !this.tamanoSeleccionado) {
-    alert('⚠️ Debe seleccionar un tamaño');
-    return;
+  abrirComplementos(): void {
+    const dialogRef = this.dialog.open(ComplementoProductoComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.complementosSeleccionados) {
+        this.verificarComplementos();
+      }
+    });
   }
 
-  const subtotal = this.precioActual * this.cantidad;
-  
-  // ✅ CORRECCIÓN: Usar las propiedades correctas del objeto data
-  const producto = {
-    // IDs
-    id: this.data.id || this.data.ID_Producto,
-    ID_Producto: this.data.ID_Producto || this.data.id,
-    
-    // Información básica
-    nombre: this.data.nombre || this.data.Nombre,
-    descripcion: this.data.descripcion || this.data.Descripcion,
-    
-    // Precios
-    precio: this.precioActual, // Precio con variación de tamaño incluida
-    Precio_Base: this.data.precio || this.data.Precio_Base,
-    
-    // Cantidad y subtotal
-    cantidad: this.cantidad,
-    subtotal: subtotal,
-    
-    // Imagen
-    imagen: this.data.imagen,
-    
-    // Tamaño
-    tamano: this.tamanoSeleccionado.Tamano,
-    idTamano: this.tamanoSeleccionado.ID_Tamano,
-    ID_Tamano: this.tamanoSeleccionado.ID_Tamano,
-    
-    // Categoría (opcional)
-    categoria: this.data.categoria || this.data.ID_Categoria_P
-  };
-
-  console.log('🛒 Producto a agregar al carrito:', JSON.stringify(producto, null, 2));
-  this.carritoService.agregarProducto(producto);
-  this.dialogRef.close();
-}
-
-abrirModalTamanos() {
-  const dialogRef = this.dialog.open(TamanoProductoComponent, {
-    width: '420px',
-    data: {
-      producto: this.data,
-      tamanoSeleccionado: this.tamanoSeleccionado   // ✅ Pasamos el tamaño seleccionado actual
+  agregarCarrito(): void {
+    if (this.cantidad <= 0) {
+      return;
     }
-  });
 
-  dialogRef.afterClosed().subscribe((tamanoSeleccionado: Tamano | null) => {
-    if (!tamanoSeleccionado) return;
-    this.tamanoSeleccionado = tamanoSeleccionado;
-    this.actualizarPrecio();
-  });
-}
+    const primerTamano = this.data.tamanos && this.data.tamanos.length > 0 
+      ? this.data.tamanos[0] 
+      : null;
 
+    if (!primerTamano) {
+      return;
+    }
 
+    const productoPrincipal = {
+      ID_Producto: this.data.ID_Producto,
+      ID_Producto_T: primerTamano.ID_Producto_T,
+      nombre: this.data.Nombre,
+      descripcion: this.data.Descripcion,
+      precio: primerTamano.Precio,
+      cantidad: this.cantidad,
+      subtotal: primerTamano.Precio * this.cantidad,
+      imagen: this.data.imagen || 'assets/default-product.png',
+      nombre_tamano: primerTamano.nombre_tamano || 'Tamaño único',
+      ID_Tamano: primerTamano.ID_Tamano,
+      ID_Categoria_P: this.data.ID_Categoria_P,
+      esPrincipal: true
+    };
 
+    this.carritoService.agregarProducto(productoPrincipal);
 
+    const complementos = this.complementoService.obtenerComplementosTemporales();
+    if (complementos.length > 0) {
+      complementos.forEach(complemento => {
+        this.carritoService.agregarProducto(complemento);
+      });
+    }
 
+    this.complementoService.limpiarComplementosTemporales();
 
+    this.dialogRef.close({ 
+      agregar: true, 
+      producto: productoPrincipal,
+      complementosAgregados: complementos.length 
+    });
+  }
+
+  get nombreTamanoActual(): string {
+    const primerTamano = this.data.tamanos && this.data.tamanos.length > 0 
+      ? this.data.tamanos[0] 
+      : { nombre_tamano: 'Tamaño único' };
+    return primerTamano.nombre_tamano || 'Tamaño único';
+  }
+
+  get precioUnitario(): number {
+    const primerTamano = this.data.tamanos && this.data.tamanos.length > 0 
+      ? this.data.tamanos[0] 
+      : { Precio: 0 };
+    return primerTamano.Precio || 0;
+  }
+
+  get precioTotal(): number {
+    return this.precioUnitario * this.cantidad;
+  }
+
+  get cantidadComplementos(): number {
+    return this.complementoService.obtenerCantidadComplementos();
+  }
 }

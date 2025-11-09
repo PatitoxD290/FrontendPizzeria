@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 
 import Swal from 'sweetalert2';
 
-
 @Component({
   selector: 'app-venta-pedido',
   standalone: true,
@@ -47,27 +46,26 @@ export class VentaPedidoComponent {
   }
 
   confirmar() {
-  // Si el método de pago es EFECTIVO, validar monto recibido
-  if (this.metodoPago === 'EFECTIVO') {
-    const recibeNum = Number(this.recibe) || 0;
+    // Si el método de pago es EFECTIVO, validar monto recibido
+    if (this.metodoPago === 'EFECTIVO') {
+      const recibeNum = Number(this.recibe) || 0;
 
-    if (recibeNum < this.data.total) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Monto insuficiente',
-        text: 'El monto recibido es menor al total a pagar.',
-        confirmButtonColor: '#d33'
-      });
-      return; // ← No cierra el modal ni registra nada
+      if (recibeNum < this.data.total) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Monto insuficiente',
+          text: 'El monto recibido es menor al total a pagar.',
+          confirmButtonColor: '#d33'
+        });
+        return; // ← No cierra el modal ni registra nada
+      }
     }
+
+    // 🔹 MODIFICADO: Pasar también el método de pago en texto completo
+    this.dialogRef.close({
+      metodoPago: this.metodoPago, // 🔹 Se pasa el texto completo (EFECTIVO, TARJETA, BILLETERA)
+      recibe: this.recibe,
+      vuelto: this.vuelto
+    });
   }
-
-  // Si todo está correcto, cierra el diálogo enviando los datos
-  this.dialogRef.close({
-    metodoPago: this.metodoPago,
-    recibe: this.recibe,
-    vuelto: this.vuelto
-  });
-}
-
 }

@@ -29,4 +29,5 @@ export class HomeComponent implements OnInit {
     };
     return now.toLocaleDateString('es-ES', options);
   }
+  
 }

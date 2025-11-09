@@ -4,12 +4,12 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #ffffff00;
 }
 
 /* ==== SIDEBAR ==== */
 app-sidebar {
-  width: 280px; /* ancho expandido */
+  width: 227px; /* ancho expandido */
   height: 100vh;
   position: fixed;
   top: 0;
@@ -20,7 +20,7 @@ app-sidebar {
   flex-shrink: 0;
 }
 
-/* Cuando el sidebar está colapsado - IMPORTANTE */
+/* Cuando el sidebar está colapsado */
 app-sidebar.collapsed {
   width: 70px !important;
 }
@@ -31,10 +31,10 @@ app-sidebar.collapsed {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  margin-left: 280px;
+  margin-left: 227px; /* ajustado al ancho real del sidebar */
   overflow: hidden;
-  transition: margin-left 0.3s ease;
-  width: calc(100% - 280px);
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  width: calc(100% - 227px); /* ajustado al ancho real del sidebar */
 }
 
 /* Ajuste cuando el sidebar está colapsado */
@@ -49,7 +49,6 @@ app-navbar {
   top: 0;
   width: 100%;
   z-index: 1000;
-
 }
 
 /* ==== CONTENIDO PRINCIPAL ==== */

@@ -37,7 +37,6 @@
           <img [src]="getProductoImage(p.ID_Producto)" alt="{{ p.Nombre }}" class="producto-img"
             (error)="onImageError($event)">
 
-
           <mat-card-content class="card-content">
             <h3 class="producto-nombre text-truncate-2">{{ p.Nombre }}</h3>
             <p class="producto-descripcion text-truncate-2">{{ p.Descripcion || 'Sin descripción' }}</p>
@@ -51,11 +50,27 @@
                 <mat-icon class="info-icon">restaurant</mat-icon>
                 <span class="text-truncate-1">{{ p.nombre_receta }}</span>
               </div>
+              <!-- 🔹 CORRECCIÓN: Mostrar cantidad de tamaños -->
+              <div class="info-item">
+                <mat-icon class="info-icon">straighten</mat-icon>
+                <span class="text-truncate-1">
+                  {{ getCantidadTamanos(p) }} tamaño{{ getCantidadTamanos(p) !== 1 ? 's' : '' }}
+                </span>
+              </div>
             </div>
 
+            <!-- 🔹 CORRECCIÓN: Mostrar rango de precios de tamaños -->
             <div class="precio-section">
-              <span class="precio-label">Precio Inicial:</span>
-              <span class="precio-value">S/ {{ p.Precio_Base | number:'1.2-2' }}</span>
+              <span class="precio-label">Precios:</span>
+              <span class="precio-value">{{ getDisplayPrecio(p) }}</span>
+            </div>
+
+            <!-- 🔹 CORRECCIÓN: Mostrar lista de tamaños disponibles -->
+            <div class="tamanos-list" *ngIf="getTamanosActivos(p).length > 0">
+              <div *ngFor="let tamano of getTamanosActivos(p)" class="tamano-item">
+                <span class="tamano-nombre">{{ tamano.nombre_tamano || 'Tamaño' }}</span>
+                <span class="tamano-precio">S/ {{ tamano.Precio | number:'1.2-2' }}</span>
+              </div>
             </div>
 
             <p class="fecha-registro">

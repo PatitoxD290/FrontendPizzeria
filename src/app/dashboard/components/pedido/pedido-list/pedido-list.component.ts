@@ -181,37 +181,15 @@ export class PedidoListComponent implements OnInit {
     return this.moneda.format(valor || 0);
   }
 
+  // ✅ CORREGIDO: Estados según tu especificación
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'P': return 'Pendiente';
-      case 'C': return 'Completado';
-      case 'E': return 'En proceso';
-      case 'D': return 'Descartado';
+      case 'E': return 'Entregado';
+      case 'C': return 'No entregado';
+      case 'D': return 'No disponible';
       default: return 'Desconocido';
     }
   }
 
-  deletePedido(ID_Pedido: number): void {
-    Swal.fire({
-      title: '¿Eliminar este pedido?',
-      text: 'Esta acción no se puede deshacer',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    }).then(result => {
-      if (result.isConfirmed) {
-        this.pedidoService.deletePedido(ID_Pedido).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El pedido fue eliminado correctamente', 'success');
-            this.loadPedidos();
-          },
-          error: err => {
-            console.error('Error al eliminar pedido:', err);
-            Swal.fire('Error', 'No se pudo eliminar el pedido', 'error');
-          }
-        });
-      }
-    });
-  }
 }

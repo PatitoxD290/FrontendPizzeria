@@ -7,39 +7,58 @@
 /* 📸 Imagen uniforme */
 .detalle-imagen {
   width: 100%;
-  height: 200px;              /* 👈 Tamaño fijo para todas */
-  object-fit: cover;          /* Mantiene proporción y recorta */
+  height: 200px;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
 }
 
-.precio {
-  font-size: 1.5rem;
-  color: #e51d1d; /* Color principal aplicado */
-  margin-bottom: 10px;
+.producto-descripcion {
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+/* 🔹 INFORMACIÓN DEL TAMAÑO, PRECIO Y CANTIDAD */
+.tamano-info {
+  margin: 15px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.tamano-nombre {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #e51d1d;
   font-weight: bold;
+  margin-bottom: 8px;
 }
 
-.tamano-seleccionado {
-  margin-top: 5px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e51d1d; /* Color principal aplicado */
+.precio-info {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #27ae60; /* Verde para el precio */
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
-.cantidad {
+.cantidad-container {
+  margin: 0;
+}
+
+.cantidad-controls {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 15px;
   font-size: 1.4rem;
-  margin: 15px 0;
 }
 
-/* Botones de cantidad con color relacionado */
-.cantidad button {
-  background-color: #e51d1d !important;
-  color: white !important;
+.cantidad-controls button {
+  background-color: #e51d1d;
+  color: white;
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -49,12 +68,25 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-.cantidad button:hover {
-  background-color: #c01818 !important; /* Versión más oscura para hover */
+.cantidad-controls button:hover {
+  background-color: #c01818;
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(229, 29, 29, 0.4);
+}
+
+.cantidad-display {
+  font-weight: bold;
+  min-width: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
 }
 
 /* BOTONES */
@@ -62,13 +94,13 @@
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  margin-top: 10px; /* Más espacio arriba */
-  padding-top: 10px;
-  border-top: 1px solid #e0e0e0; /* Línea separadora */
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
 }
 
 .acciones button {
-  flex: 1;                          
+  flex: 1;
   font-size: 1rem;
   font-weight: 600;
   padding: 12px 0;
@@ -76,16 +108,17 @@
   text-transform: uppercase;
   transition: all 0.25s ease;
   cursor: pointer;
+  border: 2px solid;
 }
 
 /* 🟥 Botón "Volver" */
-.acciones button:first-child {
+.btn-volver {
   background-color: #f5f5f5;
   color: #333;
-  border: 2px solid #e0e0e0;
+  border-color: #e0e0e0;
 }
 
-.acciones button:first-child:hover {
+.btn-volver:hover {
   background-color: #e0e0e0;
   border-color: #e51d1d;
   color: #e51d1d;
@@ -93,15 +126,15 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 🟥 Botón "Agregar al carrito" con color principal */
-.acciones button:last-child {
-  background-color: #e51d1d; /* Color principal */
+/* 🟥 Botón "Agregar al carrito" */
+.btn-agregar {
+  background-color: #e51d1d;
   color: #fff;
-  border: 2px solid #e51d1d;
+  border-color: #e51d1d;
 }
 
-.acciones button:last-child:hover {
-  background-color: #c01818; /* Versión más oscura */
+.btn-agregar:hover {
+  background-color: #c01818;
   border-color: #c01818;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(229, 29, 29, 0.4);
@@ -113,120 +146,104 @@
   box-shadow: none;
 }
 
-/* Botón Elegir Tamaño - Estilo similar a "Agregar" */
-.boton-elegir-tamano {
-  background-color: #e51d1d !important; /* Mismo color que Agregar */
-  color: white !important;
-  border: 2px solid #e51d1d !important;
-  border-radius: 8px !important;
-  padding: 12px 24px !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  transition: all 0.3s ease !important;
-  width: 100%;
-  margin: 14px 0 !important;
-  cursor: pointer;
-}
 
-.boton-elegir-tamano:hover {
-  background-color: #c01818 !important; /* Mismo hover que Agregar */
-  border-color: #c01818 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(229, 29, 29, 0.4) !important;
-}
-
-.boton-elegir-tamano:active {
-  transform: scale(0.97) !important;
-  box-shadow: none !important;
-}
-
-/* Estado cuando no hay tamaño seleccionado */
-.boton-elegir-tamano:disabled {
-  background-color: #cccccc !important;
-  border-color: #cccccc !important;
-  color: #666666 !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.tamanos-container {
+/* 🔹 SECCIÓN COMPLEMENTOS */
+.complementos-section {
   margin: 20px 0;
-  width: 100%;
 }
 
-.tamanos-pizza {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+.btn-complementos {
   width: 100%;
-}
-
-.boton-tamano {
-  padding: 12px 4px;
-  border: 2px solid #e0e0e0;
-  background-color: #f8f9fa;
+  padding: 12px;
+  background: #3498db;
+  color: white;
+  border: none;
   border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 600;
-  min-height: 44px;
+  text-transform: uppercase;
+  border: 2px solid #3498db;
+}
+
+.btn-complementos:hover {
+  background: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-complementos:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+/* ✅ INDICADOR DE COMPLEMENTOS */
+.complemento-indicador {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.boton-tamano:hover {
-  background-color: #e9ecef;
-  border-color: #e51d1d; /* Color principal en hover */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(229, 29, 29, 0.15);
-}
-
-.boton-seleccionado {
-  background-color: #e51d1d; /* Color principal para seleccionado */
-  color: white;
-  border-color: #e51d1d;
-  box-shadow: 0 4px 8px rgba(229, 29, 29, 0.3);
-}
-
-.texto-tamano {
-  font-size: 12px;
+  gap: 8px;
+  padding: 10px;
+  background: #e7f6f2;
+  border: 1px solid #108d74;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: #108d74;
   font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+  font-size: 0.9rem;
 }
 
-/* Para pantallas muy pequeñas */
+.complemento-indicador mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.btn-complementos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-agregar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Responsive para complementos */
 @media (max-width: 480px) {
-  .tamanos-pizza {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
-  
-  .texto-tamano {
-    font-size: 11px;
-  }
-  
-  .boton-tamano {
-    padding: 10px 2px;
-    min-height: 40px;
-  }
-  
-  .boton-elegir-tamano {
-    padding: 10px 20px !important;
-    font-size: 0.9rem !important;
+  .btn-complementos {
+    padding: 10px;
+    font-size: 0.9rem;
   }
 }
 
-/* Para pantallas medianas y grandes */
-@media (min-width: 481px) and (max-width: 768px) {
-  .tamanos-pizza {
-    grid-template-columns: repeat(5, 1fr);
+/* Responsive */
+@media (max-width: 480px) {
+  .detalle-container {
+    padding: 10px;
+  }
+  
+  .detalle-imagen {
+    height: 150px;
+  }
+  
+  .acciones {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .cantidad-controls {
+    gap: 10px;
+  }
+  
+  .cantidad-controls button {
+    width: 35px;
+    height: 35px;
   }
 }

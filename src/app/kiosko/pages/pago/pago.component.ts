@@ -15,25 +15,22 @@ import { ClienteService } from '../../../core/services/cliente.service';
 
 // Modelos
 import { Pedido, PedidoDetalle, PedidoConDetalle } from '../../../core/models/pedido.model';
-// 🟢 CORREGIDO: Importa Venta y el nuevo VentaCreacionDTO
 import { Venta, VentaCreacionDTO } from '../../../core/models/venta.model';
 
 // ================================================================
-// 🟢 1. INTERFACES DTO CORREGIDAS
+// 🟢 INTERFACES DTO CORREGIDAS - USAR ID_Producto_T
 // ================================================================
 
-// 🟢 CORREGIDO: El backend (createPedidoConDetalle) calcula el SubTotal
 type PedidoCreacionDTO = Omit<Pedido, 'ID_Pedido' | 'PrecioTotal' | 'Estado_P' | 'SubTotal'> & {
   Estado_P?: 'P' | 'C' | 'E' | 'D';
   detalles: PedidoDetalleCreacionDTO[];
 };
 
-// 🟢 CORREGIDO: El backend (createPedidoConDetalle) calcula el PrecioTotal
-type PedidoDetalleCreacionDTO = Omit<PedidoDetalle, 'ID_Pedido_D' | 'ID_Pedido' | 'nombre_producto' | 'nombre_categoria' | 'nombre_tamano' | 'PrecioTotal'>;
-
-// 🟢 CORREGIDO: El tipo 'VentaCreacionDTO' ahora se importa
-// desde 'venta.model.ts'
-
+// 🔹 CORRECCIÓN: Usar solo ID_Producto_T en lugar de ID_Producto + ID_Tamano
+type PedidoDetalleCreacionDTO = {
+  ID_Producto_T: number; // ✅ Usar ID_Producto_T que ya incluye producto, tamaño y precio
+  Cantidad: number;
+};
 
 @Component({
   selector: 'app-pago',
@@ -240,109 +237,102 @@ export class PagoComponent implements OnInit {
   onCodigoInputChange(event: any) { const value = event.target.value.replace(/[^0-9]/g, ''); this.codigoVerificacion = value.slice(0, 4); this.errorCodigo = false; }
 
   // ================================================================
-  // 🔄 MÉTODOS DE GUARDADO (CORREGIDOS)
+  // 🔄 MÉTODOS DE GUARDADO CORREGIDOS - USAR ID_Producto_T
   // ================================================================
 
   confirmarBoleta() {
-  if (!this.dni || this.dni.length !== 8) {
-    alert('Ingrese un DNI válido de 8 dígitos');
-    return;
+    if (!this.dni || this.dni.length !== 8) {
+      alert('Ingrese un DNI válido de 8 dígitos');
+      return;
+    }
+
+    this.procesandoPago = true;
+    this.tipoDocumento = 'boleta';
+    this.solicitandoDni = false;
+    this.mostrarMensajeFinal = true;
+
+    console.log(`🔍 Buscando cliente DNI: ${this.dni}`);
+    this.clienteService.buscarClientePorDocumento(this.dni).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta completa del servicio:', response);
+        
+        let clienteEncontrado;
+        
+        if (response.cliente) {
+          clienteEncontrado = response.cliente;
+        } else if (response.ID_Cliente) {
+          clienteEncontrado = response;
+        } else {
+          clienteEncontrado = response;
+        }
+
+        if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
+          this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+          console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
+        } else {
+          console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
+          this.idClienteParaGuardar = 1;
+        }
+        
+        this.guardarEnBaseDeDatosReal();
+      },
+      error: (err) => {
+        console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
+        this.idClienteParaGuardar = 1;
+        this.guardarEnBaseDeDatosReal();
+      }
+    });
   }
 
-  this.procesandoPago = true;
-  this.tipoDocumento = 'boleta';
-  this.solicitandoDni = false;
-  this.mostrarMensajeFinal = true;
-
-  console.log(`🔍 Buscando cliente DNI: ${this.dni}`);
-  this.clienteService.buscarClientePorDocumento(this.dni).subscribe({
-    next: (response) => {
-      console.log('✅ Respuesta completa del servicio:', response);
-      
-      // 🟢 CORRECCIÓN: Manejar diferentes estructuras de respuesta
-      let clienteEncontrado;
-      
-      if (response.cliente) {
-        // Caso: Cliente encontrado en BD
-        clienteEncontrado = response.cliente;
-      } else if (response.ID_Cliente) {
-        // Caso: La respuesta ES el cliente directamente
-        clienteEncontrado = response;
-      } else {
-        // Caso: Estructura inesperada, intentar extraer datos
-        clienteEncontrado = response;
-      }
-
-      if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
-        this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
-        console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
-      } else {
-        console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
-        this.idClienteParaGuardar = 1;
-      }
-      
-      this.guardarEnBaseDeDatosReal();
-    },
-    error: (err) => {
-      console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
-      this.idClienteParaGuardar = 1;
-      this.guardarEnBaseDeDatosReal();
-    }
-  });
-}
   cancelarDni() {
     this.solicitandoDni = false;
     this.mostrarOpcionesDocumento = true;
     this.dni = '';
   }
 
-confirmarFactura() {
-  if (!this.ruc || this.ruc.length !== 11) {
-    alert('Ingrese un RUC válido de 11 dígitos');
-    return;
-  }
-
-  this.procesandoPago = true;
-  this.tipoDocumento = 'factura';
-  this.solicitandoRuc = false;
-  this.mostrarMensajeFinal = true;
-
-  console.log(`🔍 Buscando cliente RUC: ${this.ruc}`);
-  this.clienteService.buscarClientePorDocumento(this.ruc).subscribe({
-    next: (response) => {
-      console.log('✅ Respuesta completa del servicio:', response);
-      
-      // 🟢 CORRECCIÓN: Manejar diferentes estructuras de respuesta
-      let clienteEncontrado;
-      
-      if (response.cliente) {
-        // Caso: Cliente encontrado en BD
-        clienteEncontrado = response.cliente;
-      } else if (response.ID_Cliente) {
-        // Caso: La respuesta ES el cliente directamente
-        clienteEncontrado = response;
-      } else {
-        // Caso: Estructura inesperada, intentar extraer datos
-        clienteEncontrado = response;
-      }
-
-      if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
-        this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
-        console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
-      } else {
-        console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
-        this.idClienteParaGuardar = 1;
-      }
-      
-      this.guardarEnBaseDeDatosReal();
-    },
-    error: (err) => {
-      console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
-      this.idClienteParaGuardar = 1;
-      this.guardarEnBaseDeDatosReal();
+  confirmarFactura() {
+    if (!this.ruc || this.ruc.length !== 11) {
+      alert('Ingrese un RUC válido de 11 dígitos');
+      return;
     }
-  });
-}
+
+    this.procesandoPago = true;
+    this.tipoDocumento = 'factura';
+    this.solicitandoRuc = false;
+    this.mostrarMensajeFinal = true;
+
+    console.log(`🔍 Buscando cliente RUC: ${this.ruc}`);
+    this.clienteService.buscarClientePorDocumento(this.ruc).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta completa del servicio:', response);
+        
+        let clienteEncontrado;
+        
+        if (response.cliente) {
+          clienteEncontrado = response.cliente;
+        } else if (response.ID_Cliente) {
+          clienteEncontrado = response;
+        } else {
+          clienteEncontrado = response;
+        }
+
+        if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
+          this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+          console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
+        } else {
+          console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
+          this.idClienteParaGuardar = 1;
+        }
+        
+        this.guardarEnBaseDeDatosReal();
+      },
+      error: (err) => {
+        console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
+        this.idClienteParaGuardar = 1;
+        this.guardarEnBaseDeDatosReal();
+      }
+    });
+  }
 
   cancelarRuc() {
     this.solicitandoRuc = false;
@@ -362,145 +352,61 @@ confirmarFactura() {
     this.guardarEnBaseDeDatosReal();
   }
 
+  // 🔹 CORRECCIÓN PRINCIPAL: Usar ID_Producto_T en lugar de ID_Producto + ID_Tamano
   guardarEnBaseDeDatosReal() {
-  const productos = this.carritoService.obtenerProductos();
-  const idCliente = this.idClienteParaGuardar;
-  const idUsuario = 1;
-
-  console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
-  console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
-
-  // ✅ CORRECCIÓN: Mapear correctamente los datos del carrito
-  const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
-    // Obtener ID_Producto (múltiples intentos)
-    const idProducto = producto.ID_Producto || producto.id || producto.id_producto || 0;
-    
-    // Obtener ID_Tamano (múltiples intentos)
-    const idTamano = producto.ID_Tamano || producto.idTamano || producto.id_tamano || 1;
-    
-    // Obtener cantidad
-    const cantidad = producto.cantidad || 1;
-    
-    console.log(`📝 Detalle: Producto=${idProducto}, Tamaño=${idTamano}, Cantidad=${cantidad}`);
-    
-    return {
-      ID_Producto: idProducto,
-      ID_Tamano: idTamano,
-      Cantidad: cantidad
-    };
-  });
-
-  // Validar que todos los detalles tengan IDs válidos
-  const detallesInvalidos = detalles.filter(d => !d.ID_Producto || d.ID_Producto === 0);
-  if (detallesInvalidos.length > 0) {
-    console.error('❌ ERROR: Hay productos sin ID válido:', detallesInvalidos);
-    alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
-    return;
-  }
-
-  let notasDePedido: string;
-  if (this.tipoDocumento === null) {
-    notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-  } else {
-    notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-  }
-
-  const pedidoData: PedidoCreacionDTO = {
-    ID_Cliente: idCliente,
-    ID_Usuario: idUsuario,
-    Notas: notasDePedido,
-    Estado_P: 'P',
-    Fecha_Registro: new Date().toISOString().split('T')[0],
-    Hora_Pedido: new Date().toTimeString().split(' ')[0],
-    detalles: detalles
-  };
-
-  console.log('🚀 ENVIANDO PEDIDO:', JSON.stringify(pedidoData, null, 2));
-
-  this.pedidoService.createPedido(pedidoData as any).subscribe({
-    next: (response: any) => {
-      console.log('✅ PEDIDO guardado exitosamente:', response);
-      
-      let pedidoId = null;
-      if (response.ID_Pedido) {
-        pedidoId = response.ID_Pedido;
-      } else if (response.id_pedido) {
-        pedidoId = response.id_pedido;
-      } else if (response.pedidoId) {
-        pedidoId = response.pedidoId;
-      } else if (response.data?.ID_Pedido) {
-        pedidoId = response.data.ID_Pedido;
-      } else if (response.insertId) { 
-        pedidoId = response.insertId;
-      }
-      
-      if (pedidoId) {
-        console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
-        this.guardarVentaEnBaseDeDatos(pedidoId);
-      } else {
-        console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
-        this.finalizarCompra();
-      }
-    },
-    error: (error) => {
-      console.error('❌ ERROR guardando pedido:', error);
-      alert('Error al guardar el pedido. Por favor, intente nuevamente.');
-    }
-  });
-}
-
-  obtenerIdTamanoValidoExistente(producto: any): number {
-  const tamanosExistentes = [1, 2, 3];
-  
-  // ✅ Buscar primero idTamano (camelCase) que es como se guarda en el carrito
-  if (producto.idTamano && tamanosExistentes.includes(producto.idTamano)) {
-    console.log(`✅ ID_Tamano encontrado: ${producto.idTamano}`);
-    return producto.idTamano;
-  }
-  
-  // Fallback a id_tamano por si acaso
-  if (producto.id_tamano && tamanosExistentes.includes(producto.id_tamano)) {
-    console.log(`✅ ID_Tamano encontrado (snake_case): ${producto.id_tamano}`);
-    return producto.id_tamano;
-  }
-  
-  console.warn('⚠️ No se encontró ID_Tamano válido. Usando 1 (Personal) como fallback');
-  return 1;
-}
-
-  guardarConIdTamanoSeguro() {
     const productos = this.carritoService.obtenerProductos();
     const idCliente = this.idClienteParaGuardar;
     const idUsuario = 1;
 
-    const detallesSeguros: PedidoDetalleCreacionDTO[] = productos.map(producto => ({
-      ID_Producto: producto.id_producto || 1,
-      ID_Tamano: 1,
-      Cantidad: producto.cantidad || 1,
-    }));
+    console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
+    console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
+
+    // ✅ CORRECCIÓN: Usar ID_Producto_T que ya incluye producto, tamaño y precio
+    const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
+      // 🔹 Obtener ID_Producto_T (campo principal)
+      const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
+      
+      // 🔹 Obtener cantidad
+      const cantidad = producto.cantidad || 1;
+      
+      console.log(`📝 Detalle: ID_Producto_T=${idProductoT}, Cantidad=${cantidad}`);
+      
+      return {
+        ID_Producto_T: idProductoT, // ✅ Usar ID_Producto_T
+        Cantidad: cantidad
+      };
+    });
+
+    // Validar que todos los detalles tengan ID_Producto_T válido
+    const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
+    if (detallesInvalidos.length > 0) {
+      console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
+      alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
+      return;
+    }
 
     let notasDePedido: string;
     if (this.tipoDocumento === null) {
-      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko (Tamaño Personal)`;
+      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
     } else {
-      notasDePedido = `${this.getMetodoPagoText()} - Kiosko (Tamaño Personal)`;
+      notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
     }
 
-    const pedidoDataSeguro: PedidoCreacionDTO = {
+    const pedidoData: PedidoCreacionDTO = {
       ID_Cliente: idCliente,
       ID_Usuario: idUsuario,
       Notas: notasDePedido,
       Estado_P: 'P',
       Fecha_Registro: new Date().toISOString().split('T')[0],
       Hora_Pedido: new Date().toTimeString().split(' ')[0],
-      detalles: detallesSeguros
+      detalles: detalles
     };
 
-    console.log('🛡️ ENVIANDO PEDIDO SEGURO (con PedidoService):', JSON.stringify(pedidoDataSeguro, null, 2));
+    console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
 
-    this.pedidoService.createPedido(pedidoDataSeguro as any).subscribe({
+    this.pedidoService.createPedido(pedidoData as any).subscribe({
       next: (response: any) => {
-        console.log('✅ PEDIDO SEGURO guardado exitosamente:', response);
+        console.log('✅ PEDIDO guardado exitosamente:', response);
         
         let pedidoId = null;
         if (response.ID_Pedido) {
@@ -511,27 +417,29 @@ confirmarFactura() {
           pedidoId = response.pedidoId;
         } else if (response.data?.ID_Pedido) {
           pedidoId = response.data.ID_Pedido;
-        } else if (response.insertId) {
+        } else if (response.insertId) { 
           pedidoId = response.insertId;
         }
         
         if (pedidoId) {
+          console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
           this.guardarVentaEnBaseDeDatos(pedidoId);
         } else {
-          console.warn('⚠️ No se pudo obtener ID_Pedido del pedido seguro. No se guardará la Venta.', response);
+          console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
           this.finalizarCompra();
         }
       },
       error: (error) => {
-        console.error('❌ ERROR guardando pedido seguro:', error);
-        console.log('📋 No se pudo guardar el pedido. No se guardará la Venta.');
-        this.finalizarCompra();
+        console.error('❌ ERROR guardando pedido:', error);
+        alert('Error al guardar el pedido. Por favor, intente nuevamente.');
       }
     });
   }
 
+  // 🔹 CORRECCIÓN: Método de respaldo eliminado ya que no es necesario
+  // guardarConIdTamanoSeguro() - ELIMINADO
+
   guardarVentaEnBaseDeDatos(ID_Pedido: number) { 
-    
     const ventaData: VentaCreacionDTO = {
       ID_Pedido: ID_Pedido,
       Tipo_Venta: this.tipoDocumento === 'factura' ? 'F' : 
@@ -541,9 +449,8 @@ confirmarFactura() {
       IGV_Porcentaje: 18
     };
 
-    console.log('💰 ENVIANDO VENTA (con VentaService):', JSON.stringify(ventaData, null, 2));
+    console.log('💰 ENVIANDO VENTA:', JSON.stringify(ventaData, null, 2));
     
-    // 🟢 ESTA LLAMADA YA NO DARÁ ERROR DE TYPESCRIPT
     this.ventaService.createVenta(ventaData).subscribe({
       next: (response: any) => {
         console.log('✅ VENTA guardada en BD:', response);

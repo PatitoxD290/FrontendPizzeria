@@ -1,53 +1,54 @@
 <!-- Buscador -->
 <div class="buscador-container">
   <mat-icon>search</mat-icon>
-  <input
-    type="text"
-    placeholder="Buscar por nombre o categoría..."
-    [(ngModel)]="terminoBusqueda"
-    (input)="buscarProducto()" />
+  <input type="text" placeholder="Buscar por nombre, categoría o descripción..." [(ngModel)]="terminoBusqueda" (input)="buscarProducto()" />
 </div>
 
 <!-- Botones de categorías -->
 <div class="categorias-container">
-  <button
-    mat-raised-button
-    color="{{ categoriaSeleccionada === null ? 'primary' : '' }}"
-    (click)="filtrarPorCategoria(null)">
+  <button mat-raised-button color="{{ categoriaSeleccionada === null ? 'primary' : '' }}" (click)="filtrarPorCategoria(null)">
     Todos
   </button>
-
-  <button
-    *ngFor="let cat of categorias"
-    mat-raised-button
-    [color]="categoriaSeleccionada === cat.ID_Categoria_P ? 'primary' : ''"
-    (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
+  <button *ngFor="let cat of categorias" mat-raised-button [color]="categoriaSeleccionada === cat.ID_Categoria_P ? 'primary' : ''" (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
     {{ cat.Nombre }}
   </button>
 </div>
 
-<!-- Lista de productos con paginación -->
+<!-- 🔹 LISTA DE PRODUCTOS-TAMAÑO (Cada card representa un ProductoTamano individual) -->
 <div class="menu-scroll">
-  <mat-card
-    *ngFor="let p of paginatedProductos"
-    class="producto-card"
-    (click)="agregarAlCarrito(p)">
+  <mat-card *ngFor="let pt of paginatedProductos" 
+            class="producto-card"
+            (click)="abrirModalCantidad(pt)"> <!-- 🔹 Cambiado a abrirModalCantidad -->
+    
     <mat-card-header>
-      <mat-card-title>{{ p.Nombre }}</mat-card-title>
-      <mat-card-subtitle>{{ p.nombre_categoria }}</mat-card-subtitle>
+      <mat-card-title>{{ pt.nombre_producto }}</mat-card-title>
+      <mat-card-subtitle>
+        <span class="categoria">{{ pt.nombre_categoria }}</span>
+        <span class="tamano">• {{ pt.nombre_tamano || 'Tamaño' }}</span>
+      </mat-card-subtitle>
     </mat-card-header>
-
+    
     <mat-card-content>
-      <p>{{ p.Descripcion }}</p>
-      <h3>S/ {{ p.Precio_Base | number:'1.2-2' }}</h3>
+      <p class="descripcion">{{ pt.descripcion_producto }}</p>
+      
+      <!-- 🔹 PRECIO DEL TAMAÑO ESPECÍFICO -->
+      <div class="precio-container">
+        <span class="precio">S/ {{ pt.Precio | number:'1.2-2' }}</span>
+      </div>
+
+      <!-- 🔹 Información adicional del producto -->
+      <div class="info-adicional">
+        <small>Disponible • {{ pt.producto?.Cantidad_Disponible || 0 }} unidades</small>
+      </div>
+
     </mat-card-content>
   </mat-card>
 </div>
 
 <!-- 🔹 Paginador Angular Material -->
-<mat-paginator
-  [length]="productosFiltrados.length"
-  [pageSize]="pageSize"
-  [pageSizeOptions]="[3, 6, 9, 12]"
+<mat-paginator 
+  [length]="productosFiltrados.length" 
+  [pageSize]="pageSize" 
+  [pageSizeOptions]="[3, 6, 9, 12]" 
   (page)="onPageChange($event)">
 </mat-paginator>

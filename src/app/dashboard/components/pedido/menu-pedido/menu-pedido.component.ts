@@ -5,16 +5,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { FormsModule } from '@angular/forms';
-
 import { ProductoService } from '../../../../core/services/producto.service';
 import { OrdenService } from '../../../../core/services/orden.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
-import { Producto } from '../../../../core/models/producto.model';
+import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { CategoriaProducto } from '../../../../core/models/categoria.model';
-import { TamanoService } from '../../../../core/services/tamano.service'; 
+import { TamanoService } from '../../../../core/services/tamano.service';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoTamanoComponent } from '../info-tamano/info-tamano.component';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.component'; // 🔹 Importar el modal
 
 @Component({
   selector: 'app-menu-pedido',
@@ -31,16 +31,34 @@ import { PedidoDetalle } from '../../../../core/models/pedido.model';
   styleUrls: ['./menu-pedido.component.css']
 })
 export class MenuPedidoComponent implements OnInit {
-  productos: (Producto & { nombre_categoria?: string })[] = [];
-  productosFiltrados: (Producto & { nombre_categoria?: string })[] = [];
+  // 🔹 Cambiar a array de ProductoTamano con información extendida
+  productosConTamanos: (ProductoTamano & {
+    producto?: Producto;
+    nombre_categoria?: string;
+    nombre_producto?: string;
+    descripcion_producto?: string;
+  })[] = [];
+  
+  productosFiltrados: (ProductoTamano & {
+    producto?: Producto;
+    nombre_categoria?: string;
+    nombre_producto?: string;
+    descripcion_producto?: string;
+  })[] = [];
+  
   categorias: CategoriaProducto[] = [];
   categoriaSeleccionada: number | null = null;
-  terminoBusqueda: string = ''; 
-
+  terminoBusqueda: string = '';
+  
   // 🔹 Variables de paginación
   pageSize = 6;
   currentPage = 0;
-  paginatedProductos: (Producto & { nombre_categoria?: string })[] = [];
+  paginatedProductos: (ProductoTamano & {
+    producto?: Producto;
+    nombre_categoria?: string;
+    nombre_producto?: string;
+    descripcion_producto?: string;
+  })[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -56,20 +74,43 @@ export class MenuPedidoComponent implements OnInit {
     this.categoriaService.getCategoriasProducto().subscribe({
       next: (cats) => {
         this.categorias = cats;
-        this.cargarProductos();
+        this.cargarProductosConTamanos();
       },
       error: (err) => console.error('Error cargando categorías:', err)
     });
   }
 
-  cargarProductos(): void {
+  cargarProductosConTamanos(): void {
     this.productoService.getProductos().subscribe({
       next: (data) => {
-        this.productos = data.map(p => ({
-          ...p,
-          nombre_categoria: this.obtenerNombreCategoria(p.ID_Categoria_P)
-        }));
-        this.productosFiltrados = [...this.productos];
+        // Procesar productos y crear array de ProductoTamano extendido
+        const productosExtendidos: (ProductoTamano & {
+          producto?: Producto;
+          nombre_categoria?: string;
+          nombre_producto?: string;
+          descripcion_producto?: string;
+        })[] = [];
+
+        data
+          .filter(p => p.Estado === 'A') // Solo productos activos
+          .forEach(producto => {
+            const tamanosActivos = producto.tamanos?.filter(t => t.Estado === 'A') || [];
+            const nombreCategoria = this.obtenerNombreCategoria(producto.ID_Categoria_P);
+
+            // Crear una entrada por cada tamaño activo
+            tamanosActivos.forEach(tamano => {
+              productosExtendidos.push({
+                ...tamano,
+                producto: producto,
+                nombre_categoria: nombreCategoria,
+                nombre_producto: producto.Nombre,
+                descripcion_producto: producto.Descripcion
+              });
+            });
+          });
+
+        this.productosConTamanos = productosExtendidos;
+        this.productosFiltrados = [...this.productosConTamanos];
         this.actualizarPaginacion();
       },
       error: (err) => console.error('Error cargando productos:', err)
@@ -91,22 +132,25 @@ export class MenuPedidoComponent implements OnInit {
   }
 
   private aplicarFiltros(): void {
-    let filtrados = [...this.productos];
-
+    let filtrados = [...this.productosConTamanos];
+    
     if (this.categoriaSeleccionada !== null) {
-      filtrados = filtrados.filter(p => p.ID_Categoria_P === this.categoriaSeleccionada);
-    }
-
-    if (this.terminoBusqueda.trim() !== '') {
-      const termino = this.terminoBusqueda.toLowerCase();
-      filtrados = filtrados.filter(p =>
-        p.Nombre.toLowerCase().includes(termino) ||
-        (p.nombre_categoria?.toLowerCase().includes(termino) ?? false)
+      filtrados = filtrados.filter(p => 
+        p.producto?.ID_Categoria_P === this.categoriaSeleccionada
       );
     }
-
+    
+    if (this.terminoBusqueda.trim() !== '') {
+      const termino = this.terminoBusqueda.toLowerCase();
+      filtrados = filtrados.filter(p => 
+        p.nombre_producto?.toLowerCase().includes(termino) || 
+        (p.nombre_categoria?.toLowerCase().includes(termino) ?? false) ||
+        p.descripcion_producto?.toLowerCase().includes(termino)
+      );
+    }
+    
     this.productosFiltrados = filtrados;
-    this.currentPage = 0; // Reiniciar a la primera página al filtrar
+    this.currentPage = 0;
     this.actualizarPaginacion();
   }
 
@@ -124,25 +168,26 @@ export class MenuPedidoComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
-  agregarAlCarrito(prod: Producto) {
-    const dialogRef = this.dialog.open(InfoTamanoComponent, {
-      width: '400px',
-      data: prod
+  // 🔹 MODIFICADO: Ahora abre el modal en lugar de agregar directamente
+  abrirModalCantidad(productoTamanoExtendido: ProductoTamano & {
+    producto?: Producto;
+    nombre_categoria?: string;
+    nombre_producto?: string;
+    descripcion_producto?: string;
+  }) {
+    const dialogRef = this.dialog.open(CantidadPedidoComponent, {
+      width: '450px',
+      data: {
+        productoTamano: productoTamanoExtendido
+      },
+      disableClose: false,
+      autoFocus: false
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: PedidoDetalle | undefined) => {
       if (result) {
-        const detalle: PedidoDetalle = {
-          ID_Pedido_D: 0,
-          ID_Pedido: 0,
-          ID_Producto: prod.ID_Producto,
-          ID_Tamano: result.ID_Tamano,
-          Cantidad: result.Cantidad,
-          PrecioTotal: result.PrecioTotal,
-          nombre_producto: prod.Nombre,
-          nombre_categoria: prod.nombre_categoria || 'Sin categoría'
-        };
-        this.ordenService.agregarProducto(detalle as any);
+        // Agregar al carrito con la cantidad seleccionada
+        this.ordenService.agregarProducto(result);
       }
     });
   }

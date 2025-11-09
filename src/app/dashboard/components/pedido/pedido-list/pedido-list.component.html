@@ -56,9 +56,9 @@
       <td mat-cell *matCellDef="let pedido">
         <span [ngClass]="{
           'estado-pendiente': pedido.Estado_P === 'P',
-          'estado-completado': pedido.Estado_P === 'C',
-          'estado-en-proceso': pedido.Estado_P === 'E',
-          'estado-descartado': pedido.Estado_P === 'D'
+          'estado-entregado': pedido.Estado_P === 'E',        
+          'estado-no-entregado': pedido.Estado_P === 'C',     
+          'estado-no-disponible': pedido.Estado_P === 'D'      
         }">
           {{ getEstadoTexto(pedido.Estado_P) }}
         </span>
@@ -75,12 +75,13 @@
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let pedido">
-        <button mat-icon-button color="primary" (click)="viewDetallePedido(pedido.ID_Pedido)">
+        <!-- ✅ SOLO BOTÓN VER DETALLE -->
+        <button mat-icon-button color="primary" 
+                (click)="viewDetallePedido(pedido.ID_Pedido)"
+                matTooltip="Ver detalle del pedido">
           <mat-icon>visibility</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deletePedido(pedido.ID_Pedido)">
-          <mat-icon>delete</mat-icon>
-        </button>
+        <!-- ❌ ELIMINADO: Botón de eliminar -->
       </td>
     </ng-container>
 

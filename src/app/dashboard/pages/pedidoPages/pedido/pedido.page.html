@@ -1,6 +1,22 @@
-<h2>Lista de Pedidos Registrados</h2>
-
-<hr />
-
-<!-- Lista de pedidos -->
-<app-pedido-list></app-pedido-list>
+<div class="pedido-page-container">
+  <!-- Navegación con tabs -->
+  <mat-tab-group 
+    [selectedIndex]="selectedTab" 
+    (selectedIndexChange)="onTabChange($event)"
+    class="pedido-tabs">
+    
+    <!-- Tab: Pedidos en Espera -->
+    <mat-tab label="Pedidos en Espera">
+      <div class="tab-content">
+        <app-pedido-espera-list></app-pedido-espera-list>
+      </div>
+    </mat-tab>
+    
+    <!-- Tab: Historial de Pedidos -->
+    <mat-tab label="Historial de Pedidos">
+      <div class="tab-content">
+        <app-pedido-list></app-pedido-list>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

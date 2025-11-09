@@ -1,14 +1,345 @@
-mat-form-field {
-  width: 100%;
-  margin-bottom: 10px;
+.producto-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 h2 {
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 1.5em;
 }
 
-mat-dialog-content {
+/* Contenedor principal de dos columnas */
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Columnas */
+.left-column,
+.right-column {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+/* Secciones del formulario */
+.form-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.section-title {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-weight: 600;
+  font-size: 1.1em;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Campos del formulario */
+mat-form-field {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.field-full {
+  width: 100%;
+}
+
+/* Estilos para la sección de tamaños */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85em;
+  height: 36px;
+}
+
+.add-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.hint {
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.4;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+}
+
+/* Lista de tamaños */
+.tamanos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tamano-item {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.tamano-item:hover {
+  background: #f5f5f5;
+  border-color: #c0c0c0;
+}
+
+.tamano-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.tamano-select,
+.tamano-price {
+  min-width: 0;
+}
+
+.delete-button {
+  width: 36px;
+  height: 36px;
+  margin-top: 4px;
+}
+
+.delete-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.disabled-hint {
+  font-size: 0.7em;
+  color: #999;
+  font-style: italic;
+}
+
+/* Estilos para la sección de imagen */
+.imagen-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.file-upload-area {
+  position: relative;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.file-upload-area:hover {
+  border-color: #2196f3;
+  background: #f0f8ff;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.upload-hint mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #ccc;
+}
+
+.upload-hint span {
+  font-size: 0.9em;
+}
+
+.image-preview {
+  position: relative;
+  display: inline-block;
+  align-self: center;
+}
+
+.image-preview img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.remove-image {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: 1px solid #ddd;
+}
+
+.remove-image mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Acciones del formulario */
+.form-actions {
+  margin-top: 24px;
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e0e0e0;
+  grid-column: 1 / -1;
+}
+
+/* Mejoras visuales para los campos */
+mat-form-field {
+  margin-bottom: 0;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+/* Indicadores de campos obligatorios */
+mat-label:after {
+  content: " *";
+  color: #f44336;
+}
+
+mat-form-field:has(.optional-field) mat-label:after {
+  content: " (Opcional)";
+  color: #666;
+  font-weight: normal;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-section {
+    padding: 16px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .add-button {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .tamano-content {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .tamano-item {
+    padding: 10px;
+  }
+  
+  .image-preview img {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Efectos de hover y focus */
+mat-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Scrollbar personalizado */
+mat-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+mat-dialog-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+mat-dialog-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .form-section {
+    padding: 12px;
+  }
+  
+  .section-title {
+    font-size: 1em;
+  }
+  
+  .upload-hint mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .upload-hint span {
+    font-size: 0.8em;
+  }
 }

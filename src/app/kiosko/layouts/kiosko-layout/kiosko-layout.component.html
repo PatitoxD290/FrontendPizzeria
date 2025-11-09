@@ -5,7 +5,8 @@
     <router-outlet></router-outlet>
   </main>
 
-  <app-carrito-flotante *ngIf="mostrarHeaderFooter()"></app-carrito-flotante>
+  <!-- ✅ MOSTRAR CARRITO FLOTANTE SOLO EN MENU, NO EN PÁGINA CARRITO -->
+  <app-carrito-flotante *ngIf="mostrarHeaderFooter() && !router.url.includes('/carrito')"></app-carrito-flotante>
 
   <app-footer *ngIf="mostrarHeaderFooter()"></app-footer>
 </div>

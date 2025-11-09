@@ -3,16 +3,14 @@
 /* ============================================= */
 :host {
   display: block;
-background: #991e1e;
-
-
+  background: linear-gradient(135deg, #b9160a 0%, #d11616 100%);
 }
 
 /* ============================================= */
 /* VARIABLES CSS - DISEÑO PROFESIONAL */
 /* ============================================= */
 :root {
-  --sidebar-width: 280px;
+  --sidebar-width: 227px;
   --sidebar-collapsed: 70px;
   --primary-color: #8B0000;
   --primary-dark: #5a0000;
@@ -33,12 +31,12 @@ background: #991e1e;
 /* ESTILOS BASE */
 /* ============================================= */
 .sidenav {
-  width: 100%;
+  width: var(--sidebar-width);
   height: 100%;
-  background: transparent; /* Ahora es transparente porque :host tiene el background */
+  background: transparent;
   display: flex;
   flex-direction: column;
-  transition: none;
+  transition: width 0.3s ease;
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
@@ -46,20 +44,23 @@ background: #991e1e;
   color: white !important;
 }
 
+.sidenav.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
 /* ============================================= */
 /* ENCABEZADO - VACÍO CON ALTURA FIJA */
 /* ============================================= */
 .sidebar-header {
-  height: 70px; /* Misma altura que el navbar */
+  height: 70px;
   background: rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
-  /* Sin padding ni contenido, solo espacio reservado */
 }
 
 /* Mantiene la misma altura cuando está colapsado */
 .sidenav.collapsed .sidebar-header {
-  height: 70px; /* Misma altura siempre */
+  height: 70px;
 }
 
 /* ============================================= */
@@ -74,7 +75,7 @@ background: #991e1e;
   letter-spacing: 0.5px;
   opacity: 0.8;
   flex-shrink: 0;
-  min-height: 40px; /* Altura fija para consistencia */
+  min-height: 40px;
 }
 
 .section-divider {
@@ -85,28 +86,27 @@ background: #991e1e;
 }
 
 /* ============================================= */
-/* NAVEGACIÓN - CLAVE PARA ARREGLAR EL ESPACIADO */
+/* NAVEGACIÓN - ITEMS Y ALINEACIÓN */
 /* ============================================= */
 .sidebar-nav {
   flex: 1;
-  padding: 0; /* Eliminamos padding superior/inferior */
+  padding: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0; /* Sin gap general */
+  gap: 0;
   color: white !important;
 }
 
-/* Items del menú */
 .menu-item {
   display: flex !important;
   align-items: center;
   min-height: 44px !important;
-  height: 44px; /* Altura fija */
+  height: 44px;
   padding: 0 16px !important;
   cursor: pointer;
   transition: var(--transition);
-  margin: 0 !important; /* SIN MARGEN */
+  margin: 0 !important;
   border-radius: 0 !important;
   text-decoration: none;
   color: white !important;
@@ -114,7 +114,7 @@ background: #991e1e;
   position: relative;
   opacity: 1 !important;
   visibility: visible !important;
-  flex-shrink: 0; /* Altura fija, no se comprime */
+  flex-shrink: 0;
 }
 
 .menu-item:hover {
@@ -123,7 +123,6 @@ background: #991e1e;
   border-radius: 0 !important;
 }
 
-/* Estado activo */
 .menu-item.active[href] {
   background: var(--bg-active);
   border-left: 4px solid white !important;
@@ -131,24 +130,17 @@ background: #991e1e;
   border-radius: 0 !important;
 }
 
-.menu-item.active:not([href]) {
-  border-left: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
 .menu-item.active .menu-icon {
   color: white !important;
   transform: scale(1.1);
 }
 
-/* Contenido del menú */
+/* Contenido del menú centrado */
 .menu-content {
   display: flex;
-  align-items: center;
-  width: 100%;
+  align-items: center; /* centrado vertical */
   gap: 12px;
-  position: relative;
+  padding-left: 8px; /* separación del borde izquierdo */
 }
 
 .sidenav.collapsed .menu-content {
@@ -156,7 +148,7 @@ background: #991e1e;
   gap: 0;
 }
 
-/* Iconos */
+/* Iconos centrados */
 .menu-icon {
   font-size: 20px !important;
   width: 20px !important;
@@ -167,34 +159,26 @@ background: #991e1e;
   transition: var(--transition);
   flex-shrink: 0;
   color: white !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  margin: 0; /* Sin margen */
+  margin: 0;
 }
 
 .sidenav.collapsed .menu-icon {
   margin: 0 auto;
 }
 
-.menu-item:hover .menu-icon,
-.menu-item.active .menu-icon {
-  color: white !important;
-  transform: scale(1.1);
-}
-
-/* Labels del menú */
+/* Labels centrados junto al icono */
 .menu-label {
-  flex: 1;
+  flex: none;
   font-size: 14px;
   font-weight: 500;
   color: white !important;
-  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* mantiene texto al lado del icono */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  transition: var(--transition);
 }
 
 .sidenav.collapsed .menu-label {
@@ -209,7 +193,7 @@ background: #991e1e;
   transition: var(--transition);
   color: white !important;
   opacity: 0.9;
-  margin-left: auto; /* Alinea a la derecha */
+  margin-left: auto;
 }
 
 .sidenav.collapsed .expand-icon {
@@ -221,31 +205,23 @@ background: #991e1e;
 }
 
 /* ============================================= */
-/* SUBMENÚ - ARREGLADO PARA FLUJO CORRECTO */
+/* SUBMENÚ */
 /* ============================================= */
 .submenu {
   background: rgba(0, 0, 0, 0.15);
-  margin: 0 !important; /* SIN MARGEN */
+  margin: 0 !important;
   border-radius: 0 !important;
   max-height: 500px;
   opacity: 1;
   overflow: hidden;
   animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transition: max-height 0.3s ease, opacity 0.3s ease;
-  flex-shrink: 0; /* No se comprime */
+  flex-shrink: 0;
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 500px;
-  }
+  from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+  to { opacity: 1; transform: translateY(0); max-height: 500px; }
 }
 
 .sidenav.collapsed .submenu {
@@ -258,30 +234,25 @@ background: #991e1e;
   display: flex !important;
   align-items: center;
   min-height: 36px !important;
-  height: 36px; /* Altura fija */
+  height: 36px;
   padding: 0 16px 0 48px !important;
   cursor: pointer;
   transition: var(--transition);
   font-size: 13px;
   text-decoration: none;
   color: white !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  border-radius: 0 !important;
-  margin: 0 !important; /* SIN MARGEN */
-  flex-shrink: 0; /* No se comprime */
+  margin: 0 !important;
+  flex-shrink: 0;
 }
 
 .submenu-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 0 !important;
 }
 
 .submenu-item.active {
   background: rgba(255, 255, 255, 0.15);
   color: white !important;
   border-left: 3px solid white !important;
-  border-radius: 0 !important;
 }
 
 .submenu-content {
@@ -297,16 +268,8 @@ background: #991e1e;
   height: 16px !important;
   color: white !important;
   opacity: 0.9 !important;
-  visibility: visible !important;
   transition: var(--transition);
   flex-shrink: 0;
-}
-
-.submenu-item:hover .submenu-icon,
-.submenu-item.active .submenu-icon {
-  color: white !important;
-  transform: scale(1.1);
-  opacity: 1 !important;
 }
 
 .submenu-label {
@@ -317,12 +280,6 @@ background: #991e1e;
   text-overflow: ellipsis;
   transition: var(--transition);
   opacity: 0.9;
-}
-
-.submenu-item:hover .submenu-label,
-.submenu-item.active .submenu-label {
-  color: white !important;
-  opacity: 1;
 }
 
 /* ============================================= */
@@ -342,12 +299,6 @@ background: #991e1e;
   background: rgba(255, 255, 255, 0.3);
   margin-left: auto;
   flex-shrink: 0;
-}
-
-.custom-badge.small {
-  min-width: 16px;
-  height: 16px;
-  font-size: 9px;
 }
 
 /* ============================================= */
@@ -373,19 +324,19 @@ background: #991e1e;
 /* SCROLLBAR */
 /* ============================================= */
 .sidebar-nav::-webkit-scrollbar {
-  width: 4px;
+  width: 7px;
 }
 
 .sidebar-nav::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: 8px;
   margin: 10px 0;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.5);
-  border-radius: 2px;
-  min-height: 30px;
+  border-radius: 30px;
+  min-height: 9px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
@@ -398,19 +349,10 @@ background: #991e1e;
 .sidenav mat-icon {
   color: white !important;
   opacity: 1 !important;
-  visibility: visible !important;
   display: flex !important;
 }
 
 .sidenav,
 .sidenav *:not(button):not(input):not(textarea):not(select) {
   color: white !important;
-}
-
-.menu-label,
-.submenu-label,
-.section-label {
-  color: white !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }

@@ -1,22 +1,47 @@
 <div class="menu-container">
-  <!-- 🧾 Lista de productos -->
+  <!-- 🧾 Lista de productos - AHORA MUESTRA CADA TAMAÑO COMO PRODUCTO INDIVIDUAL -->
   <div class="productos-grid">
     <div *ngFor="let p of productosFiltrados" class="producto-card" (click)="abrirPersonalizacion(p)" style="cursor: pointer;">
       <div class="producto-imagen-container">
-        <img [src]="p.imagen" (error)="p.imagen = '/assets/imgs/logo.png'" [alt]="p.nombre" class="producto-imagen" />
+        <img [src]="p.imagen" (error)="p.imagen = '/assets/imgs/logo.png'" [alt]="p.Nombre" class="producto-imagen" />
       </div>
       <div class="producto-info">
-        <h3 class="producto-nombre">{{ p.nombre }}</h3>
-        <p class="producto-descripcion">{{ p.descripcion }}</p>
-        <p *ngIf="getNombreCategoria(p.categoria) === 'Combos' && p.detallesTexto" class="producto-detalles">
-          {{ p.detallesTexto }}
-        </p>
-        <p class="producto-categoria">{{ getNombreCategoria(p.categoria) }}</p>
-        <p class="producto-precio">S/. {{ p.precio }}</p>
+        <h3 class="producto-nombre">{{ p.Nombre }}</h3>
+        <p class="producto-descripcion">{{ p.Descripcion }}</p>
+        
+        <!-- 🔹 INFORMACIÓN COMPLETA EN ORDEN SOLICITADO -->
+        <div class="producto-meta-info">
+          <!-- Tamaño -->
+          <div class="meta-item">
+            <span class="meta-label">Tamaño:</span>
+            <span class="meta-value">{{ p.tamano }}</span>
+          </div>
+          
+          <!-- Categoría -->
+          <div class="meta-item">
+            <span class="meta-label">Categoría:</span>
+            <span class="meta-value">{{ p.nombre_categoria }}</span>
+          </div>
+          
+          <!-- Precio -->
+          <div class="meta-item precio-item">
+            <span class="meta-label">Precio:</span>
+            <span class="meta-value precio">S/. {{ p.precio | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- 🔹 Mostrar detalles de combo si es combo -->
+        <div *ngIf="p.esCombo && p.detallesTexto" class="producto-detalles">
+          <strong>Contenido:</strong> {{ p.detallesTexto }}
+        </div>
+
+        <!-- 🔹 Indicador de combo -->
+        <div *ngIf="p.esCombo" class="combo-badge">
+          <mat-icon>local_offer</mat-icon>
+          COMBO
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Carrito flotante -->
-  <app-carrito-flotante></app-carrito-flotante>
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { Producto } from '../../../../core/models/producto.model';
+import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { RecetaService } from '../../../../core/services/receta.service';
@@ -63,16 +63,16 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  // Método para obtener la ruta de la imagen
- getProductoImage(idProducto: number): string {
-  const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
-  for (const ext of extensiones) {
-    const url = `http://localhost:3000/imagenesCata/producto_${idProducto}_1.${ext}`;
-    return url;
-  }
-  return 'assets/imgs/logo.png';
-}
 
+  // Método para obtener la ruta de la imagen
+  getProductoImage(idProducto: number): string {
+    const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
+    for (const ext of extensiones) {
+      const url = `http://localhost:3000/imagenesCata/producto_${idProducto}_1.${ext}`;
+      return url;
+    }
+    return 'assets/imgs/logo.png';
+  }
 
   // Método para fallback si la imagen falla al cargar
   onImageError(event: any) {
@@ -119,6 +119,48 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     this.setPage(event.pageIndex);
   }
 
+  // 🔹 CORRECCIÓN: Obtener tamaños activos del producto
+  getTamanosActivos(producto: Producto): ProductoTamano[] {
+    return producto.tamanos?.filter(t => t.Estado === 'A') || [];
+  }
+
+  // 🔹 CORRECCIÓN: Obtener el precio mínimo de los tamaños activos
+  getPrecioMinimo(producto: Producto): number {
+    const tamanosActivos = this.getTamanosActivos(producto);
+    if (tamanosActivos.length === 0) return 0;
+    return Math.min(...tamanosActivos.map(t => t.Precio));
+  }
+
+  // 🔹 CORRECCIÓN: Obtener el precio máximo de los tamaños activos
+  getPrecioMaximo(producto: Producto): number {
+    const tamanosActivos = this.getTamanosActivos(producto);
+    if (tamanosActivos.length === 0) return 0;
+    return Math.max(...tamanosActivos.map(t => t.Precio));
+  }
+
+  // 🔹 CORRECCIÓN: Mostrar rango de precios o precio único
+  getDisplayPrecio(producto: Producto): string {
+    const tamanosActivos = this.getTamanosActivos(producto);
+    
+    if (tamanosActivos.length === 0) {
+      return 'Sin precios';
+    }
+    
+    const precioMin = this.getPrecioMinimo(producto);
+    const precioMax = this.getPrecioMaximo(producto);
+    
+    if (precioMin === precioMax) {
+      return `S/ ${precioMin.toFixed(2)}`;
+    } else {
+      return `S/ ${precioMin.toFixed(2)} - S/ ${precioMax.toFixed(2)}`;
+    }
+  }
+
+  // 🔹 CORRECCIÓN: Contar tamaños activos
+  getCantidadTamanos(producto: Producto): number {
+    return this.getTamanosActivos(producto).length;
+  }
+
   deleteProducto(producto: Producto) {
     Swal.fire({
       title: '¿Eliminar producto?',
@@ -145,19 +187,22 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     });
   }
 
-  openProductoForm(producto?: Producto) {
-    const dialogRef = this.dialog.open(ProductoFormComponent, {
-      width: '600px',
-      data: { producto, categorias: this.categorias, recetas: this.recetas },
-    });
+ openProductoForm(producto?: Producto) {
+  const dialogRef = this.dialog.open(ProductoFormComponent, {
+    width: '1000px', // ← Aumenta el ancho para acomodar las dos columnas
+    maxWidth: '95vw',
+    height: 'auto',
+    autoFocus: false,
+    data: { producto, categorias: this.categorias, recetas: this.recetas },
+  });
 
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) this.loadProductos();
-      });
-  }
+  dialogRef
+    .afterClosed()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((result) => {
+      if (result) this.loadProductos();
+    });
+}
 
   getEstadoColor(estado: string): string {
     return estado === 'A' ? 'success' : 'warn';

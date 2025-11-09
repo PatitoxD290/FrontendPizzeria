@@ -6,14 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select'; // 🔹 nuevo
+import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
 
 // Servicios y modelos
 import { VentaService } from '../../../../core/services/venta.service';
-
 import { OrdenService } from '../../../../core/services/orden.service';
-import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { PedidoDetalle, PedidoConDetalle } from '../../../../core/models/pedido.model';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
@@ -21,8 +20,7 @@ import { TamanoService } from '../../../../core/services/tamano.service';
 import { Tamano } from '../../../../core/models/tamano.model';
 
 import { MatDialog } from '@angular/material/dialog';
-import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component'; // ruta correcta
-
+import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component';
 
 @Component({
   selector: 'app-detalle-pedido',
@@ -35,7 +33,7 @@ import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component'; /
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule, // 🔹 nuevo
+    MatSelectModule,
   ],
   templateUrl: './detalle-pedido.component.html',
   styleUrls: ['./detalle-pedido.component.css'],
@@ -45,30 +43,27 @@ export class DetallePedidoComponent implements OnInit {
   tamanos: Tamano[] = [];
   displayedColumns = ['producto', 'tamano', 'cantidad', 'precio', 'subtotal', 'acciones'];
   
-  tipoDocumento: 'DNI' | 'RUC' = 'DNI'; // 🔹 nuevo
-  numeroDocumento: string = ''; // antes era nombreCliente
+  tipoDocumento: 'DNI' | 'RUC' = 'DNI';
+  numeroDocumento: string = '';
   codigoPedido: string = '';
 
- constructor(
-  private ordenService: OrdenService,
-  private pedidoService: PedidoService,
-  private authService: AuthService,
-  private clienteService: ClienteService,
-  private tamanoService: TamanoService,
-  private dialog: MatDialog, 
-  private ventaService: VentaService 
-) {}
-
+  constructor(
+    private ordenService: OrdenService,
+    private pedidoService: PedidoService,
+    private authService: AuthService,
+    private clienteService: ClienteService,
+    private tamanoService: TamanoService,
+    private dialog: MatDialog, 
+    private ventaService: VentaService 
+  ) {}
 
   ngOnInit(): void {
     this.tamanoService.getTamanos().subscribe({
       next: (data) => {
         this.tamanos = data;
+        // Suscribirse a los detalles del servicio
         this.ordenService.detalles$.subscribe((detalles) => {
-          this.detalles = detalles.map((d) => ({
-            ...d,
-            nombre_tamano: this.getNombreTamano(d.ID_Tamano),
-          }));
+          this.detalles = detalles;
         });
       },
       error: (err) => console.error('Error al cargar tamaños:', err),
@@ -76,25 +71,24 @@ export class DetallePedidoComponent implements OnInit {
 
     this.generarCodigoPedido();
   }
+
   soloNumeros(event: any) {
     this.numeroDocumento = event.target.value.replace(/[^0-9]/g, '');
   }
 
-
-  getNombreTamano(idTamano: number): string {
-    const tamano = this.tamanos.find((t) => t.ID_Tamano === idTamano);
-    return tamano ? tamano.Tamano : '—';
+  getNombreTamano(detalle: PedidoDetalle): string {
+    return detalle.nombre_tamano || '—';
   }
 
   aumentarCantidad(detalle: PedidoDetalle) {
     const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-    this.ordenService.aumentarCantidad(detalle.ID_Producto, detalle.ID_Tamano, precioUnitario);
+    this.ordenService.aumentarCantidad(detalle.ID_Producto_T, precioUnitario);
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
     if (detalle.Cantidad > 1) {
       const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-      this.ordenService.reducirCantidad(detalle.ID_Producto, detalle.ID_Tamano, precioUnitario);
+      this.ordenService.reducirCantidad(detalle.ID_Producto_T, precioUnitario);
     }
   }
 
@@ -109,7 +103,7 @@ export class DetallePedidoComponent implements OnInit {
       confirmButtonColor: '#d33',
     }).then(result => {
       if (result.isConfirmed) {
-        this.ordenService.eliminarProducto(detalle.ID_Producto, detalle.ID_Tamano);
+        this.ordenService.eliminarProducto(detalle.ID_Producto_T);
         Swal.fire({
           title: 'Eliminado',
           text: 'El producto fue eliminado del pedido.',
@@ -136,125 +130,166 @@ export class DetallePedidoComponent implements OnInit {
   }
 
   realizarPedido() {
-  if (this.detalles.length === 0) {
-    Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de realizar el pedido.' });
-    return;
-  }
-
-  const usuarioLogueado = this.authService.getUser();
-  const idUsuario = usuarioLogueado?.ID_Usuario ?? 1;
-
-  const doc = this.numeroDocumento.trim();
-
-  if (doc) {
-    this.validarClienteYContinuar(doc, idUsuario);
-  } else {
-    this.abrirModalPago(idUsuario, 1); // Cliente genérico
-  }
-}
-
-private validarClienteYContinuar(doc: string, idUsuario: number) {
-  if (!/^\d+$/.test(doc)) {
-    Swal.fire({ icon: 'error', title: 'Documento inválido', text: 'Solo números.' });
-    return;
-  }
-
-  if ((this.tipoDocumento === 'DNI' && doc.length !== 8) ||
-      (this.tipoDocumento === 'RUC' && doc.length !== 11)) {
-    Swal.fire({ icon: 'error', title: 'Longitud incorrecta', text: 'Longitud inválida.' });
-    return;
-  }
-
-  this.clienteService.buscarClientePorDocumento(doc).subscribe({
-    next: (res) => {
-      const idCliente = res.cliente?.ID_Cliente ?? 1;
-      this.abrirModalPago(idUsuario, idCliente);
-    },
-    error: () => {
-      Swal.fire({ icon: 'error', title: 'No encontrado', text: 'Cliente no existe.' });
+    if (this.detalles.length === 0) {
+      Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de realizar el pedido.' });
+      return;
     }
-  });
-}
 
-private abrirModalPago(idUsuario: number, idCliente: number) {
-  const dialogRef = this.dialog.open(VentaPedidoComponent, {
-    width: '400px',
-    data: { total: this.getTotal() }
-  });
+    const usuarioLogueado = this.authService.getUser();
+    const idUsuario = usuarioLogueado?.ID_Usuario ?? 1;
 
-  dialogRef.afterClosed().subscribe((result) => {
-  if (!result) return;
+    const doc = this.numeroDocumento.trim();
 
-  // 🔹 Convertir método a la sigla correcta
-  const metodoPagoMap: any = {
-    'EFECTIVO': 'E',
-    'TARJETA': 'T',
-    'BILLETERA': 'B' // Yape / Plin
-  };
+    if (doc) {
+      this.validarClienteYContinuar(doc, idUsuario);
+    } else {
+      this.abrirModalPago(idUsuario, 1); // Cliente genérico
+    }
+  }
 
-  const metodoPagoConvertido = metodoPagoMap[result.metodoPago];
+  private validarClienteYContinuar(doc: string, idUsuario: number) {
+    if (!/^\d+$/.test(doc)) {
+      Swal.fire({ icon: 'error', title: 'Documento inválido', text: 'Solo números.' });
+      return;
+    }
 
-  this.enviarPedido(idUsuario, idCliente, metodoPagoConvertido, result.recibe, result.vuelto);
-});
+    if ((this.tipoDocumento === 'DNI' && doc.length !== 8) ||
+        (this.tipoDocumento === 'RUC' && doc.length !== 11)) {
+      Swal.fire({ icon: 'error', title: 'Longitud incorrecta', text: 'Longitud inválida.' });
+      return;
+    }
 
-}
+    this.clienteService.buscarClientePorDocumento(doc).subscribe({
+      next: (res) => {
+        const idCliente = res.cliente?.ID_Cliente ?? 1;
+        this.abrirModalPago(idUsuario, idCliente);
+      },
+      error: () => {
+        Swal.fire({ icon: 'error', title: 'No encontrado', text: 'Cliente no existe.' });
+      }
+    });
+  }
 
+  private abrirModalPago(idUsuario: number, idCliente: number) {
+    const dialogRef = this.dialog.open(VentaPedidoComponent, {
+      width: '400px',
+      data: { total: this.getTotal() }
+    });
 
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
 
-private enviarPedido(idUsuario: number, idCliente: number, metodoPago: 'E' | 'T' | 'B', recibe: number, vuelto: number) {
-  const pedido = {
-    ID_Pedido: 0,
-    ID_Cliente: idCliente,
-    ID_Usuario: idUsuario,
-    Notas: this.codigoPedido,
-    SubTotal: this.getTotal(),
-    Estado_P: 'P' as 'P',
-    Fecha_Registro: new Date().toISOString().split('T')[0],
-    Hora_Pedido: new Date().toTimeString().split(' ')[0],
-    detalles: this.detalles.map((d) => ({
-    ID_Pedido_D: 0,
-    ID_Pedido: 0,
-    ID_Producto: d.ID_Producto,
-    ID_Tamano: d.ID_Tamano,
-    Cantidad: d.Cantidad,
-    PrecioTotal: d.PrecioTotal
-  })) as PedidoDetalle[],
+      // Convertir método a la sigla correcta
+      const metodoPagoMap: any = {
+        'EFECTIVO': 'E',
+        'TARJETA': 'T',
+        'BILLETERA': 'B'
+      };
 
-  };
+      const metodoPagoConvertido = metodoPagoMap[result.metodoPago];
 
-  this.pedidoService.createPedido(pedido).subscribe({
-    next: (res) => {
-      const idPedidoCreado = res.ID_Pedido;
+      // 🔹 Obtener el texto del método de pago para las notas
+      const metodoPagoTexto = this.obtenerTextoMetodoPago(result.metodoPago);
 
-      // ✅ Registrar Venta
-      this.ventaService.createVenta({
-        ID_Pedido: idPedidoCreado,
+      this.enviarPedido(idUsuario, idCliente, metodoPagoConvertido, result.recibe, result.vuelto, metodoPagoTexto);
+    });
+  }
 
-        // ✅ Determinar tipo de venta según documento ingresado
-        Tipo_Venta: (() => {
-          if (!this.numeroDocumento.trim()) return 'N'; // Sin documento → Nota
-          if (this.tipoDocumento === 'DNI') return 'B'; // DNI → Boleta
-          if (this.tipoDocumento === 'RUC') return 'F'; // RUC → Factura
-          return 'N';
-        })(),
+  // 🔹 Método para obtener el texto del método de pago
+  private obtenerTextoMetodoPago(metodoPago: string): string {
+    const metodosTexto: any = {
+      'EFECTIVO': 'EFECTIVO',
+      'TARJETA': 'TARJETA', 
+      'BILLETERA': 'BILLETERA'
+    };
+    return metodosTexto[metodoPago] || 'EFECTIVO';
+  }
 
-        Metodo_Pago: metodoPago, // E | T | B
-        Lugar_Emision: 'A',
-        IGV_Porcentaje: 18
-      }).subscribe(() => {
+  // 🔹 MODIFICADO: Ahora recibe metodoPagoTexto para las notas
+  private enviarPedido(
+    idUsuario: number, 
+    idCliente: number, 
+    metodoPago: 'E' | 'T' | 'B', 
+    recibe: number, 
+    vuelto: number,
+    metodoPagoTexto: string
+  ) {
+    
+    // Crear detalles del pedido
+    const detallesPedido: PedidoDetalle[] = this.detalles.map((d) => ({
+      ID_Pedido_D: 0,
+      ID_Pedido: 0,
+      ID_Producto_T: d.ID_Producto_T,
+      Cantidad: d.Cantidad,
+      PrecioTotal: d.PrecioTotal,
+      nombre_producto: d.nombre_producto,
+      nombre_categoria: d.nombre_categoria,
+      nombre_tamano: d.nombre_tamano
+    }));
 
+    // 🔹 MODIFICADO: Crear el texto para el campo Notas
+    const textoNotas = `Pedido ${this.codigoPedido} - ${metodoPagoTexto} - Caja`;
 
-        
-        Swal.fire({ icon: 'success', title: 'Venta Registrada', text: 'Pedido y pago guardados correctamente.' });
+    // Crear PedidoConDetalle con todos los campos requeridos
+    const pedidoData: PedidoConDetalle = {
+      ID_Pedido: 0, // El backend lo generará
+      ID_Cliente: idCliente,
+      ID_Usuario: idUsuario,
+      Notas: textoNotas, // 🔹 Usar el nuevo formato
+      SubTotal: this.getTotal(),
+      Estado_P: 'P', // P = Pendiente
+      Fecha_Registro: new Date().toISOString().split('T')[0],
+      Hora_Pedido: new Date().toTimeString().split(' ')[0],
+      detalles: detallesPedido
+    };
 
-        this.ordenService.limpiar();
-        this.numeroDocumento = '';
-        this.generarCodigoPedido();
-      });
+    // Enviar pedido usando PedidoConDetalle
+    this.pedidoService.createPedido(pedidoData).subscribe({
+      next: (res) => {
+        const idPedidoCreado = res.ID_Pedido;
 
-    },
-    error: () => Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un problema.' }),
-  });
-}
+        // Registrar Venta
+        this.ventaService.createVenta({
+          ID_Pedido: idPedidoCreado,
+          Tipo_Venta: (() => {
+            if (!this.numeroDocumento.trim()) return 'N'; // Sin documento → Nota
+            if (this.tipoDocumento === 'DNI') return 'B'; // DNI → Boleta
+            if (this.tipoDocumento === 'RUC') return 'F'; // RUC → Factura
+            return 'N';
+          })(),
+          Metodo_Pago: metodoPago,
+          Lugar_Emision: 'A',
+          IGV_Porcentaje: 18
+        }).subscribe({
+          next: () => {
+            Swal.fire({ 
+              icon: 'success', 
+              title: 'Venta Registrada', 
+              text: `Pedido ${this.codigoPedido} registrado correctamente. Método: ${metodoPagoTexto}` 
+            });
 
+            this.ordenService.limpiar();
+            this.numeroDocumento = '';
+            this.generarCodigoPedido();
+          },
+          error: (err) => {
+            console.error('Error al crear venta:', err);
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Error en venta', 
+              text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
+            });
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error al crear pedido:', err);
+        Swal.fire({ 
+          icon: 'error', 
+          title: 'Error', 
+          text: 'Ocurrió un problema al crear el pedido.' 
+        });
+      },
+    });
+  }
 }

@@ -60,4 +60,11 @@ export class PedidoService {
   getDetallesConNotas(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}/notas`);
   }
+
+  // =============================
+  // 🟧 CAMBIAR ESTADO DEL PEDIDO
+  // =============================
+  statusPedido(id: number, estado: 'P' | 'E' | 'C'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/status`, { Estado_P: estado });
+  }
 }

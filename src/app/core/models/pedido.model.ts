@@ -11,7 +11,7 @@ export interface Pedido {
   Fecha_Registro: string;
   Hora_Pedido: string;
 
-  // 🔹 Nuevo campo opcional: total del pedido (suma de todos los detalles)
+  // Opcional: cuando traigas el total calculado desde el backend
   PrecioTotal?: number;
 }
 
@@ -26,12 +26,16 @@ export interface PedidoConDetalle extends Pedido {
 export interface PedidoDetalle {
   ID_Pedido_D: number;
   ID_Pedido: number;
-  ID_Producto: number;
-  ID_Tamano: number;
+
+  // ✅ Campo correcto según modelo del backend
+  ID_Producto_T: number;
+
   Cantidad: number;
   PrecioTotal: number;
 
-  nombre_producto: string;
-  nombre_categoria: string;
+  // Campos adicionales (opcionales) usados solo para mostrar en frontend
+  nombre_producto?: string;
+  nombre_categoria?: string;
   nombre_tamano?: string;
 }
+

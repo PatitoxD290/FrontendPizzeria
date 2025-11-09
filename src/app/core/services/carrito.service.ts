@@ -8,18 +8,23 @@ export class CarritoService {
 
   /** 🛒 Agregar un producto al carrito */
   agregarProducto(producto: any) {
-    // Buscar por nombre + tamaño
+    // 🔹 Buscar por ID único (ID_Producto_T)
     const existente = this.productos.find(
-      p => p.nombre === producto.nombre && p.idTamano === producto.idTamano
+      p => p.ID_Producto_T === producto.ID_Producto_T
     );
 
     if (existente) {
-      // Si ya existe, sumar cantidad y recalcular subtotal
-      existente.cantidad += producto.cantidad;
+      // 🔹 CORRECCIÓN: REEMPLAZAR la cantidad en lugar de SUMAR
+      existente.cantidad += producto.cantidad; 
       existente.subtotal = existente.precio * existente.cantidad;
     } else {
-      producto.subtotal = producto.precio * producto.cantidad;
-      this.productos.push({ ...producto });
+      // Crear nuevo producto
+      const productoCarrito = {
+        ...producto,
+        precio: producto.precio || producto.Precio,
+        subtotal: producto.subtotal || (producto.precio || producto.Precio) * producto.cantidad
+      };
+      this.productos.push(productoCarrito);
     }
   }
 
@@ -56,7 +61,7 @@ export class CarritoService {
 
   /** 🧮 Calcular el total del carrito */
   obtenerTotal(): number {
-    return this.productos.reduce((sum, item) => sum + item.subtotal, 0);
+    return this.productos.reduce((sum, item) => sum + (item.subtotal || 0), 0);
   }
 
   /** 🔢 Obtener número total de ítems distintos */
