@@ -3,32 +3,153 @@
     <mat-icon>add</mat-icon>
     Nueva Categoría
   </button>
-  
-  <button mat-stroked-button color="accent" (click)="toggleTipo()">
-    Ver categorías de {{ tipoCategoria === 'producto' ? 'Insumos' : 'Productos' }}
-  </button>
-
 </div>
 
 <div *ngIf="loading" class="spinner-container">
   <mat-spinner></mat-spinner>
 </div>
 
-<div *ngIf="!loading" class="categoria-cards-container">
-  <mat-card *ngFor="let categoria of categorias" class="categoria-card">
-    <div class="categoria-header">
-      <div class="categoria-info">
-        <mat-card-title>{{ categoria.Nombre }}</mat-card-title>
-      </div>
-      <div class="categoria-actions">
-        <button mat-icon-button color="primary" (click)="openCategoriaForm(categoria)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="deleteCategoria(categoria)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </div>
-  </mat-card>
-</div>
+<div *ngIf="!loading" class="categorias-container">
+  
+  <!-- Tabs para alternar entre productos e insumos -->
+  <mat-tab-group (selectedTabChange)="onTabChange($event.index)" animationDuration="0ms">
+    
+    <!-- Tab de Categorías de Productos -->
+    <mat-tab label="Categorías de Productos">
+      <div class="tab-content">
+        
+        <!-- Tabla de Categorías de Productos -->
+        <table mat-table [dataSource]="paginatedProductos" class="mat-elevation-z8 categoria-table">
+          
+          <!-- Columna ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let categoria" class="id-column">
+              {{ getIdCategoria(categoria) }}
+            </td>
+          </ng-container>
 
+          <!-- Columna Nombre -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let categoria" class="nombre-column">
+              {{ getNombreCategoria(categoria) }}
+            </td>
+          </ng-container>
+
+          <!-- Columna Acciones -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef class="acciones-header">Acciones</th>
+            <td mat-cell *matCellDef="let categoria" class="acciones-column">
+              <button mat-icon-button color="primary" 
+                      (click)="openCategoriaForm(categoria, 'producto')" 
+                      matTooltip="Editar categoría">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" 
+                      (click)="deleteCategoria(categoria, 'producto')" 
+                      matTooltip="Eliminar categoría">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasProductos"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasProductos;"></tr>
+        </table>
+
+        <!-- Paginación para Productos -->
+        <mat-paginator #paginatorProductos
+          [length]="totalProductos"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [pageIndex]="currentPageProductos"
+          (page)="onPageChangeProductos($event)"
+          aria-label="Seleccionar página de categorías de productos"
+          class="categoria-paginator">
+        </mat-paginator>
+
+        <!-- Mensaje cuando no hay categorías de productos -->
+        <div *ngIf="categoriasProductos.length === 0" class="no-data">
+          <mat-icon>category</mat-icon>
+          <p>No hay categorías de productos registradas</p>
+          <button mat-flat-button color="primary" (click)="openCategoriaForm(undefined, 'producto')">
+            <mat-icon>add</mat-icon>
+            Crear primera categoría
+          </button>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <!-- Tab de Categorías de Insumos -->
+    <mat-tab label="Categorías de Insumos">
+      <div class="tab-content">
+        
+        <!-- Tabla de Categorías de Insumos -->
+        <table mat-table [dataSource]="paginatedInsumos" class="mat-elevation-z8 categoria-table">
+          
+          <!-- Columna ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let categoria" class="id-column">
+              {{ getIdCategoria(categoria) }}
+            </td>
+          </ng-container>
+
+          <!-- Columna Nombre -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let categoria" class="nombre-column">
+              {{ getNombreCategoria(categoria) }}
+            </td>
+          </ng-container>
+
+          <!-- Columna Acciones -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef class="acciones-header">Acciones</th>
+            <td mat-cell *matCellDef="let categoria" class="acciones-column">
+              <button mat-icon-button color="primary" 
+                      (click)="openCategoriaForm(categoria, 'insumo')" 
+                      matTooltip="Editar categoría">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" 
+                      (click)="deleteCategoria(categoria, 'insumo')" 
+                      matTooltip="Eliminar categoría">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasInsumos"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasInsumos;"></tr>
+        </table>
+
+        <!-- Paginación para Insumos -->
+        <mat-paginator #paginatorInsumos
+          [length]="totalInsumos"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [pageIndex]="currentPageInsumos"
+          (page)="onPageChangeInsumos($event)"
+          aria-label="Seleccionar página de categorías de insumos"
+          class="categoria-paginator">
+        </mat-paginator>
+
+        <!-- Mensaje cuando no hay categorías de insumos -->
+        <div *ngIf="categoriasInsumos.length === 0" class="no-data">
+          <mat-icon>inventory_2</mat-icon>
+          <p>No hay categorías de insumos registradas</p>
+          <button mat-flat-button color="primary" (click)="openCategoriaForm(undefined, 'insumo')">
+            <mat-icon>add</mat-icon>
+            Crear primera categoría
+          </button>
+        </div>
+
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>

@@ -12,15 +12,19 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = auth.getToken();
 
-  // 👉 Agregar token si existe
-  const clonedReq = token
+  // 🔹 VERIFICAR SI ESTAMOS EN RUTAS DEL KIOSKO
+  const currentUrl = router.url;
+  const isKioskoRoute = currentUrl.startsWith('/kiosko');
+
+  // 👉 Solo agregar token si NO estamos en kiosko
+  const clonedReq = token && !isKioskoRoute
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : req;
 
   return next(clonedReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // ⚠️ Si el backend responde con token expirado o inválido
-      if (error.status === 401) {
+      // ⚠️ Solo manejar errores 401 si estamos en dashboard
+      if (error.status === 401 && !isKioskoRoute) {
         const msg =
           error.error?.error?.includes('expirado') ||
           error.error?.message?.includes('expirado')

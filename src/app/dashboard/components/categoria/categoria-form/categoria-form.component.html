@@ -1,17 +1,43 @@
 <h2 mat-dialog-title>
-  {{ esEdicion ? 'Editar' : 'Nueva' }}
-  Categoría de {{ tipoCategoria === 'producto' ? 'Producto' : 'Insumo' }}
+  <mat-icon>{{ iconoTipo }}</mat-icon>
+  {{ esEdicion ? 'Editar' : 'Nueva' }} Categoría
 </h2>
 
 <form #form="ngForm" (ngSubmit)="saveCategoria()">
   <mat-dialog-content>
 
-    <div class="tipo-toggle">
-      <button mat-stroked-button color="accent" type="button" (click)="toggleTipo()">
-        Cambiar a {{ tipoCategoria === 'producto' ? 'Insumo' : 'Producto' }}
+    <!-- Indicador del tipo de categoría -->
+    <div class="tipo-indicator">
+      <mat-chip [color]="colorTipo" selected class="tipo-chip">
+        <mat-icon class="chip-icon">{{ iconoTipo }}</mat-icon>
+        Categoría de {{ tipoCategoriaTexto }}
+        <span *ngIf="esEdicion" class="id-badge">ID: {{ idCategoria }}</span>
+      </mat-chip>
+      
+      <!-- Solo mostrar botón de cambio si es nueva categoría -->
+      <button *ngIf="esTogglePermitido" 
+              mat-stroked-button 
+              color="accent" 
+              type="button" 
+              (click)="toggleTipo()"
+              class="toggle-btn">
+        <mat-icon>swap_horiz</mat-icon>
+        Cambiar a {{ tipoCategoria === 'producto' ? 'Insumos' : 'Productos' }}
       </button>
     </div>
 
+    <!-- Información para el usuario -->
+    <div *ngIf="!esEdicion && esTogglePermitido" class="info-message">
+      <mat-icon>info</mat-icon>
+      <span>Puedes cambiar el tipo de categoría antes de guardar</span>
+    </div>
+
+    <div *ngIf="esEdicion" class="info-message">
+      <mat-icon>lock</mat-icon>
+      <span>No puedes cambiar el tipo de categoría durante la edición</span>
+    </div>
+
+    <!-- Campo de nombre -->
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Nombre de la Categoría</mat-label>
       <input
@@ -20,13 +46,18 @@
         [(ngModel)]="categoria.Nombre"
         name="nombre"
         required
+        placeholder="Ej: {{ tipoCategoria === 'producto' ? 'Bebidas, Postres...' : 'Frutas, Lácteos...' }}"
       />
+      <mat-hint>Ingresa el nombre de la categoría de {{ tipoCategoriaTexto.toLowerCase() }}</mat-hint>
     </mat-form-field>
 
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button type="button" (click)="close()">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit">Guardar</button>
+    <button mat-flat-button [color]="colorTipo" type="submit">
+      <mat-icon>save</mat-icon>
+      {{ esEdicion ? 'Actualizar' : 'Crear' }} Categoría
+    </button>
   </mat-dialog-actions>
 </form>

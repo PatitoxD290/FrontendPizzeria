@@ -1,0 +1,86 @@
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.no-data p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* ESTILOS SUPER COMPACTOS PARA LA TABLA */
+table {
+  min-width: 350px;
+  border-collapse: collapse;
+}
+
+/* Celdas muy compactas */
+.mat-mdc-header-cell, .mat-mdc-cell {
+  padding: 4px 8px !important;
+  font-size: 13px;
+}
+
+/* Filas muy compactas */
+.mat-mdc-row {
+  height: 40px !important;
+}
+
+/* Header más compacto */
+.mat-mdc-header-row {
+  height: 36px !important;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Columnas específicas */
+.mat-column-id {
+  width: 60px;
+  text-align: center;
+}
+
+.mat-column-nombre {
+  min-width: 120px;
+}
+
+.mat-column-acciones {
+  width: 100px;
+  text-align: center;
+}
+
+/* Botones muy compactos */
+.mat-column-acciones .mat-icon-button {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  margin: 0 2px;
+}
+
+.mat-column-acciones .mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+/* Asegurar que la paginación se vea bien */
+mat-paginator {
+  background: transparent;
+}
+
+/* Eliminar espacios adicionales */
+.compact-table {
+  border-spacing: 0;
+}
+
+.compact-header {
+  background-color: #f5f5f5;
+}

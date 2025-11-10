@@ -127,32 +127,33 @@ export class MenuPedidoComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  buscarProducto(): void {
-    this.aplicarFiltros();
-  }
+buscarProducto(): void {
+  this.aplicarFiltros();
+}
 
-  private aplicarFiltros(): void {
-    let filtrados = [...this.productosConTamanos];
-    
-    if (this.categoriaSeleccionada !== null) {
-      filtrados = filtrados.filter(p => 
-        p.producto?.ID_Categoria_P === this.categoriaSeleccionada
-      );
-    }
-    
-    if (this.terminoBusqueda.trim() !== '') {
-      const termino = this.terminoBusqueda.toLowerCase();
-      filtrados = filtrados.filter(p => 
-        p.nombre_producto?.toLowerCase().includes(termino) || 
-        (p.nombre_categoria?.toLowerCase().includes(termino) ?? false) ||
-        p.descripcion_producto?.toLowerCase().includes(termino)
-      );
-    }
-    
-    this.productosFiltrados = filtrados;
-    this.currentPage = 0;
-    this.actualizarPaginacion();
+private aplicarFiltros(): void {
+  let filtrados = [...this.productosConTamanos];
+  
+  if (this.categoriaSeleccionada !== null) {
+    filtrados = filtrados.filter(p => 
+      p.producto?.ID_Categoria_P === this.categoriaSeleccionada
+    );
   }
+  
+  if (this.terminoBusqueda.trim() !== '') {
+    const termino = this.terminoBusqueda.toLowerCase();
+    filtrados = filtrados.filter(p => 
+      p.nombre_producto?.toLowerCase().includes(termino) || 
+      (p.nombre_categoria?.toLowerCase().includes(termino) ?? false) ||
+      p.descripcion_producto?.toLowerCase().includes(termino) ||
+      p.nombre_tamano?.toLowerCase().includes(termino) // 🔹 Nueva línea: buscar por tamaño
+    );
+  }
+  
+  this.productosFiltrados = filtrados;
+  this.currentPage = 0;
+  this.actualizarPaginacion();
+}
 
   // 🔹 Actualizar la lista visible según la página actual
   actualizarPaginacion(): void {

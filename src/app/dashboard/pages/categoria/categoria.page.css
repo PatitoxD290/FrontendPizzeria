@@ -1,37 +1,131 @@
-
-/* Título principal */
-.categoria-header h2 {
-  margin: 0 0 20px 0;
-  font-weight: 600;
-  font-size: 1.5rem;
+/* Título Principal - Diseño Ejecutivo Limpio */
+.header-principal {
+    margin: 0 0 40px 0;
+    font-weight: 700;
+    font-size: 2.4rem; /* Ligeramente más pequeño y enfocado */
+    color: #0d1b2a;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    padding: 20px 30px;
+    background: #ffffff; /* Fondo blanco sólido */
+    border-left: 5px solid #1e40af; /* Raya de acento primaria */
+    border-radius: 4px; /* Bordes menos agresivos */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra sutil */
 }
 
-/* Contenedor principal lado a lado */
+/* Contenedor principal */
 .categoria-tamano-container {
-  display: flex;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px; /* Espaciado limpio */
+    padding: 30px;
+    background: #f4f6f9; /* Fondo muy claro para contrastar las tarjetas */
+    border-radius: 12px;
+    max-width: 1300px;
+    margin: 0 auto 40px;
+    box-shadow: none; /* Quitamos la sombra del contenedor para limpiar el fondo */
 }
 
-/* Cada columna ocupa la mitad del espacio */
+/* Columnas - Diseño Plano y Limpio */
 .categoria-column,
 .tamano-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    background: #ffffff; /* Fondo blanco sólido */
+    border: 1px solid #e0e6ed; /* Borde gris muy sutil */
+    border-radius: 8px; /* Bordes suaves */
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05); /* Sombra ligera */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    /* Eliminamos todos los pseudo-elementos decorativos (::before, ::after) */
 }
 
-/* Títulos secundarios */
+/* Efecto hover ejecutivo - Enfoque Sólido */
+.categoria-column:hover,
+.tamano-column:hover {
+    transform: translateY(-5px); /* Elevación sutil */
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.1);
+    border-color: #3b82f6; /* Borde de enfoque azul */
+}
+
+/* Títulos de columnas - Estilo Corporativo y Minimalista */
 .categoria-column h4,
 .tamano-column h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+    margin: 0 0 15px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0; /* Separador simple y limpio */
+    /* Eliminamos los pseudo-elementos decorativos del título */
 }
 
-/* Responsivo: apilar en pantallas pequeñas */
-@media (max-width: 768px) {
-  .categoria-tamano-container {
-    flex-direction: column;
-  }
+/* Contenido de las columnas (general) */
+.categoria-column app-categoria-list,
+.tamano-column app-tamano-list {
+    display: block;
+    width: 100%;
+}
+
+/* Animación de entrada mantenida (opcional pero agradable) */
+.categoria-column,
+.tamano-column {
+    animation: cardSlideIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.categoria-column {
+    animation-delay: 0.05s;
+}
+
+.tamano-column {
+    animation-delay: 0.1s;
+}
+
+@keyframes cardSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .categoria-tamano-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+}
+
+/* Estilos de lista internos (simplificados y más accesibles) */
+.categoria-column ::ng-deep ul,
+.tamano-column ::ng-deep ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.categoria-column ::ng-deep li,
+.tamano-column ::ng-deep li {
+    padding: 10px 0;
+    color: #475569;
+    font-size: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.categoria-column ::ng-deep li:last-child,
+.tamano-column ::ng-deep li:last-child {
+    border-bottom: none;
+}
+
+.categoria-column ::ng-deep li:hover,
+.tamano-column ::ng-deep li:hover {
+    /* Fondo muy sutil para indicar selección sin desplazar el texto */
+    background: rgba(30, 64, 175, 0.03);
+    color: #1e40af;
+    border-radius: 4px;
+    padding-left: 5px; /* Pequeño desplazamiento de 5px */
 }

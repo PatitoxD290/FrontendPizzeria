@@ -4,13 +4,36 @@ table {
 
 .spinner-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin: 20px 0;
+  gap: 10px;
+}
+
+.spinner-container p {
+  margin: 0;
+  color: #666;
 }
 
 mat-card {
   padding: 20px;
   margin: 20px;
+}
+
+/* 🧭 Header con botón de actualizar */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header h2 {
+  margin: 0;
+  color: #333;
 }
 
 /* 🧭 Filtros arriba */
@@ -38,3 +61,9 @@ mat-card {
 .estado-entregado { color: green; font-weight: 600; }
 .estado-no-entregado { color: red; font-weight: 600; }
 .estado-no-disponible { color: gray; font-weight: 600; }
+
+/* Snackbar personalizado */
+.success-snackbar {
+  background-color: #4caf50;
+  color: white;
+}

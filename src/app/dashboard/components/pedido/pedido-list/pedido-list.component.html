@@ -1,4 +1,12 @@
 <mat-card>
+  <div class="header">
+    <h2>Lista de Pedidos</h2>
+    <button mat-raised-button color="primary" (click)="refrescarManual()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </div>
+
   <div class="filtros-container">
     <!-- 🔍 Buscador general -->
     <mat-form-field appearance="outline" class="search-field">
@@ -27,6 +35,7 @@
 
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>
+    <p>Cargando pedidos...</p>
   </div>
 
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">

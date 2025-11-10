@@ -2,13 +2,26 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  // 🔹 VERIFICAR SI ESTAMOS INTENTANDO ACCEDER AL DASHBOARD
+  const isDashboardRoute = state.url.startsWith('/dashboard');
+  
+  // ⛔ Si no es ruta de dashboard, permitir acceso (kiosko es público)
+  if (!isDashboardRoute) {
+    return true;
+  }
+
+  // 🔹 Si es dashboard/login, permitir acceso directo
+  if (state.url === '/dashboard/login') {
+    return true;
+  }
+
   const token = auth.getToken();
 
-  // 🔹 Si no hay token, redirige al login
+  // 🔹 Si no hay token, redirige al login del dashboard
   if (!token) {
     return redirectToLogin(router, auth);
   }

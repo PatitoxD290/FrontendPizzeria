@@ -1,52 +1,138 @@
-/* Contenedor de los cards */
-.categoria-cards-container {
+.toolbar {
   display: flex;
-  flex-wrap: wrap;       /* permite que los cards bajen a la siguiente fila si no caben */
-  gap: 15px;             /* espacio entre cards */
-  justify-content: flex-start; /* alinear al inicio */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* 🔹 Estilo de cada card */
-.categoria-card {
-  flex: 0 0 auto;        /* no crecer ni encoger automáticamente */
-  width: 200px;          /* ancho fijo de cada card, ajusta según necesites */
-  padding: 10px;
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.1s, background-color 0.2s;
-}
-
-.categoria-card:hover {
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transform: translateY(-2px);
-}
-
-.categoria-header {
+.spinner-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  height: 200px;
 }
 
-.categoria-info {
+.categorias-container {
+  width: 100%;
+}
+
+.tab-content {
+  padding: 16px 0;
+}
+
+/* Estilos para las tablas */
+.categoria-table {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Columnas compactas */
+.id-column {
+  width: 80px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.nombre-column {
+  min-width: 200px;
+  font-weight: 500;
+}
+
+.acciones-column {
+  width: 120px;
   text-align: center;
 }
 
-.categoria-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.acciones-header {
+  text-align: center;
 }
 
-/* 🔹 Card activa (seleccionada) */
-.categoria-card.activa {
-  background-color: #e3f2fd;
-  border: 2px solid #2196f3;
-  transform: scale(1.02);
+/* Estilos compactos para la tabla */
+.mat-mdc-header-cell, .mat-mdc-cell {
+  padding: 8px 12px !important;
 }
 
-.toolbar {
-  display: flex;
-  flex-direction: column; /* botones apilados verticalmente */
-  align-items: flex-start; /* alineación al lado izquierdo */
-  gap: 10px;              
-  margin-bottom: 15px;    
+.mat-mdc-row {
+  height: 48px !important;
+}
+
+.mat-mdc-header-row {
+  height: 40px !important;
+}
+
+/* Botones compactos */
+.acciones-column .mat-icon-button {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+}
+
+.acciones-column .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+/* Paginación */
+.categoria-paginator {
+  background: transparent;
+  margin-top: 8px;
+}
+
+/* Mensaje cuando no hay datos */
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.no-data p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Estilos para los tabs */
+.mat-mdc-tab-group {
+  background: white;
+  border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .categoria-table {
+    min-width: 400px;
+  }
+  
+  .toolbar {
+    align-items: stretch;
+  }
+  
+  .toolbar button {
+    width: 100%;
+  }
+  
+  .id-column {
+    width: 60px;
+  }
+  
+  .nombre-column {
+    min-width: 150px;
+  }
+  
+  .acciones-column {
+    width: 100px;
+  }
 }

@@ -5,11 +5,12 @@ import { Producto, ProductoTamano } from '../../../../core/models/producto.model
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { RecetaService } from '../../../../core/services/receta.service';
+import { TamanoService } from '../../../../core/services/tamano.service';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 
 // Angular Material
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTableModule } from '@angular/material/table';
 import { ProductoFormComponent } from '../producto-form/producto-form.component';
 
 @Component({
@@ -33,6 +35,7 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
     MatDialogModule,
     MatChipsModule,
     MatTooltipModule,
+    MatTableModule,
   ],
   templateUrl: './producto-list.component.html',
   styleUrls: ['./producto-list.component.css'],
@@ -42,7 +45,14 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   paginatedProductos: Producto[] = [];
   categorias: any[] = [];
   recetas: any[] = [];
+  tamanos: any[] = [];
   loading = false;
+
+  // Configuración de paginación
+  pageSize = 8;
+  pageSizeOptions = [4, 8, 12, 16];
+  currentPage = 0;
+  totalItems = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -52,6 +62,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
     private recetaService: RecetaService,
+    private tamanoService: TamanoService,
     private dialog: MatDialog
   ) {}
 
@@ -82,14 +93,16 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   async loadProductos() {
     this.loading = true;
     try {
-      const [categorias, recetas, productos] = await Promise.all([
+      const [categorias, recetas, tamanos, productos] = await Promise.all([
         this.categoriaService.getCategoriasProducto().toPromise(),
         this.recetaService.getRecetas().toPromise(),
+        this.tamanoService.getTamanos().toPromise(),
         this.productoService.getProductos().toPromise(),
       ]);
 
       this.categorias = categorias || [];
       this.recetas = recetas || [];
+      this.tamanos = tamanos || [];
 
       this.productos = (productos || []).map((p) => ({
         ...p,
@@ -98,9 +111,15 @@ export class ProductoListComponent implements OnInit, OnDestroy {
           'Sin categoría',
         nombre_receta:
           this.recetas.find((r) => r.ID_Receta === p.ID_Receta)?.Nombre || 'Sin receta',
+        tamanos: p.tamanos?.map(tamano => ({
+          ...tamano,
+          nombre_tamano: this.getNombreTamano(tamano.ID_Tamano)
+        })) || []
       }));
 
-      this.setPage(0);
+      this.totalItems = this.productos.length;
+      this.updatePaginatedData();
+
     } catch (err) {
       console.error('Error al cargar datos', err);
       this.showError('Error al cargar productos', 'No se pudieron cargar los datos.');
@@ -109,36 +128,54 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     }
   }
 
-  setPage(pageIndex: number) {
-    const pageSize = this.paginator?.pageSize || 8;
-    const startIndex = pageIndex * pageSize;
-    this.paginatedProductos = this.productos.slice(startIndex, startIndex + pageSize);
+  // Actualizar datos paginados
+  updatePaginatedData() {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedProductos = this.productos.slice(startIndex, endIndex);
   }
 
-  onPageChange(event: any) {
-    this.setPage(event.pageIndex);
+  // Manejar cambio de página
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePaginatedData();
+    
+    // Scroll suave hacia arriba al cambiar de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 🔹 CORRECCIÓN: Obtener tamaños activos del producto
+  // 🔹 Obtener el nombre del tamaño por ID
+  getNombreTamano(idTamano: number): string {
+    const tamano = this.tamanos.find(t => t.ID_Tamano === idTamano);
+    return tamano?.Tamano || `Tamaño ${idTamano}`;
+  }
+
+  // 🔹 Obtener tamaños activos del producto
   getTamanosActivos(producto: Producto): ProductoTamano[] {
     return producto.tamanos?.filter(t => t.Estado === 'A') || [];
   }
 
-  // 🔹 CORRECCIÓN: Obtener el precio mínimo de los tamaños activos
+  // 🔹 Obtener cantidad de tamaños activos
+  getCantidadTamanos(producto: Producto): number {
+    return this.getTamanosActivos(producto).length;
+  }
+
+  // 🔹 Obtener el precio mínimo de los tamaños activos
   getPrecioMinimo(producto: Producto): number {
     const tamanosActivos = this.getTamanosActivos(producto);
     if (tamanosActivos.length === 0) return 0;
     return Math.min(...tamanosActivos.map(t => t.Precio));
   }
 
-  // 🔹 CORRECCIÓN: Obtener el precio máximo de los tamaños activos
+  // 🔹 Obtener el precio máximo de los tamaños activos
   getPrecioMaximo(producto: Producto): number {
     const tamanosActivos = this.getTamanosActivos(producto);
     if (tamanosActivos.length === 0) return 0;
     return Math.max(...tamanosActivos.map(t => t.Precio));
   }
 
-  // 🔹 CORRECCIÓN: Mostrar rango de precios o precio único
+  // 🔹 Mostrar rango de precios o precio único
   getDisplayPrecio(producto: Producto): string {
     const tamanosActivos = this.getTamanosActivos(producto);
     
@@ -156,9 +193,35 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔹 CORRECCIÓN: Contar tamaños activos
-  getCantidadTamanos(producto: Producto): number {
-    return this.getTamanosActivos(producto).length;
+  // 🔹 Obtener información combinada de precios y tamaños
+  getPrecioTamanoInfo(producto: Producto): { texto: string, tooltip: string } {
+    const tamanosActivos = this.getTamanosActivos(producto);
+    const cantidadTamanos = this.getCantidadTamanos(producto);
+    
+    if (tamanosActivos.length === 0) {
+      return {
+        texto: 'Sin tamaños',
+        tooltip: 'No hay tamaños disponibles para este producto'
+      };
+    }
+
+    const precioTexto = this.getDisplayPrecio(producto);
+    const tamanosTexto = `${cantidadTamanos} tamaño${cantidadTamanos !== 1 ? 's' : ''}`;
+    
+    const texto = `${precioTexto} • ${tamanosTexto}`;
+    const tooltip = this.getTamanosConPrecios(producto);
+    
+    return { texto, tooltip };
+  }
+
+  // 🔹 Obtener lista de tamaños con precios para tooltip
+  getTamanosConPrecios(producto: Producto): string {
+    const tamanosActivos = this.getTamanosActivos(producto);
+    if (tamanosActivos.length === 0) return 'Sin tamaños disponibles';
+    
+    return tamanosActivos
+      .map(t => `${t.nombre_tamano || this.getNombreTamano(t.ID_Tamano)}: S/ ${t.Precio.toFixed(2)}`)
+      .join('\n');
   }
 
   deleteProducto(producto: Producto) {
@@ -180,6 +243,8 @@ export class ProductoListComponent implements OnInit, OnDestroy {
             next: () => {
               this.showSuccess('Producto eliminado', 'El producto fue eliminado correctamente.');
               this.loadProductos();
+              // Resetear a la primera página después de eliminar
+              this.resetToFirstPage();
             },
             error: () => this.showError('Error', 'No se pudo eliminar el producto.'),
           });
@@ -187,22 +252,40 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     });
   }
 
- openProductoForm(producto?: Producto) {
-  const dialogRef = this.dialog.open(ProductoFormComponent, {
-    width: '1000px', // ← Aumenta el ancho para acomodar las dos columnas
-    maxWidth: '95vw',
-    height: 'auto',
-    autoFocus: false,
-    data: { producto, categorias: this.categorias, recetas: this.recetas },
-  });
+  // Resetear a la primera página
+  resetToFirstPage() {
+    this.currentPage = 0;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    this.updatePaginatedData();
+  }
 
-  dialogRef
-    .afterClosed()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((result) => {
-      if (result) this.loadProductos();
+  openProductoForm(producto?: Producto) {
+    const dialogRef = this.dialog.open(ProductoFormComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      height: 'auto',
+      autoFocus: false,
+      data: { 
+        producto, 
+        categorias: this.categorias, 
+        recetas: this.recetas,
+        tamanos: this.tamanos
+      },
     });
-}
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          this.loadProductos();
+          // Resetear a la primera página después de agregar/editar
+          this.resetToFirstPage();
+        }
+      });
+  }
 
   getEstadoColor(estado: string): string {
     return estado === 'A' ? 'success' : 'warn';
@@ -210,6 +293,25 @@ export class ProductoListComponent implements OnInit, OnDestroy {
 
   getEstadoText(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
+  }
+
+  getStockColor(cantidad: number): string {
+    if (cantidad === 0) return 'warn';
+    if (cantidad <= 10) return 'accent';
+    return 'primary';
+  }
+
+  getStockText(cantidad: number): string {
+    if (cantidad === 0) return 'Agotado';
+    if (cantidad <= 10) return 'Bajo stock';
+    return 'En stock';
+  }
+
+  // 🔹 Método para truncar texto
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return 'Sin descripción';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   }
 
   private showSuccess(title: string, text: string) {

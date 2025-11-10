@@ -9,6 +9,9 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+
 
 import Swal from 'sweetalert2';
 
@@ -21,7 +24,9 @@ import Swal from 'sweetalert2';
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatChipsModule,
+    MatIconModule
   ],
   templateUrl: './categoria-form.component.html',
   styleUrls: ['./categoria-form.component.css']
@@ -30,6 +35,7 @@ export class CategoriaFormComponent {
 
   tipoCategoria: 'producto' | 'insumo' = 'producto';
   categoria: CategoriaProducto | CategoriaInsumos;
+  esTogglePermitido: boolean;
 
   constructor(
     private categoriaService: CategoriaService,
@@ -38,6 +44,9 @@ export class CategoriaFormComponent {
   ) {
     // Tipo inicial (si viene desde el diálogo)
     this.tipoCategoria = data?.tipo || 'producto';
+    
+    // Permitir cambiar tipo solo si es nueva categoría (no en edición)
+    this.esTogglePermitido = !data?.categoria;
 
     // Crear una nueva categoría o clonar la existente
     if (this.tipoCategoria === 'producto') {
@@ -51,14 +60,16 @@ export class CategoriaFormComponent {
     }
   }
 
-  // 🔁 Alternar entre tipo de categoría
+  // 🔁 Alternar entre tipo de categoría (solo para nuevas categorías)
   toggleTipo() {
+    if (!this.esTogglePermitido) return;
+    
     if (this.tipoCategoria === 'producto') {
       this.tipoCategoria = 'insumo';
-      this.categoria = { ID_Categoria_I: 0, Nombre: '' };
+      this.categoria = { ID_Categoria_I: 0, Nombre: this.categoria.Nombre };
     } else {
       this.tipoCategoria = 'producto';
-      this.categoria = { ID_Categoria_P: 0, Nombre: '' };
+      this.categoria = { ID_Categoria_P: 0, Nombre: this.categoria.Nombre };
     }
   }
 
@@ -71,9 +82,33 @@ export class CategoriaFormComponent {
     }
   }
 
+  // Obtener el ID actual de la categoría
+  get idCategoria(): number {
+    if (this.tipoCategoria === 'producto') {
+      return (this.categoria as CategoriaProducto).ID_Categoria_P;
+    } else {
+      return (this.categoria as CategoriaInsumos).ID_Categoria_I;
+    }
+  }
+
+  // Obtener el tipo de categoría en español
+  get tipoCategoriaTexto(): string {
+    return this.tipoCategoria === 'producto' ? 'Productos' : 'Insumos';
+  }
+
+  // Obtener el icono según el tipo
+  get iconoTipo(): string {
+    return this.tipoCategoria === 'producto' ? 'shopping_bag' : 'inventory_2';
+  }
+
+  // Obtener el color según el tipo
+  get colorTipo(): string {
+    return this.tipoCategoria === 'producto' ? 'primary' : 'accent';
+  }
+
   // 💾 Guardar categoría
   saveCategoria() {
-     // Convertir nombre en Capitalizado
+    // Convertir nombre en Capitalizado
     if (this.categoria.Nombre) {
       this.categoria.Nombre = this.capitalizeWords(this.categoria.Nombre.trim());
     }
@@ -88,18 +123,18 @@ export class CategoriaFormComponent {
       if (!cat.ID_Categoria_P || cat.ID_Categoria_P === 0) {
         this.categoriaService.createCategoriaProducto(cat).subscribe({
           next: () => {
-            Swal.fire('¡Éxito!', 'Categoría de producto creada correctamente', 'success');
+            Swal.fire('¡Éxito!', 'Categoría de productos creada correctamente', 'success');
             this.dialogRef.close(true);
           },
-          error: () => Swal.fire('Error', 'Error al crear categoría de producto', 'error')
+          error: () => Swal.fire('Error', 'Error al crear categoría de productos', 'error')
         });
       } else {
         this.categoriaService.updateCategoriaProducto(cat.ID_Categoria_P, cat).subscribe({
           next: () => {
-            Swal.fire('¡Éxito!', 'Categoría de producto actualizada correctamente', 'success');
+            Swal.fire('¡Éxito!', 'Categoría de productos actualizada correctamente', 'success');
             this.dialogRef.close(true);
           },
-          error: () => Swal.fire('Error', 'Error al actualizar categoría de producto', 'error')
+          error: () => Swal.fire('Error', 'Error al actualizar categoría de productos', 'error')
         });
       }
     } else {
@@ -107,29 +142,28 @@ export class CategoriaFormComponent {
       if (!cat.ID_Categoria_I || cat.ID_Categoria_I === 0) {
         this.categoriaService.createCategoriaInsumo(cat).subscribe({
           next: () => {
-            Swal.fire('¡Éxito!', 'Categoría de insumo creada correctamente', 'success');
+            Swal.fire('¡Éxito!', 'Categoría de insumos creada correctamente', 'success');
             this.dialogRef.close(true);
           },
-          error: () => Swal.fire('Error', 'Error al crear categoría de insumo', 'error')
+          error: () => Swal.fire('Error', 'Error al crear categoría de insumos', 'error')
         });
       } else {
         this.categoriaService.updateCategoriaInsumo(cat.ID_Categoria_I, cat).subscribe({
           next: () => {
-            Swal.fire('¡Éxito!', 'Categoría de insumo actualizada correctamente', 'success');
+            Swal.fire('¡Éxito!', 'Categoría de insumos actualizada correctamente', 'success');
             this.dialogRef.close(true);
           },
-          error: () => Swal.fire('Error', 'Error al actualizar categoría de insumo', 'error')
+          error: () => Swal.fire('Error', 'Error al actualizar categoría de insumos', 'error')
         });
       }
     }
   }
   
   private capitalizeWords(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+    return text
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
-
 
   close() {
     this.dialogRef.close(false);

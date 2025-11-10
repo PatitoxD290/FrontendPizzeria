@@ -1,111 +1,163 @@
-<mat-card class="compact-card">
+<div class="products-container">
+  <!-- Header con título y botón -->
+  <div class="products-header">
+    <h1 class="page-title">Lista de Productos</h1>
+    <button mat-flat-button color="primary" (click)="openProductoForm()" class="add-button">
+      <mat-icon>add</mat-icon>
+      Nuevo Producto
+    </button>
+  </div>
 
-  <mat-card-content class="compact-content">
-    <!-- Header con solo el botón -->
-    <div class="header-actions">
-      <button mat-flat-button color="primary" (click)="openProductoForm()" class="add-button">
-        <mat-icon>add</mat-icon>
-        Nuevo Producto
-      </button>
-    </div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="spinner-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando productos...</p>
+  </div>
 
-    <!-- Loading -->
-    <div *ngIf="loading" class="spinner-container">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Cargando productos...</p>
-    </div>
+  <!-- Stats bar -->
+  <div *ngIf="!loading" class="stats-bar">
+    <mat-chip-set>
+      <mat-chip color="primary" highlighted>
+        <mat-icon>inventory_2</mat-icon>
+        Total: {{ productos.length }} productos
+      </mat-chip>
+      <mat-chip color="accent" highlighted>
+        <mat-icon>visibility</mat-icon>
+        Mostrando: {{ paginatedProductos.length }} productos
+      </mat-chip>
+    </mat-chip-set>
+  </div>
 
-    <!-- Grid de productos -->
-    <div *ngIf="!loading" class="content-container">
-      <div class="stats-bar">
-        <mat-chip-set>
-          <mat-chip color="primary" highlighted>
-            Total: {{ productos.length }}
-          </mat-chip>
-        </mat-chip-set>
-      </div>
-
-      <div class="card-grid" *ngIf="paginatedProductos.length > 0">
-        <mat-card *ngFor="let p of paginatedProductos" class="producto-card">
-          <div class="card-header">
-            <mat-chip [color]="getEstadoColor(p.Estado)" class="estado-chip">
-              {{ getEstadoText(p.Estado) }}
+  <!-- Grid de Cards -->
+  <div *ngIf="!loading && productos.length > 0" class="products-grid">
+    <mat-card *ngFor="let producto of paginatedProductos" class="product-card">
+      
+      <!-- Header con imagen y estado -->
+      <div class="card-header">
+        <div class="image-container">
+          <img 
+            [src]="getProductoImage(producto.ID_Producto)" 
+            [alt]="producto.Nombre"
+            class="product-image"
+            (error)="onImageError($event)"
+          >
+          <div class="image-overlay">
+            <mat-chip [color]="getEstadoColor(producto.Estado)" class="status-chip">
+              {{ getEstadoText(producto.Estado) }}
             </mat-chip>
-            <span class="producto-id">#{{ p.ID_Producto }}</span>
           </div>
-
-          <img [src]="getProductoImage(p.ID_Producto)" alt="{{ p.Nombre }}" class="producto-img"
-            (error)="onImageError($event)">
-
-          <mat-card-content class="card-content">
-            <h3 class="producto-nombre text-truncate-2">{{ p.Nombre }}</h3>
-            <p class="producto-descripcion text-truncate-2">{{ p.Descripcion || 'Sin descripción' }}</p>
-
-            <div class="producto-info">
-              <div class="info-item">
-                <mat-icon class="info-icon">category</mat-icon>
-                <span class="text-truncate-1">{{ p.nombre_categoria }}</span>
-              </div>
-              <div class="info-item">
-                <mat-icon class="info-icon">restaurant</mat-icon>
-                <span class="text-truncate-1">{{ p.nombre_receta }}</span>
-              </div>
-              <!-- 🔹 CORRECCIÓN: Mostrar cantidad de tamaños -->
-              <div class="info-item">
-                <mat-icon class="info-icon">straighten</mat-icon>
-                <span class="text-truncate-1">
-                  {{ getCantidadTamanos(p) }} tamaño{{ getCantidadTamanos(p) !== 1 ? 's' : '' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- 🔹 CORRECCIÓN: Mostrar rango de precios de tamaños -->
-            <div class="precio-section">
-              <span class="precio-label">Precios:</span>
-              <span class="precio-value">{{ getDisplayPrecio(p) }}</span>
-            </div>
-
-            <!-- 🔹 CORRECCIÓN: Mostrar lista de tamaños disponibles -->
-            <div class="tamanos-list" *ngIf="getTamanosActivos(p).length > 0">
-              <div *ngFor="let tamano of getTamanosActivos(p)" class="tamano-item">
-                <span class="tamano-nombre">{{ tamano.nombre_tamano || 'Tamaño' }}</span>
-                <span class="tamano-precio">S/ {{ tamano.Precio | number:'1.2-2' }}</span>
-              </div>
-            </div>
-
-            <p class="fecha-registro">
-              <mat-icon class="fecha-icon">event</mat-icon>
-              {{ p.Fecha_Registro | date:'dd/MM/yyyy' }}
-            </p>
-          </mat-card-content>
-
-          <mat-card-actions class="card-actions">
-            <button mat-icon-button color="primary" (click)="openProductoForm(p)" matTooltip="Editar producto">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteProducto(p)" matTooltip="Eliminar producto">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-card-actions>
-        </mat-card>
+        </div>
       </div>
 
-      <!-- Sin resultados -->
-      <div *ngIf="!loading && paginatedProductos.length === 0" class="no-data">
-        <mat-icon class="no-data-icon">inventory_2</mat-icon>
-        <h3>No hay productos registrados</h3>
-        <button mat-flat-button color="primary" (click)="openProductoForm()">
-          <mat-icon>add</mat-icon>
-          Agregar primer producto
+      <!-- Contenido principal -->
+      <mat-card-content class="card-content">
+        
+        <!-- Información básica -->
+        <div class="product-basic-info">
+          <h3 class="product-name" [matTooltip]="producto.Nombre" matTooltipPosition="above">
+            {{ producto.Nombre }}
+          </h3>
+          <p class="product-id">ID: {{ producto.ID_Producto }}</p>
+        </div>
+
+        <!-- Descripción -->
+        <div class="product-description">
+          <p class="description-text" [matTooltip]="producto.Descripcion || 'Sin descripción'" matTooltipPosition="above">
+            {{ truncateText(producto.Descripcion || 'Sin descripción', 60) }}
+          </p>
+        </div>
+
+        <!-- Categoría y Receta -->
+        <div class="product-details">
+          <div class="detail-item">
+            <mat-icon class="detail-icon">category</mat-icon>
+            <span class="detail-text">{{ producto.nombre_categoria }}</span>
+          </div>
+          <div class="detail-item">
+            <mat-icon class="detail-icon">menu_book</mat-icon>
+            <span class="detail-text">{{ producto.nombre_receta }}</span>
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="stock-section">
+          <mat-chip [color]="getStockColor(producto.Cantidad_Disponible)" class="stock-chip">
+            <mat-icon>inventory</mat-icon>
+            {{ producto.Cantidad_Disponible }} unidades
+            <span class="stock-status">({{ getStockText(producto.Cantidad_Disponible) }})</span>
+          </mat-chip>
+        </div>
+
+        <!-- Precios y Tamaños -->
+        <div class="pricing-section" 
+             [matTooltip]="getPrecioTamanoInfo(producto).tooltip" 
+             matTooltipPosition="above">
+          <div class="price-info">
+            <mat-icon class="price-icon">attach_money</mat-icon>
+            <span class="price-text">{{ getDisplayPrecio(producto) }}</span>
+          </div>
+          <div class="sizes-info">
+            <mat-icon class="sizes-icon">straighten</mat-icon>
+            <span class="sizes-text">
+              {{ getCantidadTamanos(producto) }} tamaño{{ getCantidadTamanos(producto) !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Fecha de registro -->
+        <div class="date-section">
+          <mat-icon class="date-icon">calendar_today</mat-icon>
+          <span class="date-text">Registrado: {{ producto.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+      </mat-card-content>
+
+      <!-- Acciones -->
+      <mat-card-actions class="card-actions">
+        <button 
+          mat-flat-button 
+          color="primary" 
+          (click)="openProductoForm(producto)" 
+          class="action-button"
+        >
+          <mat-icon>edit</mat-icon>
+          Editar
         </button>
-      </div>
-    </div>
-  </mat-card-content>
+        <button 
+          mat-stroked-button 
+          color="warn" 
+          (click)="deleteProducto(producto)" 
+          class="action-button"
+        >
+          <mat-icon>delete</mat-icon>
+          Eliminar
+        </button>
+      </mat-card-actions>
+
+    </mat-card>
+  </div>
 
   <!-- Paginación -->
-  <mat-card-footer *ngIf="!loading && productos.length > 0">
-    <mat-paginator [length]="productos.length" [pageSize]="12" [pageSizeOptions]="[12, 24, 48]"
-      (page)="onPageChange($event)" class="custom-paginator">
+  <div *ngIf="!loading && productos.length > 0" class="pagination-container">
+    <mat-paginator 
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      class="custom-paginator">
     </mat-paginator>
-  </mat-card-footer>
-</mat-card>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!loading && productos.length === 0" class="no-data">
+    <mat-icon class="no-data-icon">inventory_2</mat-icon>
+    <h3>No hay productos registrados</h3>
+    <p>Comienza agregando tu primer producto al sistema</p>
+    <button mat-flat-button color="primary" (click)="openProductoForm()">
+      <mat-icon>add</mat-icon>
+      Agregar primer producto
+    </button>
+  </div>
+</div>
