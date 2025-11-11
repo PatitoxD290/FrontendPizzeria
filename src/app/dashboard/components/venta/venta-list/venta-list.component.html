@@ -39,12 +39,12 @@
 
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef>ID</th>
-        <td mat-cell *matCellDef="let v">{{ v.ID_Venta  }}</td>
+        <td mat-cell *matCellDef="let v">{{ v.ID_Venta }}</td>
       </ng-container>
 
       <ng-container matColumnDef="cliente">
         <th mat-header-cell *matHeaderCellDef>Cliente</th>
-        <td mat-cell *matCellDef="let v">{{ v.Cliente_Nombre  }}</td>
+        <td mat-cell *matCellDef="let v">{{ v.Cliente_Nombre }}</td>
       </ng-container>
 
       <ng-container matColumnDef="tipo">
@@ -54,11 +54,26 @@
         </td>
       </ng-container>
 
-
       <ng-container matColumnDef="metodo">
         <th mat-header-cell *matHeaderCellDef>Método</th>
         <td mat-cell *matCellDef="let v">
           {{ obtenerMetodoPagoTexto(v.Metodo_Pago) }}
+        </td>
+      </ng-container>
+
+      <!-- 🔹 NUEVO: Columna Monto Recibido -->
+      <ng-container matColumnDef="montoRecibido">
+        <th mat-header-cell *matHeaderCellDef>Monto Recibido</th>
+        <td mat-cell *matCellDef="let v" [matTooltip]="obtenerTooltipVenta(v)">
+          {{ obtenerMontoRecibidoTexto(v) }}
+        </td>
+      </ng-container>
+
+      <!-- 🔹 NUEVO: Columna Vuelto -->
+      <ng-container matColumnDef="vuelto">
+        <th mat-header-cell *matHeaderCellDef>Vuelto</th>
+        <td mat-cell *matCellDef="let v">
+          {{ obtenerVueltoTexto(v) }}
         </td>
       </ng-container>
 
@@ -83,10 +98,9 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
       <tr *ngIf="dataSource.filteredData.length === 0">
-        <td colspan="7" class="sin-datos">No se encontraron ventas</td>
+        <td colspan="9" class="sin-datos">No se encontraron ventas</td>
       </tr>
     </table>
-<mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50]"></mat-paginator>
-</div>
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20, 50]"></mat-paginator>
+  </div>
 </mat-card>
-

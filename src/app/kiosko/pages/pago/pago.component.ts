@@ -69,6 +69,10 @@ export class PagoComponent implements OnInit {
   verificandoCodigo = false;
   errorCodigo = false;
 
+  // 🔹 NUEVO: Variables para monto recibido y vuelto
+  montoRecibido: number = 0;
+  solicitandoMontoEfectivo = false;
+
   private idClienteParaGuardar: number = 1; // 1 = Cliente Genérico por defecto
 
   constructor(
@@ -92,12 +96,86 @@ export class PagoComponent implements OnInit {
 
   seleccionarOpcion(opcion: string) {
     this.opcionSeleccionada = opcion;
+    
+    // 🔹 NUEVO: Si es efectivo, solicitar monto recibido
+    if (opcion === 'efectivo') {
+      this.solicitarMontoEfectivo();
+    } else {
+      // Para otros métodos, el monto recibido es igual al total
+      this.montoRecibido = this.total;
+    }
   }
 
-  // --- Flujo de Verificación de Código (Sin cambios) ---
+  // 🔹 NUEVO: Método para solicitar monto en efectivo
+  solicitarMontoEfectivo() {
+    this.solicitandoMontoEfectivo = true;
+    this.montoRecibido = this.total; // Valor por defecto
+  }
+
+  // 🔹 NUEVO: Métodos para el teclado numérico del monto
+  addMontoNumber(num: string) {
+    const current = this.montoRecibido.toString();
+    if (current === '0') {
+      this.montoRecibido = parseInt(num);
+    } else {
+      this.montoRecibido = parseFloat(current + num);
+    }
+  }
+
+  deleteMontoLast() {
+    const current = this.montoRecibido.toString();
+    if (current.length > 1) {
+      this.montoRecibido = parseFloat(current.slice(0, -1));
+    } else {
+      this.montoRecibido = 0;
+    }
+  }
+
+  clearMonto() {
+    this.montoRecibido = 0;
+  }
+
+  addMontoDecimal() {
+    const current = this.montoRecibido.toString();
+    if (!current.includes('.')) {
+      this.montoRecibido = parseFloat(current + '.');
+    }
+  }
+
+  onMontoInputChange(event: any) {
+    const value = event.target.value.replace(/[^0-9.]/g, '');
+    if (value === '' || value === '.') {
+      this.montoRecibido = 0;
+    } else {
+      this.montoRecibido = parseFloat(value);
+    }
+  }
+
+  confirmarMontoEfectivo() {
+    if (this.montoRecibido < this.total) {
+      alert('El monto recibido no puede ser menor al total a pagar');
+      return;
+    }
+    this.solicitandoMontoEfectivo = false;
+    this.simularPagoConfirmado();
+  }
+
+  cancelarMontoEfectivo() {
+    this.solicitandoMontoEfectivo = false;
+    this.opcionSeleccionada = null;
+    this.montoRecibido = 0;
+  }
+
+  // --- Flujo de Verificación de Código (Con ajustes) ---
 
   simularPagoConfirmado() {
-    this.solicitarCodigoVerificacion();
+    // Para tarjeta/billetera, solicitar código de verificación
+    if (this.opcionSeleccionada === 'tarjeta' || this.opcionSeleccionada === 'billetera' || this.opcionSeleccionada === 'yape') {
+      this.solicitarCodigoVerificacion();
+    } else {
+      // Para efectivo, procesar directamente
+      this.procesarPago();
+    }
   }
 
   simularPagoTarjeta() {
@@ -188,7 +266,7 @@ export class PagoComponent implements OnInit {
     this.opcionSeleccionada = null;
   }
 
-  // --- Lógica de Procesamiento y Documento (Sin cambios) ---
+  // --- Lógica de Procesamiento y Documento (Con ajustes) ---
 
   procesarPago() {
     this.procesandoPago = true;
@@ -210,6 +288,8 @@ export class PagoComponent implements OnInit {
     this.pagoExitoso = false;
     this.mostrarOpcionesDocumento = false;
     this.opcionSeleccionada = null;
+    this.solicitandoMontoEfectivo = false;
+    this.montoRecibido = 0;
   }
 
   solicitarDni() {
@@ -237,7 +317,7 @@ export class PagoComponent implements OnInit {
   onCodigoInputChange(event: any) { const value = event.target.value.replace(/[^0-9]/g, ''); this.codigoVerificacion = value.slice(0, 4); this.errorCodigo = false; }
 
   // ================================================================
-  // 🔄 MÉTODOS DE GUARDADO CORREGIDOS - USAR ID_Producto_T
+  // 🔄 MÉTODOS DE GUARDADO CORREGIDOS - INCLUYENDO MONTO_RECIBIDO
   // ================================================================
 
   confirmarBoleta() {
@@ -352,7 +432,7 @@ export class PagoComponent implements OnInit {
     this.guardarEnBaseDeDatosReal();
   }
 
-  // 🔹 CORRECCIÓN PRINCIPAL: Usar ID_Producto_T en lugar de ID_Producto + ID_Tamano
+  // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
   guardarEnBaseDeDatosReal() {
     const productos = this.carritoService.obtenerProductos();
     const idCliente = this.idClienteParaGuardar;
@@ -436,9 +516,7 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  // 🔹 CORRECCIÓN: Método de respaldo eliminado ya que no es necesario
-  // guardarConIdTamanoSeguro() - ELIMINADO
-
+  // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
   guardarVentaEnBaseDeDatos(ID_Pedido: number) { 
     const ventaData: VentaCreacionDTO = {
       ID_Pedido: ID_Pedido,
@@ -446,7 +524,8 @@ export class PagoComponent implements OnInit {
                     this.tipoDocumento === 'boleta' ? 'B' : 'N',
       Metodo_Pago: this.getMetodoPagoCode(),
       Lugar_Emision: 'A',
-      IGV_Porcentaje: 18
+      IGV_Porcentaje: 18,
+      Monto_Recibido: this.montoRecibido // 🔹 NUEVO: Incluir monto recibido
     };
 
     console.log('💰 ENVIANDO VENTA:', JSON.stringify(ventaData, null, 2));
@@ -464,7 +543,7 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  // --- Métodos Helper y de Navegación (Sin cambios) ---
+  // --- Métodos Helper y de Navegación (Con ajustes) ---
 
   getMetodoPagoCode(): 'E' | 'T' | 'B' {
     switch(this.opcionSeleccionada) {
@@ -484,6 +563,11 @@ export class PagoComponent implements OnInit {
       case 'yape': return 'Yape';
       default: return 'Efectivo';
     }
+  }
+
+  // 🔹 NUEVO: Calcular vuelto
+  calcularVuelto(): number {
+    return Math.max(0, this.montoRecibido - this.total);
   }
 
   generarCodigoPedido() {
@@ -507,6 +591,8 @@ export class PagoComponent implements OnInit {
     console.log('📋 RESUMEN DE COMPRA:', {
       codigoPedido: this.codigoPedido,
       total: this.total,
+      montoRecibido: this.montoRecibido,
+      vuelto: this.calcularVuelto(),
       tipoDocumento: this.tipoDocumento,
       metodoPago: this.getMetodoPagoText()
     });
@@ -530,6 +616,7 @@ export class PagoComponent implements OnInit {
     this.solicitandoDni = false;
     this.solicitandoRuc = false;
     this.solicitandoCodigo = false;
+    this.solicitandoMontoEfectivo = false;
   }
 
   reiniciar() {
@@ -543,6 +630,7 @@ export class PagoComponent implements OnInit {
     this.solicitandoDni = false;
     this.solicitandoRuc = false;
     this.solicitandoCodigo = false;
+    this.solicitandoMontoEfectivo = false;
     this.dni = '';
     this.ruc = '';
     this.codigoPedido = '';
@@ -552,6 +640,7 @@ export class PagoComponent implements OnInit {
     this.codigoCorrecto = '';
     this.verificandoCodigo = false;
     this.errorCodigo = false;
+    this.montoRecibido = 0;
     this.idClienteParaGuardar = 1;
   }
 }

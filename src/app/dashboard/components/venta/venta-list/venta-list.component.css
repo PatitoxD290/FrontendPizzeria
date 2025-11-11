@@ -1,7 +1,7 @@
 .venta-card {
   padding: 20px;
   margin: 20px auto;
-  max-width: 1200px;
+  max-width: 1400px; /* 🔹 Aumentado para nuevas columnas */
   background: #fafafa;
   border-radius: 12px;
 }
@@ -36,8 +36,40 @@ table {
   border-radius: 8px;
 }
 
+/* 🔹 NUEVO: Estilos para resaltar montos */
+.monto-recibido {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.vuelto {
+  color: #ed6c02;
+  font-weight: 500;
+}
+
+.fw-bold {
+  font-weight: bold;
+}
+
 .sin-datos {
   text-align: center;
   color: #777;
   padding: 20px;
+}
+
+/* 🔹 NUEVO: Responsive para muchas columnas */
+@media (max-width: 1200px) {
+  .venta-card {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .spacer {
+    display: none;
+  }
 }

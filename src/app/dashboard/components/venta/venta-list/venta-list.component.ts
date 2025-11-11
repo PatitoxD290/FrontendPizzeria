@@ -41,7 +41,8 @@ import { saveAs } from 'file-saver';
 })
 export class VentaListComponent implements OnInit {
 
-  displayedColumns: string[] = ['id', 'cliente', 'tipo', 'metodo', 'igv', 'total', 'fecha'];
+  // 🔹 ACTUALIZADO: Agregar columnas de Monto_Recibido y Vuelto
+  displayedColumns: string[] = ['id', 'cliente', 'tipo', 'metodo', 'montoRecibido', 'vuelto', 'igv', 'total', 'fecha'];
   dataSource = new MatTableDataSource<Venta>([]);
 
   filtroTexto: string = '';
@@ -105,6 +106,32 @@ export class VentaListComponent implements OnInit {
     return code === 'E' ? 'EFECTIVO' : code === 'T' ? 'TARJETA' : 'BILLETERA DIGITAL';
   }
 
+  // 🔹 NUEVO: Método para formatear monto recibido
+  obtenerMontoRecibidoTexto(venta: Venta): string {
+    // Si es efectivo, mostrar monto recibido y vuelto
+    if (venta.Metodo_Pago === 'E' && venta.Monto_Recibido > 0) {
+      return `S/${venta.Monto_Recibido.toFixed(2)}`;
+    }
+    // Para otros métodos, mostrar solo el total
+    return `S/${venta.Total.toFixed(2)}`;
+  }
+
+  // 🔹 NUEVO: Método para mostrar información de vuelto
+  obtenerVueltoTexto(venta: Venta): string {
+    if (venta.Metodo_Pago === 'E' && venta.Vuelto > 0) {
+      return `S/${venta.Vuelto.toFixed(2)}`;
+    }
+    return '-';
+  }
+
+  // 🔹 NUEVO: Método para obtener tooltip informativo
+  obtenerTooltipVenta(venta: Venta): string {
+    if (venta.Metodo_Pago === 'E') {
+      return `Recibido: S/${venta.Monto_Recibido?.toFixed(2) || '0.00'} | Vuelto: S/${venta.Vuelto?.toFixed(2) || '0.00'}`;
+    }
+    return `Pago con ${this.obtenerMetodoPagoTexto(venta.Metodo_Pago)}`;
+  }
+
   formatearFecha(fecha: string): string {
     return new Date(fecha).toLocaleString('es-PE', {
       year: 'numeric', month: '2-digit', day: '2-digit',
@@ -116,11 +143,13 @@ export class VentaListComponent implements OnInit {
     const hoja = XLSX.utils.json_to_sheet(this.dataSource.filteredData.map(v => ({
       ID_Venta: v.ID_Venta,
       Cliente: v.Cliente_Nombre,
-      Tipo: v.Tipo_Venta,
+      Tipo: this.obtenerTipoVentaTexto(v.Tipo_Venta),
       Método_Pago: this.obtenerMetodoPagoTexto(v.Metodo_Pago),
+      Monto_Recibido: v.Monto_Recibido || 0,
+      Vuelto: v.Vuelto || 0,
       IGV: v.IGV,
       Total: v.Total,
-      Fecha_Registro: v.Fecha_Registro,
+      Fecha_Registro: this.formatearFecha(v.Fecha_Registro),
     })));
 
     const libro = XLSX.utils.book_new();

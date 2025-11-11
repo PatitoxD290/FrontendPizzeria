@@ -15,10 +15,7 @@ export interface Combo {
 export interface ComboDetalle {
   ID_Combo_D: number;
   ID_Combo: number;
-
-  // ✅ Campo correcto según backend
   ID_Producto_T: number;
-
   Cantidad: number;
 
   // ✅ Campos solo para mostrar en pantallas (opcionales)

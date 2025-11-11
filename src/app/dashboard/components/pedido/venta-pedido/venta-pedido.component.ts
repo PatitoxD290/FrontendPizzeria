@@ -38,7 +38,45 @@ export class VentaPedidoComponent {
 
   calcularVuelto() {
     const recibeNum = Number(this.recibe) || 0;
-    this.vuelto = recibeNum - this.data.total;
+    this.vuelto = Math.max(0, recibeNum - this.data.total);
+  }
+
+  // 🔹 NUEVO: Método para manejar cambios en el input
+  onRecibeChange() {
+    this.calcularVuelto();
+  }
+
+  // 🔹 NUEVO: Métodos para el teclado numérico
+  addNumber(num: string) {
+    const current = this.recibe.toString();
+    if (current === '0' || current === '') {
+      this.recibe = num;
+    } else {
+      this.recibe = current + num;
+    }
+    this.calcularVuelto();
+  }
+
+  deleteLast() {
+    const current = this.recibe.toString();
+    if (current.length > 1) {
+      this.recibe = current.slice(0, -1);
+    } else {
+      this.recibe = '';
+    }
+    this.calcularVuelto();
+  }
+
+  clearRecibe() {
+    this.recibe = '';
+    this.vuelto = 0;
+  }
+
+  addDecimal() {
+    const current = this.recibe.toString();
+    if (!current.includes('.')) {
+      this.recibe = current + '.';
+    }
   }
 
   cerrar() {
@@ -57,15 +95,30 @@ export class VentaPedidoComponent {
           text: 'El monto recibido es menor al total a pagar.',
           confirmButtonColor: '#d33'
         });
-        return; // ← No cierra el modal ni registra nada
+        return;
       }
+
+      if (!this.recibe || this.recibe === '') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Monto requerido',
+          text: 'Por favor ingrese el monto recibido.',
+          confirmButtonColor: '#d33'
+        });
+        return;
+      }
+    } else {
+      // Para otros métodos de pago, el monto recibido es igual al total
+      this.recibe = this.data.total;
+      this.vuelto = 0;
     }
 
-    // 🔹 MODIFICADO: Pasar también el método de pago en texto completo
+    // 🔹 MODIFICADO: Pasar también el método de pago en texto completo y los montos
     this.dialogRef.close({
-      metodoPago: this.metodoPago, // 🔹 Se pasa el texto completo (EFECTIVO, TARJETA, BILLETERA)
-      recibe: this.recibe,
-      vuelto: this.vuelto
+      metodoPago: this.metodoPago,
+      recibe: Number(this.recibe) || this.data.total,
+      vuelto: this.vuelto,
+      montoRecibido: Number(this.recibe) || this.data.total // 🔹 NUEVO: Para enviar al backend
     });
   }
 }

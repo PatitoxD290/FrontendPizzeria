@@ -172,7 +172,7 @@ export class DetallePedidoComponent implements OnInit {
 
   private abrirModalPago(idUsuario: number, idCliente: number) {
     const dialogRef = this.dialog.open(VentaPedidoComponent, {
-      width: '400px',
+      width: '500px', // 🔹 Aumentado un poco para mejor visualización
       data: { total: this.getTotal() }
     });
 
@@ -191,7 +191,16 @@ export class DetallePedidoComponent implements OnInit {
       // 🔹 Obtener el texto del método de pago para las notas
       const metodoPagoTexto = this.obtenerTextoMetodoPago(result.metodoPago);
 
-      this.enviarPedido(idUsuario, idCliente, metodoPagoConvertido, result.recibe, result.vuelto, metodoPagoTexto);
+      // 🔹 MODIFICADO: Pasar montoRecibido desde el modal
+      this.enviarPedido(
+        idUsuario, 
+        idCliente, 
+        metodoPagoConvertido, 
+        result.recibe, 
+        result.vuelto,
+        metodoPagoTexto,
+        result.montoRecibido // 🔹 NUEVO: Pasar monto recibido
+      );
     });
   }
 
@@ -205,14 +214,15 @@ export class DetallePedidoComponent implements OnInit {
     return metodosTexto[metodoPago] || 'EFECTIVO';
   }
 
-  // 🔹 MODIFICADO: Ahora recibe metodoPagoTexto para las notas
+  // 🔹 MODIFICADO: Ahora recibe montoRecibido para la venta
   private enviarPedido(
     idUsuario: number, 
     idCliente: number, 
     metodoPago: 'E' | 'T' | 'B', 
     recibe: number, 
     vuelto: number,
-    metodoPagoTexto: string
+    metodoPagoTexto: string,
+    montoRecibido: number // 🔹 NUEVO: Monto recibido para la venta
   ) {
     
     // Crear detalles del pedido
@@ -227,15 +237,18 @@ export class DetallePedidoComponent implements OnInit {
       nombre_tamano: d.nombre_tamano
     }));
 
-    // 🔹 MODIFICADO: Crear el texto para el campo Notas
-    const textoNotas = `Pedido ${this.codigoPedido} - ${metodoPagoTexto} - Caja`;
+    // 🔹 MODIFICADO: Crear el texto para el campo Notas incluyendo montos si es efectivo
+    let textoNotas = `Pedido ${this.codigoPedido} - ${metodoPagoTexto} - Caja`;
+    if (metodoPago === 'E' && recibe > 0) {
+      textoNotas += ` - Recibe: S/${recibe} - Vuelto: S/${vuelto}`;
+    }
 
     // Crear PedidoConDetalle con todos los campos requeridos
     const pedidoData: PedidoConDetalle = {
       ID_Pedido: 0, // El backend lo generará
       ID_Cliente: idCliente,
       ID_Usuario: idUsuario,
-      Notas: textoNotas, // 🔹 Usar el nuevo formato
+      Notas: textoNotas, // 🔹 Usar el nuevo formato con montos
       SubTotal: this.getTotal(),
       Estado_P: 'P', // P = Pendiente
       Fecha_Registro: new Date().toISOString().split('T')[0],
@@ -248,7 +261,7 @@ export class DetallePedidoComponent implements OnInit {
       next: (res) => {
         const idPedidoCreado = res.ID_Pedido;
 
-        // Registrar Venta
+        // 🔹 MODIFICADO: Registrar Venta con Monto_Recibido
         this.ventaService.createVenta({
           ID_Pedido: idPedidoCreado,
           Tipo_Venta: (() => {
@@ -259,13 +272,22 @@ export class DetallePedidoComponent implements OnInit {
           })(),
           Metodo_Pago: metodoPago,
           Lugar_Emision: 'A',
-          IGV_Porcentaje: 18
+          IGV_Porcentaje: 18,
+          Monto_Recibido: montoRecibido // 🔹 NUEVO: Incluir monto recibido
         }).subscribe({
-          next: () => {
+          next: (ventaResponse) => {
+            let mensaje = `Pedido ${this.codigoPedido} registrado correctamente. Método: ${metodoPagoTexto}`;
+            
+            // 🔹 NUEVO: Mostrar información de montos si es efectivo
+            if (metodoPago === 'E') {
+              mensaje += `\nRecibido: S/${recibe} - Vuelto: S/${vuelto}`;
+            }
+
             Swal.fire({ 
               icon: 'success', 
               title: 'Venta Registrada', 
-              text: `Pedido ${this.codigoPedido} registrado correctamente. Método: ${metodoPagoTexto}` 
+              text: mensaje,
+              confirmButtonText: 'Aceptar'
             });
 
             this.ordenService.limpiar();
