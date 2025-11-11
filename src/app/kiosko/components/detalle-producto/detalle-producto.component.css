@@ -1,47 +1,116 @@
 .detalle-container {
   text-align: center;
-  padding: 15px;
+  padding: 8px;
   position: relative;
 }
 
-/* 📸 Imagen uniforme */
+/* 📸 Imagen MEJORADA - Sin distorsión */
 .detalle-imagen {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  max-width: 260px;
+  height: 160px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #f8f9fa;
+}
+
+/* 🔹 Título del producto - Reducir espacio */
+.detalle-container h2 {
+  margin: 4px 0 6px 0;
+  font-size: 1.3rem;
+  color: #2c3e50;
 }
 
 .producto-descripcion {
   color: #666;
-  margin-bottom: 15px;
-  line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  font-size: 0.85rem;
 }
 
-/* 🔹 INFORMACIÓN DEL TAMAÑO, PRECIO Y CANTIDAD */
-.tamano-info {
-  margin: 15px 0;
-  padding: 15px;
+/* 🔹 ESTILOS PARA SELECCIÓN DE TAMAÑOS */
+.tamanos-section {
+  margin: 4px 0;
+  padding: 10px;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #e9ecef;
 }
 
-.tamano-nombre {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #e51d1d;
-  font-weight: bold;
-  margin-bottom: 8px;
+.tamanos-section h3 {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  text-align: center;
 }
 
-.precio-info {
+.tamanos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+  gap: 6px;
+}
+
+.tamano-btn {
+  padding: 10px 4px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.tamano-btn:hover {
+  border-color: #3498db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+}
+
+.tamano-btn.selected {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.tamano-nombre {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* 🔹 SECCIÓN PRECIO Y CANTIDAD */
+.precio-cantidad-section {
+  margin: 6px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.tamano-seleccionado {
   margin: 0;
-  font-size: 1.3rem;
-  color: #27ae60; /* Verde para el precio */
+  font-size: 0.95rem;
+  color: #e51d1d;
   font-weight: bold;
-  margin-bottom: 15px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.precio-total {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #27ae60;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 .cantidad-container {
@@ -52,8 +121,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  font-size: 1.4rem;
+  gap: 10px;
+  font-size: 1.2rem;
 }
 
 .cantidad-controls button {
@@ -61,31 +130,31 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .cantidad-controls button:hover {
   background-color: #c01818;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(229, 29, 29, 0.3);
 }
 
 .cantidad-display {
   font-weight: bold;
-  min-width: 40px;
+  min-width: 34px;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
   background: white;
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 5px 8px;
+  border-radius: 4px;
   border: 1px solid #dee2e6;
 }
 
@@ -93,18 +162,18 @@
 .acciones {
   display: flex;
   justify-content: space-between;
-  gap: 15px;
-  margin-top: 20px;
-  padding-top: 15px;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid #e0e0e0;
 }
 
 .acciones button {
   flex: 1;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: 12px 0;
-  border-radius: 8px;
+  padding: 8px 0;
+  border-radius: 4px;
   text-transform: uppercase;
   transition: all 0.25s ease;
   cursor: pointer;
@@ -122,8 +191,8 @@
   background-color: #e0e0e0;
   border-color: #e51d1d;
   color: #e51d1d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 🟥 Botón "Agregar al carrito" */
@@ -136,114 +205,198 @@
 .btn-agregar:hover {
   background-color: #c01818;
   border-color: #c01818;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(229, 29, 29, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 5px rgba(229, 29, 29, 0.3);
 }
 
 /* ✨ Animación click */
 .acciones button:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
   box-shadow: none;
 }
 
-
 /* 🔹 SECCIÓN COMPLEMENTOS */
 .complementos-section {
-  margin: 20px 0;
+  margin: 8px 0;
 }
 
+/* 🔹 NUEVO: Estilos para el botón de complementos con indicador integrado */
 .btn-complementos {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: #3498db;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   border: 2px solid #3498db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px; /* 🔹 Altura fija para consistencia */
 }
 
 .btn-complementos:hover {
   background: #2980b9;
   border-color: #2980b9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
 }
 
 .btn-complementos:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
   box-shadow: none;
 }
 
-/* ✅ INDICADOR DE COMPLEMENTOS */
-.complemento-indicador {
+/* 🔹 NUEVO: Contenido del botón de complementos */
+.btn-complementos-content {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
-  background: #e7f6f2;
-  border: 1px solid #108d74;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  color: #108d74;
+  width: 100%;
+}
+
+.btn-complementos-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn-complementos-title {
   font-weight: 600;
   font-size: 0.9rem;
 }
 
-.complemento-indicador mat-icon {
+/* 🔹 NUEVO: Texto de conteo dentro del botón (cuando hay selecciones) */
+.btn-complementos-count {
+  font-size: 0.9rem; /* 🔹 Mismo tamaño que el título */
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 🔹 NUEVO: Estilo cuando hay complementos seleccionados */
+.btn-complementos:has(.btn-complementos-count) {
+  background: #2c80b4;
+  border-color: #2c80b4;
+}
+
+.btn-complementos:hover:has(.btn-complementos-count) {
+  background: #2473a3;
+  border-color: #2473a3;
+}
+
+.btn-complementos mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-}
-
-.btn-complementos {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
 }
 
 .btn-agregar {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 /* Responsive para complementos */
 @media (max-width: 480px) {
   .btn-complementos {
-    padding: 10px;
-    font-size: 0.9rem;
+    padding: 8px;
+    min-height: 45px;
+  }
+  
+  .btn-complementos-content {
+    gap: 6px;
+  }
+  
+  .btn-complementos-title {
+    font-size: 0.85rem;
+  }
+  
+  .btn-complementos-count {
+    font-size: 0.85rem;
+    padding: 3px 10px;
+  }
+  
+  .btn-complementos mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 }
 
 /* Responsive */
 @media (max-width: 480px) {
   .detalle-container {
-    padding: 10px;
+    padding: 6px;
   }
   
   .detalle-imagen {
-    height: 150px;
+    height: 140px;
+    max-width: 220px;
+    margin-bottom: 6px;
+  }
+  
+  .detalle-container h2 {
+    margin: 2px 0 4px 0;
+    font-size: 1.2rem;
+  }
+  
+  .producto-descripcion {
+    margin-bottom: 6px;
+    line-height: 1.2;
+    font-size: 0.8rem;
   }
   
   .acciones {
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
   }
   
   .cantidad-controls {
-    gap: 10px;
+    gap: 8px;
   }
   
   .cantidad-controls button {
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
   }
+
+  .tamanos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 4px;
+  }
+
+  .tamano-btn {
+    padding: 8px 3px;
+    min-height: 35px;
+  }
+
+  .tamano-nombre {
+    font-size: 0.75rem;
+  }
+}
+
+/* 🔹 NUEVO: Estilos para mejorar calidad de imagen en pantallas HD */
+@media (min-width: 768px) {
+  .detalle-imagen {
+    max-width: 280px;
+    height: 180px;
+  }
+}
+
+/* 🔹 NUEVO: Prevenir pixelación en imágenes pequeñas */
+.detalle-imagen {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }

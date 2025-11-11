@@ -305,23 +305,29 @@
   color: white;
 }
 
-/* ✅ ESTILOS PARA BOTÓN BLOQUEADO */
+/* ✅ ESTILOS MEJORADOS PARA BOTÓN BLOQUEADO */
 .boton-carrito.boton-bloqueado {
-  background: #e51d1d !important;
+  background: #cccccc !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
-}
-
-.boton-carrito.boton-bloqueado:hover {
-  background: #cccccc !important;
-  transform: none !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  pointer-events: none;
 }
 
 .boton-carrito.boton-bloqueado .icono-carrito,
 .boton-carrito.boton-bloqueado .texto-carrito {
-  opacity: 0.6;
+  opacity: 0.5;
+}
+
+.boton-carrito.boton-bloqueado .badge-icon {
+  background: #999999 !important;
+}
+
+/* Efecto hover desactivado para botón bloqueado */
+.boton-carrito.boton-bloqueado:hover {
+  background: #cccccc !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* RESPONSIVE PARA PÁGINA */

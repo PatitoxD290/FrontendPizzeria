@@ -4,14 +4,30 @@
   <h2>{{ data.Nombre }}</h2>
   <p class="producto-descripcion">{{ data.Descripcion }}</p>
 
-  <!-- 🔹 INFORMACIÓN DEL TAMAÑO, PRECIO Y CANTIDAD -->
-  <div *ngIf="data.tamanos && data.tamanos.length > 0" class="tamano-info">
-    <p class="tamano-nombre"><strong>{{ nombreTamanoActual }}</strong></p>
-    
-    <!-- 🔹 PRECIO QUE VARÍA SEGÚN LA CANTIDAD -->
-    <p class="precio-info">S/. {{ precioTotal | number:'1.2-2' }}</p>
-    
-    <!-- Controles de cantidad integrados -->
+  <!-- 🔹 SELECCIÓN DE TAMAÑOS (SOLO SI HAY MÁS DE UN TAMAÑO) -->
+  <div *ngIf="data.tamanos && data.tamanos.length > 1" class="tamanos-section">
+    <h3>Selecciona un tamaño:</h3>
+    <div class="tamanos-grid">
+      <button 
+        *ngFor="let tamano of data.tamanos" 
+        class="tamano-btn" 
+        [class.selected]="tamanoSeleccionado?.ID_Producto_T === tamano.ID_Producto_T"
+        (click)="seleccionarTamano(tamano)">
+        <span class="tamano-nombre">{{ tamano.nombre_tamano }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 🔹 INFORMACIÓN DEL PRECIO Y CANTIDAD -->
+  <div class="precio-cantidad-section">
+    <div class="precio-info" *ngIf="tamanoSeleccionado">
+      <p class="tamano-seleccionado">
+        <strong>{{ tamanoSeleccionado.nombre_tamano }}</strong>
+      </p>
+      <p class="precio-total">S/. {{ precioTotal | number:'1.2-2' }}</p>
+    </div>
+
+    <!-- Controles de cantidad -->
     <div class="cantidad-container">
       <div class="cantidad-controls">
         <button (click)="decrementarCantidad()">−</button>
@@ -21,24 +37,28 @@
     </div>
   </div>
 
-  <!-- 🔹 NUEVO BOTÓN: Añadir Complementos - SOLO SI NO ES BEBIDA -->
+  <!-- 🔹 BOTÓN: Añadir Complementos - SOLO SI NO ES BEBIDA -->
   <div class="complementos-section" *ngIf="!esBebida">
-    <!-- ✅ INDICADOR DE COMPLEMENTOS SELECCIONADOS -->
-    <div *ngIf="tieneComplementos" class="complemento-indicador">
-      <mat-icon>check_circle</mat-icon>
-      <span>{{ cantidadComplementos }} complemento(s) seleccionado(s)</span>
-    </div>
-    
     <button class="btn-complementos" (click)="abrirComplementos()">
-      <mat-icon>local_cafe</mat-icon>
-      Añadir Complementos
+      <div class="btn-complementos-content">
+        <mat-icon>local_cafe</mat-icon>
+        <div class="btn-complementos-text">
+          <!-- 🔹 MODIFICADO: Mostrar solo la cantidad cuando hay selecciones -->
+          <span *ngIf="tieneComplementos; else sinComplementos" class="btn-complementos-count">
+            {{ cantidadComplementos }} seleccionado(s)
+          </span>
+          <ng-template #sinComplementos>
+            <span class="btn-complementos-title">Añadir Complementos</span>
+          </ng-template>
+        </div>
+      </div>
     </button>
   </div>
 
   <!-- Botones abajo -->
   <div class="acciones">
     <button class="btn-volver" (click)="cerrar()">Volver</button>
-    <button class="btn-agregar" (click)="agregarCarrito()">
+    <button class="btn-agregar" (click)="agregarCarrito()" [disabled]="!tamanoSeleccionado">
       <mat-icon>add_shopping_cart</mat-icon>
       Agregar al Pedido
     </button>

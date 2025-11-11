@@ -192,6 +192,41 @@
   }
 }
 
+/* 🔹 BADGE PARA TAMAÑOS DISPONIBLES */
+.tamanos-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.tamanos-badge mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* Asegurar que los badges no se solapen */
+.producto-card {
+  position: relative;
+}
+
+.combo-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* resto del código igual */
+}
+
 @media (max-width: 480px) {
   .productos-grid {
     grid-template-columns: 1fr;

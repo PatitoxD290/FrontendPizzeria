@@ -9,8 +9,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { ComplementoService } from '../../../core/services/complemento.service';
 import { Producto, ProductoTamano } from '../../../core/models/producto.model';
 import { CategoriaProducto } from '../../../core/models/categoria.model';
-import { ModalStateService } from '../../../core/services/modal-state.service'; // ✅ Nuevo import
-
+import { ModalStateService } from '../../../core/services/modal-state.service';
 
 interface ProductoConTamanos {
   ID_Producto: number;
@@ -41,18 +40,18 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
     public complementoService: ComplementoService,
     public dialogRef: MatDialogRef<ComplementoProductoComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private modalStateService: ModalStateService // ✅ Inyectar servicio
+    private modalStateService: ModalStateService
   ) {}
 
   ngOnInit(): void {
-    // ✅ Notificar que el modal está abierto
-    this.modalStateService.setModalAbierto(true);
+    // 🔹 CAMBIO: Usar el nuevo método
+    this.modalStateService.abrirModal();
     this.cargarCategoriasBebidas();
   }
 
   ngOnDestroy(): void {
-    // ✅ Notificar que el modal se cerró
-    this.modalStateService.setModalAbierto(false);
+    // 🔹 CAMBIO: Usar el nuevo método
+    this.modalStateService.cerrarModal();
   }
 
   private async verificarImagenProducto(urlBase: string): Promise<string> {
@@ -131,7 +130,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ Crear objeto complemento
     const complemento = {
       ID_Producto: producto.ID_Producto,
       ID_Producto_T: primerTamano.ID_Producto_T,
@@ -146,7 +144,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
       esComplemento: true
     };
 
-    // ✅ Toggle: agregar o quitar según si ya está seleccionado
     if (this.complementoService.estaSeleccionado(primerTamano.ID_Producto_T)) {
       this.complementoService.eliminarComplementoTemporal(primerTamano.ID_Producto_T);
     } else {
@@ -155,7 +152,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
   }
 
   finalizarSeleccion(): void {
-    // ✅ Cerrar el modal y enviar resultado
     this.dialogRef.close({ 
       complementosSeleccionados: true,
       cantidad: this.complementoService.obtenerCantidadComplementos()
@@ -166,7 +162,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  // Método para obtener el precio del producto
   getPrecioProducto(producto: ProductoConTamanos): number {
     if (producto.tamanos && producto.tamanos.length > 0) {
       return producto.tamanos[0].Precio;
@@ -174,7 +169,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
     return 0;
   }
 
-  // ✅ Método para verificar si un producto está seleccionado
   estaSeleccionado(producto: ProductoConTamanos): boolean {
     const primerTamano = producto.tamanos && producto.tamanos.length > 0 
       ? producto.tamanos[0] 

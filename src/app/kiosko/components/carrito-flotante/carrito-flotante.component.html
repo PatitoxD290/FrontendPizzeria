@@ -2,7 +2,7 @@
 <button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" 
         *ngIf="!esPaginaPago() && !esPaginaCarrito"
         [class.boton-bloqueado]="modalAbierto"
-        [attr.disabled]="modalAbierto ? true : null">
+        [disabled]="modalAbierto">
   <mat-icon class="icono-carrito">shopping_bag</mat-icon>
   <span class="texto-carrito">Ver Pedido</span>
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">

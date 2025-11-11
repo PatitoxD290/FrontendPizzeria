@@ -1,5 +1,5 @@
 <div class="menu-container">
-  <!-- 🧾 Lista de productos - AHORA MUESTRA CADA TAMAÑO COMO PRODUCTO INDIVIDUAL -->
+  <!-- 🧾 Lista de productos - AHORA MUESTRA PRODUCTOS CON RANGO DE PRECIOS -->
   <div class="productos-grid">
     <div *ngFor="let p of productosFiltrados" class="producto-card" (click)="abrirPersonalizacion(p)" style="cursor: pointer;">
       <div class="producto-imagen-container">
@@ -11,22 +11,22 @@
         
         <!-- 🔹 INFORMACIÓN COMPLETA EN ORDEN SOLICITADO -->
         <div class="producto-meta-info">
-          <!-- Tamaño -->
-          <div class="meta-item">
-            <span class="meta-label">Tamaño:</span>
-            <span class="meta-value">{{ p.tamano }}</span>
-          </div>
-          
           <!-- Categoría -->
           <div class="meta-item">
             <span class="meta-label">Categoría:</span>
             <span class="meta-value">{{ p.nombre_categoria }}</span>
           </div>
           
+          <!-- Tamaños disponibles -->
+          <div class="meta-item" *ngIf="!p.esCombo && p.tamanos && p.tamanos.length > 0">
+            <span class="meta-label">Tamaños:</span>
+            <span class="meta-value">{{ p.tamanos.length }} disponible(s)</span>
+          </div>
+          
           <!-- Precio -->
           <div class="meta-item precio-item">
             <span class="meta-label">Precio:</span>
-            <span class="meta-value precio">S/. {{ p.precio | number:'1.2-2' }}</span>
+            <span class="meta-value precio">{{ obtenerRangoPrecios(p) }}</span>
           </div>
         </div>
 
@@ -40,8 +40,13 @@
           <mat-icon>local_offer</mat-icon>
           COMBO
         </div>
+
+        <!-- 🔹 Indicador de tamaños disponibles -->
+        <div *ngIf="!p.esCombo && p.tamanos && p.tamanos.length > 1" class="tamanos-badge">
+          <mat-icon>straighten</mat-icon>
+          {{ p.tamanos.length }} TAMAÑOS
+        </div>
       </div>
     </div>
   </div>
-
 </div>

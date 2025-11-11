@@ -50,13 +50,14 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   }
 
   toggleCarrito() {
-    // ✅ No hacer nada si hay modales abiertos
-    if (this.modalAbierto || this.esPaginaPago()) {
-      return;
-    }
-    
-    this.router.navigate(['/kiosko/carrito']);
+  // ✅ No hacer nada si hay modales abiertos o está en página de pago
+  if (this.modalAbierto || this.esPaginaPago()) {
+    console.log('Botón bloqueado - Modal abierto:', this.modalAbierto);
+    return;
   }
+  
+  this.router.navigate(['/kiosko/carrito']);
+}
 
   volver() {
     if (this.esPaginaCarrito) {

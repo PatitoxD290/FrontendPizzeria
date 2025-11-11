@@ -15,6 +15,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { CombosService } from '../../../core/services/combos.service';
 import { Producto, ProductoTamano } from '../../../core/models/producto.model';
 
+// 🔹 INTERFACE SIMPLIFICADA - SOLO PRODUCTOS
 interface ProductoConTamanos {
   ID_Producto: number;
   Nombre: string;
@@ -24,21 +25,9 @@ interface ProductoConTamanos {
   imagen: string;
   tamanos?: ProductoTamano[];
   detallesTexto?: string;
-}
-
-// 🔹 NUEVA INTERFACE PARA MOSTRAR CADA TAMAÑO COMO PRODUCTO INDIVIDUAL
-interface ProductoItem {
-  ID_Producto: number;
-  ID_Producto_T: number; // ID único del tamaño
-  Nombre: string;
-  Descripcion: string;
-  ID_Categoria_P: number;
-  nombre_categoria: string;
-  imagen: string;
-  tamano: string;
-  precio: number;
   esCombo: boolean;
-  detallesTexto?: string;
+  precioMinimo?: number; // 🔹 NUEVO: Precio más bajo para mostrar
+  precioMaximo?: number; // 🔹 NUEVO: Precio más alto para mostrar
 }
 
 @Component({
@@ -59,8 +48,8 @@ interface ProductoItem {
 export class MenuComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   filtroCategoria: string = '';
-  productos: ProductoItem[] = []; // 🔹 CAMBIO: Ahora es array de ProductoItem
-  productosOriginales: ProductoItem[] = [];
+  productos: ProductoConTamanos[] = []; // 🔹 CAMBIO: Array de productos completos
+  productosOriginales: ProductoConTamanos[] = [];
   CATEGORY_MAP: Record<number, string> = {};
 
   private categoriaListener: any;
@@ -136,37 +125,39 @@ export class MenuComponent implements OnInit, OnDestroy {
       next: async (data: any) => {
         const rawArray = Array.isArray(data) ? data : data ? [data] : [];
         
-        // 🔹 CORRECCIÓN: Filtrar productos activos y que tengan tamaños activos
+        // 🔹 FILTRAR PRODUCTOS ACTIVOS QUE TENGAN TAMAÑOS ACTIVOS
         const productosActivos = rawArray.filter(
           (item: any) => item.Estado === 'A' && item.tamanos && item.tamanos.some((t: ProductoTamano) => t.Estado === 'A')
         );
 
-        // 🔹 NUEVO: Crear un producto por cada tamaño activo
-        const productosConTamanos: ProductoItem[] = [];
+        const productosConTamanos: ProductoConTamanos[] = [];
 
         for (const producto of productosActivos) {
           const tamanosActivos = producto.tamanos.filter((t: ProductoTamano) => t.Estado === 'A');
+          
+          // 🔹 CALCULAR PRECIO MÍNIMO Y MÁXIMO
+          const precios = tamanosActivos.map((t: ProductoTamano) => t.Precio);
+          const precioMinimo = Math.min(...precios);
+          const precioMaximo = Math.max(...precios);
+
           const imagen = await this.verificarImagenProducto(
             `http://localhost:3000/imagenesCata/producto_${producto.ID_Producto ?? 0}_1`
           );
           const nombreCategoria = this.CATEGORY_MAP[producto.ID_Categoria_P] || 'Sin categoría';
 
-          // 🔹 CREAR UN PRODUCTO POR CADA TAMAÑO ACTIVO
-          for (const tamano of tamanosActivos) {
-            const productoItem: ProductoItem = {
-              ID_Producto: producto.ID_Producto,
-              ID_Producto_T: tamano.ID_Producto_T, // ID único del tamaño
-              Nombre: producto.Nombre ?? 'Sin nombre',
-              Descripcion: producto.Descripcion ?? '',
-              ID_Categoria_P: producto.ID_Categoria_P,
-              nombre_categoria: nombreCategoria,
-              imagen: imagen,
-              tamano: tamano.nombre_tamano || 'Estándar',
-              precio: tamano.Precio,
-              esCombo: false
-            };
-            productosConTamanos.push(productoItem);
-          }
+          const productoConTamanos: ProductoConTamanos = {
+            ID_Producto: producto.ID_Producto,
+            Nombre: producto.Nombre ?? 'Sin nombre',
+            Descripcion: producto.Descripcion ?? '',
+            ID_Categoria_P: producto.ID_Categoria_P,
+            nombre_categoria: nombreCategoria,
+            imagen: imagen,
+            tamanos: tamanosActivos,
+            esCombo: false,
+            precioMinimo: precioMinimo,
+            precioMaximo: precioMaximo
+          };
+          productosConTamanos.push(productoConTamanos);
         }
 
         this.combosService.getCombos().subscribe({
@@ -187,7 +178,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 
               return {
                 ID_Producto: item.ID_Combo ?? 0,
-                ID_Producto_T: item.ID_Combo ?? 0, // Para combos, usar ID_Combo como ID único
                 Nombre: item.Nombre ?? 'Combo sin nombre',
                 Descripcion: item.Descripcion ?? '',
                 ID_Categoria_P: 999,
@@ -195,10 +185,11 @@ export class MenuComponent implements OnInit, OnDestroy {
                 imagen: await this.verificarImagenProducto(
                   `http://localhost:3000/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
                 ),
-                tamano: 'Combo',
-                precio: Number(item.Precio ?? 0),
+                tamanos: [], // Combos no tienen tamaños
                 esCombo: true,
-                detallesTexto
+                detallesTexto,
+                precioMinimo: Number(item.Precio ?? 0),
+                precioMaximo: Number(item.Precio ?? 0)
               };
             });
 
@@ -224,52 +215,44 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.CATEGORY_MAP[id] ?? `Categoría ${id}`;
   }
 
-  get productosFiltrados(): ProductoItem[] {
+  get productosFiltrados(): ProductoConTamanos[] {
     return this.productos.filter((p) => {
       const coincideCategoria = this.filtroCategoria
         ? p.nombre_categoria === this.filtroCategoria
         : true;
       const coincideBusqueda = this.searchTerm
         ? p.Nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          p.Descripcion.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          p.tamano.toLowerCase().includes(this.searchTerm.toLowerCase())
+          p.Descripcion.toLowerCase().includes(this.searchTerm.toLowerCase())
         : true;
       return coincideCategoria && coincideBusqueda;
     });
   }
 
-  abrirPersonalizacion(producto: ProductoItem): void {
-    // 🔹 ADAPTAR PARA ENVIAR DATOS COMPLETOS AL DIALOGO
-    const productoParaDialogo = {
-      ID_Producto: producto.ID_Producto,
-      Nombre: producto.Nombre,
-      Descripcion: producto.Descripcion,
-      ID_Categoria_P: producto.ID_Categoria_P,
-      nombre_categoria: producto.nombre_categoria,
-      imagen: producto.imagen,
-      tamanos: [{
-        ID_Producto_T: producto.ID_Producto_T,
-        ID_Producto: producto.ID_Producto,
-        ID_Tamano: 0, // Este valor no es crítico para el diálogo
-        Precio: producto.precio,
-        Estado: 'A',
-        Fecha_Registro: '',
-        nombre_tamano: producto.tamano
-      }],
-      detallesTexto: producto.detallesTexto
-    };
+  // 🔹 MÉTODO PARA MOSTRAR RANGO DE PRECIOS
+  obtenerRangoPrecios(producto: ProductoConTamanos): string {
+    if (producto.esCombo) {
+      return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+    }
+    
+    if (producto.precioMinimo === producto.precioMaximo) {
+      return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+    }
+    
+    return `S/. ${producto.precioMinimo?.toFixed(2)} - S/. ${producto.precioMaximo?.toFixed(2)}`;
+  }
 
+  abrirPersonalizacion(producto: ProductoConTamanos): void {
     this.dialog.open(DetalleProductoComponent, {
       width: '500px',
       maxWidth: '90vw',
-      data: productoParaDialogo,
+      data: producto,
     });
   }
 
   calcularTotalCarrito(): number {
     return this.carritoService
       .obtenerProductos()
-      .reduce((total, item) => total + item.Precio * item.Cantidad!, 0);
+      .reduce((total, item) => total + item.precio * item.cantidad!, 0);
   }
 
   confirmarPedido(): void {
