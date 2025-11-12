@@ -17,6 +17,10 @@ import { ClienteService } from '../../../core/services/cliente.service';
 import { Pedido, PedidoDetalle, PedidoConDetalle } from '../../../core/models/pedido.model';
 import { Venta, VentaCreacionDTO } from '../../../core/models/venta.model';
 
+// PDF
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 // ================================================================
 // 🟢 INTERFACES DTO CORREGIDAS - USAR ID_Producto_T
 // ================================================================
@@ -24,12 +28,11 @@ import { Venta, VentaCreacionDTO } from '../../../core/models/venta.model';
 type PedidoCreacionDTO = Omit<Pedido, 'ID_Pedido' | 'PrecioTotal' | 'Estado_P' | 'SubTotal'> & {
   Estado_P?: 'P' | 'C' | 'E' | 'D';
   detalles: PedidoDetalleCreacionDTO[];
-  ID_Usuario?: number | null; // ✅ Asegurar que acepte null
+  ID_Usuario?: number | null;
 };
 
-// 🔹 CORRECCIÓN: Usar solo ID_Producto_T en lugar de ID_Producto + ID_Tamano
 type PedidoDetalleCreacionDTO = {
-  ID_Producto_T: number; // ✅ Usar ID_Producto_T que ya incluye producto, tamaño y precio
+  ID_Producto_T: number;
   Cantidad: number;
 };
 
@@ -70,11 +73,13 @@ export class PagoComponent implements OnInit {
   verificandoCodigo = false;
   errorCodigo = false;
 
-  // 🔹 NUEVO: Variables para monto recibido y vuelto
+  // Variables para monto recibido y vuelto
   montoRecibido: number = 0;
   solicitandoMontoEfectivo = false;
 
-  private idClienteParaGuardar: number = 1; // 1 = Cliente Genérico por defecto
+  // Variables para datos del cliente
+  private idClienteParaGuardar: number = 1;
+  private clienteData: any = null;
 
   constructor(
     private carritoService: CarritoService,
@@ -98,22 +103,19 @@ export class PagoComponent implements OnInit {
   seleccionarOpcion(opcion: string) {
     this.opcionSeleccionada = opcion;
     
-    // 🔹 NUEVO: Si es efectivo, solicitar monto recibido
     if (opcion === 'efectivo') {
       this.solicitarMontoEfectivo();
     } else {
-      // Para otros métodos, el monto recibido es igual al total
       this.montoRecibido = this.total;
     }
   }
 
-  // 🔹 NUEVO: Método para solicitar monto en efectivo
   solicitarMontoEfectivo() {
     this.solicitandoMontoEfectivo = true;
-    this.montoRecibido = this.total; // Valor por defecto
+    this.montoRecibido = this.total;
   }
 
-  // 🔹 NUEVO: Métodos para el teclado numérico del monto
+  // Métodos para el teclado numérico del monto
   addMontoNumber(num: string) {
     const current = this.montoRecibido.toString();
     if (current === '0') {
@@ -167,14 +169,12 @@ export class PagoComponent implements OnInit {
     this.montoRecibido = 0;
   }
 
-  // --- Flujo de Verificación de Código (Con ajustes) ---
+  // --- Flujo de Verificación de Código ---
 
   simularPagoConfirmado() {
-    // Para tarjeta/billetera, solicitar código de verificación
     if (this.opcionSeleccionada === 'tarjeta' || this.opcionSeleccionada === 'billetera' || this.opcionSeleccionada === 'yape') {
       this.solicitarCodigoVerificacion();
     } else {
-      // Para efectivo, procesar directamente
       this.procesarPago();
     }
   }
@@ -195,13 +195,11 @@ export class PagoComponent implements OnInit {
         this.codigoEnviado = true;
         if (response.codigo) {
           this.codigoCorrecto = response.codigo.toString();
-          console.log('Código generado por backend:', this.codigoCorrecto);
         }
       },
       error: (error) => {
         console.error('Error enviando código:', error);
         this.codigoCorrecto = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log('Código generado localmente (para pruebas):', this.codigoCorrecto);
         setTimeout(() => {
           this.codigoEnviado = true;
         }, 2000);
@@ -241,7 +239,6 @@ export class PagoComponent implements OnInit {
         this.verificandoCodigo = false;
         console.error('Error verificando código:', error);
         if (this.codigoVerificacion.length === 4) {
-          console.log('✅ Código aceptado (modo pruebas)');
           this.solicitandoCodigo = false;
           this.procesarPago();
         } else {
@@ -267,7 +264,7 @@ export class PagoComponent implements OnInit {
     this.opcionSeleccionada = null;
   }
 
-  // --- Lógica de Procesamiento y Documento (Con ajustes) ---
+  // --- Lógica de Procesamiento y Documento ---
 
   procesarPago() {
     this.procesandoPago = true;
@@ -303,7 +300,7 @@ export class PagoComponent implements OnInit {
     this.mostrarOpcionesDocumento = false;
   }
 
-  // --- Métodos de Teclados Numéricos (Sin cambios) ---
+  // --- Métodos de Teclados Numéricos ---
   addNumber(num: string) { if (this.dni.length < 8) this.dni += num; }
   deleteLast() { this.dni = this.dni.slice(0, -1); }
   clearDni() { this.dni = ''; }
@@ -318,7 +315,7 @@ export class PagoComponent implements OnInit {
   onCodigoInputChange(event: any) { const value = event.target.value.replace(/[^0-9]/g, ''); this.codigoVerificacion = value.slice(0, 4); this.errorCodigo = false; }
 
   // ================================================================
-  // 🔄 MÉTODOS DE GUARDADO CORREGIDOS - INCLUYENDO MONTO_RECIBIDO
+  // 🎯 MÉTODOS PARA GENERAR PDFs - BOLETA Y FACTURA
   // ================================================================
 
   confirmarBoleta() {
@@ -330,7 +327,6 @@ export class PagoComponent implements OnInit {
     this.procesandoPago = true;
     this.tipoDocumento = 'boleta';
     this.solicitandoDni = false;
-    this.mostrarMensajeFinal = true;
 
     console.log(`🔍 Buscando cliente DNI: ${this.dni}`);
     this.clienteService.buscarClientePorDocumento(this.dni).subscribe({
@@ -349,10 +345,16 @@ export class PagoComponent implements OnInit {
 
         if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
           this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+          this.clienteData = clienteEncontrado;
           console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
         } else {
           console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
           this.idClienteParaGuardar = 1;
+          this.clienteData = { 
+            Nombre: 'CLIENTE GENERAL',
+            DNI: this.dni,
+            Direccion: 'LIMA - LIMA'
+          };
         }
         
         this.guardarEnBaseDeDatosReal();
@@ -360,16 +362,28 @@ export class PagoComponent implements OnInit {
       error: (err) => {
         console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
         this.idClienteParaGuardar = 1;
+        this.clienteData = { 
+          Nombre: 'CLIENTE GENERAL',
+          DNI: this.dni,
+          Direccion: 'LIMA - LIMA'
+        };
         this.guardarEnBaseDeDatosReal();
       }
     });
   }
 
   cancelarDni() {
-    this.solicitandoDni = false;
-    this.mostrarOpcionesDocumento = true;
-    this.dni = '';
-  }
+  this.solicitandoDni = false;
+  this.mostrarOpcionesDocumento = true;
+  this.dni = '';
+}
+
+// 🔹 AGREGAR ESTE MÉTODO FALTANTE
+cancelarRuc() {
+  this.solicitandoRuc = false;
+  this.mostrarOpcionesDocumento = true;
+  this.ruc = '';
+}
 
   confirmarFactura() {
     if (!this.ruc || this.ruc.length !== 11) {
@@ -380,7 +394,6 @@ export class PagoComponent implements OnInit {
     this.procesandoPago = true;
     this.tipoDocumento = 'factura';
     this.solicitandoRuc = false;
-    this.mostrarMensajeFinal = true;
 
     console.log(`🔍 Buscando cliente RUC: ${this.ruc}`);
     this.clienteService.buscarClientePorDocumento(this.ruc).subscribe({
@@ -399,10 +412,16 @@ export class PagoComponent implements OnInit {
 
         if (clienteEncontrado && clienteEncontrado.ID_Cliente) {
           this.idClienteParaGuardar = clienteEncontrado.ID_Cliente;
+          this.clienteData = clienteEncontrado;
           console.log('✅ Cliente encontrado. ID_Cliente:', this.idClienteParaGuardar);
         } else {
           console.warn('⚠️ Cliente no encontrado en la respuesta, usando genérico (ID 1)');
           this.idClienteParaGuardar = 1;
+          this.clienteData = { 
+            Razon_Social: 'CLIENTE GENERAL',
+            RUC: this.ruc,
+            Direccion: 'LIMA - LIMA'
+          };
         }
         
         this.guardarEnBaseDeDatosReal();
@@ -410,15 +429,14 @@ export class PagoComponent implements OnInit {
       error: (err) => {
         console.warn('❌ Error buscando cliente, usando genérico (ID 1):', err);
         this.idClienteParaGuardar = 1;
+        this.clienteData = { 
+          Razon_Social: 'CLIENTE GENERAL',
+          RUC: this.ruc,
+          Direccion: 'LIMA - LIMA'
+        };
         this.guardarEnBaseDeDatosReal();
       }
     });
-  }
-
-  cancelarRuc() {
-    this.solicitandoRuc = false;
-    this.mostrarOpcionesDocumento = true;
-    this.ruc = '';
   }
 
   finalizarSinDocumento() {
@@ -433,90 +451,595 @@ export class PagoComponent implements OnInit {
     this.guardarEnBaseDeDatosReal();
   }
 
-  // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
-guardarEnBaseDeDatosReal() {
-  const productos = this.carritoService.obtenerProductos();
-  const idCliente = this.idClienteParaGuardar;
-  const idUsuario = null; // ✅ CAMBIO: Enviar null en lugar de 1
+// ================================================================
+// 🎯 MÉTODOS PARA GENERAR PDFs - CORREGIDOS CON TAMAÑO DE BOLETA/FACTURA
+// ================================================================
 
-  console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
-  console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
-
-  // ✅ CORRECCIÓN: Usar ID_Producto_T que ya incluye producto, tamaño y precio
-  const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
-    // 🔹 Obtener ID_Producto_T (campo principal)
-    const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
-    
-    // 🔹 Obtener cantidad
-    const cantidad = producto.cantidad || 1;
-    
-    console.log(`📝 Detalle: ID_Producto_T=${idProductoT}, Cantidad=${cantidad}`);
-    
-    return {
-      ID_Producto_T: idProductoT, // ✅ Usar ID_Producto_T
-      Cantidad: cantidad
-    };
+generarBoletaPDF(pedidoId: number) {
+  // Tamaño de boleta: 80mm x 297mm (formato ticket/boleta)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 297] // Ancho: 80mm, Alto: 297mm (tamaño estándar de boleta)
   });
+  
+  const productos = this.carritoService.obtenerProductos();
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  
+  // Número de boleta (simulado)
+  const numeroBoleta = `BP01-${pedidoId.toString().padStart(7, '0')}`;
 
-  // Validar que todos los detalles tengan ID_Producto_T válido
-  const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
-  if (detallesInvalidos.length > 0) {
-    console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
-    alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
-    return;
-  }
+  // Configuración inicial
+  const pageWidth = 80;
+  let yPosition = 10;
 
-  let notasDePedido: string;
-  if (this.tipoDocumento === null) {
-    notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-  } else {
-    notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-  }
+  // Encabezado principal
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BOLETA DE VENTA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFontSize(6);
+  doc.text('Jr. 2 de Mayo - Frente a la Plaza de Yarina', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
 
-  const pedidoData: PedidoCreacionDTO = {
-    ID_Cliente: idCliente,
-    ID_Usuario: idUsuario, // ✅ Ahora se envía null
-    Notas: notasDePedido,
-    Estado_P: 'P',
-    Fecha_Registro: new Date().toISOString().split('T')[0],
-    Hora_Pedido: new Date().toTimeString().split(' ')[0],
-    detalles: detalles
-  };
+  // Línea separadora
+  doc.setLineWidth(0.2);
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
 
-  console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
+  // Información del documento
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`BOLETA: ${numeroBoleta}`, 5, yPosition);
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Canal: Autoservicio`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Cliente: ${this.clienteData?.Nombre || '—'}`, 5, yPosition);
+  yPosition += 6;
 
-  this.pedidoService.createPedido(pedidoData as any).subscribe({
-    next: (response: any) => {
-      console.log('✅ PEDIDO guardado exitosamente:', response);
-      
-      let pedidoId = null;
-      if (response.ID_Pedido) {
-        pedidoId = response.ID_Pedido;
-      } else if (response.id_pedido) {
-        pedidoId = response.id_pedido;
-      } else if (response.pedidoId) {
-        pedidoId = response.pedidoId;
-      } else if (response.data?.ID_Pedido) {
-        pedidoId = response.data.ID_Pedido;
-      } else if (response.insertId) { 
-        pedidoId = response.insertId;
-      }
-      
-      if (pedidoId) {
-        console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
-        this.guardarVentaEnBaseDeDatos(pedidoId);
-      } else {
-        console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
-        this.finalizarCompra();
-      }
-    },
-    error: (error) => {
-      console.error('❌ ERROR guardando pedido:', error);
-      alert('Error al guardar el pedido. Por favor, intente nuevamente.');
+  // Línea separadora
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Encabezado de productos
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Cabecera de tabla
+  doc.setFontSize(6);
+  doc.text('Descripción', 5, yPosition);
+  doc.text('Cant', 45, yPosition);
+  doc.text('P.Unit', 55, yPosition);
+  doc.text('Total', 70, yPosition);
+  yPosition += 3;
+
+  // Línea bajo cabecera
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Productos
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    const nombre = producto.nombre || 'Producto';
+    const cantidad = producto.cantidad || 1;
+    const precio = producto.precio || 0;
+    const total = precio * cantidad;
+    
+    // Truncar nombre si es muy largo
+    const nombreTruncado = nombre.length > 20 ? nombre.substring(0, 20) + '...' : nombre;
+    
+    doc.text(nombreTruncado, 5, yPosition);
+    doc.text(cantidad.toString(), 45, yPosition);
+    doc.text(`S/.${precio.toFixed(2)}`, 55, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
+    
+    yPosition += 4;
+    
+    // Verificar si necesitamos nueva página
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 10;
     }
   });
+
+  // Línea separadora antes de total
+  yPosition += 2;
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Total
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text(`TOTAL: S/ ${this.total.toFixed(2)}`, 5, yPosition);
+  yPosition += 5;
+  
+  doc.setFontSize(7);
+  doc.text(`Medio de Pago: ${this.getMetodoPagoText()}`, 5, yPosition);
+  yPosition += 4;
+  doc.text(`Vuelto: S/ ${this.calcularVuelto().toFixed(2)}`, 5, yPosition);
+  yPosition += 6;
+
+  // Monto en letras
+  const montoEnLetras = this.convertirNumeroALetras(this.total);
+  doc.setFontSize(5);
+  doc.setFont('helvetica', 'normal');
+  const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, pageWidth - 10);
+  doc.text(lineas, 5, yPosition);
+  yPosition += lineas.length * 3 + 4;
+
+  // Información legal
+  doc.setFontSize(4);
+  doc.text('Exonerado del IGV según Ley N.° 27037 – Zona Oriente (Amazonía Peruana).', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
+
+  // Mensaje de agradecimiento
+  doc.setFontSize(6);
+  doc.text('¡Gracias por tu compra!', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('Síguenos: @AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.setFont('helvetica', 'italic');
+  doc.text('"Sabor auténtico, servicio rápido"', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+  
+  this.mostrarMensajeFinal = true;
 }
-  // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
+
+generarFacturaPDF(pedidoId: number) {
+  // Tamaño de factura: 80mm x 297mm (formato ticket/factura)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 297]
+  });
+  
+  const productos = this.carritoService.obtenerProductos();
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  
+  // Número de factura (simulado)
+  const numeroFactura = `F001-${pedidoId.toString().padStart(7, '0')}`;
+
+  // Configuración inicial
+  const pageWidth = 80;
+  let yPosition = 10;
+
+  // Encabezado principal
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FACTURA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFontSize(6);
+  doc.text('Jr. 2 de Mayo - Frente a la Plaza de Yarina', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
+
+  // Línea separadora
+  doc.setLineWidth(0.2);
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Información del documento
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`FACTURA: ${numeroFactura}`, 5, yPosition);
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Canal: Autoservicio`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Cliente: ${this.clienteData?.Razon_Social || 'CLIENTE GENERAL'}`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`RUC: ${this.ruc}`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Dirección: ${this.clienteData?.Direccion || 'LIMA - LIMA'}`, 5, yPosition);
+  yPosition += 3;
+  doc.text(`Condición: Contado`, 5, yPosition);
+  yPosition += 6;
+
+  // Línea separadora
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Encabezado de productos
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE DE VENTA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Cabecera de tabla
+  doc.setFontSize(6);
+  doc.text('Descripción', 5, yPosition);
+  doc.text('Cant', 45, yPosition);
+  doc.text('P.Unit', 55, yPosition);
+  doc.text('Total', 70, yPosition);
+  yPosition += 3;
+
+  // Línea bajo cabecera
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Productos
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    const nombre = producto.nombre || 'Producto';
+    const cantidad = producto.cantidad || 1;
+    const precio = producto.precio || 0;
+    const total = precio * cantidad;
+    
+    // Truncar nombre si es muy largo
+    const nombreTruncado = nombre.length > 20 ? nombre.substring(0, 20) + '...' : nombre;
+    
+    doc.text(nombreTruncado, 5, yPosition);
+    doc.text(cantidad.toString(), 45, yPosition);
+    doc.text(`S/.${precio.toFixed(2)}`, 55, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
+    
+    yPosition += 4;
+    
+    // Verificar si necesitamos nueva página
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 10;
+    }
+  });
+
+  // Línea separadora antes de total
+  yPosition += 2;
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Total
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text(`TOTAL: S/ ${this.total.toFixed(2)}`, 5, yPosition);
+  yPosition += 5;
+  
+  doc.setFontSize(7);
+  doc.text(`Medio de Pago: ${this.getMetodoPagoText()}`, 5, yPosition);
+  yPosition += 4;
+  doc.text(`Vuelto: S/ ${this.calcularVuelto().toFixed(2)}`, 5, yPosition);
+  yPosition += 6;
+
+  // Monto en letras
+  const montoEnLetras = this.convertirNumeroALetras(this.total);
+  doc.setFontSize(5);
+  doc.setFont('helvetica', 'normal');
+  const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, pageWidth - 10);
+  doc.text(lineas, 5, yPosition);
+  yPosition += lineas.length * 3 + 6;
+
+  // Mensaje de agradecimiento
+  doc.setFontSize(6);
+  doc.text('¡Gracias por su compra! 🍕', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('Síguenos: @AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.setFont('helvetica', 'italic');
+  doc.text('"Sabor auténtico, servicio rápido"', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+  
+  this.mostrarMensajeFinal = true;
+}
+
+generarBoletaSimplePDF() {
+  // Tamaño de comprobante: 80mm x 150mm (más corto para comprobante simple)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 150]
+  });
+  
+  const productos = this.carritoService.obtenerProductos();
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+  // Configuración inicial
+  const pageWidth = 80;
+  let yPosition = 10;
+
+  // Encabezado principal
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('COMPROBANTE DE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
+
+  // Línea separadora
+  doc.setLineWidth(0.2);
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Información del pedido
+  doc.setFontSize(7);
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+  yPosition += 4;
+  doc.text(`Código: ${this.codigoPedido}`, 5, yPosition);
+  yPosition += 4;
+  doc.text(`Método: ${this.getMetodoPagoText()}`, 5, yPosition);
+  yPosition += 6;
+
+  // Línea separadora
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Encabezado de productos
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Productos
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    const nombre = producto.nombre || 'Producto';
+    const cantidad = producto.cantidad || 1;
+    const precio = producto.precio || 0;
+    const total = precio * cantidad;
+    
+    // Truncar nombre si es muy largo
+    const nombreTruncado = nombre.length > 25 ? nombre.substring(0, 25) + '...' : nombre;
+    
+    doc.text(`• ${nombreTruncado}`, 5, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
+    yPosition += 3;
+    doc.text(`Cant: ${cantidad} x S/.${precio.toFixed(2)}`, 10, yPosition);
+    yPosition += 4;
+  });
+
+  // Línea separadora antes de total
+  yPosition += 2;
+  doc.line(5, yPosition, pageWidth - 5, yPosition);
+  yPosition += 4;
+
+  // Total
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text(`TOTAL: S/ ${this.total.toFixed(2)}`, 5, yPosition);
+  yPosition += 8;
+
+  // Código de pedido destacado
+  doc.setFontSize(9);
+  doc.text('CÓDIGO DE PEDIDO:', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text(this.codigoPedido, pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 8;
+
+  // Mensaje importante
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Presente este código para recoger su pedido', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('¡Gracias por su compra! 🍕', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+}
+
+// ================================================================
+// 🔢 MÉTODO PARA CONVERTIR NÚMERO A LETRAS
+// ================================================================
+
+convertirNumeroALetras(numero: number): string {
+  const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+  const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+  const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+  const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+  const entero = Math.floor(numero);
+  const decimal = Math.round((numero - entero) * 100);
+
+  if (entero === 0) {
+    return `cero con ${decimal.toString().padStart(2, '0')}/100 soles`;
+  }
+
+  let letras = '';
+
+  // Miles
+  if (entero >= 1000) {
+    const miles = Math.floor(entero / 1000);
+    if (miles === 1) {
+      letras += 'mil ';
+    } else {
+      letras += this.convertirCentenas(miles) + ' mil ';
+    }
+  }
+
+  // Centenas restantes
+  const resto = entero % 1000;
+  letras += this.convertirCentenas(resto);
+
+  // Eliminar espacios extra y capitalizar primera letra
+  letras = letras.trim();
+  if (letras.length > 0) {
+    letras = letras.charAt(0).toUpperCase() + letras.slice(1);
+  }
+
+  return `${letras} con ${decimal.toString().padStart(2, '0')}/100 soles`;
+}
+
+convertirCentenas(numero: number): string {
+  const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+  const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+  const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+  const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+  if (numero === 100) return 'cien';
+  
+  const c = Math.floor(numero / 100);
+  const r = numero % 100;
+  const d = Math.floor(r / 10);
+  const u = r % 10;
+
+  let resultado = '';
+
+  if (c > 0) {
+    resultado += centenas[c] + ' ';
+  }
+
+  if (r === 0) {
+    return resultado.trim();
+  }
+
+  if (r < 10) {
+    resultado += unidades[r];
+  } else if (r < 20) {
+    resultado += especiales[r - 10];
+  } else {
+    resultado += decenas[d];
+    if (u > 0) {
+      resultado += ' y ' + unidades[u];
+    }
+  }
+
+  return resultado.trim();
+}
+
+  // ================================================================
+  // 🔄 MÉTODOS DE GUARDADO ACTUALIZADOS
+  // ================================================================
+
+  guardarEnBaseDeDatosReal() {
+    const productos = this.carritoService.obtenerProductos();
+    const idCliente = this.idClienteParaGuardar;
+    const idUsuario = null;
+
+    console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
+
+    const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
+      const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
+      const cantidad = producto.cantidad || 1;
+      
+      return {
+        ID_Producto_T: idProductoT,
+        Cantidad: cantidad
+      };
+    });
+
+    const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
+    if (detallesInvalidos.length > 0) {
+      console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
+      alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
+      return;
+    }
+
+    let notasDePedido: string;
+    if (this.tipoDocumento === null) {
+      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+    } else {
+      notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+    }
+
+    const pedidoData: PedidoCreacionDTO = {
+      ID_Cliente: idCliente,
+      ID_Usuario: idUsuario,
+      Notas: notasDePedido,
+      Estado_P: 'P',
+      Fecha_Registro: new Date().toISOString().split('T')[0],
+      Hora_Pedido: new Date().toTimeString().split(' ')[0],
+      detalles: detalles
+    };
+
+    console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
+
+    this.pedidoService.createPedido(pedidoData as any).subscribe({
+      next: (response: any) => {
+        console.log('✅ PEDIDO guardado exitosamente:', response);
+        
+        let pedidoId = null;
+        if (response.ID_Pedido) {
+          pedidoId = response.ID_Pedido;
+        } else if (response.id_pedido) {
+          pedidoId = response.id_pedido;
+        } else if (response.pedidoId) {
+          pedidoId = response.pedidoId;
+        } else if (response.data?.ID_Pedido) {
+          pedidoId = response.data.ID_Pedido;
+        } else if (response.insertId) { 
+          pedidoId = response.insertId;
+        }
+        
+        if (pedidoId) {
+          console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
+          
+          // Generar el PDF correspondiente según el tipo de documento
+          if (this.tipoDocumento === 'boleta') {
+            this.generarBoletaPDF(pedidoId);
+          } else if (this.tipoDocumento === 'factura') {
+            this.generarFacturaPDF(pedidoId);
+          } else {
+            this.generarBoletaSimplePDF();
+          }
+          
+          this.guardarVentaEnBaseDeDatos(pedidoId);
+        } else {
+          console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
+          this.finalizarCompra();
+        }
+      },
+      error: (error) => {
+        console.error('❌ ERROR guardando pedido:', error);
+        alert('Error al guardar el pedido. Por favor, intente nuevamente.');
+      }
+    });
+  }
+
   guardarVentaEnBaseDeDatos(ID_Pedido: number) { 
     const ventaData: VentaCreacionDTO = {
       ID_Pedido: ID_Pedido,
@@ -525,7 +1048,7 @@ guardarEnBaseDeDatosReal() {
       Metodo_Pago: this.getMetodoPagoCode(),
       Lugar_Emision: 'A',
       IGV_Porcentaje: 18,
-      Monto_Recibido: this.montoRecibido // 🔹 NUEVO: Incluir monto recibido
+      Monto_Recibido: this.montoRecibido
     };
 
     console.log('💰 ENVIANDO VENTA:', JSON.stringify(ventaData, null, 2));
@@ -543,7 +1066,7 @@ guardarEnBaseDeDatosReal() {
     });
   }
 
-  // --- Métodos Helper y de Navegación (Con ajustes) ---
+  // --- Métodos Helper ---
 
   getMetodoPagoCode(): 'E' | 'T' | 'B' {
     switch(this.opcionSeleccionada) {
@@ -565,7 +1088,6 @@ guardarEnBaseDeDatosReal() {
     }
   }
 
-  // 🔹 NUEVO: Calcular vuelto
   calcularVuelto(): number {
     return Math.max(0, this.montoRecibido - this.total);
   }
@@ -588,14 +1110,6 @@ guardarEnBaseDeDatosReal() {
     console.log('🎊 COMPRA FINALIZADA - Vacíando carrito');
     this.carritoService.vaciarCarrito();
     console.log('✅ Carrito vaciado exitosamente');
-    console.log('📋 RESUMEN DE COMPRA:', {
-      codigoPedido: this.codigoPedido,
-      total: this.total,
-      montoRecibido: this.montoRecibido,
-      vuelto: this.calcularVuelto(),
-      tipoDocumento: this.tipoDocumento,
-      metodoPago: this.getMetodoPagoText()
-    });
   }
 
   volverAlInicio() {
@@ -642,5 +1156,6 @@ guardarEnBaseDeDatosReal() {
     this.errorCodigo = false;
     this.montoRecibido = 0;
     this.idClienteParaGuardar = 1;
+    this.clienteData = null;
   }
 }

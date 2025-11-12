@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -75,35 +75,73 @@ export class PedidoEsperaListComponent implements OnInit {
     this.pageSize = event.pageSize;
   }
 
-  cargarPedidosEnEspera(): void {
-    this.isLoading = true;
-    this.error = '';
+cargarPedidosEnEspera(): void {
+  this.isLoading = true;
+  this.error = '';
 
-    this.pedidoService.getPedidos().subscribe({
-      next: async (pedidos) => {
-        try {
-          // 🔹 FILTRAR SOLO PEDIDOS PENDIENTES (no usar estado 'D')
-          const pedidosFiltrados = pedidos.filter(p => p.Estado_P === 'P');
+  this.pedidoService.getPedidos().subscribe({
+    next: async (pedidos) => {
+      try {
+        // 🔹 FILTRAR SOLO PEDIDOS PENDIENTES (no usar estado 'D')
+        const pedidosFiltrados = pedidos.filter(p => p.Estado_P === 'P');
 
-          // Cargar información adicional para cada pedido
-          this.pedidos = await this.cargarInformacionCompleta(pedidosFiltrados);
-          this.isLoading = false;
+        // 🔹 ORDENAR POR FECHA Y HORA (más recientes primero)
+        const pedidosOrdenados = pedidosFiltrados.sort((a, b) => {
+          // Crear objetos Date combinando fecha y hora
+          const fechaA = this.crearFechaCompleta(a.Fecha_Registro, a.Hora_Pedido);
+          const fechaB = this.crearFechaCompleta(b.Fecha_Registro, b.Hora_Pedido);
           
-          // Resetear paginación cuando se cargan nuevos datos
-          this.pageIndex = 0;
-        } catch (error) {
-          this.error = 'Error al cargar la información de los pedidos';
-          this.isLoading = false;
-          console.error('Error:', error);
-        }
-      },
-      error: (err) => {
-        this.error = 'Error al cargar los pedidos';
+          // Ordenar descendente (más recientes primero)
+          return fechaB.getTime() - fechaA.getTime();
+        });
+
+        // Cargar información adicional para cada pedido
+        this.pedidos = await this.cargarInformacionCompleta(pedidosOrdenados);
         this.isLoading = false;
-        console.error('Error:', err);
+        
+        // Resetear paginación cuando se cargan nuevos datos
+        this.pageIndex = 0;
+      } catch (error) {
+        this.error = 'Error al cargar la información de los pedidos';
+        this.isLoading = false;
+        console.error('Error:', error);
       }
-    });
+    },
+    error: (err) => {
+      this.error = 'Error al cargar los pedidos';
+      this.isLoading = false;
+      console.error('Error:', err);
+    }
+  });
+}
+
+// Método auxiliar para crear fecha completa a partir de fecha y hora
+private crearFechaCompleta(fecha: string, hora: string): Date {
+  try {
+    // Si la hora está en formato TIME de SQL Server (HH:MM:SS)
+    if (hora && hora.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+      // Combinar fecha y hora
+      const fechaHoraString = `${fecha}T${hora}`;
+      return new Date(fechaHoraString);
+    }
+    
+    // Si la hora ya está en formato timestamp, usar directamente
+    if (hora.includes('T')) {
+      return new Date(hora);
+    }
+    
+    // Si solo tenemos fecha, usar inicio del día
+    if (fecha) {
+      return new Date(fecha);
+    }
+    
+    // Fallback: fecha actual
+    return new Date();
+  } catch (error) {
+    console.warn('Error al parsear fecha:', error);
+    return new Date(); // Fallback a fecha actual
   }
+}
 
   private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<any[]> {
     const pedidosCompletos = [];
@@ -226,25 +264,38 @@ export class PedidoEsperaListComponent implements OnInit {
     if (pedido.cliente) {
       return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido}`;
     }
-    return 'Cliente general';
+    return 'Cliente Varios';
   }
 
-  getHoraFormateada(hora: string): string {
-    if (!hora) return '';
-    // Si la hora ya está en formato legible, devolverla tal cual
-    if (hora.includes(':')) return hora;
+getHoraFormateada(hora: string): string {
+  if (!hora) return '';
+  
+  // Si la hora ya está en formato HH:MM:SS, formatearla directamente
+  if (hora.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
+    const [hours, minutes] = hora.split(':');
+    const hourNum = parseInt(hours, 10);
     
-    // Si es un timestamp, formatearlo
-    try {
-      const date = new Date(hora);
-      return date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    } catch {
-      return hora;
-    }
+    // Formato 12 horas con AM/PM
+    const period = hourNum >= 12 ? 'PM' : 'AM';
+    const displayHour = hourNum % 12 || 12;
+    
+    return `${displayHour.toString().padStart(2, '0')}:${minutes} ${period}`;
   }
+  
+  // Si es un timestamp, extraer solo la hora
+  try {
+    const date = new Date(hora);
+    return date.toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  } catch {
+    return hora;
+  }
+}
+
+
 
   async actualizarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C'): Promise<void> {
     // Mostrar SweetAlert2 para cancelar

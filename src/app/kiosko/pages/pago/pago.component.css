@@ -315,22 +315,128 @@ h2, h3, p {
   color: white !important;
 }
 
-/* MENSAJE FINAL */
-.mensaje-final {
+/* ESTILOS PARA EL CÓDIGO DE PEDIDO EN GRANDE */
+/* Estilos para cuando hay documento */
+.con-documento {
+  text-align: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
+  border: 2px solid #4caf50;
+  border-radius: 15px;
+}
+
+.icono-documento {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.tipo-documento {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2e7d32;
+  margin: 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mensaje-documento {
+  font-size: 1.1rem;
+  color: #388e3c;
+  line-height: 1.4;
+  margin: 15px 0;
+}
+
+/* Estilos para cuando no hay documento */
+.sin-documento {
   text-align: center;
   margin: 20px 0;
 }
 
-.icono-gracias {
-  width: 150px;
-  height: 200px;
-  margin-bottom: 15px;
+.mensaje-agradecimiento {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.mensaje-agradecimiento h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+/* Estilos comunes */
+.codigo-pedido-grande {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 3px solid #007bff;
+  border-radius: 15px;
+  padding: 25px 20px;
+  margin: 25px 0;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  }
+}
+
+.codigo-label {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.codigo-valor {
+  display: block;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #007bff;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 8px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  border: 2px dashed #007bff;
+  margin: 0 auto;
+  max-width: 280px;
+}
+
+.instruccion-codigo {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin: 15px 0;
+  font-style: italic;
 }
 
 .boton-inicio {
   width: 80%;
-  margin: 20px auto;
-  background-color: #9E9E9E !important;
+  margin: 30px auto 10px;
+  background-color: #6c757d !important;
+  color: white !important;
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.boton-inicio:hover {
+  background-color: #5a6268 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 

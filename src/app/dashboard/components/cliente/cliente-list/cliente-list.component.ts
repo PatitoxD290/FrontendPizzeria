@@ -70,24 +70,33 @@ export class ClienteListComponent implements OnInit {
 
         // ✅ Filtro combinado (texto + fechas)
         this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
-          const term = filter.trim().toLowerCase();
-          const matchText =
-            cliente.Nombre?.toLowerCase().includes(term) ||
-            cliente.Apellido?.toLowerCase().includes(term) ||
-            cliente.DNI?.toLowerCase().includes(term) ||
-            cliente.Telefono?.toLowerCase().includes(term);
+  const term = filter.trim().toLowerCase();
+  const matchText =
+    cliente.Nombre?.toLowerCase().includes(term) ||
+    cliente.Apellido?.toLowerCase().includes(term) ||
+    cliente.DNI?.toLowerCase().includes(term) ||
+    cliente.Telefono?.toLowerCase().includes(term);
 
-          // ✅ Filtrado por fecha si ambas fechas existen
-          if (this.fechaInicio && this.fechaFin) {
-            const fecha = new Date(cliente.Fecha_Registro);
-            return (
-              matchText &&
-              fecha >= this.fechaInicio &&
-              fecha <= this.fechaFin
-            );
-          }
-          return matchText;
-        };
+  // ✅ Filtrado por fecha si ambas fechas existen
+  if (this.fechaInicio && this.fechaFin) {
+    // Crear fechas sin hora para comparación
+    const fechaCliente = new Date(cliente.Fecha_Registro);
+    fechaCliente.setHours(0, 0, 0, 0);
+    
+    const fechaInicio = new Date(this.fechaInicio);
+    fechaInicio.setHours(0, 0, 0, 0);
+    
+    const fechaFin = new Date(this.fechaFin);
+    fechaFin.setHours(23, 59, 59, 999);
+
+    return (
+      matchText &&
+      fechaCliente >= fechaInicio &&
+      fechaCliente <= fechaFin
+    );
+  }
+  return matchText;
+};
 
         this.loading = false;
       },

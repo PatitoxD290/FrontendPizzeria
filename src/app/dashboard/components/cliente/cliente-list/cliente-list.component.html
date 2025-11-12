@@ -58,7 +58,7 @@
 
     <ng-container matColumnDef="Fecha_Registro">
       <th mat-header-cell *matHeaderCellDef>Fecha de Registro</th>
-      <td mat-cell *matCellDef="let c">{{ c.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</td>
+      <td mat-cell *matCellDef="let c">{{ c.Fecha_Registro | date:'dd/MM/yyyy' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="acciones">

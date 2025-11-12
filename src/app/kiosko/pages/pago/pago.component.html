@@ -303,19 +303,42 @@
     </form>
   </div>
 
-  <!-- VENTANA SEPARADA MENSAJE FINAL -->
-  <div *ngIf="mostrarMensajeFinal" class="ventana-separada">
-    <div class="mensaje-final">
-      <img src="assets/imgs/gracias.png" alt="Gracias" class="icono-gracias">
-      <h3>¡Muchas gracias por su compra!</h3>
-      <p *ngIf="tipoDocumento">{{ tipoDocumento | titlecase }} generada exitosamente</p>
-      <p *ngIf="!tipoDocumento">Vuelva pronto</p>
-      <p class="codigo-pedido">Código de pedido: {{ codigoPedido }}</p>
-    </div>
-
-    <button mat-flat-button color="primary" (click)="volverAlInicio()" class="boton-inicio">
-      <img src="assets/imgs/volver.png" alt="Inicio" class="icono-btn">
-      <span>Volver al Inicio</span>
-    </button>
+<!-- VENTANA SEPARADA MENSAJE FINAL - VERSIÓN MEJORADA -->
+<div *ngIf="mostrarMensajeFinal" class="ventana-separada">
+  
+  <!-- CASO 1: CON DOCUMENTO (BOLETA/FACTURA) -->
+  <div *ngIf="tipoDocumento" class="con-documento">
+    <div class="icono-documento">📄</div>
+    <h3>¡Documento Generado!</h3>
+    <p class="tipo-documento">{{ tipoDocumento | titlecase }}</p>
+    <p class="mensaje-documento">
+      Su {{ tipoDocumento }} ha sido generada exitosamente<br>
+      y se ha abierto en una nueva ventana para impresión
+    </p>
   </div>
+
+  <!-- CASO 2: SIN DOCUMENTO (NO, GRACIAS) -->
+  <div *ngIf="!tipoDocumento" class="sin-documento">
+    <div class="codigo-pedido-grande">
+      <span class="codigo-label">CÓDIGO DE PEDIDO</span>
+      <span class="codigo-valor">{{ codigoPedido }}</span>
+    </div>
+    <p class="instruccion-codigo">
+      Presente este código para recoger su pedido
+    </p>
+    <p class="mensaje-comprobante">
+      Se ha generado un comprobante simple en nueva ventana
+    </p>
+  </div>
+
+  <!-- MENSAJE COMÚN -->
+  <div class="mensaje-agradecimiento">
+    <h3>¡Muchas gracias por su compra!</h3>
+  </div>
+
+  <button mat-flat-button color="primary" (click)="volverAlInicio()" class="boton-inicio">
+    <img src="assets/imgs/volver.png" alt="Inicio" class="icono-btn">
+    <span>Volver al Inicio</span>
+  </button>
+</div>
 </div>
