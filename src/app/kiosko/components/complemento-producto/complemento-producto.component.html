@@ -13,30 +13,34 @@
     <span>{{ complementoService.obtenerCantidadComplementos() }} complemento(s) seleccionado(s)</span>
   </div>
 
-  <!-- LISTA DE BEBIDAS -->
-  <div class="bebidas-grid" *ngIf="!cargando && productosBebidas.length > 0; else estado">
+  <!-- 🔹 CAMBIO: LISTA DE PRODUCTOS_TAMANO INDIVIDUALES -->
+  <div class="productos-tamano-grid" *ngIf="!cargando && productosTamanoBebidas.length > 0; else estado">
     <div 
-      *ngFor="let producto of productosBebidas" 
-      class="bebida-card" 
-      [class.seleccionada]="estaSeleccionado(producto)"
-      (click)="toggleComplemento(producto)">
+      *ngFor="let productoTamano of productosTamanoBebidas" 
+      class="producto-tamano-card"
+      [class.seleccionada]="estaSeleccionado(productoTamano)"
+      (click)="toggleProductoTamano(productoTamano)">
       
-      <div class="bebida-imagen-container">
-        <img [src]="producto.imagen" (error)="producto.imagen = '/assets/imgs/logo.png'" [alt]="producto.Nombre" class="bebida-imagen" />
+      <div class="producto-tamano-imagen-container">
+        <img [src]="productoTamano.imagen" 
+             (error)="productoTamano.imagen = '/assets/imgs/logo.png'" 
+             [alt]="productoTamano.Nombre" 
+             class="producto-tamano-imagen" />
+        
         <!-- ✅ INDICADOR VISUAL DE SELECCIÓN -->
-        <div *ngIf="estaSeleccionado(producto)" class="seleccion-overlay">
+        <div *ngIf="estaSeleccionado(productoTamano)" class="seleccion-overlay">
           <mat-icon>check</mat-icon>
         </div>
       </div>
       
-      <div class="bebida-info">
-        <h4 class="bebida-nombre">{{ producto.Nombre }}</h4>
-        <p class="bebida-categoria">{{ producto.nombre_categoria }}</p>
+      <div class="producto-tamano-info">
+        <h4 class="producto-tamano-nombre">{{ productoTamano.Nombre }}</h4>
+        <p class="producto-tamano-categoria">{{ productoTamano.nombre_categoria }}</p>
         
-        <!-- Información del tamaño y precio -->
-        <div *ngIf="producto.tamanos && producto.tamanos.length > 0" class="bebida-meta">
-          <span class="bebida-tamano">{{ producto.tamanos[0].nombre_tamano || 'Estándar' }}</span>
-          <span class="bebida-precio">S/. {{ getPrecioProducto(producto) | number:'1.2-2' }}</span>
+        <!-- 🔹 INFORMACIÓN DEL TAMAÑO Y PRECIO -->
+        <div class="producto-tamano-meta">
+          <span class="producto-tamano-tamano">{{ productoTamano.nombre_tamano }}</span>
+          <span class="producto-tamano-precio">S/. {{ productoTamano.Precio | number:'1.2-2' }}</span>
         </div>
       </div>
     </div>
@@ -48,7 +52,7 @@
       <div *ngIf="cargando" class="cargando">
         <p>Cargando bebidas...</p>
       </div>
-      <div *ngIf="!cargando && productosBebidas.length === 0" class="sin-bebidas">
+      <div *ngIf="!cargando && productosTamanoBebidas.length === 0" class="sin-bebidas">
         <p>No hay bebidas disponibles</p>
       </div>
     </div>

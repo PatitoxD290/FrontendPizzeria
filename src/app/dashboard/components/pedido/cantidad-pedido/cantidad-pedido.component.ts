@@ -1,21 +1,16 @@
-import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { ProductoTamano } from '../../../../core/models/producto.model';
+import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
 
 export interface CantidadPedidoData {
-  productoTamano: ProductoTamano & {
-    producto?: any;
-    nombre_categoria?: string;
-    nombre_producto?: string;
-    descripcion_producto?: string;
-  };
+  producto: Producto;
 }
 
 @Component({
@@ -29,13 +24,19 @@ export interface CantidadPedidoData {
     MatInputModule,
     MatFormFieldModule,
     MatDialogModule
+    // 🔹 QUITAMOS MatRadioModule ya que usaremos botones
   ],
   templateUrl: './cantidad-pedido.component.html',
   styleUrls: ['./cantidad-pedido.component.css']
 })
-export class CantidadPedidoComponent {
+export class CantidadPedidoComponent implements OnInit {
   cantidad: number = 1;
   maxCantidad: number = 50;
+  
+  tamanosDisponibles: ProductoTamano[] = [];
+  tamanoSeleccionado: ProductoTamano | null = null;
+  precioUnitario: number = 0;
+  precioTotal: number = 0;
 
   constructor(
     public dialogRef: MatDialogRef<CantidadPedidoComponent>,
@@ -43,21 +44,37 @@ export class CantidadPedidoComponent {
   ) {}
 
   ngOnInit(): void {
-    // Establecer cantidad máxima basada en disponibilidad
-    if (this.data.productoTamano.producto?.Cantidad_Disponible) {
-      this.maxCantidad = Math.min(this.data.productoTamano.producto.Cantidad_Disponible, 50);
+    this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
+    
+    if (this.tamanosDisponibles.length > 0) {
+      this.tamanoSeleccionado = this.tamanosDisponibles[0];
+      this.precioUnitario = this.tamanoSeleccionado.Precio;
+      this.precioTotal = this.precioUnitario * this.cantidad;
     }
+    
+    if (this.data.producto.Cantidad_Disponible) {
+      this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 50);
+    }
+  }
+
+  // 🔹 CAMBIO: Seleccionar tamaño con botón
+  seleccionarTamano(tamano: ProductoTamano): void {
+    this.tamanoSeleccionado = tamano;
+    this.precioUnitario = tamano.Precio;
+    this.actualizarPrecioTotal();
   }
 
   aumentarCantidad(): void {
     if (this.cantidad < this.maxCantidad) {
       this.cantidad++;
+      this.actualizarPrecioTotal();
     }
   }
 
   reducirCantidad(): void {
     if (this.cantidad > 1) {
       this.cantidad--;
+      this.actualizarPrecioTotal();
     }
   }
 
@@ -71,19 +88,28 @@ export class CantidadPedidoComponent {
     }
     
     this.cantidad = value;
+    this.actualizarPrecioTotal();
     event.target.value = value.toString();
   }
 
+  private actualizarPrecioTotal(): void {
+    this.precioTotal = this.precioUnitario * this.cantidad;
+  }
+
   agregarAlPedido(): void {
+    if (!this.tamanoSeleccionado) {
+      return;
+    }
+
     const detalle: PedidoDetalle = {
       ID_Pedido_D: 0,
       ID_Pedido: 0,
-      ID_Producto_T: this.data.productoTamano.ID_Producto_T,
+      ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
       Cantidad: this.cantidad,
-      PrecioTotal: this.data.productoTamano.Precio * this.cantidad,
-      nombre_producto: this.data.productoTamano.nombre_producto || 'Producto',
-      nombre_categoria: this.data.productoTamano.nombre_categoria || 'Sin categoría',
-      nombre_tamano: this.data.productoTamano.nombre_tamano || 'Tamaño único'
+      PrecioTotal: this.precioTotal,
+      nombre_producto: this.data.producto.Nombre,
+      nombre_categoria: this.data.producto.nombre_categoria || 'Sin categoría',
+      nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único'
     };
 
     this.dialogRef.close(detalle);
@@ -93,7 +119,6 @@ export class CantidadPedidoComponent {
     this.dialogRef.close();
   }
 
-  // Método para validar entrada manual
   validarEntrada(event: any): void {
     const input = event.target;
     let value = input.value.replace(/[^0-9]/g, '');
@@ -106,14 +131,14 @@ export class CantidadPedidoComponent {
     
     input.value = value;
     this.cantidad = parseInt(value, 10);
-  }
-
-  get precioTotal(): number {
-    return this.data.productoTamano.Precio * this.cantidad;
+    this.actualizarPrecioTotal();
   }
 
   get disponibleTexto(): string {
-    const disponible = this.data.productoTamano.producto?.Cantidad_Disponible || 0;
-    return `Disponible: ${disponible} unidades`;
+    return `Disponible: ${this.data.producto.Cantidad_Disponible || 0} unidades`;
+  }
+
+  get tieneMultiplesTamanos(): boolean {
+    return this.tamanosDisponibles.length > 1;
   }
 }

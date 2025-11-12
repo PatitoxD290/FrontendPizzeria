@@ -14,7 +14,7 @@ import { TamanoService } from '../../../../core/services/tamano.service';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoTamanoComponent } from '../info-tamano/info-tamano.component';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
-import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.component'; // 🔹 Importar el modal
+import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.component';
 
 @Component({
   selector: 'app-menu-pedido',
@@ -31,20 +31,9 @@ import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.comp
   styleUrls: ['./menu-pedido.component.css']
 })
 export class MenuPedidoComponent implements OnInit {
-  // 🔹 Cambiar a array de ProductoTamano con información extendida
-  productosConTamanos: (ProductoTamano & {
-    producto?: Producto;
-    nombre_categoria?: string;
-    nombre_producto?: string;
-    descripcion_producto?: string;
-  })[] = [];
-  
-  productosFiltrados: (ProductoTamano & {
-    producto?: Producto;
-    nombre_categoria?: string;
-    nombre_producto?: string;
-    descripcion_producto?: string;
-  })[] = [];
+  // 🔹 CAMBIO: Ahora solo productos generales
+  productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
   
   categorias: CategoriaProducto[] = [];
   categoriaSeleccionada: number | null = null;
@@ -53,12 +42,7 @@ export class MenuPedidoComponent implements OnInit {
   // 🔹 Variables de paginación
   pageSize = 6;
   currentPage = 0;
-  paginatedProductos: (ProductoTamano & {
-    producto?: Producto;
-    nombre_categoria?: string;
-    nombre_producto?: string;
-    descripcion_producto?: string;
-  })[] = [];
+  paginatedProductos: Producto[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -74,43 +58,29 @@ export class MenuPedidoComponent implements OnInit {
     this.categoriaService.getCategoriasProducto().subscribe({
       next: (cats) => {
         this.categorias = cats;
-        this.cargarProductosConTamanos();
+        this.cargarProductos();
       },
       error: (err) => console.error('Error cargando categorías:', err)
     });
   }
 
-  cargarProductosConTamanos(): void {
+  // 🔹 CAMBIO: Cargar solo productos generales
+  cargarProductos(): void {
     this.productoService.getProductos().subscribe({
       next: (data) => {
-        // Procesar productos y crear array de ProductoTamano extendido
-        const productosExtendidos: (ProductoTamano & {
-          producto?: Producto;
-          nombre_categoria?: string;
-          nombre_producto?: string;
-          descripcion_producto?: string;
-        })[] = [];
+        // Solo productos activos que tengan tamaños activos
+        this.productos = data.filter(p => 
+          p.Estado === 'A' && 
+          p.tamanos && 
+          p.tamanos.some(t => t.Estado === 'A')
+        );
+        
+        // Asignar nombres de categoría
+        this.productos.forEach(producto => {
+          producto.nombre_categoria = this.obtenerNombreCategoria(producto.ID_Categoria_P);
+        });
 
-        data
-          .filter(p => p.Estado === 'A') // Solo productos activos
-          .forEach(producto => {
-            const tamanosActivos = producto.tamanos?.filter(t => t.Estado === 'A') || [];
-            const nombreCategoria = this.obtenerNombreCategoria(producto.ID_Categoria_P);
-
-            // Crear una entrada por cada tamaño activo
-            tamanosActivos.forEach(tamano => {
-              productosExtendidos.push({
-                ...tamano,
-                producto: producto,
-                nombre_categoria: nombreCategoria,
-                nombre_producto: producto.Nombre,
-                descripcion_producto: producto.Descripcion
-              });
-            });
-          });
-
-        this.productosConTamanos = productosExtendidos;
-        this.productosFiltrados = [...this.productosConTamanos];
+        this.productosFiltrados = [...this.productos];
         this.actualizarPaginacion();
       },
       error: (err) => console.error('Error cargando productos:', err)
@@ -127,33 +97,30 @@ export class MenuPedidoComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-buscarProducto(): void {
-  this.aplicarFiltros();
-}
+  buscarProducto(): void {
+    this.aplicarFiltros();
+  }
 
-private aplicarFiltros(): void {
-  let filtrados = [...this.productosConTamanos];
-  
-  if (this.categoriaSeleccionada !== null) {
-    filtrados = filtrados.filter(p => 
-      p.producto?.ID_Categoria_P === this.categoriaSeleccionada
-    );
+  private aplicarFiltros(): void {
+    let filtrados = [...this.productos];
+    
+    if (this.categoriaSeleccionada !== null) {
+      filtrados = filtrados.filter(p => p.ID_Categoria_P === this.categoriaSeleccionada);
+    }
+    
+    if (this.terminoBusqueda.trim() !== '') {
+      const termino = this.terminoBusqueda.toLowerCase();
+      filtrados = filtrados.filter(p => 
+        p.Nombre.toLowerCase().includes(termino) || 
+        (p.nombre_categoria?.toLowerCase().includes(termino) ?? false) ||
+        p.Descripcion.toLowerCase().includes(termino)
+      );
+    }
+    
+    this.productosFiltrados = filtrados;
+    this.currentPage = 0;
+    this.actualizarPaginacion();
   }
-  
-  if (this.terminoBusqueda.trim() !== '') {
-    const termino = this.terminoBusqueda.toLowerCase();
-    filtrados = filtrados.filter(p => 
-      p.nombre_producto?.toLowerCase().includes(termino) || 
-      (p.nombre_categoria?.toLowerCase().includes(termino) ?? false) ||
-      p.descripcion_producto?.toLowerCase().includes(termino) ||
-      p.nombre_tamano?.toLowerCase().includes(termino) // 🔹 Nueva línea: buscar por tamaño
-    );
-  }
-  
-  this.productosFiltrados = filtrados;
-  this.currentPage = 0;
-  this.actualizarPaginacion();
-}
 
   // 🔹 Actualizar la lista visible según la página actual
   actualizarPaginacion(): void {
@@ -169,17 +136,12 @@ private aplicarFiltros(): void {
     this.actualizarPaginacion();
   }
 
-  // 🔹 MODIFICADO: Ahora abre el modal en lugar de agregar directamente
-  abrirModalCantidad(productoTamanoExtendido: ProductoTamano & {
-    producto?: Producto;
-    nombre_categoria?: string;
-    nombre_producto?: string;
-    descripcion_producto?: string;
-  }) {
+  // 🔹 CAMBIO: Abrir modal pasando el PRODUCTO (no productoTamano)
+  abrirModalCantidad(producto: Producto) {
     const dialogRef = this.dialog.open(CantidadPedidoComponent, {
-      width: '450px',
+      width: '400px',
       data: {
-        productoTamano: productoTamanoExtendido
+        producto: producto // 🔹 Pasamos el producto completo con sus tamaños
       },
       disableClose: false,
       autoFocus: false
@@ -191,5 +153,26 @@ private aplicarFiltros(): void {
         this.ordenService.agregarProducto(result);
       }
     });
+  }
+
+  // 🔹 NUEVO: Obtener el precio mínimo del producto para mostrar
+  getPrecioMinimo(producto: Producto): number {
+    if (!producto.tamanos || producto.tamanos.length === 0) return 0;
+    
+    const precios = producto.tamanos
+      .filter(t => t.Estado === 'A')
+      .map(t => t.Precio);
+    
+    return Math.min(...precios);
+  }
+
+  // 🔹 NUEVO: Verificar si tiene múltiples tamaños
+  tieneMultiplesTamanos(producto: Producto): boolean {
+    return producto.tamanos ? producto.tamanos.filter(t => t.Estado === 'A').length > 1 : false;
+  }
+
+  // 🔹 NUEVO: Obtener información de tamaños disponibles
+  getTamanosDisponibles(producto: Producto): number {
+    return producto.tamanos ? producto.tamanos.filter(t => t.Estado === 'A').length : 0;
   }
 }

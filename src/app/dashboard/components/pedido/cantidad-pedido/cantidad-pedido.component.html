@@ -1,7 +1,7 @@
 <div class="modal-container">
   <!-- Header -->
   <div class="modal-header">
-    <h2 class="modal-title">Agregar al pedido</h2>
+    <h2 class="modal-title">Seleccionar producto</h2>
     <button mat-icon-button class="close-button" (click)="cancelar()">
       <mat-icon>close</mat-icon>
     </button>
@@ -9,24 +9,48 @@
 
   <!-- Información del producto -->
   <div class="producto-info">
-    <h3 class="producto-nombre">{{ data.productoTamano.nombre_producto }}</h3>
+    <h3 class="producto-nombre">{{ data.producto.Nombre }}</h3>
     <div class="producto-detalles">
-      <span class="categoria">{{ data.productoTamano.nombre_categoria }}</span>
-      <span class="separator">•</span>
-      <span class="tamano">{{ data.productoTamano.nombre_tamano || 'Tamaño' }}</span>
+      <span class="categoria">{{ data.producto.nombre_categoria }}</span>
     </div>
-    <p class="producto-descripcion" *ngIf="data.productoTamano.descripcion_producto">
-      {{ data.productoTamano.descripcion_producto }}
+    <p class="producto-descripcion" *ngIf="data.producto.Descripcion">
+      {{ data.producto.Descripcion }}
     </p>
   </div>
 
+  <!-- 🔹 SELECTOR DE TAMAÑOS CON BOTONES HORIZONTALES -->
+  <div class="tamanos-container" *ngIf="tamanosDisponibles.length > 0">
+    <label class="tamanos-label">Selecciona un tamaño:</label>
+    
+    <div class="tamanos-buttons"
+         [class.single-tamano]="tamanosDisponibles.length === 1"
+         [class.multiple-tamanos]="tamanosDisponibles.length > 3">
+      <button 
+        *ngFor="let tamano of tamanosDisponibles" 
+        mat-raised-button
+        class="tamano-btn"
+        [class.selected]="tamanoSeleccionado?.ID_Producto_T === tamano.ID_Producto_T"
+        (click)="seleccionarTamano(tamano)">
+        <div class="tamano-btn-content">
+          <span class="tamano-nombre">{{ tamano.nombre_tamano || 'Tamaño único' }}</span>
+          <span class="tamano-precio">S/ {{ tamano.Precio | number:'1.2-2' }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
   <!-- Precio unitario -->
-  <div class="precio-info">
-    <span class="precio-unitario">Precio unitario: S/ {{ data.productoTamano.Precio | number:'1.2-2' }}</span>
+  <div class="precio-info" *ngIf="tamanoSeleccionado">
+    <span class="precio-unitario">
+      Precio unitario: <strong>S/ {{ precioUnitario | number:'1.2-2' }}</strong>
+      <span *ngIf="tamanoSeleccionado.nombre_tamano" class="tamano-seleccionado">
+        ({{ tamanoSeleccionado.nombre_tamano }})
+      </span>
+    </span>
   </div>
 
   <!-- Control de cantidad -->
-  <div class="cantidad-container">
+  <div class="cantidad-container" *ngIf="tamanoSeleccionado">
     <label class="cantidad-label">Cantidad:</label>
     
     <div class="cantidad-controls">
@@ -59,11 +83,14 @@
   </div>
 
   <!-- Precio total -->
-  <div class="total-container">
+  <div class="total-container" *ngIf="tamanoSeleccionado">
     <div class="total-line"></div>
     <div class="total-info">
       <span class="total-label">Total a pagar:</span>
       <span class="total-precio">S/ {{ precioTotal | number:'1.2-2' }}</span>
+    </div>
+    <div class="desglose-precio" *ngIf="tamanoSeleccionado">
+      <small>{{ cantidad }} × S/ {{ precioUnitario | number:'1.2-2' }} = S/ {{ precioTotal | number:'1.2-2' }}</small>
     </div>
   </div>
 
@@ -78,9 +105,10 @@
     <button mat-raised-button 
             color="primary" 
             class="add-btn"
-            (click)="agregarAlPedido()">
+            (click)="agregarAlPedido()"
+            [disabled]="!tamanoSeleccionado">
       <mat-icon>add_shopping_cart</mat-icon>
-      Agregar al pedido
+      Agregar (S/ {{ precioTotal | number:'1.2-2' }})
     </button>
   </div>
 </div>

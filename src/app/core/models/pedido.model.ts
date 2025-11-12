@@ -4,10 +4,10 @@
 export interface Pedido {
   ID_Pedido: number;
   ID_Cliente: number;
-  ID_Usuario: number;
+  ID_Usuario: number | null; // Puede ser null según la BD
   Notas: string;
   SubTotal: number;
-  Estado_P: 'P' | 'C' | 'E' | 'D';
+  Estado_P: 'P' | 'C' | 'E'; 
   Fecha_Registro: string;
   Hora_Pedido: string;
 

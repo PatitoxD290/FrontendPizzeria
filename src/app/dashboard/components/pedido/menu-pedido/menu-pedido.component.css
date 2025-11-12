@@ -136,6 +136,26 @@
   font-size: 11px;
 }
 
+/* Agregar al CSS existente de menu-pedido */
+
+.multiples-tamanos {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.tamano-unico {
+  color: #4caf50;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.precio-desde {
+  font-size: 12px;
+  color: #666;
+  margin-right: 4px;
+}
+
 /* ====== PAGINADOR ====== */
 mat-paginator {
   margin-top: 10px;

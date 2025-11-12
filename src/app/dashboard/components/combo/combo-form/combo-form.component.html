@@ -1,1 +1,162 @@
-<p>combo-form works!</p>
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal-container">
+    <!-- Header del Modal -->
+    <div class="modal-header">
+      <h2>{{ combo ? 'Editar Combo' : 'Crear Nuevo Combo' }}</h2>
+      <button type="button" class="btn-close" (click)="onCerrar()">×</button>
+    </div>
+
+    <!-- Formulario del Combo -->
+    <div class="modal-body">
+      <!-- Información básica del combo -->
+      <div class="combo-info">
+        <div class="form-group">
+          <label for="nombre">Nombre del Combo *</label>
+          <input
+            type="text"
+            id="nombre"
+            [(ngModel)]="comboData.Nombre"
+            class="form-control"
+            placeholder="Ej: Combo Familiar"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <textarea
+            id="descripcion"
+            [(ngModel)]="comboData.Descripcion"
+            class="form-control"
+            placeholder="Descripción del combo..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="precio-section">
+          <label>Precio del Combo:</label>
+          <div class="precio">$ {{ comboData.Precio.toFixed(2) }}</div>
+          <small class="text-muted">* Precio calculado automáticamente con 10% de descuento</small>
+        </div>
+      </div>
+
+      <!-- Búsqueda y Filtros -->
+      <div class="filtros-section">
+        <div class="filtros-header">
+          <h3>Seleccionar Productos</h3>
+          <div class="filtros-controls">
+            <input
+              type="text"
+              [(ngModel)]="terminoBusqueda"
+              (input)="filtrarProductos()"
+              class="form-control search-input"
+              placeholder="Buscar productos..."
+            >
+            <select
+              [(ngModel)]="categoriaFiltro"
+              (change)="filtrarProductos()"
+              class="form-control category-select"
+            >
+              <option value="0">Todas las categorías</option>
+              <option *ngFor="let categoria of categorias" [value]="categoria.id">
+                {{ categoria.nombre }}
+              </option>
+            </select>
+            <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Productos -->
+      <div class="productos-section">
+        <div class="cargando" *ngIf="cargando">
+          Cargando productos...
+        </div>
+
+        <div class="productos-grid" *ngIf="!cargando">
+          <div *ngFor="let producto of productosFiltrados" class="producto-card">
+            <div class="producto-header">
+              <h4>{{ producto.Nombre }}</h4>
+              <span class="categoria-badge">{{ producto.nombre_categoria }}</span>
+            </div>
+            <p class="producto-desc">{{ producto.Descripcion }}</p>
+            
+            <div class="tamanos-list">
+              <div *ngFor="let tamano of getTamanosActivos(producto)" 
+                   class="tamano-item"
+                   [class.disabled]="tamano.Estado === 'I'">
+                <div class="tamano-info">
+                  <span class="tamano-nombre">{{ tamano.nombre_tamano }}</span>
+                  <span class="tamano-precio">$ {{ tamano.Precio.toFixed(2) }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  (click)="agregarProducto(tamano, producto)"
+                  [disabled]="tamano.Estado === 'I'"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!cargando && productosFiltrados.length === 0" class="no-products">
+          No se encontraron productos con los filtros aplicados.
+        </div>
+      </div>
+
+      <!-- Productos Seleccionados -->
+      <div class="seleccionados-section" *ngIf="detalles.length > 0">
+        <h3>Productos en el Combo</h3>
+        <div class="seleccionados-list">
+          <div *ngFor="let detalle of detalles; let i = index" class="seleccionado-item">
+            <div class="seleccionado-info">
+              <strong>{{ detalle.Producto_Nombre }}</strong>
+              <span class="tamano-info"> - {{ detalle.Tamano_Nombre }}</span>
+            </div>
+            <div class="seleccionado-controls">
+              <div class="cantidad-controls">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="actualizarCantidad(detalle, detalle.Cantidad - 1)"
+                >
+                  -
+                </button>
+                <span class="cantidad">{{ detalle.Cantidad }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="actualizarCantidad(detalle, detalle.Cantidad + 1)"
+                >
+                  +
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                (click)="removerProducto(i)"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer del Modal -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="onCancelar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onGuardar()">
+        {{ combo ? 'Actualizar' : 'Crear' }} Combo
+      </button>
+    </div>
+  </div>
+</div>

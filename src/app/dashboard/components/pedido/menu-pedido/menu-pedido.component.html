@@ -14,31 +14,34 @@
   </button>
 </div>
 
-<!-- 🔹 LISTA DE PRODUCTOS-TAMAÑO (Cada card representa un ProductoTamano individual) -->
+<!-- 🔹 CAMBIO: LISTA DE PRODUCTOS GENERALES -->
 <div class="menu-scroll">
-  <mat-card *ngFor="let pt of paginatedProductos" 
+  <mat-card *ngFor="let producto of paginatedProductos" 
             class="producto-card"
-            (click)="abrirModalCantidad(pt)"> <!-- 🔹 Cambiado a abrirModalCantidad -->
+            (click)="abrirModalCantidad(producto)">
     
     <mat-card-header>
-      <mat-card-title>{{ pt.nombre_producto }}</mat-card-title>
+      <mat-card-title>{{ producto.Nombre }}</mat-card-title>
       <mat-card-subtitle>
-        <span class="categoria">{{ pt.nombre_categoria }}</span>
-        <span class="tamano">• {{ pt.nombre_tamano || 'Tamaño' }}</span>
+        <span class="categoria">{{ producto.nombre_categoria }}</span>
+        <!-- 🔹 INDICADOR DE TAMAÑOS DISPONIBLES -->
+        <span *ngIf="tieneMultiplesTamanos(producto)" class="multiples-tamanos">• {{ getTamanosDisponibles(producto) }} tamaños</span>
+        <span *ngIf="!tieneMultiplesTamanos(producto)" class="tamano-unico">• 1 tamaño</span>
       </mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
-      <p class="descripcion">{{ pt.descripcion_producto }}</p>
+      <p class="descripcion">{{ producto.Descripcion }}</p>
       
-      <!-- 🔹 PRECIO DEL TAMAÑO ESPECÍFICO -->
+      <!-- 🔹 PRECIO MÍNIMO -->
       <div class="precio-container">
-        <span class="precio">S/ {{ pt.Precio | number:'1.2-2' }}</span>
+        <span *ngIf="tieneMultiplesTamanos(producto)" class="precio-desde">Desde: </span>
+        <span class="precio">S/ {{ getPrecioMinimo(producto) | number:'1.2-2' }}</span>
       </div>
 
       <!-- 🔹 Información adicional del producto -->
       <div class="info-adicional">
-        <small>Disponible • {{ pt.producto?.Cantidad_Disponible || 0 }} unidades</small>
+        <small>Disponible • {{ producto.Cantidad_Disponible || 0 }} unidades</small>
       </div>
 
     </mat-card-content>
@@ -46,7 +49,7 @@
 </div>
 
 <!-- 🔹 Paginador Angular Material -->
-<mat-paginator 
+<mat-paginator a
   [length]="productosFiltrados.length" 
   [pageSize]="pageSize" 
   [pageSizeOptions]="[3, 6, 9, 12]" 

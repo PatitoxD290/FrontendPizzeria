@@ -24,6 +24,7 @@ import { Venta, VentaCreacionDTO } from '../../../core/models/venta.model';
 type PedidoCreacionDTO = Omit<Pedido, 'ID_Pedido' | 'PrecioTotal' | 'Estado_P' | 'SubTotal'> & {
   Estado_P?: 'P' | 'C' | 'E' | 'D';
   detalles: PedidoDetalleCreacionDTO[];
+  ID_Usuario?: number | null; // ✅ Asegurar que acepte null
 };
 
 // 🔹 CORRECCIÓN: Usar solo ID_Producto_T en lugar de ID_Producto + ID_Tamano
@@ -433,89 +434,88 @@ export class PagoComponent implements OnInit {
   }
 
   // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
-  guardarEnBaseDeDatosReal() {
-    const productos = this.carritoService.obtenerProductos();
-    const idCliente = this.idClienteParaGuardar;
-    const idUsuario = 1;
+guardarEnBaseDeDatosReal() {
+  const productos = this.carritoService.obtenerProductos();
+  const idCliente = this.idClienteParaGuardar;
+  const idUsuario = null; // ✅ CAMBIO: Enviar null en lugar de 1
 
-    console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
-    console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
+  console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
+  console.log(`👤 ID_Cliente: ${idCliente}, ID_Usuario: ${idUsuario}`);
 
-    // ✅ CORRECCIÓN: Usar ID_Producto_T que ya incluye producto, tamaño y precio
-    const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
-      // 🔹 Obtener ID_Producto_T (campo principal)
-      const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
-      
-      // 🔹 Obtener cantidad
-      const cantidad = producto.cantidad || 1;
-      
-      console.log(`📝 Detalle: ID_Producto_T=${idProductoT}, Cantidad=${cantidad}`);
-      
-      return {
-        ID_Producto_T: idProductoT, // ✅ Usar ID_Producto_T
-        Cantidad: cantidad
-      };
-    });
-
-    // Validar que todos los detalles tengan ID_Producto_T válido
-    const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
-    if (detallesInvalidos.length > 0) {
-      console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
-      alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
-      return;
-    }
-
-    let notasDePedido: string;
-    if (this.tipoDocumento === null) {
-      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    } else {
-      notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    }
-
-    const pedidoData: PedidoCreacionDTO = {
-      ID_Cliente: idCliente,
-      ID_Usuario: idUsuario,
-      Notas: notasDePedido,
-      Estado_P: 'P',
-      Fecha_Registro: new Date().toISOString().split('T')[0],
-      Hora_Pedido: new Date().toTimeString().split(' ')[0],
-      detalles: detalles
+  // ✅ CORRECCIÓN: Usar ID_Producto_T que ya incluye producto, tamaño y precio
+  const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
+    // 🔹 Obtener ID_Producto_T (campo principal)
+    const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
+    
+    // 🔹 Obtener cantidad
+    const cantidad = producto.cantidad || 1;
+    
+    console.log(`📝 Detalle: ID_Producto_T=${idProductoT}, Cantidad=${cantidad}`);
+    
+    return {
+      ID_Producto_T: idProductoT, // ✅ Usar ID_Producto_T
+      Cantidad: cantidad
     };
+  });
 
-    console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
-
-    this.pedidoService.createPedido(pedidoData as any).subscribe({
-      next: (response: any) => {
-        console.log('✅ PEDIDO guardado exitosamente:', response);
-        
-        let pedidoId = null;
-        if (response.ID_Pedido) {
-          pedidoId = response.ID_Pedido;
-        } else if (response.id_pedido) {
-          pedidoId = response.id_pedido;
-        } else if (response.pedidoId) {
-          pedidoId = response.pedidoId;
-        } else if (response.data?.ID_Pedido) {
-          pedidoId = response.data.ID_Pedido;
-        } else if (response.insertId) { 
-          pedidoId = response.insertId;
-        }
-        
-        if (pedidoId) {
-          console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
-          this.guardarVentaEnBaseDeDatos(pedidoId);
-        } else {
-          console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
-          this.finalizarCompra();
-        }
-      },
-      error: (error) => {
-        console.error('❌ ERROR guardando pedido:', error);
-        alert('Error al guardar el pedido. Por favor, intente nuevamente.');
-      }
-    });
+  // Validar que todos los detalles tengan ID_Producto_T válido
+  const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
+  if (detallesInvalidos.length > 0) {
+    console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
+    alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
+    return;
   }
 
+  let notasDePedido: string;
+  if (this.tipoDocumento === null) {
+    notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  } else {
+    notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  }
+
+  const pedidoData: PedidoCreacionDTO = {
+    ID_Cliente: idCliente,
+    ID_Usuario: idUsuario, // ✅ Ahora se envía null
+    Notas: notasDePedido,
+    Estado_P: 'P',
+    Fecha_Registro: new Date().toISOString().split('T')[0],
+    Hora_Pedido: new Date().toTimeString().split(' ')[0],
+    detalles: detalles
+  };
+
+  console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
+
+  this.pedidoService.createPedido(pedidoData as any).subscribe({
+    next: (response: any) => {
+      console.log('✅ PEDIDO guardado exitosamente:', response);
+      
+      let pedidoId = null;
+      if (response.ID_Pedido) {
+        pedidoId = response.ID_Pedido;
+      } else if (response.id_pedido) {
+        pedidoId = response.id_pedido;
+      } else if (response.pedidoId) {
+        pedidoId = response.pedidoId;
+      } else if (response.data?.ID_Pedido) {
+        pedidoId = response.data.ID_Pedido;
+      } else if (response.insertId) { 
+        pedidoId = response.insertId;
+      }
+      
+      if (pedidoId) {
+        console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
+        this.guardarVentaEnBaseDeDatos(pedidoId);
+      } else {
+        console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
+        this.finalizarCompra();
+      }
+    },
+    error: (error) => {
+      console.error('❌ ERROR guardando pedido:', error);
+      alert('Error al guardar el pedido. Por favor, intente nuevamente.');
+    }
+  });
+}
   // 🔹 ACTUALIZADO: Incluir Monto_Recibido en la venta
   guardarVentaEnBaseDeDatos(ID_Pedido: number) { 
     const ventaData: VentaCreacionDTO = {

@@ -6,12 +6,12 @@
   max-width: 450px;
 }
 
-/* Header */
+/* Header - ESPACIO REDUCIDO */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px 16px;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -30,14 +30,14 @@
   background-color: #f5f5f5;
 }
 
-/* Información del producto */
+/* Información del producto - ESPACIO REDUCIDO */
 .producto-info {
-  padding: 20px 24px 16px;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .producto-nombre {
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   font-size: 18px;
   font-weight: 600;
   color: #333;
@@ -47,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .categoria {
@@ -73,9 +73,9 @@
   line-height: 1.4;
 }
 
-/* Precio unitario */
+/* Precio unitario - ESPACIO REDUCIDO */
 .precio-info {
-  padding: 16px 24px;
+  padding: 12px 20px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
 }
@@ -86,34 +86,133 @@
   color: #2e7d32;
 }
 
-/* Control de cantidad */
+/* 🔹 TAMAÑOS - ESPACIO REDUCIDO */
+.tamanos-container {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tamanos-label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+}
+
+.tamanos-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tamano-btn {
+  flex: 1;
+  min-width: 100px;
+  max-width: 120px;
+  padding: 10px 6px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.3s ease;
+  text-transform: none;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.tamano-btn:hover {
+  border-color: #2196f3;
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.tamano-btn.selected {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  box-shadow: 0 2px 12px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
+}
+
+.tamano-btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.tamano-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.2;
+}
+
+.tamano-precio {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* Estilos para el botón seleccionado */
+.tamano-btn.selected .tamano-nombre {
+  font-weight: 600;
+}
+
+.tamano-btn.selected .tamano-precio {
+  color: #1b5e20;
+  font-weight: 700;
+}
+
+.tamano-seleccionado {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+/* 🔹 CONTROL DE CANTIDAD - MÁS COMPACTO */
 .cantidad-container {
-  padding: 24px;
+  padding: 12px 20px 10px; /* 🔹 REDUCIDO: de 16px 20px 12px */
   border-bottom: 1px solid #f0f0f0;
 }
 
 .cantidad-label {
   display: block;
-  margin-bottom: 16px;
-  font-size: 16px;
+  margin-bottom: 10px; /* 🔹 REDUCIDO: de 12px */
+  font-size: 15px; /* 🔹 REDUCIDO: de 16px */
   font-weight: 500;
   color: #333;
+  text-align: center;
 }
 
 .cantidad-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 10px; /* 🔹 REDUCIDO: de 12px */
+  margin-bottom: 6px; /* 🔹 REDUCIDO: de 8px */
 }
 
 .cantidad-btn {
-  width: 40px;
-  height: 40px;
+  width: 32px; /* 🔹 REDUCIDO: de 36px */
+  height: 32px; /* 🔹 REDUCIDO: de 36px */
   border: 2px solid #2196f3;
   color: #2196f3;
   background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cantidad-btn:hover:not([disabled]) {
@@ -128,17 +227,22 @@
 }
 
 .cantidad-input {
-  width: 80px;
+  width: 60px; /* 🔹 REDUCIDO: de 70px */
 }
 
 ::ng-deep .cantidad-input .mat-mdc-form-field-outline {
-  border-radius: 8px !important;
+  border-radius: 6px !important; /* 🔹 REDUCIDO: de 8px */
+}
+
+::ng-deep .cantidad-input .mat-mdc-form-field-flex {
+  height: 38px; /* 🔹 ALTURA REDUCIDA para el campo */
 }
 
 ::ng-deep .cantidad-input .mat-mdc-input-element {
   text-align: center;
-  font-size: 18px;
+  font-size: 15px; /* 🔹 REDUCIDO: de 16px */
   font-weight: 600;
+  padding: 8px 0; /* 🔹 PADDING VERTICAL REDUCIDO */
 }
 
 .text-center {
@@ -148,19 +252,20 @@
 .disponible-text {
   display: block;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px; /* 🔹 REDUCIDO: de 12px */
   color: #666;
+  margin-top: 4px; /* 🔹 ESPACIO REDUCIDO */
 }
 
-/* Total */
+/* Total - ESPACIO REDUCIDO */
 .total-container {
-  padding: 20px 24px;
+  padding: 14px 20px; /* 🔹 REDUCIDO: de 16px 20px */
 }
 
 .total-line {
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
-  margin-bottom: 16px;
+  margin-bottom: 10px; /* 🔹 REDUCIDO: de 12px */
 }
 
 .total-info {
@@ -170,27 +275,34 @@
 }
 
 .total-label {
-  font-size: 16px;
+  font-size: 15px; /* 🔹 REDUCIDO: de 16px */
   font-weight: 500;
   color: #333;
 }
 
 .total-precio {
-  font-size: 20px;
+  font-size: 17px; /* 🔹 REDUCIDO: de 18px */
   font-weight: 700;
   color: #2e7d32;
 }
 
-/* Botones de acción */
+.desglose-precio {
+  text-align: center;
+  margin-top: 4px; /* 🔹 REDUCIDO: de 6px */
+  color: #666;
+  font-size: 11px; /* 🔹 REDUCIDO: de 12px */
+}
+
+/* Botones de acción - ESPACIO REDUCIDO */
 .action-buttons {
   display: flex;
-  gap: 12px;
-  padding: 0 24px 24px;
+  gap: 10px;
+  padding: 0 20px 14px; /* 🔹 REDUCIDO: de 0 20px 16px */
 }
 
 .cancel-btn {
   flex: 1;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #ccc;
   color: #666;
   font-weight: 500;
@@ -202,16 +314,29 @@
 
 .add-btn {
   flex: 2;
-  padding: 10px;
+  padding: 8px;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .add-btn mat-icon {
-  margin-right: 8px;
+  margin-right: 6px;
 }
 
-/* Responsive */
+/* 🔹 Estilo para cuando solo hay un tamaño */
+.tamanos-buttons.single-tamano .tamano-btn {
+  background-color: #e8f5e8;
+  border-color: #4caf50;
+  color: #2e7d32;
+  max-width: 140px;
+}
+
+.tamanos-buttons.single-tamano .tamano-btn:hover {
+  background-color: #c8e6c9;
+  border-color: #388e3c;
+}
+
+/* 🔹 Estilos responsive para botones horizontales */
 @media (max-width: 480px) {
   .modal-container {
     min-width: unset;
@@ -224,7 +349,90 @@
   .cantidad-container,
   .total-container,
   .action-buttons {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
+  
+  .tamanos-container {
+    padding: 12px 16px 10px;
+  }
+  
+  .tamanos-buttons {
+    gap: 6px;
+  }
+  
+  .tamano-btn {
+    min-width: 80px;
+    max-width: 90px;
+    padding: 8px 4px;
+  }
+  
+  .tamano-nombre {
+    font-size: 11px;
+  }
+  
+  .tamano-precio {
+    font-size: 12px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+
+  .producto-nombre {
+    font-size: 16px;
+  }
+
+  .cantidad-label,
+  .tamanos-label,
+  .total-label {
+    font-size: 14px;
+  }
+
+  /* 🔹 CANTIDAD CONTAINER RESPONSIVE MÁS COMPACTO */
+  .cantidad-container {
+    padding: 10px 16px 8px; /* 🔹 MÁS COMPACTO en móviles */
+  }
+
+  .cantidad-label {
+    margin-bottom: 8px; /* 🔹 REDUCIDO en móviles */
+    font-size: 14px;
+  }
+
+  .cantidad-controls {
+    gap: 8px; /* 🔹 REDUCIDO en móviles */
+    margin-bottom: 4px; /* 🔹 REDUCIDO en móviles */
+  }
+
+  .cantidad-btn {
+    width: 30px; /* 🔹 REDUCIDO en móviles */
+    height: 30px; /* 🔹 REDUCIDO en móviles */
+  }
+
+  .cantidad-input {
+    width: 55px; /* 🔹 REDUCIDO en móviles */
+  }
+
+  ::ng-deep .cantidad-input .mat-mdc-input-element {
+    font-size: 14px; /* 🔹 REDUCIDO en móviles */
+  }
+
+  .disponible-text {
+    font-size: 10px; /* 🔹 REDUCIDO en móviles */
+  }
+}
+
+/* 🔹 Estilo para cuando hay muchos tamaños (más de 3) */
+.tamanos-buttons.multiple-tamanos .tamano-btn {
+  min-width: 70px;
+  max-width: 90px;
+  padding: 8px 4px;
+}
+
+.tamanos-buttons.multiple-tamanos .tamano-nombre {
+  font-size: 11px;
+}
+
+.tamanos-buttons.multiple-tamanos .tamano-precio {
+  font-size: 12px;
 }
