@@ -1,27 +1,85 @@
-/* Header */
-.producto-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+.producto-page-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.producto-header h2 {
-  margin: 0;
+/* Estilos para los tabs */
+.producto-tabs {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Contenido de los tabs */
+.tab-content {
+  padding: 0;
+  min-height: 400px;
+}
+
+/* Personalización de los tabs de Material */
+::ng-deep .producto-tabs .mat-mdc-tab-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+::ng-deep .producto-tabs .mat-mdc-tab-labels {
+  justify-content: center;
+}
+
+::ng-deep .producto-tabs .mdc-tab {
+  padding: 0 32px;
+  min-width: 200px;
+  font-weight: 500;
+}
+
+::ng-deep .producto-tabs .mdc-tab__text-label {
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+::ng-deep .producto-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: #2196f3;
   font-weight: 600;
-  font-size: 1.5rem;
 }
 
-/* Contenedor principal */
-.producto-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+::ng-deep .producto-tabs .mat-mdc-tab-header-pagination {
+  display: none;
+}
+
+::ng-deep .producto-tabs .mat-mdc-tab-body-wrapper {
+  padding: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .producto-container {
-    flex-direction: column;
+  .producto-page-container {
+    padding: 16px;
+  }
+  
+  ::ng-deep .producto-tabs .mdc-tab {
+    padding: 0 16px;
+    min-width: 150px;
+  }
+  
+  ::ng-deep .producto-tabs .mdc-tab__text-label {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .producto-page-container {
+    padding: 12px;
+  }
+  
+  ::ng-deep .producto-tabs .mdc-tab {
+    padding: 0 12px;
+    min-width: 120px;
+  }
+  
+  ::ng-deep .producto-tabs .mdc-tab__text-label {
+    font-size: 12px;
   }
 }

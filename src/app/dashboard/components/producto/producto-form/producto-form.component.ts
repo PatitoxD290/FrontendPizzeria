@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule,NgIf } from '@angular/common';
+import { CommonModule,NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../../core/services/producto.service';

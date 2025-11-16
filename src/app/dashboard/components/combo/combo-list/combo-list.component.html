@@ -1,1 +1,228 @@
-<p>combo-list works!</p>
+<div class="combo-list-container">
+  <!-- Header con filtros -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Gestión de Combos</h1>
+      <div class="filtros-rapidos">
+        <button 
+          class="btn btn-sm" 
+          [class.btn-primary]="filtroEstado === 'todos'"
+          [class.btn-outline-secondary]="filtroEstado !== 'todos'"
+          (click)="aplicarFiltroEstado('todos')">
+          Todos
+        </button>
+        <button 
+          class="btn btn-sm" 
+          [class.btn-primary]="filtroEstado === 'A'"
+          [class.btn-outline-secondary]="filtroEstado !== 'A'"
+          (click)="aplicarFiltroEstado('A')">
+          Activos
+        </button>
+        <button 
+          class="btn btn-sm" 
+          [class.btn-primary]="filtroEstado === 'I'"
+          [class.btn-outline-secondary]="filtroEstado !== 'I'"
+          (click)="aplicarFiltroEstado('I')">
+          Inactivos
+        </button>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="busqueda">
+        <input
+          type="text"
+          [(ngModel)]="terminoBusqueda"
+          (keyup.enter)="buscarCombos()"
+          placeholder="Buscar combos..."
+          class="search-input"
+        >
+        <button class="btn btn-secondary btn-sm" (click)="buscarCombos()">
+          <mat-icon>search</mat-icon>
+        </button>
+        <button *ngIf="terminoBusqueda" class="btn btn-outline-secondary btn-sm" (click)="limpiarBusqueda()">
+          Limpiar
+        </button>
+      </div>
+      <button class="btn btn-primary" (click)="crearCombo()">
+        <mat-icon>add</mat-icon>
+        Nuevo Combo
+      </button>
+    </div>
+  </div>
+
+  <!-- Información de resultados -->
+  <div *ngIf="combosFiltrados.length > 0" class="info-paginacion">
+    <span>{{ getInfoPaginacion() }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="cargando" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando combos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !cargando" class="error-state">
+    <div class="error-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <p>{{ error }}</p>
+    <button class="btn btn-secondary" (click)="cargarCombos()">Reintentar</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="combosFiltrados.length === 0 && !cargando && !error" class="empty-state">
+    <div class="empty-icon">
+      <mat-icon>inventory_2</mat-icon>
+    </div>
+    <h3>No se encontraron combos</h3>
+    <p *ngIf="terminoBusqueda || filtroEstado !== 'todos'">
+      No hay combos que coincidan con los filtros aplicados.
+      <button class="btn btn-link" (click)="limpiarBusqueda(); aplicarFiltroEstado('todos')">
+        Limpiar filtros
+      </button>
+    </p>
+    <p *ngIf="!terminoBusqueda && filtroEstado === 'todos'">
+      Comienza creando tu primer combo para ofrecer promociones especiales.
+    </p>
+    <button class="btn btn-primary" (click)="crearCombo()">
+      <mat-icon>add</mat-icon>
+      Crear Primer Combo
+    </button>
+  </div>
+
+  <!-- Combos Grid -->
+  <div *ngIf="combosFiltrados.length > 0 && !cargando" class="combos-grid">
+    <div *ngFor="let combo of combosFiltrados" class="combo-card" [class.inactive]="combo.Estado === 'I'">
+      
+       <!-- Card Header con Imagen -->
+      <div class="card-header">
+        <div class="image-container">
+          <img 
+            [src]="getComboImage(combo.ID_Combo)" 
+            [alt]="combo.Nombre"
+            class="combo-image"
+            (error)="onImageError($event)"
+          >
+          <div class="image-overlay">
+            <span class="badge" [class]="getEstadoBadge(combo.Estado).clase">
+              {{ getEstadoBadge(combo.Estado).texto }}
+            </span>
+          </div>
+        </div>
+        <div class="combo-title">
+          <h3>{{ combo.Nombre }}</h3>
+          <div class="combo-price">
+            ${{ combo.Precio.toFixed(2) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+        <p class="combo-description" *ngIf="combo.Descripcion">
+          {{ combo.Descripcion }}
+        </p>
+        
+        <!-- Detalles del Combo -->
+        <div class="detalles-section" *ngIf="combo.detalles && combo.detalles.length > 0">
+          <h4>Productos incluidos:</h4>
+          <div class="detalles-list">
+            <div *ngFor="let detalle of combo.detalles" class="detalle-item">
+              <div class="detalle-info">
+                <span class="producto-nombre">{{ detalle.Producto_Nombre }}</span>
+                <span class="tamano-info" *ngIf="detalle.Tamano_Nombre"> - {{ detalle.Tamano_Nombre }}</span>
+              </div>
+              <div class="detalle-cantidad">
+                <span class="cantidad-badge">x{{ detalle.Cantidad }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!combo.detalles || combo.detalles.length === 0" class="no-detalles">
+          <p class="text-muted">No hay productos en este combo.</p>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="card-footer">
+        <div class="actions">
+          <button 
+            class="btn btn-sm btn-outline-secondary" 
+            (click)="editarCombo(combo)"
+            [disabled]="combo.Estado === 'I'">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+          
+          <button 
+            class="btn btn-sm btn-danger" 
+            (click)="eliminarCombo(combo)">
+            <mat-icon>delete</mat-icon>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="combosFiltrados.length > 0 && totalPaginas > 1" class="paginacion">
+    <div class="paginacion-info">
+      <span>Items por página:</span>
+      <select (change)="cambiarItemsPorPagina($event)" [value]="itemsPorPagina">
+        <option value="3">3</option>
+        <option value="6">6</option>
+        <option value="12">12</option>
+        <option value="24">24</option>
+      </select>
+    </div>
+    
+    <div class="paginacion-controls">
+      <button 
+        class="btn btn-outline-secondary btn-sm" 
+        (click)="cambiarPagina(1)"
+        [disabled]="paginaActual === 1">
+        <mat-icon>first_page</mat-icon>
+      </button>
+      <button 
+        class="btn btn-outline-secondary btn-sm" 
+        (click)="cambiarPagina(paginaActual - 1)"
+        [disabled]="paginaActual === 1">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      <div class="paginas">
+        <button 
+          *ngFor="let pagina of paginas" 
+          class="btn btn-sm" 
+          [class.btn-primary]="pagina === paginaActual"
+          [class.btn-outline-secondary]="pagina !== paginaActual"
+          (click)="cambiarPagina(pagina)">
+          {{ pagina }}
+        </button>
+      </div>
+      
+      <button 
+        class="btn btn-outline-secondary btn-sm" 
+        (click)="cambiarPagina(paginaActual + 1)"
+        [disabled]="paginaActual === totalPaginas">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button 
+        class="btn btn-outline-secondary btn-sm" 
+        (click)="cambiarPagina(totalPaginas)"
+        [disabled]="paginaActual === totalPaginas">
+        <mat-icon>last_page</mat-icon>
+      </button>
+    </div>
+    
+    <div class="paginacion-info">
+      Página {{ paginaActual }} de {{ totalPaginas }}
+    </div>
+  </div>
+
+
+</div>

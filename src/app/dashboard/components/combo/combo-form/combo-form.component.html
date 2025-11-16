@@ -1,162 +1,248 @@
-<div class="modal-backdrop" *ngIf="showModal">
-  <div class="modal-container">
-    <!-- Header del Modal -->
-    <div class="modal-header">
-      <h2>{{ combo ? 'Editar Combo' : 'Crear Nuevo Combo' }}</h2>
-      <button type="button" class="btn-close" (click)="onCerrar()">×</button>
-    </div>
+<!-- Eliminar todo el modal-backdrop y reemplazar con: -->
+<div class="combo-form-container">
+  <h2 mat-dialog-title>
+    {{ comboData.ID_Combo ? 'Editar Combo' : 'Crear Nuevo Combo' }}
+  </h2>
 
-    <!-- Formulario del Combo -->
-    <div class="modal-body">
+  <mat-dialog-content>
+    <form class="combo-form">
+      
       <!-- Información básica del combo -->
-      <div class="combo-info">
-        <div class="form-group">
-          <label for="nombre">Nombre del Combo *</label>
-          <input
-            type="text"
-            id="nombre"
-            [(ngModel)]="comboData.Nombre"
-            class="form-control"
-            placeholder="Ej: Combo Familiar"
-            required
+      <div class="form-section">
+        <h3 class="section-title">Información del Combo</h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="fill" class="field-full">
+            <mat-label>Nombre del Combo *</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="comboData.Nombre"
+              name="nombre" 
+              placeholder="Ej: Combo Familiar"
+              required
+            >
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill" class="field-full">
+            <mat-label>Descripción</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="comboData.Descripcion"
+              name="descripcion" 
+              placeholder="Descripción del combo..."
+              rows="2"
+            ></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="fill" class="precio-field">
+            <mat-label>Precio del Combo *</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="comboData.Precio"
+              name="precio" 
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              required
+            >
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+          
+          <button 
+            type="button" 
+            mat-stroked-button
+            (click)="calcularPrecioAutomatico()"
+            [disabled]="comboData.detalles.length === 0"
+            class="calcular-btn"
           >
+            Calcular Automático
+          </button>
         </div>
-
-        <div class="form-group">
-          <label for="descripcion">Descripción</label>
-          <textarea
-            id="descripcion"
-            [(ngModel)]="comboData.Descripcion"
-            class="form-control"
-            placeholder="Descripción del combo..."
-            rows="3"
-          ></textarea>
-        </div>
-
-        <div class="precio-section">
-          <label>Precio del Combo:</label>
-          <div class="precio">$ {{ comboData.Precio.toFixed(2) }}</div>
-          <small class="text-muted">* Precio calculado automáticamente con 10% de descuento</small>
-        </div>
+        <small class="hint">* Ingrese el precio total del combo o use cálculo automático</small>
       </div>
 
-      <!-- Búsqueda y Filtros -->
-      <div class="filtros-section">
-        <div class="filtros-header">
-          <h3>Seleccionar Productos</h3>
-          <div class="filtros-controls">
-            <input
-              type="text"
-              [(ngModel)]="terminoBusqueda"
-              (input)="filtrarProductos()"
-              class="form-control search-input"
-              placeholder="Buscar productos..."
+      <!-- Imagen del Combo -->
+      <div class="form-section">
+        <h3 class="section-title">Imagen del Combo (Opcional)</h3>
+        <div class="imagen-content">
+          <div class="file-upload-area">
+            <input 
+              type="file" 
+              id="file" 
+              (change)="onFileSelected($event)" 
+              accept="image/*" 
+              name="file"
+              class="file-input"
+            />
+            <div class="upload-hint">
+              <mat-icon>cloud_upload</mat-icon>
+              <span>Haz clic para seleccionar una imagen</span>
+            </div>
+          </div>
+          
+          <div *ngIf="imagePreview" class="image-preview">
+            <img [src]="imagePreview" alt="Vista previa" />
+            <button 
+              type="button" 
+              mat-icon-button 
+              color="warn" 
+              class="remove-image"
+              (click)="removeImage()"
+              matTooltip="Quitar imagen"
             >
-            <select
-              [(ngModel)]="categoriaFiltro"
-              (change)="filtrarProductos()"
-              class="form-control category-select"
-            >
-              <option value="0">Todas las categorías</option>
-              <option *ngFor="let categoria of categorias" [value]="categoria.id">
-                {{ categoria.nombre }}
-              </option>
-            </select>
-            <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">
-              Limpiar
+              <mat-icon>close</mat-icon>
             </button>
           </div>
         </div>
       </div>
 
+      <!-- Búsqueda y Filtros -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">Seleccionar Productos</h3>
+        </div>
+
+        <div class="filtros-row">
+          <mat-form-field appearance="fill" class="search-field">
+            <mat-label>Buscar productos</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="terminoBusqueda"
+              name="busqueda" 
+              (input)="filtrarProductos()"
+              placeholder="Buscar productos..."
+            >
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="category-field">
+            <mat-label>Categoría</mat-label>
+            <mat-select
+              [(ngModel)]="categoriaFiltro"
+              name="categoria" 
+              (selectionChange)="filtrarProductos()"
+              [disabled]="cargandoCategorias"
+            >
+              <mat-option value="0">Todas las categorías</mat-option>
+              <mat-option *ngFor="let categoria of categorias" [value]="categoria.ID_Categoria_P">
+                {{ categoria.Nombre }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button type="button" mat-stroked-button (click)="limpiarFiltros()" class="limpiar-btn">
+            Limpiar
+          </button>
+        </div>
+      </div>
+
       <!-- Lista de Productos -->
-      <div class="productos-section">
-        <div class="cargando" *ngIf="cargando">
+      <div class="form-section">
+        <div class="cargando" *ngIf="cargando || cargandoCategorias">
+          <mat-spinner diameter="30"></mat-spinner>
           Cargando productos...
         </div>
 
-        <div class="productos-grid" *ngIf="!cargando">
-          <div *ngFor="let producto of productosFiltrados" class="producto-card">
-            <div class="producto-header">
-              <h4>{{ producto.Nombre }}</h4>
-              <span class="categoria-badge">{{ producto.nombre_categoria }}</span>
-            </div>
-            <p class="producto-desc">{{ producto.Descripcion }}</p>
-            
-            <div class="tamanos-list">
-              <div *ngFor="let tamano of getTamanosActivos(producto)" 
-                   class="tamano-item"
-                   [class.disabled]="tamano.Estado === 'I'">
-                <div class="tamano-info">
-                  <span class="tamano-nombre">{{ tamano.nombre_tamano }}</span>
-                  <span class="tamano-precio">$ {{ tamano.Precio.toFixed(2) }}</span>
+        <div class="productos-grid" *ngIf="!cargando && !cargandoCategorias">
+          <mat-card *ngFor="let producto of productosFiltrados" class="producto-card">
+            <mat-card-header class="producto-header">
+              <mat-card-title class="producto-title">{{ producto.Nombre }}</mat-card-title>
+              <mat-chip color="primary" class="categoria-chip">
+                {{ getNombreCategoria(producto.ID_Categoria_P) }}
+              </mat-chip>
+            </mat-card-header>
+
+            <mat-card-content>
+              <p class="producto-desc" *ngIf="producto.Descripcion">{{ producto.Descripcion }}</p>
+              
+              <div class="tamanos-list">
+                <div *ngFor="let tamano of getTamanosActivos(producto)" 
+                     class="tamano-item"
+                     [class.disabled]="tamano.Estado === 'I'">
+                  <div class="tamano-info">
+                    <span class="tamano-nombre">{{ tamano.nombre_tamano }}</span>
+                    <span class="tamano-precio">$ {{ tamano.Precio.toFixed(2) }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    mat-raised-button
+                    color="primary"
+                    size="small"
+                    (click)="agregarProductoYCalcular(tamano, producto)"
+                    [disabled]="tamano.Estado === 'I'"
+                  >
+                    Agregar
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm"
-                  (click)="agregarProducto(tamano, producto)"
-                  [disabled]="tamano.Estado === 'I'"
-                >
-                  Agregar
-                </button>
               </div>
-            </div>
-          </div>
+            </mat-card-content>
+          </mat-card>
         </div>
 
-        <div *ngIf="!cargando && productosFiltrados.length === 0" class="no-products">
-          No se encontraron productos con los filtros aplicados.
+        <div *ngIf="!cargando && !cargandoCategorias && productosFiltrados.length === 0" class="no-products">
+          <mat-icon>search_off</mat-icon>
+          <p>No se encontraron productos con los filtros aplicados.</p>
         </div>
       </div>
 
       <!-- Productos Seleccionados -->
-      <div class="seleccionados-section" *ngIf="detalles.length > 0">
-        <h3>Productos en el Combo</h3>
+      <div class="form-section" *ngIf="comboData.detalles.length > 0">
+        <h3 class="section-title">Productos en el Combo ({{ comboData.detalles.length }})</h3>
         <div class="seleccionados-list">
-          <div *ngFor="let detalle of detalles; let i = index" class="seleccionado-item">
-            <div class="seleccionado-info">
-              <strong>{{ detalle.Producto_Nombre }}</strong>
-              <span class="tamano-info"> - {{ detalle.Tamano_Nombre }}</span>
-            </div>
-            <div class="seleccionado-controls">
-              <div class="cantidad-controls">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  (click)="actualizarCantidad(detalle, detalle.Cantidad - 1)"
-                >
-                  -
-                </button>
-                <span class="cantidad">{{ detalle.Cantidad }}</span>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  (click)="actualizarCantidad(detalle, detalle.Cantidad + 1)"
-                >
-                  +
-                </button>
+          <mat-card *ngFor="let detalle of comboData.detalles; let i = index" class="seleccionado-item">
+            <mat-card-content>
+              <div class="seleccionado-content">
+                <div class="seleccionado-info">
+                  <strong>{{ detalle.Producto_Nombre }}</strong>
+                  <span class="tamano-info"> - {{ detalle.Tamano_Nombre }}</span>
+                </div>
+                <div class="seleccionado-controls">
+                  <div class="cantidad-controls">
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="actualizarCantidadYCalcular(detalle, detalle.Cantidad - 1)"
+                    >
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="cantidad">{{ detalle.Cantidad }}</span>
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="actualizarCantidadYCalcular(detalle, detalle.Cantidad + 1)"
+                    >
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    mat-icon-button
+                    color="warn"
+                    (click)="removerProductoYCalcular(i)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                (click)="removerProducto(i)"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
+            </mat-card-content>
+          </mat-card>
         </div>
       </div>
-    </div>
 
-    <!-- Footer del Modal -->
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="onCancelar()">
-        Cancelar
-      </button>
-      <button type="button" class="btn btn-primary" (click)="onGuardar()">
-        {{ combo ? 'Actualizar' : 'Crear' }} Combo
-      </button>
-    </div>
-  </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="button" (click)="onGuardar()">
+      {{ comboData.ID_Combo ? 'Actualizar' : 'Crear' }} Combo
+    </button>
+  </mat-dialog-actions>
 </div>

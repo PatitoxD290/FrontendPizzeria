@@ -17,7 +17,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cliente-list',
@@ -70,33 +69,33 @@ export class ClienteListComponent implements OnInit {
 
         // ✅ Filtro combinado (texto + fechas)
         this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
-  const term = filter.trim().toLowerCase();
-  const matchText =
-    cliente.Nombre?.toLowerCase().includes(term) ||
-    cliente.Apellido?.toLowerCase().includes(term) ||
-    cliente.DNI?.toLowerCase().includes(term) ||
-    cliente.Telefono?.toLowerCase().includes(term);
+          const term = filter.trim().toLowerCase();
+          const matchText =
+            cliente.Nombre?.toLowerCase().includes(term) ||
+            cliente.Apellido?.toLowerCase().includes(term) ||
+            cliente.DNI?.toLowerCase().includes(term) ||
+            cliente.Telefono?.toLowerCase().includes(term);
 
-  // ✅ Filtrado por fecha si ambas fechas existen
-  if (this.fechaInicio && this.fechaFin) {
-    // Crear fechas sin hora para comparación
-    const fechaCliente = new Date(cliente.Fecha_Registro);
-    fechaCliente.setHours(0, 0, 0, 0);
-    
-    const fechaInicio = new Date(this.fechaInicio);
-    fechaInicio.setHours(0, 0, 0, 0);
-    
-    const fechaFin = new Date(this.fechaFin);
-    fechaFin.setHours(23, 59, 59, 999);
+          // ✅ Filtrado por fecha si ambas fechas existen
+          if (this.fechaInicio && this.fechaFin) {
+            // Crear fechas sin hora para comparación
+            const fechaCliente = new Date(cliente.Fecha_Registro);
+            fechaCliente.setHours(0, 0, 0, 0);
+            
+            const fechaInicio = new Date(this.fechaInicio);
+            fechaInicio.setHours(0, 0, 0, 0);
+            
+            const fechaFin = new Date(this.fechaFin);
+            fechaFin.setHours(23, 59, 59, 999);
 
-    return (
-      matchText &&
-      fechaCliente >= fechaInicio &&
-      fechaCliente <= fechaFin
-    );
-  }
-  return matchText;
-};
+            return (
+              matchText &&
+              fechaCliente >= fechaInicio &&
+              fechaCliente <= fechaFin
+            );
+          }
+          return matchText;
+        };
 
         this.loading = false;
       },
@@ -111,29 +110,6 @@ export class ClienteListComponent implements OnInit {
   applyFilters() {
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
-  }
-
-  deleteCliente(id: number) {
-    Swal.fire({
-      title: '¿Eliminar cliente?',
-      text: "Esta acción no se puede deshacer",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.clienteService.deleteCliente(id).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El cliente fue eliminado', 'success');
-            this.loadClientes();
-          },
-          error: () => {
-            Swal.fire('Error', 'No se pudo eliminar el cliente', 'error');
-          }
-        });
-      }
-    });
   }
 
   openClienteForm(cliente?: Cliente) {

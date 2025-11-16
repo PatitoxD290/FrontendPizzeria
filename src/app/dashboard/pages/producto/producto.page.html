@@ -1,5 +1,22 @@
-
-<!-- Lista de productos -->
-<div class="producto-container">
-  <app-producto-list></app-producto-list>
+<div class="producto-page-container">
+  <!-- Navegación con tabs -->
+  <mat-tab-group 
+    [selectedIndex]="selectedTab" 
+    (selectedIndexChange)="onTabChange($event)"
+    class="producto-tabs">
+    
+    <!-- Tab: Productos -->
+    <mat-tab label="Productos">
+      <div class="tab-content">
+        <app-producto-list></app-producto-list>
+      </div>
+    </mat-tab>
+    
+    <!-- Tab: Combos -->
+    <mat-tab label="Combos">
+      <div class="tab-content">
+        <app-combo-list></app-combo-list>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

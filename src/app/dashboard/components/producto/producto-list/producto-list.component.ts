@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { ProductoService } from '../../../../core/services/producto.service';

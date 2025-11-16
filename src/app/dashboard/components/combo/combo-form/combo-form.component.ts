@@ -1,54 +1,98 @@
-import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Combo, ComboDetalle } from '../../../../core/models/combo.model';
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
+import { CategoriaProducto } from '../../../../core/models/categoria.model';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CombosService } from '../../../../core/services/combos.service';
+import { CategoriaService } from '../../../../core/services/categoria.service';
+import Swal from 'sweetalert2';
+
+// Angular Material
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// Interface para combo con detalles
+interface ComboConDetalles extends Combo {
+  detalles: Array<{
+    ID_Producto_T: number;
+    Cantidad: number;
+    Producto_Nombre?: string;
+    Tamano_Nombre?: string;
+  }>;
+}
 
 @Component({
   selector: 'app-combo-form',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatIconModule,
+    MatCardModule,
+    MatChipsModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './combo-form.component.html',
   styleUrl: './combo-form.component.css'
 })
 export class ComboFormComponent implements OnInit {
-  @Input() combo?: Combo;
-  @Input() showModal: boolean = false;
-  
-  @Output() guardar = new EventEmitter<{combo: Combo, detalles: ComboDetalle[]}>();
-  @Output() cancelar = new EventEmitter<void>();
-  @Output() cerrar = new EventEmitter<void>();
 
-  // Datos del combo
-  comboData: Combo = {
+  // Datos del combo CON DETALLES
+  comboData: ComboConDetalles = {
     ID_Combo: 0,
     Nombre: '',
     Descripcion: '',
     Precio: 0,
-    Estado: 'A'
+    Estado: 'A',
+    detalles: []
   };
-
-  // Detalles del combo
-  detalles: ComboDetalle[] = [];
 
   // Productos y filtros
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
+  categorias: CategoriaProducto[] = [];
   terminoBusqueda: string = '';
   categoriaFiltro: number = 0;
   cargando: boolean = false;
+  cargandoCategorias: boolean = false;
+
+  // Manejo de imágenes
+  selectedFile: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
 
   constructor(
     private productoService: ProductoService,
-    private combosService: CombosService
+    private combosService: CombosService,
+    private categoriaService: CategoriaService,
+    private dialogRef: MatDialogRef<ComboFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { combo?: ComboConDetalles }
   ) {}
 
   ngOnInit() {
     this.cargarProductos();
-    if (this.combo) {
-      this.comboData = { ...this.combo };
-      this.cargarDetallesCombo(this.combo.ID_Combo);
+    this.cargarCategorias();
+    
+    // Usar data del diálogo
+    if (this.data.combo) {
+      this.comboData = { 
+        ...this.data.combo,
+        detalles: this.data.combo.detalles || []
+      };
     }
   }
 
@@ -68,10 +112,19 @@ export class ComboFormComponent implements OnInit {
     });
   }
 
-  // Cargar detalles del combo existente
-  cargarDetallesCombo(idCombo: number) {
-    // Aquí deberías implementar la llamada al servicio para obtener los detalles del combo
-    // Por ahora lo dejamos vacío ya que no hay un endpoint específico en el servicio
+  // Cargar categorías desde el servicio
+  cargarCategorias() {
+    this.cargandoCategorias = true;
+    this.categoriaService.getCategoriasProducto().subscribe({
+      next: (categorias) => {
+        this.categorias = categorias;
+        this.cargandoCategorias = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar categorías:', error);
+        this.cargandoCategorias = false;
+      }
+    });
   }
 
   // Filtrar productos
@@ -88,57 +141,36 @@ export class ComboFormComponent implements OnInit {
 
   // Agregar producto al combo
   agregarProducto(productoTamano: ProductoTamano, producto: Producto) {
-    const detalleExistente = this.detalles.find(d => d.ID_Producto_T === productoTamano.ID_Producto_T);
+    const detalleExistente = this.comboData.detalles.find(d => d.ID_Producto_T === productoTamano.ID_Producto_T);
     
     if (detalleExistente) {
       detalleExistente.Cantidad++;
     } else {
-      const nuevoDetalle: ComboDetalle = {
-        ID_Combo_D: 0,
-        ID_Combo: this.comboData.ID_Combo,
+      const nuevoDetalle = {
         ID_Producto_T: productoTamano.ID_Producto_T,
         Cantidad: 1,
         Producto_Nombre: producto.Nombre,
         Tamano_Nombre: productoTamano.nombre_tamano
       };
-      this.detalles.push(nuevoDetalle);
+      this.comboData.detalles.push(nuevoDetalle);
     }
-    
-    this.calcularPrecioTotal();
   }
 
   // Remover producto del combo
   removerProducto(index: number) {
-    this.detalles.splice(index, 1);
-    this.calcularPrecioTotal();
+    this.comboData.detalles.splice(index, 1);
   }
 
   // Actualizar cantidad
-  actualizarCantidad(detalle: ComboDetalle, cantidad: number) {
+  actualizarCantidad(detalle: any, cantidad: number) {
     if (cantidad > 0) {
       detalle.Cantidad = cantidad;
-      this.calcularPrecioTotal();
     } else if (cantidad === 0) {
-      const index = this.detalles.indexOf(detalle);
+      const index = this.comboData.detalles.indexOf(detalle);
       if (index > -1) {
-        this.detalles.splice(index, 1);
-        this.calcularPrecioTotal();
+        this.comboData.detalles.splice(index, 1);
       }
     }
-  }
-
-  // Calcular precio total del combo
-  calcularPrecioTotal() {
-    let total = 0;
-    this.detalles.forEach(detalle => {
-      const productoTamano = this.obtenerProductoTamano(detalle.ID_Producto_T);
-      if (productoTamano) {
-        total += productoTamano.Precio * detalle.Cantidad;
-      }
-    });
-    
-    // Aplicar descuento del 10% para combos (puedes ajustar este porcentaje)
-    this.comboData.Precio = Math.round(total * 0.9 * 100) / 100;
   }
 
   // Obtener ProductoTamano por ID
@@ -150,16 +182,10 @@ export class ComboFormComponent implements OnInit {
     return undefined;
   }
 
-  // Obtener categorías únicas para el filtro
-  get categorias() {
-    const categoriasUnicas = [...new Set(this.productos.map(p => p.ID_Categoria_P))];
-    return categoriasUnicas.map(id => {
-      const producto = this.productos.find(p => p.ID_Categoria_P === id);
-      return {
-        id: id,
-        nombre: producto?.nombre_categoria || `Categoría ${id}`
-      };
-    });
+  // Obtener nombre de categoría por ID
+  getNombreCategoria(idCategoria: number): string {
+    const categoria = this.categorias.find(c => c.ID_Categoria_P === idCategoria);
+    return categoria ? categoria.Nombre : `Categoría ${idCategoria}`;
   }
 
   // Obtener tamaños activos de un producto
@@ -169,39 +195,202 @@ export class ComboFormComponent implements OnInit {
 
   // Validar formulario
   validarFormulario(): boolean {
+    // Capitalizar nombre
+    if (this.comboData.Nombre) {
+      this.comboData.Nombre = this.capitalizeWords(this.comboData.Nombre.trim());
+    }
+
     if (!this.comboData.Nombre?.trim()) {
-      alert('Por favor, ingrese un nombre para el combo.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo incompleto',
+        text: 'Por favor ingrese un nombre para el combo.',
+        confirmButtonColor: '#3085d6'
+      });
       return false;
     }
 
-    if (this.detalles.length === 0) {
-      alert('Por favor, agregue al menos un producto al combo.');
+    if (this.comboData.Precio <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Precio inválido',
+        text: 'Por favor ingrese un precio válido para el combo.',
+        confirmButtonColor: '#3085d6'
+      });
+      return false;
+    }
+
+    if (this.comboData.detalles.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin productos',
+        text: 'Por favor agregue al menos un producto al combo.',
+        confirmButtonColor: '#3085d6'
+      });
       return false;
     }
 
     return true;
   }
 
-  // Guardar combo
-  onGuardar() {
-    if (!this.validarFormulario()) {
-      return;
+  // ==============================
+  // 🖼️ MANEJO DE IMÁGENES
+  // ==============================
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target?.result || null;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.selectedFile = null;
+      this.imagePreview = null;
+    }
+  }
+
+  removeImage() {
+    this.selectedFile = null;
+    this.imagePreview = null;
+    
+    const fileInput = document.getElementById('file') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+// ==============================
+// 💾 GUARDAR COMBO - CORREGIDO
+// ==============================
+onGuardar() {
+  if (!this.validarFormulario()) {
+    return;
+  }
+
+  // Preparar los detalles para enviar (solo campos necesarios)
+  const detallesParaEnviar = this.comboData.detalles.map(detalle => ({
+    ID_Producto_T: detalle.ID_Producto_T,
+    Cantidad: detalle.Cantidad
+  }));
+
+  console.log('=== DATOS A ENVIAR ===');
+  console.log('Combo:', this.comboData);
+  console.log('Detalles para enviar:', detallesParaEnviar);
+
+  if (this.selectedFile) {
+    // Usar FormData para enviar con imagen
+    const formData = new FormData();
+    formData.append('Nombre', this.comboData.Nombre);
+    formData.append('Descripcion', this.comboData.Descripcion || '');
+    formData.append('Precio', String(this.comboData.Precio));
+    formData.append('Estado', this.comboData.Estado);
+    
+    // ✅ CRÍTICO: Enviar detalles como JSON string
+    formData.append('detalles', JSON.stringify(detallesParaEnviar));
+    
+    formData.append('file', this.selectedFile);
+
+    // Debug: mostrar lo que se envía en FormData
+    console.log('FormData contenido:');
+    for (let [key, value] of (formData as any).entries()) {
+      console.log(key, value);
     }
 
-    this.guardar.emit({
-      combo: this.comboData,
-      detalles: this.detalles
+    if (!this.comboData.ID_Combo || this.comboData.ID_Combo === 0) {
+      this.combosService.createComboFormData(formData).subscribe({
+        next: (response) => {
+          console.log('✅ Respuesta del servidor:', response);
+          this.handleSuccess('Combo creado', 'El combo se registró correctamente.');
+        },
+        error: (err) => {
+          console.error('❌ Error completo:', err);
+          console.error('❌ Error details:', err.error);
+          this.handleError('crear', err);
+        }
+      });
+    } else {
+      this.combosService.updateComboFormData(this.comboData.ID_Combo, formData).subscribe({
+        next: (response) => {
+          console.log('✅ Respuesta del servidor:', response);
+          this.handleSuccess('Combo actualizado', 'El combo fue actualizado correctamente.');
+        },
+        error: (err) => {
+          console.error('❌ Error completo:', err);
+          console.error('❌ Error details:', err.error);
+          this.handleError('actualizar', err);
+        }
+      });
+    }
+  } else {
+    // Enviar sin imagen (JSON directo)
+    const comboParaEnviar = {
+      ...this.comboData,
+      detalles: detallesParaEnviar
+    };
+
+    console.log('Enviando JSON directo:', comboParaEnviar);
+
+    if (!this.comboData.ID_Combo || this.comboData.ID_Combo === 0) {
+      this.combosService.createCombo(comboParaEnviar).subscribe({
+        next: (response) => {
+          console.log('✅ Respuesta del servidor:', response);
+          this.handleSuccess('Combo creado', 'El combo se registró correctamente.');
+        },
+        error: (err) => {
+          console.error('❌ Error completo:', err);
+          console.error('❌ Error details:', err.error);
+          this.handleError('crear', err);
+        }
+      });
+    } else {
+      this.combosService.updateCombo(this.comboData.ID_Combo, comboParaEnviar).subscribe({
+        next: (response) => {
+          console.log('✅ Respuesta del servidor:', response);
+          this.handleSuccess('Combo actualizado', 'El combo fue actualizado correctamente.');
+        },
+        error: (err) => {
+          console.error('❌ Error completo:', err);
+          console.error('❌ Error details:', err.error);
+          this.handleError('actualizar', err);
+        }
+      });
+    }
+  }
+}
+
+  private capitalizeWords(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  private handleSuccess(title: string, text: string) {
+    Swal.fire({
+      icon: 'success',
+      title,
+      text,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    this.dialogRef.close(true);
+  }
+
+  private handleError(action: string, err: any) {
+    console.error(`Error al ${action} combo`, err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: `No se pudo ${action} el combo.`,
+      confirmButtonColor: '#d33'
     });
   }
 
   // Cancelar
   onCancelar() {
-    this.cancelar.emit();
-  }
-
-  // Cerrar modal
-  onCerrar() {
-    this.cerrar.emit();
+    this.dialogRef.close();
   }
 
   // Limpiar filtros
@@ -209,5 +398,36 @@ export class ComboFormComponent implements OnInit {
     this.terminoBusqueda = '';
     this.categoriaFiltro = 0;
     this.filtrarProductos();
+  }
+
+  // Calcular precio automáticamente basado en los productos seleccionados
+  calcularPrecioAutomatico() {
+    let total = 0;
+    for (const detalle of this.comboData.detalles) {
+      const productoTamano = this.obtenerProductoTamano(detalle.ID_Producto_T);
+      if (productoTamano) {
+        total += productoTamano.Precio * detalle.Cantidad;
+      }
+    }
+    // Aplicar un descuento del 10% para el combo
+    this.comboData.Precio = total * 0.9;
+  }
+
+  // Agregar producto y calcular precio automático
+  agregarProductoYCalcular(productoTamano: ProductoTamano, producto: Producto) {
+    this.agregarProducto(productoTamano, producto);
+    this.calcularPrecioAutomatico();
+  }
+
+  // Actualizar cantidad y recalcular precio
+  actualizarCantidadYCalcular(detalle: any, cantidad: number) {
+    this.actualizarCantidad(detalle, cantidad);
+    this.calcularPrecioAutomatico();
+  }
+
+  // Remover producto y recalcular precio
+  removerProductoYCalcular(index: number) {
+    this.removerProducto(index);
+    this.calcularPrecioAutomatico();
   }
 }
