@@ -1,0 +1,102 @@
+.stock-container {
+  padding: 20px;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-actions h2 {
+  margin: 0;
+  color: #3f51b5;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.table-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.estado-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.estado-activo {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.estado-inactivo {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.estado-caducado {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.action-button {
+  margin: 0 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stock-container {
+    padding: 10px;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .displayed-columns {
+    font-size: 12px;
+  }
+}

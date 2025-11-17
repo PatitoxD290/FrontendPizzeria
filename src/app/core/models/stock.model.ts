@@ -2,27 +2,27 @@
 // STOCK
 // ===========================================
 export interface Stock {
-  id_stock: number;
-  id_insumo: number;
-  id_proveedor: number;
-  Cantidad_recibida: number;
-  Costo_unitario: number;
-  Costo_total: number;
-  Fecha_entrada: string;
-  Fecha_vencimiento: string;
-  Estado: 'A' | 'I' | 'C';
+  ID_Stock: number;
+  ID_Insumo: number;
+  ID_Proveedor: number | null; // Coincide con el backend (puede ser null)
+  Cantidad_Recibida: number;
+  Costo_Unitario: number;
+  Costo_Total: number;
+  Fecha_Entrada: string;
+  Fecha_Vencimiento: string | null; // Puede ser null
+  Estado: 'A' | 'I' | 'C'; // A=Activo, I=Inactivo, C=Caducado
 }
 
 // ===========================================
 // STOCK MOVIMIENTO
 // ===========================================
 export interface StockMovimiento {
-  id_stock_m: number;
-  id_stock: number;
-  tipo_mov: 'Entrada' | 'Salida' | 'Ajuste';
-  motivo: string;
-  cantidad: number;
-  stock_act: number;
-  usuario_id: number;
-  fecha_mov: string;
+  ID_Stock_M: number;
+  ID_Stock: number;
+  Tipo_Mov: 'Entrada' | 'Salida' | 'Ajuste';
+  Motivo: string;
+  Cantidad: number;
+  Stock_ACT: number;
+  Usuario_ID: number | null; // Puede ser null
+  Fecha_Mov: string;
 }

@@ -8,7 +8,8 @@ import { Stock, StockMovimiento } from '../models/stock.model';
   providedIn: 'root'
 })
 export class StockService {
-  private apiUrl = 'http://localhost:3000/api/v2'; // base de la API
+  private apiUrlStock = 'http://localhost:3000/api/v2/stock';
+  private apiUrlMovimientos = 'http://localhost:3000/api/v2/stock/movimientos';
 
   constructor(private http: HttpClient) {}
 
@@ -18,27 +19,22 @@ export class StockService {
 
   // 📘 Obtener todos los registros de stock
   getStocks(): Observable<Stock[]> {
-    return this.http.get<Stock[]>(`${this.apiUrl}/stock`);
+    return this.http.get<Stock[]>(this.apiUrlStock);
   }
 
   // 📗 Obtener un registro de stock por ID
   getStockById(id: number): Observable<Stock> {
-    return this.http.get<Stock>(`${this.apiUrl}/stock/${id}`);
+    return this.http.get<Stock>(`${this.apiUrlStock}/${id}`);
   }
 
   // 📙 Crear nuevo registro de stock (entrada inicial)
-  createStock(stock: Stock): Observable<any> {
-    return this.http.post(`${this.apiUrl}/stock`, stock);
+  createStock(stock: Omit<Stock, 'ID_Stock'>): Observable<any> {
+    return this.http.post(this.apiUrlStock, stock);
   }
 
   // 📒 Actualizar registro de stock existente
   updateStock(id: number, stock: Partial<Stock>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/stock/${id}`, stock);
-  }
-
-  // 📕 Eliminar registro de stock
-  deleteStock(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/stock/${id}`);
+    return this.http.put(`${this.apiUrlStock}/${id}`, stock);
   }
 
   // ===========================================
@@ -47,26 +43,30 @@ export class StockService {
 
   // 📘 Obtener todos los movimientos
   getMovimientos(): Observable<StockMovimiento[]> {
-    return this.http.get<StockMovimiento[]>(`${this.apiUrl}/stock-movimientos`);
+    return this.http.get<StockMovimiento[]>(this.apiUrlMovimientos);
   }
 
-  // 📗 Obtener movimientos por ID de stock
-  getMovimientosPorStock(id_stock: number): Observable<StockMovimiento[]> {
-    return this.http.get<StockMovimiento[]>(`${this.apiUrl}/stock-movimientos/por-stock/${id_stock}`);
+  // 📗 Obtener un movimiento por ID
+  getMovimientoById(id: number): Observable<StockMovimiento> {
+    return this.http.get<StockMovimiento>(`${this.apiUrlMovimientos}/${id}`);
   }
 
   // 📙 Registrar nuevo movimiento (entrada, salida o ajuste)
-  registrarMovimiento(movimiento: StockMovimiento): Observable<any> {
-    return this.http.post(`${this.apiUrl}/stock-movimientos`, movimiento);
+  registrarMovimiento(movimiento: Omit<StockMovimiento, 'ID_Stock_M' | 'Fecha_Mov' | 'Stock_ACT'>): Observable<any> {
+    return this.http.post(this.apiUrlMovimientos, movimiento);
   }
 
   // 📒 Actualizar movimiento de stock
   updateMovimiento(id: number, movimiento: Partial<StockMovimiento>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/stock-movimientos/${id}`, movimiento);
+    return this.http.put(`${this.apiUrlMovimientos}/${id}`, movimiento);
   }
 
-  // 📕 Eliminar movimiento
-  deleteMovimiento(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/stock-movimientos/${id}`);
+  // ===========================================
+  // 🟦 STOCK POR INSUMO
+  // ===========================================
+
+  // 📘 Obtener stock por ID de insumo
+  getStockByInsumoId(idInsumo: number): Observable<Stock[]> {
+    return this.http.get<Stock[]>(`${this.apiUrlStock}/insumo/${idInsumo}`);
   }
 }

@@ -1,1 +1,106 @@
-<p>stock-form works!</p>
+<h2 mat-dialog-title>
+  <mat-icon>swap_vert</mat-icon>
+  {{ data ? 'Registrar Movimiento' : 'Nuevo Movimiento de Stock' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="movimientoForm" class="movimiento-form">
+    
+    <!-- ID Stock -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ID Stock</mat-label>
+      <input 
+        matInput 
+        formControlName="ID_Stock" 
+        type="number"
+        placeholder="Ingrese el ID del stock"
+        [readonly]="!!data">
+      <mat-icon matSuffix>inventory</mat-icon>
+      <mat-error *ngIf="formControls['ID_Stock'].hasError('required')">
+        El ID de stock es requerido
+      </mat-error>
+      <mat-error *ngIf="formControls['ID_Stock'].hasError('min')">
+        El ID debe ser mayor a 0
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Tipo de Movimiento -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tipo de Movimiento</mat-label>
+      <mat-select formControlName="Tipo_Mov">
+        <mat-option *ngFor="let tipo of tiposMovimiento" [value]="tipo">
+          {{ tipo }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="formControls['Tipo_Mov'].hasError('required')">
+        El tipo de movimiento es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Cantidad -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Cantidad</mat-label>
+      <input 
+        matInput 
+        formControlName="Cantidad" 
+        type="number"
+        placeholder="Ingrese la cantidad"
+        min="1">
+      <mat-icon matSuffix>format_list_numbered</mat-icon>
+      <mat-error *ngIf="formControls['Cantidad'].hasError('required')">
+        La cantidad es requerida
+      </mat-error>
+      <mat-error *ngIf="formControls['Cantidad'].hasError('min')">
+        La cantidad debe ser mayor a 0
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Motivo -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Motivo</mat-label>
+      <textarea 
+        matInput 
+        formControlName="Motivo" 
+        placeholder="Describa el motivo del movimiento"
+        rows="3">
+      </textarea>
+      <mat-error *ngIf="formControls['Motivo'].hasError('required')">
+        El motivo es requerido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Usuario ID -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ID Usuario (Opcional)</mat-label>
+      <input 
+        matInput 
+        formControlName="Usuario_ID" 
+        type="number"
+        placeholder="ID del usuario que realiza el movimiento">
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="onCancel()" 
+    [disabled]="loading">
+    Cancelar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="onSubmit()" 
+    [disabled]="loading || movimientoForm.invalid">
+    <span *ngIf="loading" class="button-loading">
+      <mat-spinner diameter="16"></mat-spinner>
+      Procesando...
+    </span>
+    <span *ngIf="!loading">
+      Registrar Movimiento
+    </span>
+  </button>
+</mat-dialog-actions>

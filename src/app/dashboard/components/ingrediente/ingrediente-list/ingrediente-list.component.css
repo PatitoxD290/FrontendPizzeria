@@ -18,3 +18,38 @@ mat-card {
   justify-content: space-between;
   align-items: center;
 }
+
+/* ESTILOS PARA LOS ESTADOS CORREGIDOS */
+.estado-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.estado-disponible {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+}
+
+.estado-agotado {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #c62828;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  mat-card {
+    margin: 10px;
+    padding: 16px;
+  }
+}

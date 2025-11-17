@@ -1,0 +1,41 @@
+.movimiento-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3f51b5;
+}
+
+.button-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .movimiento-form {
+    min-width: auto;
+  }
+  
+  mat-dialog-content {
+    max-height: 70vh;
+  }
+}
+
+/* Snackbar success */
+::ng-deep .success-snackbar {
+  background-color: #4caf50;
+  color: white;
+}

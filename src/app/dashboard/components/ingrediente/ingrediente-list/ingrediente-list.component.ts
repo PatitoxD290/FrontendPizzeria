@@ -34,19 +34,18 @@ import Swal from 'sweetalert2';
 })
 export class IngredienteListComponent implements OnInit {
 
-displayedColumns: string[] = [
-  'ID_Insumo',
-  'Nombre',
-  'Descripcion',
-  'Unidad_Med',
-  'ID_Categoria_I',
-  'Stock_Min',
-  'Stock_Max',
-  'Estado',
-  'Fecha_Registro',
-  'Acciones'
-];
-
+  displayedColumns: string[] = [
+    'ID_Insumo',
+    'Nombre',
+    'Descripcion',
+    'Unidad_Med',
+    'ID_Categoria_I',
+    'Stock_Min',
+    'Stock_Max',
+    'Estado',
+    'Fecha_Registro',
+    'Acciones'
+  ];
 
   ingredientes: Insumo[] = [];
   loading = false;
@@ -115,5 +114,23 @@ displayedColumns: string[] = [
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.loadIngredientes();
     });
+  }
+
+  // 📊 Obtener texto del estado
+  getEstadoText(estado: string): string {
+    const estados: { [key: string]: string } = {
+      'D': 'Disponible',
+      'A': 'Agotado'
+    };
+    return estados[estado] || estado;
+  }
+
+  // 🎨 Obtener clase CSS para el estado
+  getEstadoClass(estado: string): string {
+    const clases: { [key: string]: string } = {
+      'D': 'estado-disponible',
+      'A': 'estado-agotado'
+    };
+    return clases[estado] || '';
   }
 }
