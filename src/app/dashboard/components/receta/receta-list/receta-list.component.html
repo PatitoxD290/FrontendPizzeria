@@ -1,7 +1,12 @@
 <mat-card>
   <div class="header">
     <h2>Lista de Recetas</h2>
+
+    <button mat-flat-button color="primary" (click)="openRecetaForm()">
+      <mat-icon>add</mat-icon> Nueva Receta
+    </button>
   </div>
+
 
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>

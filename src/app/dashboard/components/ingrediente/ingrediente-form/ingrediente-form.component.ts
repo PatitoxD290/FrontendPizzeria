@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Insumo } from '../../../../core/models/ingrediente.model';
 import { IngredienteService } from '../../../../core/services/ingrediente.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
-import { ProveedorService } from '../../../../core/services/proveedor.service'; // Solo el servicio
-import { Proveedor } from '../../../../core/models/proveedor.model'; // La interface desde models
+import { ProveedorService } from '../../../../core/services/proveedor.service';
+import { Proveedor } from '../../../../core/models/proveedor.model';
 import { CategoriaInsumos } from '../../../../core/models/categoria.model';
 // Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -15,7 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import Swal from 'sweetalert2';
 
@@ -33,15 +34,20 @@ import Swal from 'sweetalert2';
     MatOptionModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatIconModule
   ],
   templateUrl: './ingrediente-form.component.html',
   styleUrls: ['./ingrediente-form.component.css'],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }
+  ]
 })
 export class IngredienteFormComponent implements OnInit {
   ingrediente: Insumo;
   categorias: CategoriaInsumos[] = [];
   proveedores: Proveedor[] = [];
   minDate: Date;
+  fechaVencimiento: Date | null = null;
 
   constructor(
     private ingredienteService: IngredienteService,
@@ -52,12 +58,14 @@ export class IngredienteFormComponent implements OnInit {
   ) {
     this.minDate = new Date();
     
+    // Inicializar el ingrediente con valores por defecto explícitos
     this.ingrediente = data?.ingrediente
       ? { 
           ...data.ingrediente,
-          ID_Proveedor: null,
-          Costo_Unitario: 0,
-          Fecha_Vencimiento: null
+          ID_Proveedor: data.ingrediente.ID_Proveedor !== undefined ? data.ingrediente.ID_Proveedor : null,
+          Costo_Unitario: data.ingrediente.Costo_Unitario !== undefined ? data.ingrediente.Costo_Unitario : 0,
+          Fecha_Vencimiento: data.ingrediente.Fecha_Vencimiento || null,
+          Stock_Max: data.ingrediente.Stock_Max || 1000
         }
       : {
           ID_Insumo: 0,
@@ -66,13 +74,20 @@ export class IngredienteFormComponent implements OnInit {
           Unidad_Med: '',
           ID_Categoria_I: 0,
           Stock_Min: 0,
-          Stock_Max: 0,
-          Estado: 'D', // Por defecto 'D' (Disponible)
+          Stock_Max: 1000,
+          Estado: 'D',
           Fecha_Registro: '',
           ID_Proveedor: null,
           Costo_Unitario: 0,
           Fecha_Vencimiento: null
         };
+
+    console.log('Ingrediente cargado para edición:', this.ingrediente); // Para debug
+
+    // Inicializar la fecha para el datepicker
+    if (this.ingrediente.Fecha_Vencimiento) {
+      this.fechaVencimiento = new Date(this.ingrediente.Fecha_Vencimiento);
+    }
   }
 
   ngOnInit(): void {
@@ -93,18 +108,33 @@ export class IngredienteFormComponent implements OnInit {
     });
   }
 
-  // 📥 Cargar proveedores (CORREGIDO: usar getProveedores en lugar de getProveedoresActivos)
+  // 📥 Cargar proveedores
   loadProveedores() {
     this.proveedorService.getProveedores().subscribe({
       next: (data) => {
-        // Filtrar solo proveedores activos en el frontend si es necesario
         this.proveedores = data.filter(prov => prov.Estado === 'A');
+        console.log('Proveedores cargados:', this.proveedores); // Para debug
       },
       error: (err) => {
         console.error('Error al cargar proveedores', err);
         Swal.fire('Error', 'No se pudieron cargar los proveedores', 'error');
       },
     });
+  }
+
+  // 🔥 Manejar cambio de fecha
+  onDateChange() {
+    if (this.fechaVencimiento) {
+      this.ingrediente.Fecha_Vencimiento = this.fechaVencimiento.toISOString().split('T')[0];
+    } else {
+      this.ingrediente.Fecha_Vencimiento = null;
+    }
+  }
+
+  // 🔥 Limpiar fecha
+  clearFechaVencimiento() {
+    this.fechaVencimiento = null;
+    this.ingrediente.Fecha_Vencimiento = null;
   }
 
   saveIngrediente() {
@@ -129,11 +159,19 @@ export class IngredienteFormComponent implements OnInit {
       return;
     }
 
+    // Validar que Stock_Min no sea mayor que Stock_Max
+    if (this.ingrediente.Stock_Min > this.ingrediente.Stock_Max!) {
+      Swal.fire('Error', 'El stock mínimo no puede ser mayor al stock máximo', 'warning');
+      return;
+    }
+
+    console.log('Datos a guardar:', this.ingrediente); // Para debug
+
     // Si es nuevo insumo (creación)
     if (this.ingrediente.ID_Insumo === 0) {
       this.ingredienteService.createIngrediente(this.ingrediente).subscribe({
         next: (response) => {
-          Swal.fire('¡Éxito!', 'Ingrediente creado correctamente con stock inicial', 'success');
+          Swal.fire('¡Éxito!', 'Ingrediente creado correctamente', 'success');
           this.dialogRef.close(true);
         },
         error: (err) => {
@@ -142,20 +180,8 @@ export class IngredienteFormComponent implements OnInit {
         },
       });
     } else {
-      // Actualizar existente (sin datos de stock)
-      const insumoData: Insumo = {
-        ID_Insumo: this.ingrediente.ID_Insumo,
-        Nombre: this.ingrediente.Nombre,
-        Descripcion: this.ingrediente.Descripcion,
-        Unidad_Med: this.ingrediente.Unidad_Med,
-        ID_Categoria_I: this.ingrediente.ID_Categoria_I,
-        Stock_Min: this.ingrediente.Stock_Min,
-        Stock_Max: this.ingrediente.Stock_Max,
-        Estado: this.ingrediente.Estado,
-        Fecha_Registro: this.ingrediente.Fecha_Registro
-      };
-
-      this.ingredienteService.updateIngrediente(insumoData.ID_Insumo, insumoData).subscribe({
+      // Actualizar existente - ENVIAR TODOS LOS CAMPOS
+      this.ingredienteService.updateIngrediente(this.ingrediente.ID_Insumo, this.ingrediente).subscribe({
         next: () => {
           Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
           this.dialogRef.close(true);

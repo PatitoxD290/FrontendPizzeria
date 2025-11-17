@@ -1,14 +1,25 @@
 <div class="stock-container">
   <div class="header-actions">
     <h2>Gestión de Stock</h2>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="openMovimientoModal()"
-      class="add-button">
-      <mat-icon>add</mat-icon>
-      Nuevo Movimiento
-    </button>
+    <div class="header-buttons">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="openMovimientoModal()"
+        class="add-button">
+        <mat-icon>add</mat-icon>
+        Nuevo Movimiento
+      </button>
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="exportarPDF()"
+        [disabled]="loading || dataSource.filteredData.length === 0"
+        matTooltip="Generar reporte PDF de inventario">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Exportar PDF
+      </button>
+    </div>
   </div>
 
   <div class="filter-section">
@@ -32,17 +43,19 @@
         <td mat-cell *matCellDef="let stock">{{ stock.ID_Stock }}</td>
       </ng-container>
 
-      <!-- ID Insumo Column -->
-      <ng-container matColumnDef="ID_Insumo">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID Insumo</th>
-        <td mat-cell *matCellDef="let stock">{{ stock.ID_Insumo }}</td>
+      <!-- Nombre Insumo Column -->
+      <ng-container matColumnDef="Nombre_Insumo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Insumo</th>
+        <td mat-cell *matCellDef="let stock">
+          {{ getNombreInsumo(stock.ID_Insumo) }}
+        </td>
       </ng-container>
 
-      <!-- ID Proveedor Column -->
-      <ng-container matColumnDef="ID_Proveedor">
+      <!-- Nombre Proveedor Column -->
+      <ng-container matColumnDef="Nombre_Proveedor">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Proveedor</th>
         <td mat-cell *matCellDef="let stock">
-          {{ stock.ID_Proveedor || 'No asignado' }}
+          {{ getNombreProveedor(stock.ID_Proveedor) }}
         </td>
       </ng-container>
 

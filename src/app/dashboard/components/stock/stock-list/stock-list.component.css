@@ -14,6 +14,11 @@
   color: #3f51b5;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 .add-button {
   display: flex;
   align-items: center;
@@ -84,6 +89,17 @@
   margin: 0 4px;
 }
 
+/* Snackbar personalizado */
+.success-snackbar {
+  background-color: #4caf50;
+  color: white;
+}
+
+.warn-snackbar {
+  background-color: #ff9800;
+  color: white;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .stock-container {
@@ -96,7 +112,8 @@
     align-items: flex-start;
   }
   
-  .displayed-columns {
-    font-size: 12px;
+  .header-buttons {
+    width: 100%;
+    justify-content: space-between;
   }
 }

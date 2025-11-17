@@ -2,7 +2,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Insumo } from '../../../../core/models/ingrediente.model';
+import { CategoriaInsumos } from '../../../../core/models/categoria.model';
 import { IngredienteService } from '../../../../core/services/ingrediente.service';
+import { CategoriaService } from '../../../../core/services/categoria.service';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -39,7 +41,7 @@ export class IngredienteListComponent implements OnInit {
     'Nombre',
     'Descripcion',
     'Unidad_Med',
-    'ID_Categoria_I',
+    'Categoria', // Cambiado de 'ID_Categoria_I' a 'Categoria'
     'Stock_Min',
     'Stock_Max',
     'Estado',
@@ -48,17 +50,33 @@ export class IngredienteListComponent implements OnInit {
   ];
 
   ingredientes: Insumo[] = [];
+  categorias: CategoriaInsumos[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private ingredienteService: IngredienteService,
+    private categoriaService: CategoriaService,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.loadCategorias();
     this.loadIngredientes();
+  }
+
+  // 📥 Cargar categorías primero
+  loadCategorias() {
+    this.categoriaService.getCategoriasInsumos().subscribe({
+      next: (data) => {
+        this.categorias = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías', err);
+        Swal.fire('Error', 'No se pudieron cargar las categorías', 'error');
+      },
+    });
   }
 
   // 📦 Cargar ingredientes
@@ -77,6 +95,12 @@ export class IngredienteListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // 🔍 Obtener nombre de categoría por ID
+  getNombreCategoria(idCategoria: number): string {
+    const categoria = this.categorias.find(cat => cat.ID_Categoria_I === idCategoria);
+    return categoria ? categoria.Nombre : 'Sin categoría';
   }
 
   // 🗑️ Eliminar ingrediente
@@ -107,7 +131,10 @@ export class IngredienteListComponent implements OnInit {
   // 📝 Abrir formulario
   openIngredienteForm(ingrediente?: Insumo) {
     const dialogRef = this.dialog.open(IngredienteFormComponent, {
-      width: '500px',
+      width: '850px',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
       data: { ingrediente }
     });
 

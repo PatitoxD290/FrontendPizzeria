@@ -1,7 +1,11 @@
 <mat-card>
-  <div class="header">
-    <h2>Lista de Proveedores</h2>
-  </div>
+ <div class="header">
+  <h2>Lista de Proveedores</h2>
+
+  <button mat-flat-button color="primary" (click)="openProveedorForm()">
+    <mat-icon>add</mat-icon> Nuevo Proveedor
+  </button>
+</div>
 
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>

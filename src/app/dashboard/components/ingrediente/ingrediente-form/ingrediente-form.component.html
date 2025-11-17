@@ -23,7 +23,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Descripción</mat-label>
+        <mat-label>Descripción (Opcional)</mat-label>
         <textarea
           matInput
           [(ngModel)]="ingrediente.Descripcion"
@@ -81,7 +81,7 @@
             type="number"
             [(ngModel)]="ingrediente.Stock_Max"
             name="stock_max"
-            min="0"
+            min="1"
             required
           />
           <mat-error>Stock máximo es obligatorio</mat-error>
@@ -97,9 +97,9 @@
       </mat-form-field>
     </div>
 
-    <!-- Sección de datos de stock (solo para nuevos insumos) -->
-    <div *ngIf="!ingrediente.ID_Insumo" class="form-section">
-      <h3>Datos Iniciales de Stock</h3>
+    <!-- Sección de datos adicionales (para crear Y editar) -->
+    <div class="form-section">
+      <h3>Datos Adicionales</h3>
       
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Proveedor (Opcional)</mat-label>
@@ -132,11 +132,26 @@
             matInput
             [matDatepicker]="picker"
             [min]="minDate"
-            [(ngModel)]="ingrediente.Fecha_Vencimiento"
+            [(ngModel)]="fechaVencimiento"
+            (dateChange)="onDateChange()"
             name="fecha_vencimiento"
+            placeholder="Seleccione una fecha"
           >
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker-toggle matSuffix [for]="picker">
+            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+          </mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
+
+          <button
+            mat-icon-button
+            matSuffix
+            *ngIf="fechaVencimiento"
+            (click)="clearFechaVencimiento()"
+            type="button"
+            aria-label="Clear"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>

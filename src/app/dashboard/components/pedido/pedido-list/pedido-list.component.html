@@ -1,10 +1,18 @@
 <mat-card>
   <div class="header">
     <h2>Lista de Pedidos</h2>
-    <button mat-raised-button color="primary" (click)="refrescarManual()" [disabled]="loading">
-      <mat-icon>refresh</mat-icon>
-      Actualizar
-    </button>
+    <div class="header-buttons">
+      <button mat-raised-button color="primary" (click)="refrescarManual()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+      <button mat-raised-button color="accent" (click)="exportarPDF()" 
+              [disabled]="loading || dataSource.filteredData.length === 0"
+              matTooltip="Generar reporte PDF">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Exportar PDF
+      </button>
+    </div>
   </div>
 
   <div class="filtros-container">
@@ -39,7 +47,6 @@
   </div>
 
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">
-    <!-- columnas aquí (igual que tu versión anterior) -->
     <ng-container matColumnDef="ID_Pedido">
       <th mat-header-cell *matHeaderCellDef>ID</th>
       <td mat-cell *matCellDef="let pedido">{{ pedido.ID_Pedido }}</td>
@@ -84,13 +91,11 @@
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let pedido">
-        <!-- ✅ SOLO BOTÓN VER DETALLE -->
         <button mat-icon-button color="primary" 
                 (click)="viewDetallePedido(pedido.ID_Pedido)"
                 matTooltip="Ver detalle del pedido">
           <mat-icon>visibility</mat-icon>
         </button>
-        <!-- ❌ ELIMINADO: Botón de eliminar -->
       </td>
     </ng-container>
 

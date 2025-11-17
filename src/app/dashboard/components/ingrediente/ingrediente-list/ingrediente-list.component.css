@@ -53,3 +53,19 @@ mat-card {
     padding: 16px;
   }
 }
+
+/* Estilos para el dialogo del calendario */
+.custom-dialog-container .mat-dialog-container {
+  overflow: visible !important;
+}
+
+/* Asegurar que el datepicker tenga espacio para mostrarse */
+.mat-datepicker-content {
+  z-index: 1000 !important;
+}
+
+/* Para dialogs grandes */
+.large-dialog .mat-dialog-container {
+  position: relative;
+  overflow: visible;
+}

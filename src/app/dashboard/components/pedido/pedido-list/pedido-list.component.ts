@@ -22,6 +22,10 @@ import Swal from 'sweetalert2';
 import { interval, Subscription } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
 
+// PDF
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 @Component({
   selector: 'app-pedido-list',
   standalone: true,
@@ -250,5 +254,216 @@ export class PedidoListComponent implements OnInit, OnDestroy {
       case 'D': return 'No disponible';
       default: return 'Desconocido';
     }
+  }
+
+  // 🆕 EXPORTAR PDF
+  exportarPDF(): void {
+    if (this.dataSource.filteredData.length === 0) {
+      Swal.fire('Información', 'No hay datos para generar el reporte PDF', 'info');
+      return;
+    }
+
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pedidos = this.dataSource.filteredData;
+    
+    // Título y cabecera
+    this.agregarCabeceraPDF(doc, pedidos.length);
+    
+    // Tabla de datos
+    this.agregarTablaPDF(doc, pedidos);
+    
+    // Totales y pie de página
+    this.agregarTotalesPDF(doc, pedidos);
+    
+    // Guardar PDF
+    doc.save(`Reporte_Pedidos_${new Date().toISOString().slice(0, 10)}.pdf`);
+    
+    this.snackBar.open('Reporte PDF generado correctamente', 'Cerrar', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private agregarCabeceraPDF(doc: jsPDF, totalPedidos: number): void {
+    // Fondo decorativo
+    doc.setFillColor(46, 125, 50); // Verde para pedidos
+    doc.rect(0, 0, 297, 30, 'F');
+    
+    // Logo o ícono
+    doc.setFontSize(20);
+    doc.setTextColor(255, 255, 255);
+    doc.text('📦', 15, 18);
+    
+    // Título principal
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DE PEDIDOS', 25, 18);
+    
+    // Información de la empresa
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Sistema de Gestión Comercial', 200, 12);
+    doc.text('Tel: (01) 123-4567', 200, 17);
+    doc.text('Email: info@empresa.com', 200, 22);
+    
+    // Fecha de generación
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
+    
+    // Período del reporte
+    let periodo = 'Todos los registros';
+    if (this.fechaInicio && this.fechaFin) {
+      periodo = `Del ${this.formatDateForPDF(this.fechaInicio)} al ${this.formatDateForPDF(this.fechaFin)}`;
+    } else if (this.fechaInicio) {
+      periodo = `Desde ${this.formatDateForPDF(this.fechaInicio)}`;
+    } else if (this.fechaFin) {
+      periodo = `Hasta ${this.formatDateForPDF(this.fechaFin)}`;
+    }
+    
+    doc.text(`Período: ${periodo}`, 15, 45);
+    doc.text(`Total de pedidos: ${totalPedidos}`, 200, 40);
+  }
+
+  private agregarTablaPDF(doc: jsPDF, pedidos: Pedido[]): void {
+    const headers = [
+      ['ID', 'CLIENTE', 'NOTAS', 'PRECIO TOTAL', 'ESTADO', 'FECHA/HORA REGISTRO']
+    ];
+
+    const data = pedidos.map(pedido => [
+      pedido.ID_Pedido.toString(),
+      this.getNombreCliente(pedido.ID_Cliente),
+      pedido.Notas?.substring(0, 40) + (pedido.Notas && pedido.Notas.length > 40 ? '...' : '') || 'Sin notas',
+      `S/${(pedido.PrecioTotal || 0).toFixed(2)}`,
+      this.getEstadoTexto(pedido.Estado_P),
+      this.formatFechaHoraPDF(pedido.Fecha_Registro, pedido.Hora_Pedido)
+    ]);
+
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 50,
+      theme: 'grid',
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1
+      },
+      headStyles: {
+        fillColor: [56, 142, 60], // Verde más oscuro
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      columnStyles: {
+        0: { cellWidth: 15, halign: 'center' }, // ID
+        1: { cellWidth: 40 }, // Cliente
+        2: { cellWidth: 50 }, // Notas
+        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Precio Total
+        4: { cellWidth: 25, halign: 'center' }, // Estado
+        5: { cellWidth: 45, halign: 'center' } // Fecha/Hora
+      },
+      margin: { left: 10, right: 10 },
+      didDrawCell: (data) => {
+        // Colorear estados
+        if (data.section === 'body' && data.column.index === 4) {
+          const estado = data.cell.raw as string;
+          const ctx = doc as any;
+          
+          if (estado === 'Pendiente') {
+            ctx.setTextColor(255, 152, 0); // Naranja
+          } else if (estado === 'Entregado') {
+            ctx.setTextColor(56, 142, 60); // Verde
+          } else if (estado === 'No entregado') {
+            ctx.setTextColor(244, 67, 54); // Rojo
+          } else if (estado === 'No disponible') {
+            ctx.setTextColor(158, 158, 158); // Gris
+          }
+        }
+      },
+      willDrawCell: (data) => {
+        // Restaurar color negro para otras celdas
+        if (data.section === 'body' && data.column.index !== 4) {
+          const ctx = doc as any;
+          ctx.setTextColor(0, 0, 0);
+        }
+      }
+    });
+  }
+
+  private agregarTotalesPDF(doc: jsPDF, pedidos: Pedido[]): void {
+    const finalY = (doc as any).lastAutoTable.finalY || 100;
+    
+    // Calcular totales
+    const totalPedidos = pedidos.length;
+    const totalValor = pedidos.reduce((sum, pedido) => sum + (pedido.PrecioTotal || 0), 0);
+    
+    const pedidosPendientes = pedidos.filter(p => p.Estado_P === 'P').length;
+    const pedidosEntregados = pedidos.filter(p => p.Estado_P === 'E').length;
+    const pedidosNoEntregados = pedidos.filter(p => p.Estado_P === 'C').length;
+
+    // Fondo para totales
+    doc.setFillColor(240, 240, 240);
+    doc.rect(10, finalY + 5, 277, 35, 'F');
+
+    // Restaurar color negro
+    doc.setTextColor(0, 0, 0);
+
+    // Totales principales
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    
+    doc.text('RESUMEN DE PEDIDOS', 15, finalY + 15);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total Pedidos: ${totalPedidos}`, 15, finalY + 22);
+    doc.text(`Valor Total: S/${totalValor.toFixed(2)}`, 15, finalY + 28);
+
+    // Estados de pedidos
+    doc.text('POR ESTADO:', 120, finalY + 15);
+    doc.text(`Pendientes: ${pedidosPendientes}`, 120, finalY + 22);
+    doc.text(`Entregados: ${pedidosEntregados}`, 120, finalY + 28);
+    doc.text(`No Entregados: ${pedidosNoEntregados}`, 200, finalY + 22);
+
+    // Pie de página
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
+    doc.text('Página 1 de 1', 260, 190);
+  }
+
+  private formatFechaHoraPDF(fechaISO: string, horaISO: string): string {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    if (horaISO) {
+      const hora = new Date(horaISO);
+      fecha.setHours(hora.getUTCHours());
+      fecha.setMinutes(hora.getUTCMinutes());
+    }
+    return fecha.toLocaleString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  private formatDateForPDF(date: Date): string {
+    return date.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 }
