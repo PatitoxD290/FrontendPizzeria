@@ -20,9 +20,10 @@ export interface StockMovimiento {
   ID_Stock_M: number;
   ID_Stock: number;
   Tipo_Mov: 'Entrada' | 'Salida' | 'Ajuste';
-  Motivo: string;
+  Motivo: string | null; // Opcional
   Cantidad: number;
   Stock_ACT: number;
-  Usuario_ID: number | null; // Puede ser null
+  Usuario_ID: number | null; // Ahora viene del backend automáticamente
   Fecha_Mov: string;
+  Estado?: 'A' | 'I';
 }

@@ -51,16 +51,27 @@ export class StockService {
     return this.http.get<StockMovimiento>(`${this.apiUrlMovimientos}/${id}`);
   }
 
-  // 📙 Registrar nuevo movimiento (entrada, salida o ajuste)
-  registrarMovimiento(movimiento: Omit<StockMovimiento, 'ID_Stock_M' | 'Fecha_Mov' | 'Stock_ACT'>): Observable<any> {
-    return this.http.post(this.apiUrlMovimientos, movimiento);
-  }
+// 📙 Registrar nuevo movimiento (entrada, salida o ajuste)
+registrarMovimiento(movimiento: Omit<StockMovimiento, 'ID_Stock_M' | 'Fecha_Mov' | 'Stock_ACT' | 'Usuario_ID'>): Observable<any> {
+  // Asegurar que Motivo sea null si está vacío
+  const movimientoData = {
+    ...movimiento,
+    Motivo: movimiento.Motivo?.trim() || null // Convertir a null si está vacío
+    // No enviar Usuario_ID - el backend lo obtiene del token
+  };
+  return this.http.post(this.apiUrlMovimientos, movimientoData);
+}
 
-  // 📒 Actualizar movimiento de stock
-  updateMovimiento(id: number, movimiento: Partial<StockMovimiento>): Observable<any> {
-    return this.http.put(`${this.apiUrlMovimientos}/${id}`, movimiento);
-  }
-
+// 📒 Actualizar movimiento de stock
+updateMovimiento(id: number, movimiento: Omit<Partial<StockMovimiento>, 'Usuario_ID'>): Observable<any> {
+  // Asegurar que Motivo sea null si está vacío
+  const movimientoData = {
+    ...movimiento,
+    Motivo: movimiento.Motivo !== undefined ? (movimiento.Motivo?.trim() || null) : undefined
+    // No enviar Usuario_ID - el backend lo obtiene del token
+  };
+  return this.http.put(`${this.apiUrlMovimientos}/${id}`, movimientoData);
+}
   // ===========================================
   // 🟦 STOCK POR INSUMO
   // ===========================================

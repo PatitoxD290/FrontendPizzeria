@@ -1,28 +1,100 @@
 <h2 mat-dialog-title>
   <mat-icon>swap_vert</mat-icon>
-  {{ data ? 'Registrar Movimiento' : 'Nuevo Movimiento de Stock' }}
+  {{ isFromSpecificRecord ? 'Registrar Movimiento' : 'Nuevo Movimiento de Stock' }}
 </h2>
 
-<mat-dialog-content>
+<mat-dialog-content class="dialog-content">
   <form [formGroup]="movimientoForm" class="movimiento-form">
     
-    <!-- ID Stock -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>ID Stock</mat-label>
+    <!-- Buscar Insumo por Nombre (solo para nuevo movimiento) -->
+    <mat-form-field appearance="outline" class="full-width" *ngIf="!isFromSpecificRecord">
+      <mat-label>Buscar Insumo</mat-label>
       <input 
-        matInput 
-        formControlName="ID_Stock" 
-        type="number"
-        placeholder="Ingrese el ID del stock"
-        [readonly]="!!data">
-      <mat-icon matSuffix>inventory</mat-icon>
-      <mat-error *ngIf="formControls['ID_Stock'].hasError('required')">
-        El ID de stock es requerido
-      </mat-error>
-      <mat-error *ngIf="formControls['ID_Stock'].hasError('min')">
-        El ID debe ser mayor a 0
+        type="text"
+        matInput
+        formControlName="insumoNombre"
+        [matAutocomplete]="auto"
+        placeholder="Escriba el nombre del insumo"
+        [readonly]="loadingInsumos">
+      <mat-icon matSuffix>search</mat-icon>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onInsumoSelected($event)" [displayWith]="displayInsumoFn">
+        <mat-option *ngFor="let insumo of filteredInsumos | async" [value]="insumo.Nombre">
+          <div class="insumo-option">
+            <div class="insumo-header">
+              <strong>{{ insumo.Nombre }}</strong>
+              <span class="estado-badge" [class]="insumo.Estado === 'D' ? 'estado-disponible' : 'estado-agotado'">
+                {{ insumo.Estado === 'D' ? 'Disponible' : 'Agotado' }}
+              </span>
+            </div>
+            <span class="insumo-desc">{{ insumo.Descripcion }}</span>
+            <small class="insumo-unidad">{{ insumo.Unidad_Med }}</small>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-hint>Escriba para buscar todos los insumos</mat-hint>
+      <mat-error *ngIf="formControls['insumoNombre'].hasError('required')">
+        Debe seleccionar un insumo
       </mat-error>
     </mat-form-field>
+
+    <!-- Mostrar información del insumo seleccionado (para movimientos desde registro específico) -->
+    <div class="selected-insumo-info" *ngIf="isFromSpecificRecord && selectedInsumo">
+      <mat-label>Insumo Seleccionado:</mat-label>
+      <div class="insumo-details">
+        <div class="info-row">
+          <span><strong>{{ selectedInsumo.Nombre }}</strong></span>
+          <span class="estado-badge" [class]="getEstadoInsumoClass()">
+            {{ getEstadoInsumoText() }}
+          </span>
+        </div>
+        <div class="insumo-meta">
+          <span *ngIf="selectedInsumo.Descripcion">{{ selectedInsumo.Descripcion }}</span>
+          <span>Unidad: {{ selectedInsumo.Unidad_Med }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seleccionar Stock (si hay múltiples) -->
+    <mat-form-field appearance="outline" class="full-width" *ngIf="stocksDisponibles.length > 1">
+      <mat-label>Seleccionar Lote de Stock</mat-label>
+      <mat-select formControlName="ID_Stock" (selectionChange)="onStockSelected($event)">
+        <mat-option *ngFor="let stock of stocksDisponibles" [value]="stock.ID_Stock">
+          Lote #{{ stock.ID_Stock }} - 
+          Cantidad: {{ stock.Cantidad_Recibida }} - 
+          Fecha: {{ stock.Fecha_Entrada | date:'shortDate' }}
+          <span *ngIf="stock.Fecha_Vencimiento">
+            - Vence: {{ stock.Fecha_Vencimiento | date:'shortDate' }}
+          </span>
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="formControls['ID_Stock'].hasError('required')">
+        Debe seleccionar un lote de stock
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Información del Stock Seleccionado -->
+    <div class="stock-info" *ngIf="selectedStock && selectedInsumo">
+      <mat-label>Información del Stock Seleccionado:</mat-label>
+      <div class="stock-details">
+        <div class="info-row">
+          <span><strong>Insumo:</strong> {{ selectedInsumo.Nombre }}</span>
+          <span class="estado-badge" [class]="getEstadoInsumoClass()">
+            {{ getEstadoInsumoText() }}
+          </span>
+        </div>
+        <div><strong>Stock Actual:</strong> {{ selectedStock.Cantidad_Recibida }} {{ selectedInsumo.Unidad_Med }}</div>
+        <div><strong>Lote ID:</strong> {{ selectedStock.ID_Stock }}</div>
+        <div *ngIf="selectedStock.Fecha_Vencimiento">
+          <strong>Vencimiento:</strong> {{ selectedStock.Fecha_Vencimiento | date:'longDate' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Advertencia para insumos agotados -->
+    <div class="warning-info" *ngIf="selectedInsumo && selectedInsumo.Estado === 'A'">
+      <mat-icon>warning</mat-icon>
+      <span>Este insumo está marcado como AGOTADO. Verifique la disponibilidad antes de realizar movimientos.</span>
+    </div>
 
     <!-- Tipo de Movimiento -->
     <mat-form-field appearance="outline" class="full-width">
@@ -47,43 +119,42 @@
         placeholder="Ingrese la cantidad"
         min="1">
       <mat-icon matSuffix>format_list_numbered</mat-icon>
+      <span matSuffix *ngIf="selectedInsumo">{{ selectedInsumo.Unidad_Med }}</span>
       <mat-error *ngIf="formControls['Cantidad'].hasError('required')">
         La cantidad es requerida
       </mat-error>
       <mat-error *ngIf="formControls['Cantidad'].hasError('min')">
         La cantidad debe ser mayor a 0
       </mat-error>
+      <mat-hint *ngIf="selectedStock && formControls['Tipo_Mov'].value === 'Salida'">
+        Stock disponible: {{ selectedStock.Cantidad_Recibida }}
+      </mat-hint>
     </mat-form-field>
 
     <!-- Motivo -->
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Motivo</mat-label>
+      <mat-label>Motivo (Opcional)</mat-label>
       <textarea 
         matInput 
         formControlName="Motivo" 
-        placeholder="Describa el motivo del movimiento"
+        placeholder="Describa el motivo del movimiento (opcional)"
         rows="3">
       </textarea>
-      <mat-error *ngIf="formControls['Motivo'].hasError('required')">
-        El motivo es requerido
-      </mat-error>
     </mat-form-field>
 
-    <!-- Usuario ID -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>ID Usuario (Opcional)</mat-label>
-      <input 
-        matInput 
-        formControlName="Usuario_ID" 
-        type="number"
-        placeholder="ID del usuario que realiza el movimiento">
-      <mat-icon matSuffix>person</mat-icon>
-    </mat-form-field>
+    <!-- Información del usuario (solo lectura) -->
+    <div class="user-info" *ngIf="usuarioLogueado">
+      <mat-label>Usuario que registra:</mat-label>
+      <div class="user-details">
+        <strong>{{ usuarioLogueado.nombre }}</strong>
+        <span>(ID: {{ usuarioLogueado.ID_Usuario }})</span>
+      </div>
+    </div>
 
   </form>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="dialog-actions">
   <button 
     mat-button 
     (click)="onCancel()" 

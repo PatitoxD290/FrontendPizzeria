@@ -1,13 +1,7 @@
-.movimiento-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 400px;
-  padding: 16px 0;
-}
-
-.full-width {
-  width: 100%;
+/* Contenedor principal del diálogo */
+:host {
+  display: block;
+  max-height: 90vh;
 }
 
 mat-dialog-title {
@@ -15,6 +9,42 @@ mat-dialog-title {
   align-items: center;
   gap: 8px;
   color: #3f51b5;
+  padding: 16px 24px 8px;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dialog-content {
+  padding: 0 24px;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin: 0;
+}
+
+.movimiento-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 500px;
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
 }
 
 .button-loading {
@@ -23,14 +53,186 @@ mat-dialog-title {
   gap: 8px;
 }
 
+/* Estilos para las opciones del autocomplete */
+.insumo-option {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  min-height: 60px;
+}
+
+.insumo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.insumo-desc {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.insumo-unidad {
+  font-size: 0.8em;
+  color: #999;
+  margin-top: 2px;
+  align-self: flex-end;
+}
+
+/* Badges de estado */
+.estado-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.estado-disponible {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.estado-agotado {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #f44336;
+}
+
+/* Información del stock */
+.stock-info {
+  padding: 12px;
+  background-color: #e8f5e8;
+  border-radius: 4px;
+  border-left: 4px solid #4caf50;
+  margin: 8px 0;
+}
+
+.stock-details {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Advertencia para insumos agotados */
+.warning-info {
+  padding: 12px;
+  background-color: #fff3e0;
+  border-radius: 4px;
+  border-left: 4px solid #ff9800;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #e65100;
+  margin: 8px 0;
+}
+
+.warning-info mat-icon {
+  color: #ff9800;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-info span {
+  line-height: 1.4;
+}
+
+/* Información del usuario */
+.user-info {
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  border-left: 4px solid #3f51b5;
+  margin: 8px 0;
+}
+
+.user-details {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-details strong {
+  color: #3f51b5;
+}
+
+.user-details span {
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Mejoras para el scroll */
+.dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .movimiento-form {
     min-width: auto;
+    padding: 8px 0;
   }
   
-  mat-dialog-content {
-    max-height: 70vh;
+  .dialog-content {
+    padding: 0 16px;
+    max-height: calc(90vh - 120px);
+  }
+
+  .dialog-actions {
+    padding: 12px 16px;
+  }
+
+  mat-dialog-title {
+    padding: 12px 16px 8px;
+  }
+
+  .stock-details div {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .insumo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .estado-badge {
+    align-self: flex-start;
   }
 }
 
@@ -38,4 +240,46 @@ mat-dialog-title {
 ::ng-deep .success-snackbar {
   background-color: #4caf50;
   color: white;
+}
+
+/* Loading state */
+.loading-text {
+  color: #666;
+  font-style: italic;
+}
+
+/* Mejoras para campos de formulario */
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Estilos para la información del insumo seleccionado */
+.selected-insumo-info {
+  padding: 16px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+  margin: 8px 0;
+}
+
+.insumo-details {
+  margin-top: 8px;
+}
+
+.insumo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.insumo-meta span {
+  display: block;
 }
