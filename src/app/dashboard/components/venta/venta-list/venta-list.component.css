@@ -57,6 +57,22 @@ table {
   padding: 20px;
 }
 
+/* 🔹 NUEVO: Estilos para la columna de acciones */
+.acciones-cell {
+  text-align: center;
+}
+
+/* 🔹 NUEVO: Estilo para el botón PDF individual */
+.pdf-button {
+  margin: 0 4px;
+}
+
+/* Ajustar el ancho de la columna acciones */
+.mat-column-acciones {
+  width: 80px;
+  text-align: center;
+}
+
 /* 🔹 NUEVO: Responsive para muchas columnas */
 @media (max-width: 1200px) {
   .venta-card {
