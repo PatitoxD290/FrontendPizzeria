@@ -8,6 +8,25 @@ export interface PedidoConDetalle extends Pedido {
   detalles?: PedidoDetalle[];
 }
 
+export interface PedidosHoyResponse {
+  pedidos: PedidoConDetalle[];
+  estadisticas: {
+    totalPedidos: number;
+    pedidosPendientes: number;
+    pedidosEntregados: number;
+    pedidosCancelados: number;
+    totalIngresos: number;
+    fecha: string;
+  };
+}
+
+export interface PedidosPorEstadoResponse {
+  pedidos: PedidoConDetalle[];
+  total: number;
+  estado: string;
+  descripcion_estado: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -66,5 +85,95 @@ export class PedidoService {
   // =============================
   statusPedido(id: number, estado: 'P' | 'E' | 'C'): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/status`, { Estado_P: estado });
+  }
+
+  // =============================
+  // 🟩 NUEVOS ENDPOINTS - PEDIDOS DE HOY
+  // =============================
+
+  /**
+   * Obtener todos los pedidos del día de hoy con todos los estados
+   */
+  getPedidosHoy(): Observable<PedidosHoyResponse> {
+    return this.http.get<PedidosHoyResponse>(`${this.apiUrl}/hoy`);
+  }
+
+  /**
+   * Obtener pedidos por estado específico
+   * @param estado 'P' = Pendiente, 'E' = Entregado, 'C' = Cancelado
+   */
+  getPedidosPorEstado(estado: 'P' | 'E' | 'C'): Observable<PedidosPorEstadoResponse> {
+    return this.http.get<PedidosPorEstadoResponse>(`${this.apiUrl}/estado/${estado}`);
+  }
+
+  // =============================
+  // 🟪 MÉTODOS UTILITARIOS
+  // =============================
+
+  /**
+   * Obtener estadísticas rápidas de pedidos del día
+   */
+  getEstadisticasHoy(): Observable<PedidosHoyResponse['estadisticas']> {
+    return new Observable(observer => {
+      this.getPedidosHoy().subscribe({
+        next: (response) => {
+          observer.next(response.estadisticas);
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
+  }
+
+  /**
+   * Obtener solo pedidos pendientes de hoy
+   */
+  getPedidosPendientesHoy(): Observable<PedidoConDetalle[]> {
+    return new Observable(observer => {
+      this.getPedidosHoy().subscribe({
+        next: (response) => {
+          const pendientes = response.pedidos.filter(pedido => pedido.Estado_P === 'P');
+          observer.next(pendientes);
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
+  }
+
+  /**
+   * Obtener solo pedidos entregados de hoy
+   */
+  getPedidosEntregadosHoy(): Observable<PedidoConDetalle[]> {
+    return new Observable(observer => {
+      this.getPedidosHoy().subscribe({
+        next: (response) => {
+          const entregados = response.pedidos.filter(pedido => pedido.Estado_P === 'E');
+          observer.next(entregados);
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
+  }
+
+  /**
+   * Obtener contadores de estados para hoy
+   */
+  getContadoresEstadosHoy(): Observable<{pendientes: number, entregados: number, cancelados: number}> {
+    return new Observable(observer => {
+      this.getPedidosHoy().subscribe({
+        next: (response) => {
+          const contadores = {
+            pendientes: response.estadisticas.pedidosPendientes,
+            entregados: response.estadisticas.pedidosEntregados,
+            cancelados: response.estadisticas.pedidosCancelados
+          };
+          observer.next(contadores);
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
   }
 }
