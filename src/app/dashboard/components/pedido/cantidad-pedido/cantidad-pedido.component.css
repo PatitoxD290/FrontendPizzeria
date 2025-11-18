@@ -73,18 +73,7 @@
   line-height: 1.4;
 }
 
-/* Precio unitario - ESPACIO REDUCIDO */
-.precio-info {
-  padding: 12px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.precio-unitario {
-  font-size: 15px;
-  font-weight: 600;
-  color: #2e7d32;
-}
+/* 🔹 ELIMINADO: Sección de estilos de precio-info y precio-unitario */
 
 /* 🔹 TAMAÑOS - ESPACIO REDUCIDO */
 .tamanos-container {
@@ -174,75 +163,100 @@
   font-weight: 700;
 }
 
-.tamano-seleccionado {
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-  margin-left: 8px;
-}
-
 /* 🔹 CONTROL DE CANTIDAD - MÁS COMPACTO */
 .cantidad-container {
-  padding: 12px 20px 10px; /* 🔹 REDUCIDO: de 16px 20px 12px */
+  padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
 }
 
+.cantidad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
 .cantidad-label {
-  display: block;
-  margin-bottom: 10px; /* 🔹 REDUCIDO: de 12px */
-  font-size: 15px; /* 🔹 REDUCIDO: de 16px */
+  font-size: 15px;
   font-weight: 500;
   color: #333;
-  text-align: center;
+  margin: 0;
+}
+
+.disponible-text {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
 }
 
 .cantidad-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px; /* 🔹 REDUCIDO: de 12px */
-  margin-bottom: 6px; /* 🔹 REDUCIDO: de 8px */
+  gap: 12px;
 }
 
 .cantidad-btn {
-  width: 32px; /* 🔹 REDUCIDO: de 36px */
-  height: 32px; /* 🔹 REDUCIDO: de 36px */
+  width: 40px;
+  height: 40px;
   border: 2px solid #2196f3;
   color: #2196f3;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .cantidad-btn:hover:not([disabled]) {
   background-color: #2196f3;
   color: white;
+  transform: scale(1.05);
 }
 
 .cantidad-btn[disabled] {
-  border-color: #ccc;
-  color: #ccc;
+  border-color: #e0e0e0;
+  color: #e0e0e0;
   cursor: not-allowed;
+  transform: none;
+}
+
+.cantidad-btn[disabled]:hover {
+  background-color: transparent;
+  color: #e0e0e0;
 }
 
 .cantidad-input {
-  width: 60px; /* 🔹 REDUCIDO: de 70px */
+  width: 80px;
 }
 
 ::ng-deep .cantidad-input .mat-mdc-form-field-outline {
-  border-radius: 6px !important; /* 🔹 REDUCIDO: de 8px */
+  border-radius: 8px !important;
 }
 
 ::ng-deep .cantidad-input .mat-mdc-form-field-flex {
-  height: 38px; /* 🔹 ALTURA REDUCIDA para el campo */
+  height: 44px;
+  align-items: center;
 }
 
 ::ng-deep .cantidad-input .mat-mdc-input-element {
   text-align: center;
-  font-size: 15px; /* 🔹 REDUCIDO: de 16px */
+  font-size: 16px;
   font-weight: 600;
-  padding: 8px 0; /* 🔹 PADDING VERTICAL REDUCIDO */
+  padding: 8px 0;
+  color: #333;
+}
+
+::ng-deep .cantidad-input .mat-mdc-form-field-outline-start,
+::ng-deep .cantidad-input .mat-mdc-form-field-outline-gap,
+::ng-deep .cantidad-input .mat-mdc-form-field-outline-end {
+  border-color: #e0e0e0;
+}
+
+::ng-deep .cantidad-input .mdc-notched-outline__notch {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
 }
 
 .text-center {
@@ -250,11 +264,9 @@
 }
 
 .disponible-text {
-  display: block;
-  text-align: center;
-  font-size: 11px; /* 🔹 REDUCIDO: de 12px */
+  font-size: 12px;
   color: #666;
-  margin-top: 4px; /* 🔹 ESPACIO REDUCIDO */
+  margin: 0;
 }
 
 /* Total - ESPACIO REDUCIDO */
@@ -345,7 +357,6 @@
   
   .modal-header,
   .producto-info,
-  .precio-info,
   .cantidad-container,
   .total-container,
   .action-buttons {
@@ -436,3 +447,4 @@
 .tamanos-buttons.multiple-tamanos .tamano-precio {
   font-size: 12px;
 }
+

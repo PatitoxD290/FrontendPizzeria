@@ -20,3 +20,47 @@ mat-card {
   margin-bottom: 15px;
 }
 
+.acciones-container {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+/* Estilos para los estados */
+.estado-activo {
+  color: #4caf50;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #e8f5e8;
+}
+
+.estado-inactivo {
+  color: #f44336;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #ffebee;
+}
+
+/* Estilos para los snackbars */
+::ng-deep .snackbar-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+::ng-deep .snackbar-error {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Ajustes para botones deshabilitados */
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Asegurar que los spinners en botones se vean bien */
+.mat-icon-button .mat-spinner {
+  margin: 0 auto;
+}

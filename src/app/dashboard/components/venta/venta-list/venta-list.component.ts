@@ -128,10 +128,12 @@ export class VentaListComponent implements OnInit {
     return `Pago con ${this.obtenerMetodoPagoTexto(venta.Metodo_Pago)}`;
   }
 
+  // 🔹 CORREGIDO: Mostrar solo fecha (sin hora)
   formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-PE', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit'
+    return new Date(fecha).toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
     });
   }
 
@@ -213,7 +215,7 @@ export class VentaListComponent implements OnInit {
       venta.Metodo_Pago === 'E' && venta.Vuelto ? `S/${venta.Vuelto.toFixed(2)}` : '-',
       `S/${venta.IGV.toFixed(2)}`,
       `S/${venta.Total.toFixed(2)}`,
-      this.formatearFechaPDF(venta.Fecha_Registro)
+      this.formatearFechaPDF(venta.Fecha_Registro) // 🔹 Usa la función corregida para PDF
     ]);
 
     autoTable(doc, {
@@ -245,7 +247,7 @@ export class VentaListComponent implements OnInit {
         5: { cellWidth: 20, halign: 'right' }, // Vuelto
         6: { cellWidth: 20, halign: 'right' }, // IGV
         7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Total
-        8: { cellWidth: 45, halign: 'center' } // Fecha
+        8: { cellWidth: 30, halign: 'center' } // 🔹 REDUCIDO: Fecha (solo fecha)
       },
       margin: { left: 10, right: 10 }
     });
@@ -296,13 +298,12 @@ export class VentaListComponent implements OnInit {
     doc.text('Página 1 de 1', 260, 190);
   }
 
+  // 🔹 CORREGIDO: Para PDF también mostrar solo fecha
   private formatearFechaPDF(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-PE', {
+    return new Date(fecha).toLocaleDateString('es-PE', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: '2-digit'
     });
   }
 }

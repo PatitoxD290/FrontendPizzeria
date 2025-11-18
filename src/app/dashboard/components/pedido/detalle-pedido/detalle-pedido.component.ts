@@ -43,8 +43,7 @@ export class DetallePedidoComponent implements OnInit {
   tamanos: Tamano[] = [];
   displayedColumns = ['producto', 'tamano', 'cantidad', 'precio', 'subtotal', 'acciones'];
   
-  tipoDocumento: 'DNI' | 'RUC' = 'DNI';
-  numeroDocumento: string = '';
+  // 🔹 ELIMINADO: Campos de documento movidos a venta-pedido
   codigoPedido: string = '';
 
   constructor(
@@ -70,10 +69,6 @@ export class DetallePedidoComponent implements OnInit {
     });
 
     this.generarCodigoPedido();
-  }
-
-  soloNumeros(event: any) {
-    this.numeroDocumento = event.target.value.replace(/[^0-9]/g, '');
   }
 
   getNombreTamano(detalle: PedidoDetalle): string {
@@ -138,180 +133,34 @@ export class DetallePedidoComponent implements OnInit {
     const usuarioLogueado = this.authService.getUser();
     const idUsuario = usuarioLogueado?.ID_Usuario ?? 1;
 
-    const doc = this.numeroDocumento.trim();
-
-    if (doc) {
-      this.validarClienteYContinuar(doc, idUsuario);
-    } else {
-      this.abrirModalPago(idUsuario, 1); // Cliente genérico
-    }
+    // 🔹 MODIFICADO: Abrir modal directamente sin validar cliente aquí
+    this.abrirModalPago(idUsuario);
   }
 
-  private validarClienteYContinuar(doc: string, idUsuario: number) {
-    if (!/^\d+$/.test(doc)) {
-      Swal.fire({ icon: 'error', title: 'Documento inválido', text: 'Solo números.' });
-      return;
-    }
-
-    if ((this.tipoDocumento === 'DNI' && doc.length !== 8) ||
-        (this.tipoDocumento === 'RUC' && doc.length !== 11)) {
-      Swal.fire({ icon: 'error', title: 'Longitud incorrecta', text: 'Longitud inválida.' });
-      return;
-    }
-
-    this.clienteService.buscarClientePorDocumento(doc).subscribe({
-      next: (res) => {
-        const idCliente = res.cliente?.ID_Cliente ?? 1;
-        this.abrirModalPago(idUsuario, idCliente);
-      },
-      error: () => {
-        Swal.fire({ icon: 'error', title: 'No encontrado', text: 'Cliente no existe.' });
-      }
-    });
-  }
-
-  private abrirModalPago(idUsuario: number, idCliente: number) {
+  private abrirModalPago(idUsuario: number) {
     const dialogRef = this.dialog.open(VentaPedidoComponent, {
-      width: '500px', // 🔹 Aumentado un poco para mejor visualización
-      data: { total: this.getTotal() }
+      width: '500px',
+      data: { 
+        total: this.getTotal(),
+        codigoPedido: this.codigoPedido,
+        idUsuario: idUsuario,
+        detalles: this.detalles
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (!result) return;
-
-      // Convertir método a la sigla correcta
-      const metodoPagoMap: any = {
-        'EFECTIVO': 'E',
-        'TARJETA': 'T',
-        'BILLETERA': 'B'
-      };
-
-      const metodoPagoConvertido = metodoPagoMap[result.metodoPago];
-
-      // 🔹 Obtener el texto del método de pago para las notas
-      const metodoPagoTexto = this.obtenerTextoMetodoPago(result.metodoPago);
-
-      // 🔹 MODIFICADO: Pasar montoRecibido desde el modal
-      this.enviarPedido(
-        idUsuario, 
-        idCliente, 
-        metodoPagoConvertido, 
-        result.recibe, 
-        result.vuelto,
-        metodoPagoTexto,
-        result.montoRecibido // 🔹 NUEVO: Pasar monto recibido
-      );
-    });
-  }
-
-  // 🔹 Método para obtener el texto del método de pago
-  private obtenerTextoMetodoPago(metodoPago: string): string {
-    const metodosTexto: any = {
-      'EFECTIVO': 'EFECTIVO',
-      'TARJETA': 'TARJETA', 
-      'BILLETERA': 'BILLETERA'
-    };
-    return metodosTexto[metodoPago] || 'EFECTIVO';
-  }
-
-  // 🔹 MODIFICADO: Ahora recibe montoRecibido para la venta
-  private enviarPedido(
-    idUsuario: number, 
-    idCliente: number, 
-    metodoPago: 'E' | 'T' | 'B', 
-    recibe: number, 
-    vuelto: number,
-    metodoPagoTexto: string,
-    montoRecibido: number // 🔹 NUEVO: Monto recibido para la venta
-  ) {
-    
-    // Crear detalles del pedido
-    const detallesPedido: PedidoDetalle[] = this.detalles.map((d) => ({
-      ID_Pedido_D: 0,
-      ID_Pedido: 0,
-      ID_Producto_T: d.ID_Producto_T,
-      Cantidad: d.Cantidad,
-      PrecioTotal: d.PrecioTotal,
-      nombre_producto: d.nombre_producto,
-      nombre_categoria: d.nombre_categoria,
-      nombre_tamano: d.nombre_tamano
-    }));
-
-    // 🔹 MODIFICADO: Crear el texto para el campo Notas incluyendo montos si es efectivo
-    let textoNotas = `Pedido ${this.codigoPedido} - ${metodoPagoTexto} - Caja`;
-    if (metodoPago === 'E' && recibe > 0) {
-      textoNotas += ` - Recibe: S/${recibe} - Vuelto: S/${vuelto}`;
-    }
-
-    // Crear PedidoConDetalle con todos los campos requeridos
-    const pedidoData: PedidoConDetalle = {
-      ID_Pedido: 0, // El backend lo generará
-      ID_Cliente: idCliente,
-      ID_Usuario: idUsuario,
-      Notas: textoNotas, // 🔹 Usar el nuevo formato con montos
-      SubTotal: this.getTotal(),
-      Estado_P: 'P', // P = Pendiente
-      Fecha_Registro: new Date().toISOString().split('T')[0],
-      Hora_Pedido: new Date().toTimeString().split(' ')[0],
-      detalles: detallesPedido
-    };
-
-    // Enviar pedido usando PedidoConDetalle
-    this.pedidoService.createPedido(pedidoData).subscribe({
-      next: (res) => {
-        const idPedidoCreado = res.ID_Pedido;
-
-        // 🔹 MODIFICADO: Registrar Venta con Monto_Recibido
-        this.ventaService.createVenta({
-          ID_Pedido: idPedidoCreado,
-          Tipo_Venta: (() => {
-            if (!this.numeroDocumento.trim()) return 'N'; // Sin documento → Nota
-            if (this.tipoDocumento === 'DNI') return 'B'; // DNI → Boleta
-            if (this.tipoDocumento === 'RUC') return 'F'; // RUC → Factura
-            return 'N';
-          })(),
-          Metodo_Pago: metodoPago,
-          Lugar_Emision: 'A',
-          IGV_Porcentaje: 18,
-          Monto_Recibido: montoRecibido // 🔹 NUEVO: Incluir monto recibido
-        }).subscribe({
-          next: (ventaResponse) => {
-            let mensaje = `Pedido ${this.codigoPedido} registrado correctamente. Método: ${metodoPagoTexto}`;
-            
-            // 🔹 NUEVO: Mostrar información de montos si es efectivo
-            if (metodoPago === 'E') {
-              mensaje += `\nRecibido: S/${recibe} - Vuelto: S/${vuelto}`;
-            }
-
-            Swal.fire({ 
-              icon: 'success', 
-              title: 'Venta Registrada', 
-              text: mensaje,
-              confirmButtonText: 'Aceptar'
-            });
-
-            this.ordenService.limpiar();
-            this.numeroDocumento = '';
-            this.generarCodigoPedido();
-          },
-          error: (err) => {
-            console.error('Error al crear venta:', err);
-            Swal.fire({ 
-              icon: 'error', 
-              title: 'Error en venta', 
-              text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
-            });
-          }
-        });
-      },
-      error: (err) => {
-        console.error('Error al crear pedido:', err);
+      if (result && result.registrado) {
+        // 🔹 Limpiar carrito si se registró exitosamente
+        this.ordenService.limpiar();
+        this.generarCodigoPedido();
+        
         Swal.fire({ 
-          icon: 'error', 
-          title: 'Error', 
-          text: 'Ocurrió un problema al crear el pedido.' 
+          icon: 'success', 
+          title: 'Venta Registrada', 
+          text: `Pedido ${this.codigoPedido} procesado correctamente.`,
+          confirmButtonText: 'Aceptar'
         });
-      },
+      }
     });
   }
 }

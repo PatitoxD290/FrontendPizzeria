@@ -1,4 +1,3 @@
-// src/app/dashboard/services/ingrediente.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,7 +7,7 @@ import { Insumo } from '../models/ingrediente.model';
   providedIn: 'root'
 })
 export class IngredienteService {
-  private apiUrl = 'http://localhost:3000/api/v2/Insumos'; // Ajusta el puerto si tu backend usa otro
+  private apiUrl = 'http://localhost:3000/api/v2/Insumos';
 
   constructor(private http: HttpClient) {}
 
@@ -22,14 +21,18 @@ export class IngredienteService {
     return this.http.get<Insumo>(`${this.apiUrl}/${id}`);
   }
 
-  // ✅ Crear nuevo ingrediente
+  // ✅ Crear nuevo ingrediente (sin enviar Estado)
   createIngrediente(ingrediente: Insumo): Observable<any> {
-    return this.http.post(this.apiUrl, ingrediente);
+    // Remover el campo Estado antes de enviar
+    const { Estado, ...ingredienteSinEstado } = ingrediente;
+    return this.http.post(this.apiUrl, ingredienteSinEstado);
   }
 
-  // ✅ Actualizar ingrediente existente
+  // ✅ Actualizar ingrediente existente (sin enviar Estado)
   updateIngrediente(id: number, ingrediente: Insumo): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, ingrediente);
+    // Remover el campo Estado antes de enviar
+    const { Estado, ...ingredienteSinEstado } = ingrediente;
+    return this.http.put(`${this.apiUrl}/${id}`, ingredienteSinEstado);
   }
 
   // ✅ Eliminar ingrediente

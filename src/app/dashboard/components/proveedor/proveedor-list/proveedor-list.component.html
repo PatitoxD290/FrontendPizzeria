@@ -1,11 +1,11 @@
 <mat-card>
- <div class="header">
-  <h2>Lista de Proveedores</h2>
+  <div class="header">
+    <h2>Lista de Proveedores</h2>
 
-  <button mat-flat-button color="primary" (click)="openProveedorForm()">
-    <mat-icon>add</mat-icon> Nuevo Proveedor
-  </button>
-</div>
+    <button mat-flat-button color="primary" (click)="openProveedorForm()">
+      <mat-icon>add</mat-icon> Nuevo Proveedor
+    </button>
+  </div>
 
   <div *ngIf="loading" class="spinner-container">
     <mat-spinner></mat-spinner>
@@ -51,21 +51,51 @@
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let p">
-        {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}
+        <span [class.estado-activo]="p.Estado === 'A'" 
+              [class.estado-inactivo]="p.Estado === 'I'">
+          {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}
+        </span>
       </td>
     </ng-container>
 
-
     <ng-container matColumnDef="fecha_registro">
       <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
-      <td mat-cell *matCellDef="let p">{{ p.Fecha_Registro | date:'short' }}</td>
+      <td mat-cell *matCellDef="let p">
+        {{ p.Fecha_Registro | date:'dd/MM/yyyy' }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let p">
-        <button mat-icon-button color="primary" (click)="openProveedorForm(p)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button color="warn" (click)="deleteProveedor(p.ID_Proveedor!)"><mat-icon>delete</mat-icon></button>
+        <div class="acciones-container">
+          <!-- Botón Editar -->
+          <button mat-icon-button color="primary" 
+                  (click)="openProveedorForm(p)"
+                  title="Editar proveedor">
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <!-- Botón Cambiar Estado -->
+          <button mat-icon-button 
+                  [color]="getEstadoButtonColor(p.Estado)"
+                  (click)="cambiarEstadoProveedor(p)"
+                  [disabled]="changingState === p.ID_Proveedor"
+                  [title]="getEstadoButtonText(p.Estado) + ' proveedor'">
+            <mat-icon *ngIf="changingState !== p.ID_Proveedor">
+              {{ getEstadoButtonIcon(p.Estado) }}
+            </mat-icon>
+            <mat-spinner *ngIf="changingState === p.ID_Proveedor" 
+                        diameter="20"></mat-spinner>
+          </button>
+
+          <!-- Botón Eliminar -->
+          <button mat-icon-button color="warn" 
+                  (click)="deleteProveedor(p.ID_Proveedor)"
+                  title="Eliminar proveedor">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </td>
     </ng-container>
 

@@ -36,4 +36,9 @@ export class ProveedorService {
   deleteProveedor(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // ✅ NUEVO: Cambiar estado del proveedor (A=Activo, I=Inactivo)
+  statusProveedor(id: number, estado: 'A' | 'I'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/estado`, { Estado: estado });
+  }
 }

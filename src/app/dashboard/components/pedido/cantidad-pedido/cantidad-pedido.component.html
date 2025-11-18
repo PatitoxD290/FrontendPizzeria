@@ -39,16 +39,6 @@
     </div>
   </div>
 
-  <!-- Precio unitario -->
-  <div class="precio-info" *ngIf="tamanoSeleccionado">
-    <span class="precio-unitario">
-      Precio unitario: <strong>S/ {{ precioUnitario | number:'1.2-2' }}</strong>
-      <span *ngIf="tamanoSeleccionado.nombre_tamano" class="tamano-seleccionado">
-        ({{ tamanoSeleccionado.nombre_tamano }})
-      </span>
-    </span>
-  </div>
-
   <!-- Control de cantidad -->
   <div class="cantidad-container" *ngIf="tamanoSeleccionado">
     <label class="cantidad-label">Cantidad:</label>
@@ -107,7 +97,7 @@
             class="add-btn"
             (click)="agregarAlPedido()"
             [disabled]="!tamanoSeleccionado">
-      <mat-icon>add_shopping_cart</mat-icon>
+      <mat-icon>shopping_bag</mat-icon>
       Agregar (S/ {{ precioTotal | number:'1.2-2' }})
     </button>
   </div>

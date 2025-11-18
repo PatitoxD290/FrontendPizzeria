@@ -3,6 +3,7 @@ mat-dialog-content {
   flex-direction: column;
   gap: 14px;
   padding-top: 5px;
+  min-height: 200px;
 }
 
 .metodos-wrapper {
@@ -35,4 +36,88 @@ mat-form-field {
   border-radius: 4px;
   font-size: 14px;
   color: #333;
+}
+
+/* 🔹 ESTILOS PARA COMPROBANTES */
+.comprobantes-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.comprobante-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  height: auto;
+  min-height: 100px;
+}
+
+.comprobante-btn mat-icon {
+  font-size: 32px;
+  height: 32px;
+  width: 32px;
+  margin-bottom: 8px;
+}
+
+.comprobante-btn span {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.comprobante-btn small {
+  font-size: 12px;
+  color: #666;
+}
+
+.nota-btn {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+}
+
+/* 🔹 ESTILOS PARA DOCUMENTO */
+.documento-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.tipo-doc-field, .numero-doc-field {
+  width: 100%;
+}
+
+.info-comprobante {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #e8f5e8;
+  border-radius: 6px;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+}
+
+.info-comprobante mat-icon {
+  color: #2e7d32;
+}
+
+/* 🔹 ESTILOS PARA CARGA */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.loading-container span {
+  color: #6c757d;
+  font-size: 14px;
 }

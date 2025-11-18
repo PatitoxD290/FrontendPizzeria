@@ -75,7 +75,7 @@ export class IngredienteFormComponent implements OnInit {
           ID_Categoria_I: 0,
           Stock_Min: 0,
           Stock_Max: 1000,
-          Estado: 'D',
+          Estado: 'D', // El backend manejará automáticamente este estado
           Fecha_Registro: '',
           ID_Proveedor: null,
           Costo_Unitario: 0,
@@ -167,9 +167,15 @@ export class IngredienteFormComponent implements OnInit {
 
     console.log('Datos a guardar:', this.ingrediente); // Para debug
 
+    // Preparar datos para enviar (remover el campo Estado ya que lo maneja el backend)
+    const datosParaEnviar = {
+      ...this.ingrediente,
+      Estado: undefined // No enviar el estado, el backend lo maneja automáticamente
+    };
+
     // Si es nuevo insumo (creación)
     if (this.ingrediente.ID_Insumo === 0) {
-      this.ingredienteService.createIngrediente(this.ingrediente).subscribe({
+      this.ingredienteService.createIngrediente(datosParaEnviar).subscribe({
         next: (response) => {
           Swal.fire('¡Éxito!', 'Ingrediente creado correctamente', 'success');
           this.dialogRef.close(true);
@@ -180,8 +186,8 @@ export class IngredienteFormComponent implements OnInit {
         },
       });
     } else {
-      // Actualizar existente - ENVIAR TODOS LOS CAMPOS
-      this.ingredienteService.updateIngrediente(this.ingrediente.ID_Insumo, this.ingrediente).subscribe({
+      // Actualizar existente - ENVIAR TODOS LOS CAMPOS excepto Estado
+      this.ingredienteService.updateIngrediente(this.ingrediente.ID_Insumo, datosParaEnviar).subscribe({
         next: () => {
           Swal.fire('¡Éxito!', 'Ingrediente actualizado correctamente', 'success');
           this.dialogRef.close(true);

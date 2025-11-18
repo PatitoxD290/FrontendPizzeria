@@ -83,15 +83,8 @@ menuSections: { label?: string; items: MenuItem[] }[] = [
     label: 'Inventario',
     items: [
       { label: 'Stock', route: '/dashboard/stock', icon: 'inventory_2' }, // inventario
-      {
-        label: ' Insumos',
-        icon: 'kitchen', // cocina
-        children: [
-          { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'emoji_food_beverage' }, // ingredientes
-          { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' } // transporte/proveedor
-        ],
-        isExpanded: false
-      }
+      { label: 'Ingredientes', route: '/dashboard/ingrediente', icon: 'emoji_food_beverage' }, // ingredientes
+      { label: 'Proveedores', route: '/dashboard/proveedor', icon: 'local_shipping' }  // transporte/proveedor
     ]
   },
   {

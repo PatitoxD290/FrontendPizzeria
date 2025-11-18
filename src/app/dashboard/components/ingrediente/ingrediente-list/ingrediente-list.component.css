@@ -4,8 +4,15 @@ table {
 
 .spinner-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin: 20px 0;
+  margin: 40px 0;
+  color: #666;
+}
+
+.spinner-container p {
+  margin-top: 8px;
 }
 
 mat-card {
@@ -17,9 +24,19 @@ mat-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
-/* ESTILOS PARA LOS ESTADOS CORREGIDOS */
+/* 🔥 NUEVO: Barra de búsqueda */
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ESTILOS PARA LOS ESTADOS */
 .estado-badge {
   padding: 4px 12px;
   border-radius: 16px;
@@ -40,6 +57,60 @@ mat-card {
   border: 1px solid #c62828;
 }
 
+/* 🔥 NUEVO: Mensaje cuando no hay datos en la tabla */
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  color: #666;
+  text-align: center;
+}
+
+.no-data-message mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.no-data-message p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* 🔥 NUEVO: Mensaje cuando no hay ingredientes */
+.no-ingredients {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.no-ingredients mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.no-ingredients h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.no-ingredients p {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header {
@@ -52,19 +123,24 @@ mat-card {
     margin: 10px;
     padding: 16px;
   }
+  
+  /* Ocultar algunas columnas en móviles */
+  .mat-column-Descripcion,
+  .mat-column-Stock_Max,
+  .mat-column-Fecha_Registro {
+    display: none;
+  }
 }
 
-/* Estilos para el dialogo del calendario */
+/* Para dialogs grandes */
 .custom-dialog-container .mat-dialog-container {
   overflow: visible !important;
 }
 
-/* Asegurar que el datepicker tenga espacio para mostrarse */
 .mat-datepicker-content {
   z-index: 1000 !important;
 }
 
-/* Para dialogs grandes */
 .large-dialog .mat-dialog-container {
   position: relative;
   overflow: visible;

@@ -1,39 +1,4 @@
-<!-- 🔹 Campo opcional de cliente -->
-<div class="cliente-input-container">
-  <mat-form-field appearance="outline" class="tipo-doc-field">
-    <mat-label>Tipo de documento</mat-label>
-    <mat-select [(ngModel)]="tipoDocumento">
-      <mat-option value="DNI">DNI</mat-option>
-      <mat-option value="RUC">RUC</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="outline" class="cliente-field">
-    <mat-label>{{ tipoDocumento }} del cliente</mat-label>
-    <input
-      matInput
-      [(ngModel)]="numeroDocumento"
-      [maxlength]="tipoDocumento === 'DNI' ? 8 : 11"
-      autocomplete="off"
-      inputmode="numeric"
-      pattern="[0-9]*"
-      (keypress)="($event.key >= '0' && $event.key <= '9') ? true : $event.preventDefault()"
-      (input)="soloNumeros($event)"
-    />
-
-    <span matSuffix class="icon-suffix-container">
-      <button
-        *ngIf="numeroDocumento"
-        mat-icon-button
-        aria-label="Borrar"
-        (click)="numeroDocumento = ''"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-icon class="cliente-icon">badge</mat-icon>
-    </span>
-  </mat-form-field>
-</div>
+<!-- 🔹 ELIMINADO: Se quita toda la sección de cliente-input-container -->
 
 <!-- 🔹 Tabla de detalle -->
 <table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
