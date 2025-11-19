@@ -24,36 +24,45 @@
   <div class="contenido-pagina">
     <!-- LISTA DE PRODUCTOS -->
     <div class="lista-productos-pagina" *ngIf="carritoService.obtenerProductos().length > 0; else vacio">
-      <div *ngFor="let item of carritoService.obtenerProductos(); let i = index" class="item-carrito-pagina">
-        <img [src]="item.imagen" alt="{{ item.nombre }}" class="imagen-item" />
-        <div class="info-pagina">
-          <p class="nombre-pagina">{{ item.nombre }}</p>
-          <p class="descripcion-pagina">{{ item.descripcion }}</p>
-          <p class="tamano-pagina" *ngIf="item.nombre_tamano">
-            <b>Tamaño:</b> {{ item.nombre_tamano | uppercase }}
-          </p>
-          <p class="precio-pagina">
-            S/. {{ item.precio | number:'1.2-2' }} c/u
-          </p>
-          <div class="controles-pagina">
-            <div class="cantidad-control-pagina">
-              <button mat-mini-fab color="warn" (click)="decrementarCantidad(i)">
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="cantidad-text-pagina">{{ item.cantidad }}</span>
-              <button mat-mini-fab color="primary" (click)="incrementarCantidad(i)">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-            <button mat-icon-button color="warn" class="btn-eliminar-pagina" (click)="eliminarProducto(i)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-          <p class="subtotal-pagina">
-            <strong>Subtotal: S/. {{ item.subtotal | number:'1.2-2' }}</strong>
-          </p>
-        </div>
+<!-- En carrito-flotante.component.html - actualiza la sección de lista de productos -->
+<div *ngFor="let item of carritoService.obtenerProductos(); let i = index" class="item-carrito-pagina">
+  <img [src]="item.imagen" alt="{{ item.nombre }}" class="imagen-item" />
+  <div class="info-pagina">
+    <p class="nombre-pagina">{{ item.nombre }}</p>
+    <p class="descripcion-pagina">{{ item.descripcion }}</p>
+    
+    <!-- 🔹 MOSTRAR TIPO DE PRODUCTO -->
+    <p class="tipo-pagina" *ngIf="item.esCombo">
+      <span class="badge-combo-pagina">COMBO</span>
+    </p>
+    
+    <p class="tamano-pagina" *ngIf="item.nombre_tamano && !item.esCombo">
+      <b>Tamaño:</b> {{ item.nombre_tamano | uppercase }}
+    </p>
+    
+    <p class="precio-pagina">
+      S/. {{ item.precio | number:'1.2-2' }} c/u
+    </p>
+    
+    <div class="controles-pagina">
+      <div class="cantidad-control-pagina">
+        <button mat-mini-fab color="warn" (click)="decrementarCantidad(i)">
+          <mat-icon>remove</mat-icon>
+        </button>
+        <span class="cantidad-text-pagina">{{ item.cantidad }}</span>
+        <button mat-mini-fab color="primary" (click)="incrementarCantidad(i)">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
+      <button mat-icon-button color="warn" class="btn-eliminar-pagina" (click)="eliminarProducto(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <p class="subtotal-pagina">
+      <strong>Subtotal: S/. {{ item.subtotal | number:'1.2-2' }}</strong>
+    </p>
+  </div>
+</div>
     </div>
 
     <!-- CARRITO VACÍO -->

@@ -955,90 +955,136 @@ convertirCentenas(numero: number): string {
   // 🔄 MÉTODOS DE GUARDADO ACTUALIZADOS
   // ================================================================
 
-  guardarEnBaseDeDatosReal() {
-    const productos = this.carritoService.obtenerProductos();
-    const idCliente = this.idClienteParaGuardar;
-    const idUsuario = null;
+guardarEnBaseDeDatosReal() {
+  const productos = this.carritoService.obtenerProductos();
+  const idCliente = this.idClienteParaGuardar;
+  const idUsuario = null;
 
-    console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
+  console.log('📦 Productos del carrito:', JSON.stringify(productos, null, 2));
 
-    const detalles: PedidoDetalleCreacionDTO[] = productos.map(producto => {
-      const idProductoT = producto.ID_Producto_T || producto.id_producto_t || 0;
-      const cantidad = producto.cantidad || 1;
-      
-      return {
-        ID_Producto_T: idProductoT,
-        Cantidad: cantidad
+  // 🔹 CORRECCIÓN: Agrupar complementos por combo y crear un solo registro por combo
+  const detalles: any[] = [];
+  const combosProcesados = new Set<number>();
+
+  for (const producto of productos) {
+    // 🔹 SI ES UN COMBO PRINCIPAL
+    if (producto.esCombo && producto.ID_Combo && !combosProcesados.has(producto.ID_Combo)) {
+      // Buscar todos los complementos asociados a este combo
+      const complementosDelCombo = productos.filter(p => 
+        p.esComplementoCombo && p.ID_Combo_Asociado === producto.ID_Combo
+      );
+
+      // 🔹 CREAR UN SOLO REGISTRO PARA EL COMBO + TODOS SUS COMPLEMENTOS
+      const detalleCombo = {
+        ID_Combo: producto.ID_Combo,
+        Cantidad: producto.cantidad || 1,
+        Precio: producto.precio || producto.Precio || 0,
+        // 🔹 NUEVO: Incluir información de complementos en el mismo registro
+        Complementos: complementosDelCombo.map(comp => ({
+          ID_Producto_T: comp.ID_Producto_T,
+          Precio: comp.precio || 0
+        }))
       };
-    });
 
-    const detallesInvalidos = detalles.filter(d => !d.ID_Producto_T || d.ID_Producto_T === 0);
-    if (detallesInvalidos.length > 0) {
-      console.error('❌ ERROR: Hay productos sin ID_Producto_T válido:', detallesInvalidos);
-      alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
-      return;
+      detalles.push(detalleCombo);
+      combosProcesados.add(producto.ID_Combo); // Marcar como procesado
+      
+      console.log(`🔍 Combo ${producto.ID_Combo} procesado con ${complementosDelCombo.length} complementos`);
+
+    } 
+    // 🔹 SI ES UN PRODUCTO INDIVIDUAL (NO ES COMPLEMENTO DE COMBO)
+    else if (producto.ID_Producto_T && !producto.esComplementoCombo && !producto.esCombo) {
+      const detalleProducto = {
+        ID_Producto_T: producto.ID_Producto_T,
+        Cantidad: producto.cantidad || 1,
+        Precio: producto.precio || producto.Precio || 0
+      };
+      detalles.push(detalleProducto);
+      
+      console.log(`🔍 Producto individual ${producto.ID_Producto_T} agregado`);
     }
-
-    let notasDePedido: string;
-    if (this.tipoDocumento === null) {
-      notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    } else {
-      notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
-    }
-
-    const pedidoData: PedidoCreacionDTO = {
-      ID_Cliente: idCliente,
-      ID_Usuario: idUsuario,
-      Notas: notasDePedido,
-      Estado_P: 'P',
-      Fecha_Registro: new Date().toISOString().split('T')[0],
-      Hora_Pedido: new Date().toTimeString().split(' ')[0],
-      detalles: detalles
-    };
-
-    console.log('🚀 ENVIANDO PEDIDO CON ID_Producto_T:', JSON.stringify(pedidoData, null, 2));
-
-    this.pedidoService.createPedido(pedidoData as any).subscribe({
-      next: (response: any) => {
-        console.log('✅ PEDIDO guardado exitosamente:', response);
-        
-        let pedidoId = null;
-        if (response.ID_Pedido) {
-          pedidoId = response.ID_Pedido;
-        } else if (response.id_pedido) {
-          pedidoId = response.id_pedido;
-        } else if (response.pedidoId) {
-          pedidoId = response.pedidoId;
-        } else if (response.data?.ID_Pedido) {
-          pedidoId = response.data.ID_Pedido;
-        } else if (response.insertId) { 
-          pedidoId = response.insertId;
-        }
-        
-        if (pedidoId) {
-          console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
-          
-          // Generar el PDF correspondiente según el tipo de documento
-          if (this.tipoDocumento === 'boleta') {
-            this.generarBoletaPDF(pedidoId);
-          } else if (this.tipoDocumento === 'factura') {
-            this.generarFacturaPDF(pedidoId);
-          } else {
-            this.generarBoletaSimplePDF();
-          }
-          
-          this.guardarVentaEnBaseDeDatos(pedidoId);
-        } else {
-          console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
-          this.finalizarCompra();
-        }
-      },
-      error: (error) => {
-        console.error('❌ ERROR guardando pedido:', error);
-        alert('Error al guardar el pedido. Por favor, intente nuevamente.');
-      }
-    });
+    // 🔹 LOS COMPLEMENTOS DE COMBOS SE IGNORAN AQUÍ PORQUE YA SE PROCESARON CON SU COMBO
   }
+
+  console.log('📋 Detalles finales a enviar:', JSON.stringify(detalles, null, 2));
+
+  // Validar que hay detalles
+  if (detalles.length === 0) {
+    console.error('❌ ERROR: No hay detalles válidos para enviar');
+    alert('Error: No se pudo procesar el pedido. Por favor, intente nuevamente.');
+    return;
+  }
+
+  const detallesInvalidos = detalles.filter(d => 
+    (!d.ID_Producto_T && !d.ID_Combo)
+  );
+  
+  if (detallesInvalidos.length > 0) {
+    console.error('❌ ERROR: Hay productos sin ID válido:', detallesInvalidos);
+    alert('Error: No se pudo identificar algunos productos. Por favor, intente nuevamente.');
+    return;
+  }
+
+  let notasDePedido: string;
+  if (this.tipoDocumento === null) {
+    notasDePedido = `Pedido ${this.codigoPedido} - ${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  } else {
+    notasDePedido = `${this.getMetodoPagoText()} - Kiosko Autoservicio`;
+  }
+
+  const pedidoData = {
+    ID_Cliente: idCliente,
+    ID_Usuario: idUsuario,
+    Notas: notasDePedido,
+    Estado_P: 'P',
+    Fecha_Registro: new Date().toISOString().split('T')[0],
+    Hora_Pedido: new Date().toTimeString().split(' ')[0],
+    detalles: detalles
+  };
+
+  console.log('🚀 ENVIANDO PEDIDO CON DETALLES CORREGIDOS:', JSON.stringify(pedidoData, null, 2));
+
+  this.pedidoService.createPedido(pedidoData as any).subscribe({
+    next: (response: any) => {
+      console.log('✅ PEDIDO guardado exitosamente:', response);
+      
+      let pedidoId = null;
+      if (response.ID_Pedido) {
+        pedidoId = response.ID_Pedido;
+      } else if (response.id_pedido) {
+        pedidoId = response.id_pedido;
+      } else if (response.pedidoId) {
+        pedidoId = response.pedidoId;
+      } else if (response.data?.ID_Pedido) {
+        pedidoId = response.data.ID_Pedido;
+      } else if (response.insertId) { 
+        pedidoId = response.insertId;
+      }
+      
+      if (pedidoId) {
+        console.log(`🎉 ID_Pedido obtenido: ${pedidoId}`);
+        
+        // Generar el PDF correspondiente según el tipo de documento
+        if (this.tipoDocumento === 'boleta') {
+          this.generarBoletaPDF(pedidoId);
+        } else if (this.tipoDocumento === 'factura') {
+          this.generarFacturaPDF(pedidoId);
+        } else {
+          this.generarBoletaSimplePDF();
+        }
+        
+        this.guardarVentaEnBaseDeDatos(pedidoId);
+      } else {
+        console.warn('⚠️ No se pudo obtener ID_Pedido. No se guardará la Venta.', response);
+        this.finalizarCompra();
+      }
+    },
+    error: (error) => {
+      console.error('❌ ERROR guardando pedido:', error);
+      alert('Error al guardar el pedido. Por favor, intente nuevamente.');
+    }
+  });
+}
 
   guardarVentaEnBaseDeDatos(ID_Pedido: number) { 
     const ventaData: VentaCreacionDTO = {

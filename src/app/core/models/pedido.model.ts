@@ -4,7 +4,7 @@
 export interface Pedido {
   ID_Pedido: number;
   ID_Cliente: number;
-  ID_Usuario: number | null; // Puede ser null según la BD
+  ID_Usuario: number | null; 
   Notas: string;
   SubTotal: number;
   Estado_P: 'P' | 'C' | 'E'; 
@@ -26,10 +26,8 @@ export interface PedidoConDetalle extends Pedido {
 export interface PedidoDetalle {
   ID_Pedido_D: number;
   ID_Pedido: number;
-
-  // ✅ Campo correcto según modelo del backend
   ID_Producto_T: number;
-
+  ID_Combo?: number;       
   Cantidad: number;
   PrecioTotal: number;
 
@@ -37,5 +35,7 @@ export interface PedidoDetalle {
   nombre_producto?: string;
   nombre_categoria?: string;
   nombre_tamano?: string;
+    nombre_combo?: string; 
+
 }
 

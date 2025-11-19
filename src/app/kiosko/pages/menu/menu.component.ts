@@ -160,56 +160,58 @@ export class MenuComponent implements OnInit, OnDestroy {
           productosConTamanos.push(productoConTamanos);
         }
 
-        this.combosService.getCombos().subscribe({
-          next: async (combos: any[]) => {
-            const combosActivos = combos.filter(
-              (item) => item.Estado === 'A' || item.estado === 'A'
-            );
+              this.combosService.getCombos().subscribe({
+        next: async (combos: any[]) => {
+          const combosActivos = combos.filter(
+            (item) => item.Estado === 'A' || item.estado === 'A'
+          );
 
-            const combosPromesas = combosActivos.map(async (item: any) => {
-              const detallesTexto = Array.isArray(item.detalles)
-                ? item.detalles
-                    .map(
-                      (d: any) =>
-                        `${d.Producto_Nombre ?? ''} (${d.Tamano_Nombre ?? ''}) x${d.Cantidad ?? 1}`
-                    )
-                    .join(', ')
-                : '';
+          const combosPromesas = combosActivos.map(async (item: any) => {
+            const detallesTexto = Array.isArray(item.detalles)
+              ? item.detalles
+                  .map(
+                    (d: any) =>
+                      `${d.Producto_Nombre ?? ''} (${d.Tamano_Nombre ?? ''}) x${d.Cantidad ?? 1}`
+                  )
+                  .join(', ')
+              : '';
 
               return {
-                ID_Producto: item.ID_Combo ?? 0,
-                Nombre: item.Nombre ?? 'Combo sin nombre',
-                Descripcion: item.Descripcion ?? '',
-                ID_Categoria_P: 999,
-                nombre_categoria: 'Combos',
-                imagen: await this.verificarImagenProducto(
-                  `http://localhost:3000/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
-                ),
-                tamanos: [], // Combos no tienen tamaños
-                esCombo: true,
-                detallesTexto,
-                precioMinimo: Number(item.Precio ?? 0),
-                precioMaximo: Number(item.Precio ?? 0)
-              };
-            });
+              ID_Producto: item.ID_Combo ?? 0, // 🔹 Esto debería ser ID_Combo
+              ID_Combo: item.ID_Combo ?? 0, // 🔹 NUEVO: Agregar ID_Combo explícitamente
+              Nombre: item.Nombre ?? 'Combo sin nombre',
+              Descripcion: item.Descripcion ?? '',
+              ID_Categoria_P: 999,
+              nombre_categoria: 'Combos',
+              imagen: await this.verificarImagenProducto(
+                `http://localhost:3000/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
+              ),
+              tamanos: [], // Combos no tienen tamaños
+              esCombo: true,
+              detallesTexto,
+              precioMinimo: Number(item.Precio ?? 0),
+              precioMaximo: Number(item.Precio ?? 0),
+              Precio: Number(item.Precio ?? 0) // 🔹 NUEVO: Agregar Precio directamente
+            };
+          });
 
             const combosMapeados = await Promise.all(combosPromesas);
-            this.productos = [...productosConTamanos, ...combosMapeados];
-            this.productosOriginales = [...this.productos];
-          },
-          error: (err) => {
-            console.error('Error al cargar combos:', err);
-            this.productos = [...productosConTamanos];
-            this.productosOriginales = [...productosConTamanos];
-          },
-        });
-      },
-      error: (err) => {
-        console.error('Error al cargar productos:', err);
-        this.productos = [];
-      },
-    });
-  }
+          this.productos = [...productosConTamanos, ...combosMapeados];
+          this.productosOriginales = [...this.productos];
+        },
+        error: (err) => {
+          console.error('Error al cargar combos:', err);
+          this.productos = [...productosConTamanos];
+          this.productosOriginales = [...productosConTamanos];
+        },
+      });
+    },
+    error: (err) => {
+      console.error('Error al cargar productos:', err);
+      this.productos = [];
+    },
+  });
+}
 
   getNombreCategoria(id: number): string {
     return this.CATEGORY_MAP[id] ?? `Categoría ${id}`;
@@ -241,13 +243,19 @@ export class MenuComponent implements OnInit, OnDestroy {
     return `S/. ${producto.precioMinimo?.toFixed(2)} - S/. ${producto.precioMaximo?.toFixed(2)}`;
   }
 
-  abrirPersonalizacion(producto: ProductoConTamanos): void {
-    this.dialog.open(DetalleProductoComponent, {
-      width: '500px',
-      maxWidth: '90vw',
-      data: producto,
-    });
-  }
+// En menu.component.ts - modifica el método abrirPersonalizacion
+abrirPersonalizacion(producto: ProductoConTamanos): void {
+  const dialogData = {
+    ...producto,
+    esCombo: producto.esCombo // 🔹 IMPORTANTE: Indicar si es combo
+  };
+
+  this.dialog.open(DetalleProductoComponent, {
+    width: '500px',
+    maxWidth: '90vw',
+    data: dialogData,
+  });
+}
 
   calcularTotalCarrito(): number {
     return this.carritoService
