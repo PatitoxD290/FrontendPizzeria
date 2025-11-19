@@ -33,12 +33,12 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.modalStateService.abrirModal();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO
+    setTimeout(() => {
+      this.modalStateService.abrirModal();
+    });
     
-    // 🔹 DETERMINAR SI ES UN COMBO O PRODUCTO INDIVIDUAL
     this.esCombo = this.data.esCombo || false;
-    
-    // 🔹 CAMBIO: LOS COMBOS TAMBIÉN PUEDEN TENER COMPLEMENTOS
     this.verificarSiEsBebida();
     this.verificarComplementos();
     
@@ -48,7 +48,10 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.modalStateService.cerrarModal();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO
+    setTimeout(() => {
+      this.modalStateService.cerrarModal();
+    });
   }
 
   verificarSiEsBebida(): void {

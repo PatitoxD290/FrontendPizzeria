@@ -9,28 +9,27 @@ export class ModalStateService {
   private modalAbiertoSubject = new BehaviorSubject<boolean>(false);
   public modalAbierto$ = this.modalAbiertoSubject.asObservable();
 
-  // 🔹 NUEVO: Método para abrir modal (incrementar contador)
   abrirModal(): void {
     this.modalCounter++;
-    this.actualizarEstado();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO DE DETECCIÓN DE CAMBIOS
+    setTimeout(() => {
+      this.modalAbiertoSubject.next(this.modalCounter > 0);
+    });
+    console.log('🔄 Modal abierto - Contador:', this.modalCounter);
   }
 
-  // 🔹 NUEVO: Método para cerrar modal (decrementar contador)
   cerrarModal(): void {
     if (this.modalCounter > 0) {
       this.modalCounter--;
     }
-    this.actualizarEstado();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO DE DETECCIÓN DE CAMBIOS
+    setTimeout(() => {
+      this.modalAbiertoSubject.next(this.modalCounter > 0);
+    });
+    console.log('🔄 Modal cerrado - Contador:', this.modalCounter);
   }
 
-  // 🔹 NUEVO: Método para actualizar el estado basado en el contador
-  private actualizarEstado(): void {
-    const hayModalesAbiertos = this.modalCounter > 0;
-    this.modalAbiertoSubject.next(hayModalesAbiertos);
-    console.log('Contador de modales:', this.modalCounter, 'Estado:', hayModalesAbiertos);
-  }
-
-  // 🔹 MÉTODO ORIGINAL (mantener para compatibilidad)
+  // Mantener métodos existentes para compatibilidad
   setModalAbierto(abierto: boolean): void {
     if (abierto) {
       this.abrirModal();
@@ -43,7 +42,6 @@ export class ModalStateService {
     return this.modalAbiertoSubject.value;
   }
 
-  // 🔹 NUEVO: Obtener contador actual (para debugging)
   getContadorModales(): number {
     return this.modalCounter;
   }
