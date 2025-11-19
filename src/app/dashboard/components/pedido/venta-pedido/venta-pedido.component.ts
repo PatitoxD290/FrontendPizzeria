@@ -410,11 +410,11 @@ export class VentaPedidoComponent {
   // ================================================================
 
   generarBoletaPDF(pedidoId: number) {
-    // Tamaño de boleta: 80mm x 297mm (formato ticket/boleta)
+    // Tamaño: 58mm x 297mm (formato ticket largo)
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 297]
+      format: [58, 297]
     });
     
     const productos = this.data.detalles;
@@ -427,17 +427,20 @@ export class VentaPedidoComponent {
     // Número de boleta (simulado)
     const numeroBoleta = `BP01-${pedidoId.toString().padStart(7, '0')}`;
 
-    // Configuración inicial
-    const pageWidth = 80;
-    let yPosition = 10;
+    // Configuración inicial - MÁRGENES 4mm EN AMBOS LADOS
+    const pageWidth = 58;
+    const marginLeft = 4; // Margen izquierdo 4mm
+    const marginRight = 4; // Margen derecho 4mm
+    const contentWidth = pageWidth - (marginLeft + marginRight); // Ancho disponible para contenido
+    let yPosition = 8;
 
-    // Encabezado principal
-    doc.setFontSize(10);
+    // ========== ENCABEZADO PRINCIPAL ==========
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('BOLETA DE VENTA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('BOLETA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 5;
     
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
     
@@ -445,52 +448,61 @@ export class VentaPedidoComponent {
     doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
     
-    doc.setFontSize(6);
-    doc.text('Jr. 2 de Mayo - Frente a la Plaza de Yarina', pageWidth / 2, yPosition, { align: 'center' });
+    doc.setFontSize(7);
+    doc.text('Jr. 2 de Mayo - Yarina', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 3;
     doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
 
-    // Línea separadora
+    // ========== LÍNEA SEPARADORA ==========
     doc.setLineWidth(0.2);
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Información del documento
-    doc.setFontSize(7);
+    // ========== INFORMACIÓN DEL DOCUMENTO ==========
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text(`BOLETA: ${numeroBoleta}`, 5, yPosition);
+    doc.text(`BOLETA: ${numeroBoleta}`, marginLeft, yPosition);
     yPosition += 4;
     
     doc.setFont('helvetica', 'normal');
-    doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+    doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
     yPosition += 3;
-    doc.text(`Canal: Caja`, 5, yPosition);
+    doc.text(`Canal: Caja`, marginLeft, yPosition);
     yPosition += 3;
-    doc.text(`Cliente: ${this.clienteData?.Nombre || '—'}`, 5, yPosition);
-    yPosition += 3;
-    doc.text(`DNI: ${this.numeroDocumento}`, 5, yPosition);
-    yPosition += 6;
-
-    // Línea separadora
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    
+    // ========== INFORMACIÓN DEL CLIENTE ==========
+    // Nombre completo (Nombre + Apellido)
+    const nombreCompleto = `${this.clienteData?.Nombre || ''} ${this.clienteData?.Apellido || ''}`.trim();
+    const clienteText = `Cliente: ${nombreCompleto || '—'}`;
+    const clienteLines = doc.splitTextToSize(clienteText, contentWidth);
+    doc.text(clienteLines, marginLeft, yPosition);
+    yPosition += clienteLines.length * 3;
+    
+    // DNI del cliente
+    const dniText = `DNI: ${this.numeroDocumento || '—'}`;
+    doc.text(dniText, marginLeft, yPosition);
     yPosition += 4;
 
-    // Encabezado de productos
+    // ========== LÍNEA SEPARADORA ==========
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+    yPosition += 4;
+
+    // ========== DETALLE DE PRODUCTOS ==========
     doc.setFont('helvetica', 'bold');
     doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
 
-    // Cabecera de tabla
-    doc.setFontSize(6);
-    doc.text('Descripción', 5, yPosition);
-    doc.text('Cant', 45, yPosition);
-    doc.text('P.Unit', 55, yPosition);
-    doc.text('Total', 70, yPosition);
+    // Cabecera de tabla - COLUMNAS MÁS A LA IZQUIERDA
+    doc.setFontSize(7);
+    doc.text('Descripción', marginLeft, yPosition);
+    doc.text('Precio', 20, yPosition); // Precio más a la izquierda
+    doc.text('Cant', 33, yPosition); // Cant más a la izquierda
+    doc.text('Total', 48, yPosition, { align: 'right' }); // Total mantiene posición
     yPosition += 3;
 
     // Línea bajo cabecera
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
     // Productos
@@ -501,67 +513,67 @@ export class VentaPedidoComponent {
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
-      // Truncar nombre si es muy largo
-      const nombreTruncado = nombre.length > 20 ? nombre.substring(0, 20) + '...' : nombre;
+      // Truncar nombre para caber en el ancho disponible
+      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
       
-      doc.text(nombreTruncado, 5, yPosition);
-      doc.text(cantidad.toString(), 45, yPosition);
-      doc.text(`S/.${precioUnitario.toFixed(2)}`, 55, yPosition);
-      doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
-      
-      yPosition += 4;
+      // Una sola línea con todas las columnas
+      doc.text(nombreTruncado, marginLeft, yPosition);
+      doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition); // Precio
+      doc.text(cantidad.toString(), 33, yPosition); // Cantidad
+      doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' }); // Total
+      yPosition += 4; // Un solo incremento de posición
       
       // Verificar si necesitamos nueva página
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 10;
+      if (yPosition > 285) {
+        doc.addPage([58, 297]);
+        yPosition = 8;
       }
     });
 
-    // Línea separadora antes de total
+    // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
     yPosition += 2;
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Total
+    // ========== TOTALES ==========
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, 5, yPosition);
+    doc.setFontSize(9);
+    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
     yPosition += 5;
     
-    doc.setFontSize(7);
-    doc.text(`Medio de Pago: ${this.getMetodoPagoText()}`, 5, yPosition);
-    yPosition += 4;
+    doc.setFontSize(8);
+    doc.text(`Pago: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
+    yPosition += 3;
     
     if (this.metodoPago === 'EFECTIVO' && this.recibe > 0) {
-      doc.text(`Recibido: S/ ${Number(this.recibe).toFixed(2)}`, 5, yPosition);
-      yPosition += 4;
-      doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, 5, yPosition);
-      yPosition += 4;
+      doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, yPosition);
+      yPosition += 3;
     }
-    yPosition += 2;
+    yPosition += 5;
 
-    // Monto en letras
+    // ========== MONTO EN LETRAS ==========
     const montoEnLetras = this.convertirNumeroALetras(this.data.total);
-    doc.setFontSize(5);
-    doc.setFont('helvetica', 'normal');
-    const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, pageWidth - 10);
-    doc.text(lineas, 5, yPosition);
-    yPosition += lineas.length * 3 + 4;
-
-    // Información legal
-    doc.setFontSize(4);
-    doc.text('Exonerado del IGV según Ley N.° 27037 – Zona Oriente (Amazonía Peruana).', pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 6;
-
-    // Mensaje de agradecimiento
     doc.setFontSize(6);
+    doc.setFont('helvetica', 'normal');
+    const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, contentWidth);
+    doc.text(lineas, marginLeft, yPosition);
+    yPosition += lineas.length * 2.5 + 4;
+
+    // ========== INFORMACIÓN LEGAL ==========
+    doc.setFontSize(5);
+    const leyenda = 'Exonerado IGV Ley 27037 - Zona Oriente';
+    const leyendaLines = doc.splitTextToSize(leyenda, contentWidth);
+    doc.text(leyendaLines, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += leyendaLines.length * 2.5 + 4;
+
+    // ========== MENSAJE FINAL ==========
+    doc.setFontSize(7);
     doc.text('¡Gracias por tu compra!', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
-    doc.text('Síguenos: @AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('@AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 3;
     doc.setFont('helvetica', 'italic');
-    doc.text('"Sabor auténtico, servicio rápido"', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('"Sabor auténtico"', pageWidth / 2, yPosition, { align: 'center' });
 
     // Abrir en nueva ventana
     const pdfBlob = doc.output('blob');
@@ -570,11 +582,11 @@ export class VentaPedidoComponent {
   }
 
   generarFacturaPDF(pedidoId: number) {
-    // Tamaño de factura: 80mm x 297mm (formato ticket/factura)
+    // Tamaño: 58mm x 297mm (formato ticket largo)
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 297]
+      format: [58, 297]
     });
     
     const productos = this.data.detalles;
@@ -587,17 +599,20 @@ export class VentaPedidoComponent {
     // Número de factura (simulado)
     const numeroFactura = `F001-${pedidoId.toString().padStart(7, '0')}`;
 
-    // Configuración inicial
-    const pageWidth = 80;
-    let yPosition = 10;
+    // Configuración inicial - MÁRGENES 4mm EN AMBOS LADOS
+    const pageWidth = 58;
+    const marginLeft = 4;
+    const marginRight = 4;
+    const contentWidth = pageWidth - (marginLeft + marginRight);
+    let yPosition = 8;
 
-    // Encabezado principal
-    doc.setFontSize(10);
+    // ========== ENCABEZADO PRINCIPAL ==========
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('FACTURA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 5;
     
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
     
@@ -605,59 +620,65 @@ export class VentaPedidoComponent {
     doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
     
-    doc.setFontSize(6);
-    doc.text('Jr. 2 de Mayo - Frente a la Plaza de Yarina', pageWidth / 2, yPosition, { align: 'center' });
+    doc.setFontSize(7);
+    doc.text('Jr. 2 de Mayo - Yarina', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 3;
     doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
 
-    // Línea separadora
+    // ========== LÍNEA SEPARADORA ==========
     doc.setLineWidth(0.2);
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Información del documento
-    doc.setFontSize(7);
+    // ========== INFORMACIÓN DEL DOCUMENTO ==========
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text(`FACTURA: ${numeroFactura}`, 5, yPosition);
+    doc.text(`FACTURA: ${numeroFactura}`, marginLeft, yPosition);
     yPosition += 4;
     
     doc.setFont('helvetica', 'normal');
-    doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+    doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
     yPosition += 3;
-    doc.text(`Canal: Caja`, 5, yPosition);
+    doc.text(`Canal: Caja`, marginLeft, yPosition);
     yPosition += 3;
-    doc.text(`Cliente: ${this.clienteData?.Nombre || this.clienteData?.Razon_Social || 'CLIENTE GENERAL'}`, 5, yPosition);
+    
+    // ========== INFORMACIÓN DEL CLIENTE ==========
+    // Razón Social usando el campo Nombre
+    const razonSocial = this.clienteData?.Nombre || 'CLIENTE';
+    const razonSocialLines = doc.splitTextToSize(`Cliente: ${razonSocial}`, contentWidth);
+    doc.text(razonSocialLines, marginLeft, yPosition);
+    yPosition += razonSocialLines.length * 3;
+    
+    // RUC usando el campo DNI
+    doc.text(`RUC: ${this.numeroDocumento || '—'}`, marginLeft, yPosition);
     yPosition += 3;
-    doc.text(`RUC: ${this.numeroDocumento}`, 5, yPosition);
-    yPosition += 3;
-    doc.text(`Dirección: ${this.clienteData?.Direccion || 'LIMA - LIMA'}`, 5, yPosition);
-    yPosition += 3;
-    doc.text(`Condición: Contado`, 5, yPosition);
-    yPosition += 6;
+    
+    doc.text(`Condición: Contado`, marginLeft, yPosition);
+    yPosition += 5;
 
-    // Línea separadora
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    // ========== LÍNEA SEPARADORA ==========
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Encabezado de productos
+    // ========== DETALLE DE PRODUCTOS ==========
     doc.setFont('helvetica', 'bold');
     doc.text('DETALLE DE VENTA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
 
-    // Cabecera de tabla
-    doc.setFontSize(6);
-    doc.text('Descripción', 5, yPosition);
-    doc.text('Cant', 45, yPosition);
-    doc.text('P.Unit', 55, yPosition);
-    doc.text('Total', 70, yPosition);
+    // Cabecera de tabla - MISMAS COLUMNAS QUE BOLETA
+    doc.setFontSize(7);
+    doc.text('Descripción', marginLeft, yPosition);
+    doc.text('Precio', 20, yPosition); // Nueva columna Precio
+    doc.text('Cant', 33, yPosition); // Misma posición que boleta
+    doc.text('Total', 48, yPosition, { align: 'right' }); // Misma posición que boleta
     yPosition += 3;
 
     // Línea bajo cabecera
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Productos
+    // Productos - Mismo formato que boleta
     doc.setFont('helvetica', 'normal');
     productos.forEach(producto => {
       const nombre = producto.nombre_producto || 'Producto';
@@ -665,62 +686,59 @@ export class VentaPedidoComponent {
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
-      // Truncar nombre si es muy largo
-      const nombreTruncado = nombre.length > 20 ? nombre.substring(0, 20) + '...' : nombre;
+      // Truncar nombre para caber en el ancho disponible
+      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
       
-      doc.text(nombreTruncado, 5, yPosition);
-      doc.text(cantidad.toString(), 45, yPosition);
-      doc.text(`S/.${precioUnitario.toFixed(2)}`, 55, yPosition);
-      doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
+      // Una sola línea con todas las columnas
+      doc.text(nombreTruncado, marginLeft, yPosition);
+      doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition); // Precio
+      doc.text(cantidad.toString(), 33, yPosition); // Cantidad
+      doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' }); // Total
+      yPosition += 4; // Un solo incremento de posición
       
-      yPosition += 4;
-      
-      // Verificar si necesitamos nueva página
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 10;
+      if (yPosition > 285) {
+        doc.addPage([58, 297]);
+        yPosition = 8;
       }
     });
 
-    // Línea separadora antes de total
+    // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
     yPosition += 2;
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Total
+    // ========== TOTALES ==========
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, 5, yPosition);
+    doc.setFontSize(9);
+    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
     yPosition += 5;
     
-    doc.setFontSize(7);
-    doc.text(`Medio de Pago: ${this.getMetodoPagoText()}`, 5, yPosition);
-    yPosition += 4;
+    doc.setFontSize(8);
+    doc.text(`Pago: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
+    yPosition += 3;
     
     if (this.metodoPago === 'EFECTIVO' && this.recibe > 0) {
-      doc.text(`Recibido: S/ ${Number(this.recibe).toFixed(2)}`, 5, yPosition);
-      yPosition += 4;
-      doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, 5, yPosition);
-      yPosition += 4;
+      doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, yPosition);
+      yPosition += 3;
     }
-    yPosition += 2;
+    yPosition += 5;
 
-    // Monto en letras
+    // ========== MONTO EN LETRAS ==========
     const montoEnLetras = this.convertirNumeroALetras(this.data.total);
-    doc.setFontSize(5);
-    doc.setFont('helvetica', 'normal');
-    const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, pageWidth - 10);
-    doc.text(lineas, 5, yPosition);
-    yPosition += lineas.length * 3 + 6;
-
-    // Mensaje de agradecimiento
     doc.setFontSize(6);
-    doc.text('¡Gracias por su compra! 🍕', pageWidth / 2, yPosition, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, contentWidth);
+    doc.text(lineas, marginLeft, yPosition);
+    yPosition += lineas.length * 2.5 + 5;
+
+    // ========== MENSAJE FINAL ==========
+    doc.setFontSize(7);
+    doc.text('¡Gracias por su compra!', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
-    doc.text('Síguenos: @AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('@AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 3;
     doc.setFont('helvetica', 'italic');
-    doc.text('"Sabor auténtico, servicio rápido"', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('"Sabor auténtico"', pageWidth / 2, yPosition, { align: 'center' });
 
     // Abrir en nueva ventana
     const pdfBlob = doc.output('blob');
@@ -729,11 +747,11 @@ export class VentaPedidoComponent {
   }
 
   generarBoletaSimplePDF() {
-    // Tamaño de comprobante: 80mm x 150mm (más corto para comprobante simple)
+    // Tamaño: 58mm x 180mm (más largo para mejor organización)
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 150]
+      format: [58, 180]
     });
     
     const productos = this.data.detalles;
@@ -743,14 +761,19 @@ export class VentaPedidoComponent {
     const fechaStr = fecha.toLocaleDateString('es-PE');
     const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
-    // Configuración inicial
-    const pageWidth = 80;
-    let yPosition = 10;
+    // Configuración inicial - MÁRGENES 4mm EN AMBOS LADOS
+    const pageWidth = 58;
+    const marginLeft = 4;
+    const marginRight = 4;
+    const contentWidth = pageWidth - (marginLeft + marginRight);
+    let yPosition = 8;
 
-    // Encabezado principal
+    // ========== ENCABEZADO PRINCIPAL ==========
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('COMPROBANTE DE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('COMPROBANTE', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 4;
+    doc.text('DE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 5;
     
     doc.setFontSize(8);
@@ -759,32 +782,44 @@ export class VentaPedidoComponent {
     
     doc.setFont('helvetica', 'normal');
     doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 6;
+    yPosition += 5;
 
-    // Línea separadora
+    // ========== LÍNEA SEPARADORA ==========
     doc.setLineWidth(0.2);
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Información del pedido
+    // ========== INFORMACIÓN DEL PEDIDO ==========
     doc.setFontSize(7);
-    doc.text(`Fecha: ${fechaStr} ${horaStr}`, 5, yPosition);
+    doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
     yPosition += 4;
-    doc.text(`Código: ${this.data.codigoPedido}`, 5, yPosition);
+    doc.text(`Código: ${this.data.codigoPedido}`, marginLeft, yPosition);
     yPosition += 4;
-    doc.text(`Método: ${this.getMetodoPagoText()}`, 5, yPosition);
+    doc.text(`Método: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
     yPosition += 6;
 
-    // Línea separadora
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    // ========== LÍNEA SEPARADORA ==========
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Encabezado de productos
+    // ========== DETALLE DE PRODUCTOS ==========
     doc.setFont('helvetica', 'bold');
-    doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('DETALLE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
 
-    // Productos
+    // Cabecera de tabla - MISMAS COLUMNAS QUE BOLETA
+    doc.setFontSize(7);
+    doc.text('Descripción', marginLeft, yPosition);
+    doc.text('Precio', 20, yPosition); // Nueva columna Precio
+    doc.text('Cant', 33, yPosition); // Misma posición que boleta
+    doc.text('Total', 48, yPosition, { align: 'right' }); // Misma posición que boleta
+    yPosition += 3;
+
+    // Línea bajo cabecera
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+    yPosition += 4;
+
+    // Productos - Mismo formato que boleta
     doc.setFontSize(6);
     doc.setFont('helvetica', 'normal');
     productos.forEach(producto => {
@@ -793,42 +828,45 @@ export class VentaPedidoComponent {
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
-      // Truncar nombre si es muy largo
-      const nombreTruncado = nombre.length > 25 ? nombre.substring(0, 25) + '...' : nombre;
+      // Truncar nombre para caber en el ancho disponible
+      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
       
-      doc.text(`• ${nombreTruncado}`, 5, yPosition);
-      doc.text(`S/.${total.toFixed(2)}`, 70, yPosition);
-      yPosition += 3;
-      doc.text(`Cant: ${cantidad} x S/.${precioUnitario.toFixed(2)}`, 10, yPosition);
-      yPosition += 4;
+      // Una sola línea con todas las columnas
+      doc.text(nombreTruncado, marginLeft, yPosition);
+      doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition); // Precio
+      doc.text(cantidad.toString(), 33, yPosition); // Cantidad
+      doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' }); // Total
+      yPosition += 4; // Un solo incremento de posición
     });
 
-    // Línea separadora antes de total
+    // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
     yPosition += 2;
-    doc.line(5, yPosition, pageWidth - 5, yPosition);
+    doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Total
+    // ========== TOTAL ==========
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, 5, yPosition);
-    yPosition += 8;
+    doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
+    yPosition += 6;
 
-    // Código de pedido destacado
+    // ========== CÓDIGO DE PEDIDO DESTACADO ==========
     doc.setFontSize(9);
-    doc.text('CÓDIGO DE PEDIDO:', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('CÓDIGO PEDIDO:', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 5;
-    doc.setFontSize(12);
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
     doc.text(this.data.codigoPedido, pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 8;
 
-    // Mensaje importante
+    // ========== MENSAJE IMPORTANTE ==========
     doc.setFontSize(6);
     doc.setFont('helvetica', 'normal');
-    doc.text('Presente este código para recoger su pedido', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('Presente este código', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 3;
+    doc.text('para recoger su pedido', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
-    doc.text('¡Gracias por su compra! 🍕', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('¡Gracias por su compra!', pageWidth / 2, yPosition, { align: 'center' });
 
     // Abrir en nueva ventana
     const pdfBlob = doc.output('blob');
