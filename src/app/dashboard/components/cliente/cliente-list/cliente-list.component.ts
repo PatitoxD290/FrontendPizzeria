@@ -59,14 +59,17 @@ export class ClienteListComponent implements OnInit {
     this.loadClientes();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
   loadClientes() {
     this.loading = true;
     this.clienteService.getClientes().subscribe({
       next: data => {
         const sortedData = data.sort((a, b) => b.ID_Cliente - a.ID_Cliente);
-        this.dataSource = new MatTableDataSource(sortedData);
-        this.dataSource.paginator = this.paginator;
-
+        this.dataSource.data = sortedData;
+        
         // ✅ Filtro combinado (texto + fechas)
         this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
           const term = filter.trim().toLowerCase();
@@ -78,7 +81,6 @@ export class ClienteListComponent implements OnInit {
 
           // ✅ Filtrado por fecha si ambas fechas existen
           if (this.fechaInicio && this.fechaFin) {
-            // Crear fechas sin hora para comparación
             const fechaCliente = new Date(cliente.Fecha_Registro);
             fechaCliente.setHours(0, 0, 0, 0);
             
@@ -109,7 +111,70 @@ export class ClienteListComponent implements OnInit {
   // ✅ Filtro combinado
   applyFilters() {
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  // ✅ Limpiar filtros
+  limpiarFiltros() {
+    this.searchTerm = '';
+    this.fechaInicio = undefined;
+    this.fechaFin = undefined;
+    this.applyFilters();
+  }
+
+  // ✅ Cambiar tamaño de página
+  onPageSizeChange(event: any) {
+    const newSize = parseInt(event.target.value);
+    if (this.paginator) {
+      this.paginator.pageSize = newSize;
+      this.paginator.pageIndex = 0;
+    }
+  }
+
+  // ✅ Métodos para la paginación
+  getStartIndex(): number {
+    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
+  }
+
+  getEndIndex(): number {
+    if (!this.paginator) return 0;
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    const endIndex = startIndex + this.paginator.pageSize;
+    return Math.min(endIndex, this.dataSource.filteredData.length);
+  }
+
+  getCurrentPage(): number {
+    return this.paginator ? this.paginator.pageIndex + 1 : 1;
+  }
+
+  getTotalPages(): number {
+    return this.paginator ? this.paginator.getNumberOfPages() : 1;
+  }
+
+  getPageSize(): number {
+    return this.paginator ? this.paginator.pageSize : 5;
+  }
+
+  hasPreviousPage(): boolean {
+    return this.paginator ? this.paginator.hasPreviousPage() : false;
+  }
+
+  hasNextPage(): boolean {
+    return this.paginator ? this.paginator.hasNextPage() : false;
+  }
+
+  previousPage(): void {
+    if (this.paginator) {
+      this.paginator.previousPage();
+    }
+  }
+
+  nextPage(): void {
+    if (this.paginator) {
+      this.paginator.nextPage();
+    }
   }
 
   openClienteForm(cliente?: Cliente) {
