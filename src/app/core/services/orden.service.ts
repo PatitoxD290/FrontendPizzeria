@@ -26,9 +26,10 @@ export class OrdenService {
       return;
     }
 
-    // ✅ Usar ID_Producto_T en lugar de ID_Producto
-    const existente = this.detalles.find(
-      d => d.ID_Producto_T === detalle.ID_Producto_T
+    // 🔹 CAMBIO: Buscar por ID_Producto_T O ID_Combo
+    const existente = this.detalles.find(d => 
+      (detalle.ID_Producto_T && d.ID_Producto_T === detalle.ID_Producto_T) ||
+      (detalle.ID_Combo && d.ID_Combo === detalle.ID_Combo)
     );
 
     if (existente) {
@@ -42,31 +43,53 @@ export class OrdenService {
   }
 
   // ⬆️ Aumentar cantidad
- // En orden.service.ts - verificar que los métodos usen ID_Producto_T
-aumentarCantidad(idProductoTamano: number, precioBase: number) {
-  const detalle = this.detalles.find(d => d.ID_Producto_T === idProductoTamano);
-  if (detalle) {
-    detalle.Cantidad++;
-    detalle.PrecioTotal = detalle.Cantidad * precioBase;
+  aumentarCantidad(idProductoTamano: number, idCombo: number, precioBase: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    const detalle = this.detalles.find(d => 
+      (idProducto > 0 && d.ID_Producto_T === idProducto) ||
+      (idComboVal > 0 && d.ID_Combo === idComboVal)
+    );
+    
+    if (detalle) {
+      detalle.Cantidad++;
+      detalle.PrecioTotal = detalle.Cantidad * precioBase;
+      this.detallesSubject.next([...this.detalles]);
+    }
+  }
+
+  reducirCantidad(idProductoTamano: number, idCombo: number, precioBase: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    const detalle = this.detalles.find(d => 
+      (idProducto > 0 && d.ID_Producto_T === idProducto) ||
+      (idComboVal > 0 && d.ID_Combo === idComboVal)
+    );
+    
+    if (detalle && detalle.Cantidad > 1) {
+      detalle.Cantidad--;
+      detalle.PrecioTotal = detalle.Cantidad * precioBase;
+      this.detallesSubject.next([...this.detalles]);
+    } else if (detalle && detalle.Cantidad === 1) {
+      this.eliminarProducto(idProducto, idComboVal);
+    }
+  }
+
+  eliminarProducto(idProductoTamano: number, idCombo: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    this.detalles = this.detalles.filter(d => 
+      !((idProducto > 0 && d.ID_Producto_T === idProducto) ||
+        (idComboVal > 0 && d.ID_Combo === idComboVal))
+    );
     this.detallesSubject.next([...this.detalles]);
   }
-}
-
-reducirCantidad(idProductoTamano: number, precioBase: number) {
-  const detalle = this.detalles.find(d => d.ID_Producto_T === idProductoTamano);
-  if (detalle && detalle.Cantidad > 1) {
-    detalle.Cantidad--;
-    detalle.PrecioTotal = detalle.Cantidad * precioBase;
-    this.detallesSubject.next([...this.detalles]);
-  } else if (detalle && detalle.Cantidad === 1) {
-    this.eliminarProducto(idProductoTamano);
-  }
-}
-
-eliminarProducto(idProductoTamano: number) {
-  this.detalles = this.detalles.filter(d => d.ID_Producto_T !== idProductoTamano);
-  this.detallesSubject.next([...this.detalles]);
-}
 
   // 🧹 Limpiar carrito
   limpiar() {

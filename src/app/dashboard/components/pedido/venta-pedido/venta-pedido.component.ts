@@ -278,16 +278,18 @@ export class VentaPedidoComponent {
     };
     const tipoVentaConvertido = tipoVentaMap[this.tipoComprobante!];
 
-    // Crear detalles del pedido
+    // 🔹 CORRECCIÓN: Incluir ID_Combo en los detalles del pedido
     const detallesPedido: PedidoDetalle[] = this.data.detalles.map((d) => ({
       ID_Pedido_D: 0,
       ID_Pedido: 0,
       ID_Producto_T: d.ID_Producto_T,
+      ID_Combo: d.ID_Combo, // 🔹 NUEVO: Incluir ID_Combo
       Cantidad: d.Cantidad,
       PrecioTotal: d.PrecioTotal,
       nombre_producto: d.nombre_producto,
       nombre_categoria: d.nombre_categoria,
-      nombre_tamano: d.nombre_tamano
+      nombre_tamano: d.nombre_tamano,
+      nombre_combo: d.nombre_combo // 🔹 NUEVO: Incluir nombre_combo si existe
     }));
 
     // Crear texto para notas
@@ -309,6 +311,8 @@ export class VentaPedidoComponent {
       Hora_Pedido: new Date().toTimeString().split(' ')[0],
       detalles: detallesPedido
     };
+
+    console.log('📦 Detalles del pedido a enviar:', detallesPedido);
 
     // 🔹 Registrar pedido y venta
     this.pedidoService.createPedido(pedidoData).subscribe({
@@ -392,7 +396,7 @@ export class VentaPedidoComponent {
     });
   }
 
-  // 🔹 MÉTODO PARA GENERAR PDF (SIMILAR A PAGO.COMPONENT)
+  // 🔹 MÉTODO PARA GENERAR PDF (ACTUALIZADO PARA MOSTRAR COMBOS)
   private generarComprobante(idVenta: number, tipoComprobante: string, idPedido: number) {
     console.log(`Generando ${tipoComprobante} para venta ID: ${idVenta}`);
     
@@ -406,7 +410,7 @@ export class VentaPedidoComponent {
   }
 
   // ================================================================
-  // 🎯 MÉTODOS PARA GENERAR PDFs - IDÉNTICOS A PAGO.COMPONENT
+  // 🎯 MÉTODOS PARA GENERAR PDFs - ACTUALIZADOS PARA COMBOS
   // ================================================================
 
   generarBoletaPDF(pedidoId: number) {
@@ -488,7 +492,7 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // ========== DETALLE DE PRODUCTOS ==========
+    // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
     doc.setFont('helvetica', 'bold');
     doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
@@ -505,16 +509,24 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Productos
+    // 🔹 ACTUALIZADO: Mostrar productos y combos
     doc.setFont('helvetica', 'normal');
     productos.forEach(producto => {
-      const nombre = producto.nombre_producto || 'Producto';
+      // 🔹 DETERMINAR SI ES PRODUCTO O COMBO
+      const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+      const nombre = esCombo ? 
+        (producto.nombre_combo || 'Combo') : 
+        (producto.nombre_producto || 'Producto');
+      
       const cantidad = producto.Cantidad || 1;
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
+      // 🔹 AGREGAR INDICADOR DE COMBO SI APLICA
+      const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+      
       // Truncar nombre para caber en el ancho disponible
-      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
+      const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
       
       // Una sola línea con todas las columnas
       doc.text(nombreTruncado, marginLeft, yPosition);
@@ -661,7 +673,7 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // ========== DETALLE DE PRODUCTOS ==========
+    // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
     doc.setFont('helvetica', 'bold');
     doc.text('DETALLE DE VENTA', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
@@ -678,16 +690,24 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Productos - Mismo formato que boleta
+    // 🔹 ACTUALIZADO: Mostrar productos y combos
     doc.setFont('helvetica', 'normal');
     productos.forEach(producto => {
-      const nombre = producto.nombre_producto || 'Producto';
+      // 🔹 DETERMINAR SI ES PRODUCTO O COMBO
+      const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+      const nombre = esCombo ? 
+        (producto.nombre_combo || 'Combo') : 
+        (producto.nombre_producto || 'Producto');
+      
       const cantidad = producto.Cantidad || 1;
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
+      // 🔹 AGREGAR INDICADOR DE COMBO SI APLICA
+      const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+      
       // Truncar nombre para caber en el ancho disponible
-      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
+      const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
       
       // Una sola línea con todas las columnas
       doc.text(nombreTruncado, marginLeft, yPosition);
@@ -802,7 +822,7 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // ========== DETALLE DE PRODUCTOS ==========
+    // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
     doc.setFont('helvetica', 'bold');
     doc.text('DETALLE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 4;
@@ -819,17 +839,25 @@ export class VentaPedidoComponent {
     doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
     yPosition += 4;
 
-    // Productos - Mismo formato que boleta
+    // 🔹 ACTUALIZADO: Mostrar productos y combos
     doc.setFontSize(6);
     doc.setFont('helvetica', 'normal');
     productos.forEach(producto => {
-      const nombre = producto.nombre_producto || 'Producto';
+      // 🔹 DETERMINAR SI ES PRODUCTO O COMBO
+      const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+      const nombre = esCombo ? 
+        (producto.nombre_combo || 'Combo') : 
+        (producto.nombre_producto || 'Producto');
+      
       const cantidad = producto.Cantidad || 1;
       const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
       const total = producto.PrecioTotal || 0;
       
+      // 🔹 AGREGAR INDICADOR DE COMBO SI APLICA
+      const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+      
       // Truncar nombre para caber en el ancho disponible
-      const nombreTruncado = nombre.length > 18 ? nombre.substring(0, 18) + '...' : nombre;
+      const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
       
       // Una sola línea con todas las columnas
       doc.text(nombreTruncado, marginLeft, yPosition);

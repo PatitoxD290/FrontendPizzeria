@@ -77,20 +77,30 @@ export class DetallePedidoComponent implements OnInit {
 
   aumentarCantidad(detalle: PedidoDetalle) {
     const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-    this.ordenService.aumentarCantidad(detalle.ID_Producto_T, precioUnitario);
+    
+    // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
+    const idProductoTamano = detalle.ID_Producto_T || 0;
+    const idCombo = detalle.ID_Combo || 0;
+    
+    this.ordenService.aumentarCantidad(idProductoTamano, idCombo, precioUnitario);
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
     if (detalle.Cantidad > 1) {
       const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-      this.ordenService.reducirCantidad(detalle.ID_Producto_T, precioUnitario);
+      
+      // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
+      const idProductoTamano = detalle.ID_Producto_T || 0;
+      const idCombo = detalle.ID_Combo || 0;
+      
+      this.ordenService.reducirCantidad(idProductoTamano, idCombo, precioUnitario);
     }
   }
 
   eliminar(detalle: PedidoDetalle) {
     Swal.fire({
       title: '¿Eliminar producto?',
-      text: `Se eliminará ${detalle.nombre_producto} (${detalle.nombre_tamano}).`,
+      text: `Se eliminará ${detalle.nombre_producto || detalle.nombre_combo || 'el item'}.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
@@ -98,10 +108,14 @@ export class DetallePedidoComponent implements OnInit {
       confirmButtonColor: '#d33',
     }).then(result => {
       if (result.isConfirmed) {
-        this.ordenService.eliminarProducto(detalle.ID_Producto_T);
+        // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
+        const idProductoTamano = detalle.ID_Producto_T || 0;
+        const idCombo = detalle.ID_Combo || 0;
+        
+        this.ordenService.eliminarProducto(idProductoTamano, idCombo);
         Swal.fire({
           title: 'Eliminado',
-          text: 'El producto fue eliminado del pedido.',
+          text: 'El producto/combo fue eliminado del pedido.',
           icon: 'success',
           showConfirmButton: false,
           timer: 1500,

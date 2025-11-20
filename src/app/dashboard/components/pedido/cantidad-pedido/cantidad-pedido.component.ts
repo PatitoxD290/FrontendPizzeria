@@ -8,9 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { Combo } from '../../../../core/models/combo.model';
 
 export interface CantidadPedidoData {
-  producto: Producto;
+  producto?: Producto;
+  combo?: Combo;
+  esCombo?: boolean;
 }
 
 @Component({
@@ -24,7 +27,6 @@ export interface CantidadPedidoData {
     MatInputModule,
     MatFormFieldModule,
     MatDialogModule
-    // 🔹 QUITAMOS MatRadioModule ya que usaremos botones
   ],
   templateUrl: './cantidad-pedido.component.html',
   styleUrls: ['./cantidad-pedido.component.css']
@@ -33,8 +35,10 @@ export class CantidadPedidoComponent implements OnInit {
   cantidad: number = 1;
   maxCantidad: number = 50;
   
+  // 🔹 CAMBIO: Solo para productos
   tamanosDisponibles: ProductoTamano[] = [];
   tamanoSeleccionado: ProductoTamano | null = null;
+  
   precioUnitario: number = 0;
   precioTotal: number = 0;
 
@@ -44,24 +48,34 @@ export class CantidadPedidoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
-    
-    if (this.tamanosDisponibles.length > 0) {
-      this.tamanoSeleccionado = this.tamanosDisponibles[0];
-      this.precioUnitario = this.tamanoSeleccionado.Precio;
+    if (this.data.esCombo && this.data.combo) {
+      // 🔹 LÓGICA PARA COMBOS
+      this.precioUnitario = this.data.combo.Precio;
       this.precioTotal = this.precioUnitario * this.cantidad;
-    }
-    
-    if (this.data.producto.Cantidad_Disponible) {
-      this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 50);
+      this.maxCantidad = 50; // Máximo por defecto para combos
+    } else if (this.data.producto) {
+      // 🔹 LÓGICA PARA PRODUCTOS (existente)
+      this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
+      
+      if (this.tamanosDisponibles.length > 0) {
+        this.tamanoSeleccionado = this.tamanosDisponibles[0];
+        this.precioUnitario = this.tamanoSeleccionado.Precio;
+        this.precioTotal = this.precioUnitario * this.cantidad;
+      }
+      
+      if (this.data.producto.Cantidad_Disponible) {
+        this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 50);
+      }
     }
   }
 
-  // 🔹 CAMBIO: Seleccionar tamaño con botón
+  // 🔹 CAMBIO: Seleccionar tamaño con botón (solo para productos)
   seleccionarTamano(tamano: ProductoTamano): void {
-    this.tamanoSeleccionado = tamano;
-    this.precioUnitario = tamano.Precio;
-    this.actualizarPrecioTotal();
+    if (!this.data.esCombo) {
+      this.tamanoSeleccionado = tamano;
+      this.precioUnitario = tamano.Precio;
+      this.actualizarPrecioTotal();
+    }
   }
 
   aumentarCantidad(): void {
@@ -97,20 +111,37 @@ export class CantidadPedidoComponent implements OnInit {
   }
 
   agregarAlPedido(): void {
-    if (!this.tamanoSeleccionado) {
+    let detalle: PedidoDetalle;
+
+    if (this.data.esCombo && this.data.combo) {
+      // 🔹 CREAR DETALLE PARA COMBO
+      detalle = {
+        ID_Pedido_D: 0,
+        ID_Pedido: 0,
+        ID_Producto_T: 0, // No aplica para combos
+        ID_Combo: this.data.combo.ID_Combo, // 🔹 NUEVO: ID del combo
+        Cantidad: this.cantidad,
+        PrecioTotal: this.precioTotal,
+        nombre_producto: this.data.combo.Nombre,
+        nombre_categoria: 'Combo',
+        nombre_tamano: 'Combo',
+        nombre_combo: this.data.combo.Nombre // 🔹 NUEVO: Nombre del combo
+      };
+    } else if (this.tamanoSeleccionado && this.data.producto) {
+      // 🔹 CREAR DETALLE PARA PRODUCTO (existente)
+      detalle = {
+        ID_Pedido_D: 0,
+        ID_Pedido: 0,
+        ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
+        Cantidad: this.cantidad,
+        PrecioTotal: this.precioTotal,
+        nombre_producto: this.data.producto.Nombre,
+        nombre_categoria: this.data.producto.nombre_categoria || 'Sin categoría',
+        nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único'
+      };
+    } else {
       return;
     }
-
-    const detalle: PedidoDetalle = {
-      ID_Pedido_D: 0,
-      ID_Pedido: 0,
-      ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
-      Cantidad: this.cantidad,
-      PrecioTotal: this.precioTotal,
-      nombre_producto: this.data.producto.Nombre,
-      nombre_categoria: this.data.producto.nombre_categoria || 'Sin categoría',
-      nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único'
-    };
 
     this.dialogRef.close(detalle);
   }
@@ -135,10 +166,50 @@ export class CantidadPedidoComponent implements OnInit {
   }
 
   get disponibleTexto(): string {
-    return `Disponible: ${this.data.producto.Cantidad_Disponible || 0} unidades`;
+    if (this.data.esCombo) {
+      return 'Disponible';
+    } else if (this.data.producto) {
+      return `Disponible: ${this.data.producto.Cantidad_Disponible || 0} unidades`;
+    }
+    return 'Disponible';
   }
 
   get tieneMultiplesTamanos(): boolean {
-    return this.tamanosDisponibles.length > 1;
+    return !this.data.esCombo && this.tamanosDisponibles.length > 1;
+  }
+
+  // 🔹 NUEVO: Verificar si es un combo
+  get esCombo(): boolean {
+    return this.data.esCombo || false;
+  }
+
+  // 🔹 NUEVO: Obtener nombre del item
+  get nombreItem(): string {
+    if (this.data.esCombo && this.data.combo) {
+      return this.data.combo.Nombre;
+    } else if (this.data.producto) {
+      return this.data.producto.Nombre;
+    }
+    return 'Producto';
+  }
+
+  // 🔹 NUEVO: Obtener descripción del item
+  get descripcionItem(): string {
+    if (this.data.esCombo && this.data.combo) {
+      return this.data.combo.Descripcion;
+    } else if (this.data.producto) {
+      return this.data.producto.Descripcion;
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener categoría del item
+  get categoriaItem(): string {
+    if (this.data.esCombo) {
+      return 'Combo';
+    } else if (this.data.producto) {
+      return this.data.producto.nombre_categoria || 'Sin categoría';
+    }
+    return '';
   }
 }

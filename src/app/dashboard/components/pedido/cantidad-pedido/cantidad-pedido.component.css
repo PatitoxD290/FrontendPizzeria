@@ -448,3 +448,37 @@
   font-size: 12px;
 }
 
+/* 🔹 ESTILOS PARA COMBOS EN EL MODAL */
+.combo-indicator {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.precio-combo-container {
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.precio-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #fff3e0;
+  border-radius: 6px;
+  border: 1px solid #ffb74d;
+}
+
+.precio-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e65100;
+}
+
+.precio-combo {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e65100;
+}
+

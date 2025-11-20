@@ -6,51 +6,87 @@
 
 <!-- Botones de categorías -->
 <div class="categorias-container">
-  <button mat-raised-button color="{{ categoriaSeleccionada === null ? 'primary' : '' }}" (click)="filtrarPorCategoria(null)">
+  <!-- Botón Todos -->
+  <button mat-raised-button 
+          [color]="isCategoriaSeleccionada(null) ? 'primary' : ''" 
+          (click)="filtrarPorCategoria(null)">
     Todos
   </button>
-  <button *ngFor="let cat of categorias" mat-raised-button [color]="categoriaSeleccionada === cat.ID_Categoria_P ? 'primary' : ''" (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
+
+  <!-- 🔹 NUEVO: Botón Combos -->
+  <button mat-raised-button 
+          [color]="isCategoriaSeleccionada(CATEGORIA_COMBOS) ? 'primary' : ''" 
+          class="combo-category-btn"
+          (click)="filtrarPorCategoria(CATEGORIA_COMBOS)">
+    Combos
+  </button>
+
+  <!-- Categorías normales de productos -->
+  <button *ngFor="let cat of categorias" 
+          mat-raised-button 
+          [color]="isCategoriaSeleccionada(cat.ID_Categoria_P) ? 'primary' : ''" 
+          (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
     {{ cat.Nombre }}
   </button>
 </div>
 
-<!-- 🔹 CAMBIO: LISTA DE PRODUCTOS GENERALES -->
+<!-- 🔹 CAMBIO: LISTA DE PRODUCTOS Y COMBOS -->
 <div class="menu-scroll">
-  <mat-card *ngFor="let producto of paginatedProductos" 
+  <mat-card *ngFor="let item of paginatedItems" 
             class="producto-card"
-            (click)="abrirModalCantidad(producto)">
+            [class.combo-card]="item.esCombo"
+            (click)="abrirModalCantidad(item)">
     
     <mat-card-header>
-      <mat-card-title>{{ producto.Nombre }}</mat-card-title>
+      <mat-card-title>
+        {{ item.nombre }}
+        <span *ngIf="item.esCombo" class="combo-badge">COMBO</span>
+      </mat-card-title>
       <mat-card-subtitle>
-        <span class="categoria">{{ producto.nombre_categoria }}</span>
-        <!-- 🔹 INDICADOR DE TAMAÑOS DISPONIBLES -->
-        <span *ngIf="tieneMultiplesTamanos(producto)" class="multiples-tamanos">• {{ getTamanosDisponibles(producto) }} tamaños</span>
-        <span *ngIf="!tieneMultiplesTamanos(producto)" class="tamano-unico">• 1 tamaño</span>
+        <span class="categoria" [class.combo-categoria]="item.esCombo">
+          {{ getCategoria(item) }}
+        </span>
+        <!-- 🔹 INDICADOR DE TAMAÑOS DISPONIBLES (solo productos) -->
+        <span *ngIf="!item.esCombo && tieneMultiplesTamanos(item)" class="multiples-tamanos">
+          • {{ getTamanosDisponibles(item) }} tamaños
+        </span>
+        <span *ngIf="!item.esCombo && !tieneMultiplesTamanos(item)" class="tamano-unico">
+          • 1 tamaño
+        </span>
+        <span *ngIf="item.esCombo" class="combo-info">• Productos incluidos</span>
       </mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
-      <p class="descripcion">{{ producto.Descripcion }}</p>
+      <p class="descripcion">{{ item.descripcion }}</p>
       
-      <!-- 🔹 PRECIO MÍNIMO -->
-      <div class="precio-container">
-        <span *ngIf="tieneMultiplesTamanos(producto)" class="precio-desde">Desde: </span>
-        <span class="precio">S/ {{ getPrecioMinimo(producto) | number:'1.2-2' }}</span>
+      <!-- 🔹 PRECIO -->
+      <div class="precio-container" [class.combo-precio]="item.esCombo">
+        <span *ngIf="!item.esCombo && tieneMultiplesTamanos(item)" class="precio-desde">Desde: </span>
+        <span *ngIf="item.esCombo" class="precio-combo-text">Precio especial: </span>
+        <span class="precio" [class.combo-precio-number]="item.esCombo">
+          S/ {{ item.precio | number:'1.2-2' }}
+        </span>
       </div>
 
-      <!-- 🔹 Información adicional del producto -->
+      <!-- 🔹 Información adicional -->
       <div class="info-adicional">
-        <small>Disponible • {{ producto.Cantidad_Disponible || 0 }} unidades</small>
+        <small>Disponible • {{ getCantidadDisponible(item) }} unidades</small>
       </div>
 
     </mat-card-content>
   </mat-card>
 </div>
 
+<!-- Mensaje cuando no hay resultados -->
+<div *ngIf="menuItemsFiltrados.length === 0" class="no-results">
+  <mat-icon>search_off</mat-icon>
+  <p>No se encontraron productos o combos</p>
+</div>
+
 <!-- 🔹 Paginador Angular Material -->
-<mat-paginator a
-  [length]="productosFiltrados.length" 
+<mat-paginator
+  [length]="menuItemsFiltrados.length" 
   [pageSize]="pageSize" 
   [pageSizeOptions]="[3, 6, 9, 12]" 
   (page)="onPageChange($event)">

@@ -1,25 +1,26 @@
 <div class="modal-container">
   <!-- Header -->
   <div class="modal-header">
-    <h2 class="modal-title">Seleccionar producto</h2>
+    <h2 class="modal-title">Seleccionar {{ esCombo ? 'combo' : 'producto' }}</h2>
     <button mat-icon-button class="close-button" (click)="cancelar()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Información del producto -->
+  <!-- Información del producto/combo -->
   <div class="producto-info">
-    <h3 class="producto-nombre">{{ data.producto.Nombre }}</h3>
+    <h3 class="producto-nombre">{{ nombreItem }}</h3>
     <div class="producto-detalles">
-      <span class="categoria">{{ data.producto.nombre_categoria }}</span>
+      <span class="categoria">{{ categoriaItem }}</span>
+      <span *ngIf="esCombo" class="combo-indicator">• COMBO</span>
     </div>
-    <p class="producto-descripcion" *ngIf="data.producto.Descripcion">
-      {{ data.producto.Descripcion }}
+    <p class="producto-descripcion" *ngIf="descripcionItem">
+      {{ descripcionItem }}
     </p>
   </div>
 
-  <!-- 🔹 SELECTOR DE TAMAÑOS CON BOTONES HORIZONTALES -->
-  <div class="tamanos-container" *ngIf="tamanosDisponibles.length > 0">
+  <!-- 🔹 SELECTOR DE TAMAÑOS SOLO PARA PRODUCTOS -->
+  <div class="tamanos-container" *ngIf="!esCombo && tamanosDisponibles.length > 0">
     <label class="tamanos-label">Selecciona un tamaño:</label>
     
     <div class="tamanos-buttons"
@@ -39,8 +40,16 @@
     </div>
   </div>
 
+  <!-- 🔹 INFORMACIÓN DE PRECIO PARA COMBOS -->
+  <div class="precio-combo-container" *ngIf="esCombo">
+    <div class="precio-info">
+      <span class="precio-label">Precio del combo:</span>
+      <span class="precio-combo">S/ {{ precioUnitario | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
   <!-- Control de cantidad -->
-  <div class="cantidad-container" *ngIf="tamanoSeleccionado">
+  <div class="cantidad-container" *ngIf="esCombo || tamanoSeleccionado">
     <label class="cantidad-label">Cantidad:</label>
     
     <div class="cantidad-controls">
@@ -73,13 +82,13 @@
   </div>
 
   <!-- Precio total -->
-  <div class="total-container" *ngIf="tamanoSeleccionado">
+  <div class="total-container" *ngIf="esCombo || tamanoSeleccionado">
     <div class="total-line"></div>
     <div class="total-info">
       <span class="total-label">Total a pagar:</span>
       <span class="total-precio">S/ {{ precioTotal | number:'1.2-2' }}</span>
     </div>
-    <div class="desglose-precio" *ngIf="tamanoSeleccionado">
+    <div class="desglose-precio" *ngIf="esCombo || tamanoSeleccionado">
       <small>{{ cantidad }} × S/ {{ precioUnitario | number:'1.2-2' }} = S/ {{ precioTotal | number:'1.2-2' }}</small>
     </div>
   </div>
@@ -96,7 +105,7 @@
             color="primary" 
             class="add-btn"
             (click)="agregarAlPedido()"
-            [disabled]="!tamanoSeleccionado">
+            [disabled]="!esCombo && !tamanoSeleccionado">
       <mat-icon>shopping_bag</mat-icon>
       Agregar (S/ {{ precioTotal | number:'1.2-2' }})
     </button>
