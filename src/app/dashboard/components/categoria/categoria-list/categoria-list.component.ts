@@ -203,19 +203,21 @@ deleteCategoria(categoria: CategoriaProducto | CategoriaInsumos, tipo: 'producto
 }
 
   // 📝 Abrir modal para crear/editar
-  openCategoriaForm(categoria?: CategoriaProducto | CategoriaInsumos, tipo?: 'producto' | 'insumo') {
-    const dialogRef = this.dialog.open(CategoriaFormComponent, {
-      width: '720px',
-      data: { 
-        categoria, 
-        tipo: tipo || (this.selectedTab === 0 ? 'producto' : 'insumo')
-      }
-    });
+openCategoriaForm(categoria?: CategoriaProducto | CategoriaInsumos, tipo?: 'producto' | 'insumo') {
+  const dialogRef = this.dialog.open(CategoriaFormComponent, {
+    width: '600px',
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+    data: { 
+      categoria, 
+      tipo: tipo || (this.selectedTab === 0 ? 'producto' : 'insumo')
+    }
+  });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadCategorias();
-    });
-  }
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) this.loadCategorias();
+  });
+}
   
   @Output() categoriaSeleccionada = new EventEmitter<number>();
 

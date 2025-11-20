@@ -213,41 +213,70 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  verificarCodigo() {
-    if (!this.codigoVerificacion) {
-      this.errorCodigo = true;
-      return;
-    }
-    this.verificandoCodigo = true;
-    this.errorCodigo = false;
-
-    this.http.post('http://localhost:3000/api/v2/verificar-pago', {
-      email: 'abnerluisnovoa@gmail.com',
-      codigo: this.codigoVerificacion
-    }).subscribe({
-      next: (response: any) => {
-        this.verificandoCodigo = false;
-        if (response.success) {
-          this.solicitandoCodigo = false;
-          this.procesarPago();
-        } else {
-          this.errorCodigo = true;
-          this.codigoVerificacion = '';
-        }
-      },
-      error: (error) => {
-        this.verificandoCodigo = false;
-        console.error('Error verificando código:', error);
-        if (this.codigoVerificacion.length === 4) {
-          this.solicitandoCodigo = false;
-          this.procesarPago();
-        } else {
-          this.errorCodigo = true;
-          this.codigoVerificacion = '';
-        }
-      }
-    });
+verificarCodigo() {
+  if (!this.codigoVerificacion) {
+    this.errorCodigo = true;
+    this.mostrarErrorCodigo('Ingrese el código de verificación');
+    return;
   }
+
+  // Validar que sea exactamente 4 dígitos numéricos
+  if (this.codigoVerificacion.length !== 4 || !/^\d+$/.test(this.codigoVerificacion)) {
+    this.errorCodigo = true;
+    this.mostrarErrorCodigo('El código debe tener 4 dígitos numéricos');
+    return;
+  }
+
+  this.verificandoCodigo = true;
+  this.errorCodigo = false;
+
+  console.log('🔐 Verificando código:', this.codigoVerificacion);
+
+  this.http.post('http://localhost:3000/api/v2/verificar-pago', {
+    email: 'abnerluisnovoa@gmail.com',
+    codigo: this.codigoVerificacion
+  }).subscribe({
+    next: (response: any) => {
+      this.verificandoCodigo = false;
+      console.log('✅ Respuesta del servidor:', response);
+      
+      if (response.success) {
+        // ✅ CÓDIGO CORRECTO - Continuar con el proceso
+        this.solicitandoCodigo = false;
+        this.codigoVerificacion = '';
+        this.errorCodigo = false;
+        this.procesarPago();
+      } else {
+        // ❌ CÓDIGO INCORRECTO - Bloquear el proceso
+        this.errorCodigo = true;
+        this.codigoVerificacion = '';
+        this.mostrarErrorCodigo(response.message || 'Código incorrecto');
+      }
+    },
+    error: (error) => {
+      this.verificandoCodigo = false;
+      console.error('❌ Error verificando código:', error);
+      
+      // ❌ EN CASO DE ERROR DEL SERVIDOR, NO PERMITIR CONTINUAR
+      this.errorCodigo = true;
+      this.codigoVerificacion = '';
+      this.mostrarErrorCodigo('Error al verificar el código. Intente nuevamente.');
+      
+      // ELIMINAR ESTA LÍNEA QUE PERMITÍA CONTINUAR CON CÓDIGOS INCORRECTOS:
+      // if (this.codigoVerificacion.length === 4) {
+      //   this.solicitandoCodigo = false;
+      //   this.procesarPago();
+      // }
+    }
+  });
+}
+
+// 🔹 NUEVO MÉTODO PARA MOSTRAR ERRORES DE CÓDIGO
+mostrarErrorCodigo(mensaje: string) {
+  this.errorCodigo = true;
+  // Puedes mostrar un toast, alert o mantener el mensaje en la interfaz
+  console.error('❌ Error en código:', mensaje);
+}
 
   reenviarCodigo() {
     this.codigoEnviado = false;
@@ -266,20 +295,26 @@ export class PagoComponent implements OnInit {
 
   // --- Lógica de Procesamiento y Documento ---
 
-  procesarPago() {
-    this.procesandoPago = true;
-    setTimeout(() => {
-      this.procesandoPago = false;
-      this.pagoExitoso = true;
-      this.pagoConfirmado = true;
-      if (this.pagoExitoso) {
-        setTimeout(() => {
-          this.mostrarOpcionesDocumento = true;
-          this.pagoConfirmado = false;
-        }, 2000);
-      }
-    }, 2000);
+procesarPago() {
+  // Verificar que no estamos en medio de una verificación de código
+  if (this.solicitandoCodigo || this.verificandoCodigo) {
+    console.warn('⚠️ Intento de procesar pago durante verificación de código');
+    return;
   }
+
+  this.procesandoPago = true;
+  setTimeout(() => {
+    this.procesandoPago = false;
+    this.pagoExitoso = true;
+    this.pagoConfirmado = true;
+    if (this.pagoExitoso) {
+      setTimeout(() => {
+        this.mostrarOpcionesDocumento = true;
+        this.pagoConfirmado = false;
+      }, 2000);
+    }
+  }, 2000);
+}
 
   reintentarPago() {
     this.pagoConfirmado = false;

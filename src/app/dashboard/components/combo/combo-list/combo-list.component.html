@@ -134,54 +134,50 @@
       </mat-card-content>
 
       <!-- Acciones -->
-      <mat-card-actions class="card-actions">
+        <mat-card-actions class="card-actions">
         <!-- Botón para activar/desactivar -->
         <button 
           *ngIf="combo.Estado === 'I'"
-          mat-stroked-button 
+          mat-icon-button 
           color="primary" 
           (click)="activarCombo(combo)" 
           class="action-button"
           matTooltip="Activar combo"
         >
-          <mat-icon>check_circle</mat-icon>
-          Activar
+          <mat-icon>check</mat-icon>
         </button>
         
         <button 
           *ngIf="combo.Estado === 'A'"
-          mat-stroked-button 
+          mat-icon-button 
           color="warn" 
           (click)="desactivarCombo(combo)" 
           class="action-button"
           matTooltip="Desactivar combo"
         >
-          <mat-icon>cancel</mat-icon>
-          Desactivar
+          <mat-icon>block</mat-icon>
         </button>
 
         <!-- Botón de editar -->
         <button 
-          mat-flat-button 
+          mat-icon-button 
           color="primary" 
           (click)="editarCombo(combo)" 
           class="action-button"
           matTooltip="Editar combo"
         >
           <mat-icon>edit</mat-icon>
-          Editar
         </button>
         
         <!-- Botón de eliminar -->
         <button 
-          mat-stroked-button 
+          mat-icon-button 
           color="warn" 
           (click)="eliminarCombo(combo)" 
           class="action-button"
           matTooltip="Eliminar combo"
         >
           <mat-icon>delete</mat-icon>
-          Eliminar
         </button>
       </mat-card-actions>
 

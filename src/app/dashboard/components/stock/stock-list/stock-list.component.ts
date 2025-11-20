@@ -160,21 +160,24 @@ export class StockListComponent implements OnInit {
     }
   }
 
-  openMovimientoModal(stock?: Stock) {
-    const dialogRef = this.dialog.open(StockFormComponent, {
-      width: '600px',
-      data: stock ? { 
-        ID_Stock: stock.ID_Stock,
-        stockData: stock 
-      } : null
-    });
+openMovimientoModal(stock?: Stock) {
+  const dialogRef = this.dialog.open(StockFormComponent, {
+    width: '600px',
+    maxWidth: '95vw',
+    maxHeight: '90vh',
+    panelClass: 'stock-form-dialog', // Clase adicional para personalización
+    data: stock ? { 
+      ID_Stock: stock.ID_Stock,
+      stockData: stock 
+    } : null
+  });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadStocks(); // Recargar la lista después de un movimiento
-      }
-    });
-  }
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.loadStocks(); // Recargar la lista después de un movimiento
+    }
+  });
+}
 
   getEstadoText(estado: string): string {
     const estados: { [key: string]: string } = {

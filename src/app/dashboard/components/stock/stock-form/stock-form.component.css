@@ -1,40 +1,51 @@
-/* Contenedor principal del diálogo */
-:host {
-  display: block;
-  max-height: 90vh;
+/* stock-form.component.css */
+
+/* Eliminar scroll externo del diálogo */
+::ng-deep .mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+  max-height: 90vh !important;
 }
 
+/* Título fijo */
 mat-dialog-title {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #3f51b5;
-  padding: 16px 24px 8px;
-  margin: 0;
+  padding: 20px 24px 16px !important;
+  margin: 0 !important;
   border-bottom: 1px solid #e0e0e0;
   background: white;
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 1.25rem;
+  font-weight: 500;
 }
 
+/* Contenido con scroll interno controlado */
 .dialog-content {
-  padding: 0 24px;
-  max-height: calc(90vh - 140px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding: 0 24px !important;
+  max-height: calc(90vh - 140px) !important; /* Ajusta según el tamaño del título y acciones */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
 }
 
+/* Acciones fijas en la parte inferior */
 .dialog-actions {
-  padding: 16px 24px;
+  padding: 16px 24px 20px !important;
   border-top: 1px solid #e0e0e0;
   background: white;
   position: sticky;
   bottom: 0;
   z-index: 10;
-  margin: 0;
+  margin: 0 !important;
 }
 
+/* Formulario */
 .movimiento-form {
   display: flex;
   flex-direction: column;
@@ -175,7 +186,7 @@ mat-dialog-title {
   color: #666;
 }
 
-/* Mejoras para el scroll */
+/* Scrollbar personalizado para el contenido */
 .dialog-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -202,16 +213,16 @@ mat-dialog-title {
   }
   
   .dialog-content {
-    padding: 0 16px;
-    max-height: calc(90vh - 120px);
+    padding: 0 16px !important;
+    max-height: calc(90vh - 120px) !important;
   }
 
   .dialog-actions {
-    padding: 12px 16px;
+    padding: 12px 16px 16px !important;
   }
 
   mat-dialog-title {
-    padding: 12px 16px 8px;
+    padding: 16px 16px 12px !important;
   }
 
   .stock-details div {
@@ -282,4 +293,13 @@ textarea {
 
 .insumo-meta span {
   display: block;
+}
+
+/* Asegurar que los mat-form-field no causen overflow */
+::ng-deep .mat-form-field-flex {
+  max-width: 100%;
+}
+
+::ng-deep .mat-form-field-infix {
+  width: auto !important;
 }

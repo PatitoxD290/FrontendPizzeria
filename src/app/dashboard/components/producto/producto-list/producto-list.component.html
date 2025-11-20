@@ -113,24 +113,26 @@
       </mat-card-content>
 
       <!-- Acciones -->
-      <mat-card-actions class="card-actions">
+       <mat-card-actions class="card-actions">
         <button 
-          mat-flat-button 
+          mat-icon-button 
           color="primary" 
           (click)="openProductoForm(producto)" 
           class="action-button"
+          matTooltip="Editar producto"
+          matTooltipPosition="above"
         >
           <mat-icon>edit</mat-icon>
-          Editar
         </button>
         <button 
-          mat-stroked-button 
+          mat-icon-button 
           color="warn" 
           (click)="deleteProducto(producto)" 
           class="action-button"
+          matTooltip="Eliminar producto"
+          matTooltipPosition="above"
         >
           <mat-icon>delete</mat-icon>
-          Eliminar
         </button>
       </mat-card-actions>
 
