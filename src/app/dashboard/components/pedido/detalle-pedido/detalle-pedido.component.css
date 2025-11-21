@@ -1,121 +1,439 @@
-/* 🔹 Centrar el campo */
-.cliente-input-container {
+/* 🔹 Contenedor de cards */
+.cards-container {
   display: flex;
-  justify-content: center; /* centra horizontalmente */
-  align-items: center;
-  margin-bottom: 20px;
-  width: 100%;
-}
-
-/* 🔹 Reducir tamaño y bordes redondeados */
-.cliente-field {
-  width: 250px; /* más pequeño */
-  border-radius: 25px !important; /* bordes redondeados */
-}
-
-/* 🔹 Personalizar el contorno del mat-form-field */
-::ng-deep .mat-mdc-form-field-outline {
-  border-radius: 25px !important;
-}
-
-/* 🔹 Input más limpio y moderno */
-::ng-deep .mat-mdc-input-element {
-  text-align: center; /* texto centrado */
-  font-size: 14px;
-}
-
-/* 🔹 Contenedor para los íconos del matSuffix */
-.icon-suffix-container {
-  display: flex;
-  align-items: center;      /* centra verticalmente */
-  justify-content: center;  /* centra horizontalmente dentro del matSuffix */
-  gap: 6px;                 /* separación sutil entre íconos */
-  height: 100%;             /* iguala altura al input */
-  margin-right: 4px;        /* pequeño margen derecho */
-}
-
-/* 🔹 Ícono del cliente */
-.cliente-icon {
-  color: #2196f3;
-  font-size: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 🔹 Ajuste del botón 'close' */
-.icon-suffix-container button {
-  width: 26px;
-  height: 26px;
-  line-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-
-.full-width {
-  width: 100%;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 10px;
+  width: 100%;
 }
 
-.mat-header-cell {
-  font-weight: bold;
-  background-color: #f5f5f5;
+/* 🔹 Card individual de producto - Más compacto */
+.product-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(177, 22, 10, 0.12);
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.categoria-texto {
-  font-size: 12px;
-  color: #2196f3;
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #b9160a 0%, #d11616 100%);
 }
 
-.cantidad-control-horizontal {
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(177, 22, 10, 0.18);
+  transform: translateY(-1px);
+}
+
+/* 🔹 Contenido principal de la card - Más compacto */
+.card-main-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.product-basic-info {
+  flex: 1;
+}
+
+.product-header {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 
-.cantidad-control-horizontal button {
-  min-width: 26px;
-  height: 26px;
-  line-height: 0;
-  padding: 0;
-  border: 1px solid transparent;
-  background: transparent !important;
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
   color: #333;
-  transition: all 0.2s ease;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.cantidad-control-horizontal button:hover {
-  background: rgba(33, 150, 243, 0.08);
-  border: 1px solid rgba(33, 150, 243, 0.4);
-  border-radius: 6px; /* sutilmente cuadrado */
-  color: #1976d2;
+.categoria-badge {
+  background: linear-gradient(135deg, #b9160a 0%, #d11616 100%);
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
 
-
-
-.total-container {
-  text-align: right;
-  margin-top: 16px;
-  font-weight: bold;
-}
-
-.total-container button {
-  margin-top: 10px;
-  padding: 10px;
-  width: 100%;
-  font-weight: bold;
+.product-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .tamano-badge {
   display: inline-block;
-  background-color: #2196f3;
-  color: #fff;
-  font-size: 12px;
+  background: rgba(177, 22, 10, 0.1);
+  color: #b9160a;
+  font-size: 10px;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-weight: 600;
+  border: 1px solid rgba(177, 22, 10, 0.2);
 }
 
+.price-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #d11616;
+  background: rgba(209, 22, 22, 0.05);
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(209, 22, 22, 0.1);
+}
+
+/* 🔹 Acciones de la card */
+.card-actions {
+  display: flex;
+  align-items: flex-start;
+}
+
+.delete-btn {
+  background: rgba(244, 67, 54, 0.1) !important;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+}
+
+.delete-btn:hover {
+  background: rgba(244, 67, 54, 0.2) !important;
+  transform: scale(1.1);
+}
+
+/* 🔹 Footer de la card - Más compacto */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  gap: 12px;
+}
+
+/* Subtotal a la izquierda */
+.subtotal-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.subtotal-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.subtotal-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d11616;
+  background: rgba(209, 22, 22, 0.05);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(209, 22, 22, 0.1);
+}
+
+/* Cantidad a la derecha */
+.quantity-section {
+  display: flex;
+  align-items: center;
+}
+
+/* 🔹 Controles de cantidad con botones circulares */
+.cantidad-control-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  padding: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.qty-btn {
+  min-width: 24px !important;
+  height: 24px !important;
+  line-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #b9160a 0%, #d11616 100%) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(177, 22, 10, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  background: linear-gradient(135deg, #a01409 0%, #b81414 100%) !important;
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(177, 22, 10, 0.4);
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 2px rgba(177, 22, 10, 0.3);
+}
+
+.qty-btn .mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-number {
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #333;
+  padding: 0 4px;
+}
+
+/* 🔹 Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: #999;
+  border: 2px dashed #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  color: #ccc;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: #666;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+/* 🔹 Total container MODIFICADO - Mismo ancho que cards-container */
+.total-container {
+  width: 100%;
+  margin-top: 16px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.total-text {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #d11616;
+  background: rgba(209, 22, 22, 0.05);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(209, 22, 22, 0.1);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.order-btn {
+  background: linear-gradient(135deg, #b9160a 0%, #d11616 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(177, 22, 10, 0.3);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.order-btn:hover {
+  background: linear-gradient(135deg, #a01409 0%, #b81414 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(177, 22, 10, 0.4);
+  color: #ffffff !important;
+}
+
+.order-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(177, 22, 10, 0.3);
+}
+
+.order-btn .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: white;
+}
+
+/* 🔹 Responsive */
+@media (max-width: 768px) {
+  .cards-container {
+    gap: 10px;
+  }
+  
+  .card-main-content {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .card-actions {
+    align-self: flex-end;
+    margin-top: -6px;
+  }
+  
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 8px;
+  }
+  
+  .subtotal-section, .quantity-section {
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .product-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 3px;
+  }
+  
+  .product-details {
+    gap: 8px;
+  }
+  
+  .total-container {
+    margin-top: 14px;
+    gap: 10px;
+  }
+  
+  .total-text {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+  
+  .order-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card {
+    padding: 10px;
+  }
+  
+  .product-name {
+    font-size: 13px;
+  }
+  
+  .card-footer {
+    gap: 10px;
+  }
+  
+  .subtotal-section, .quantity-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .cantidad-control-horizontal {
+    align-self: flex-start;
+  }
+  
+  .subtotal-label {
+    font-size: 12px;
+  }
+  
+  .subtotal-value {
+    font-size: 13px;
+    padding: 3px 8px;
+  }
+  
+  .empty-state {
+    padding: 30px 12px;
+  }
+  
+  .empty-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .qty-btn {
+    min-width: 22px !important;
+    height: 22px !important;
+  }
+  
+  .qty-btn .mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .quantity-number {
+    font-size: 12px;
+  }
+  
+  .total-text {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+  
+  .order-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}

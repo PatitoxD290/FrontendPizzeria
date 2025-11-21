@@ -1,76 +1,60 @@
-<!-- 🔹 ELIMINADO: Se quita toda la sección de cliente-input-container -->
-
-<!-- 🔹 Tabla de detalle -->
-<table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
-
-  <!-- Producto -->
-  <ng-container matColumnDef="producto">
-    <th mat-header-cell *matHeaderCellDef>Producto</th>
-    <td mat-cell *matCellDef="let d">
-      <strong>{{ d.nombre_producto }}</strong>
-      <div class="categoria-texto">{{ d.nombre_categoria }}</div>
-    </td>
-  </ng-container>
-
-  <!-- Tamaño -->
-  <ng-container matColumnDef="tamano">
-    <th mat-header-cell *matHeaderCellDef>Tamaño</th>
-    <td mat-cell *matCellDef="let d">
-      <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
-    </td>
-  </ng-container>
-
-  <!-- Cantidad -->
-  <ng-container matColumnDef="cantidad">
-    <th mat-header-cell *matHeaderCellDef>Cant.</th>
-    <td mat-cell *matCellDef="let d">
-      <div class="cantidad-control-horizontal">
-        <button mat-mini-button (click)="reducirCantidad(d)">
-          <mat-icon>remove</mat-icon>
-        </button>
-        <span>{{ d.Cantidad }}</span>
-        <button mat-mini-button (click)="aumentarCantidad(d)">
-          <mat-icon>add</mat-icon>
+<!-- 🔹 Cards de productos compactas -->
+<div class="cards-container">
+  <div class="product-card" *ngFor="let d of detalles">
+    <!-- Header con información principal -->
+    <div class="card-main-content">
+      <div class="product-basic-info">
+        <div class="product-header">
+          <strong class="product-name">{{ d.nombre_producto }}</strong>
+          <span class="categoria-badge">{{ d.nombre_categoria }}</span>
+        </div>
+        <div class="product-details">
+          <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
+          <span class="price-tag">S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}</span>
+        </div>
+      </div>
+      
+      <div class="card-actions">
+        <button mat-icon-button color="warn" class="delete-btn" (click)="eliminar(d)">
+          <mat-icon>delete</mat-icon>
         </button>
       </div>
-    </td>
-  </ng-container>
+    </div>
 
-  <!-- Precio -->
-  <ng-container matColumnDef="precio">
-    <th mat-header-cell *matHeaderCellDef>Precio</th>
-    <td mat-cell *matCellDef="let d">
-      S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}
-    </td>
-  </ng-container>
+    <!-- Footer con controles y subtotal -->
+    <div class="card-footer">
+      <div class="subtotal-section">
+        <span class="subtotal-label">Subtotal:</span>
+        <span class="subtotal-value">S/ {{ d.PrecioTotal | number:'1.2-2' }}</span>
+      </div>
+      
+      <div class="quantity-section">
+        <div class="cantidad-control-horizontal">
+          <button mat-mini-button class="qty-btn qty-decrease" (click)="reducirCantidad(d)">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="quantity-number">{{ d.Cantidad }}</span>
+          <button mat-mini-button class="qty-btn qty-increase" (click)="aumentarCantidad(d)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Subtotal -->
-  <ng-container matColumnDef="subtotal">
-    <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-    <td mat-cell *matCellDef="let d">
-      S/ {{ d.PrecioTotal | number:'1.2-2' }}
-    </td>
-  </ng-container>
+  <!-- Mensaje cuando no hay productos -->
+  <div class="empty-state" *ngIf="detalles.length === 0">
+    <mat-icon class="empty-icon">shopping_cart</mat-icon>
+    <h3>No hay productos en el pedido</h3>
+    <p>Agrega productos para continuar</p>
+  </div>
+</div>
 
-  <!-- Acciones -->
-  <ng-container matColumnDef="acciones">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let d">
-      <button mat-icon-button color="warn" (click)="eliminar(d)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let d; columns: displayedColumns;"></tr>
-</table>
-
-<!-- 🔹 Total y botón -->
+<!-- 🔹 Total y botón MODIFICADO -->
 <div class="total-container">
-  <h3>Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
-  <button mat-raised-button color="primary" (click)="realizarPedido()">
+  <h3 class="total-text">Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
+  <button mat-raised-button class="order-btn" (click)="realizarPedido()">
     <mat-icon>send</mat-icon>
-    Realizar pedido
+    Confirmar pedido
   </button>
 </div>
