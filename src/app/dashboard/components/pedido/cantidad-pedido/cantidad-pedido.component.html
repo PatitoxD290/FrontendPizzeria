@@ -17,9 +17,14 @@
     <p class="producto-descripcion" *ngIf="descripcionItem">
       {{ descripcionItem }}
     </p>
+    
+    <!-- 🔹 NUEVO: Mostrar productos incluidos en el combo -->
+    <div *ngIf="esCombo" class="combo-detalles" [title]="getInfoCombo()">
+      <strong>Incluye:</strong> {{ getProductosCombo() }}
+    </div>
   </div>
 
-  <!-- 🔹 SELECTOR DE TAMAÑOS SOLO PARA PRODUCTOS -->
+  <!-- SELECTOR DE TAMAÑOS SOLO PARA PRODUCTOS -->
   <div class="tamanos-container" *ngIf="!esCombo && tamanosDisponibles.length > 0">
     <label class="tamanos-label">Selecciona un tamaño:</label>
     
@@ -40,7 +45,7 @@
     </div>
   </div>
 
-  <!-- 🔹 INFORMACIÓN DE PRECIO PARA COMBOS -->
+  <!-- INFORMACIÓN DE PRECIO PARA COMBOS -->
   <div class="precio-combo-container" *ngIf="esCombo">
     <div class="precio-info">
       <span class="precio-label">Precio del combo:</span>

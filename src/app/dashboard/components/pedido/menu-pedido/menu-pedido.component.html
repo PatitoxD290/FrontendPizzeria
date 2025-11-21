@@ -13,7 +13,7 @@
     Todos
   </button>
 
-  <!-- 🔹 NUEVO: Botón Combos -->
+  <!-- Botón Combos -->
   <button mat-raised-button 
           [color]="isCategoriaSeleccionada(CATEGORIA_COMBOS) ? 'primary' : ''" 
           class="combo-category-btn"
@@ -30,12 +30,13 @@
   </button>
 </div>
 
-<!-- 🔹 CAMBIO: LISTA DE PRODUCTOS Y COMBOS -->
+<!-- LISTA DE PRODUCTOS Y COMBOS -->
 <div class="menu-scroll">
   <mat-card *ngFor="let item of paginatedItems" 
             class="producto-card"
             [class.combo-card]="item.esCombo"
-            (click)="abrirModalCantidad(item)">
+            (click)="abrirModalCantidad(item)"
+            [title]="item.esCombo ? getInfoCombo(item) : ''">
     
     <mat-card-header>
       <mat-card-title>
@@ -46,21 +47,24 @@
         <span class="categoria" [class.combo-categoria]="item.esCombo">
           {{ getCategoria(item) }}
         </span>
-        <!-- 🔹 INDICADOR DE TAMAÑOS DISPONIBLES (solo productos) -->
+        <!-- INDICADOR DE TAMAÑOS DISPONIBLES (solo productos) -->
         <span *ngIf="!item.esCombo && tieneMultiplesTamanos(item)" class="multiples-tamanos">
           • {{ getTamanosDisponibles(item) }} tamaños
         </span>
         <span *ngIf="!item.esCombo && !tieneMultiplesTamanos(item)" class="tamano-unico">
           • 1 tamaño
         </span>
-        <span *ngIf="item.esCombo" class="combo-info">• Productos incluidos</span>
+        <!-- 🔹 CORREGIDO: Mostrar productos del combo -->
+        <span *ngIf="item.esCombo" class="combo-info" [title]="getInfoCombo(item)">
+          • {{ getProductosCombo(item) || 'Cargando productos...' }}
+        </span>
       </mat-card-subtitle>
     </mat-card-header>
     
     <mat-card-content>
       <p class="descripcion">{{ item.descripcion }}</p>
       
-      <!-- 🔹 PRECIO -->
+      <!-- PRECIO -->
       <div class="precio-container" [class.combo-precio]="item.esCombo">
         <span *ngIf="!item.esCombo && tieneMultiplesTamanos(item)" class="precio-desde">Desde: </span>
         <span *ngIf="item.esCombo" class="precio-combo-text">Precio especial: </span>
@@ -69,7 +73,7 @@
         </span>
       </div>
 
-      <!-- 🔹 Información adicional -->
+      <!-- Información adicional -->
       <div class="info-adicional">
         <small>Disponible • {{ getCantidadDisponible(item) }} unidades</small>
       </div>
@@ -84,7 +88,7 @@
   <p>No se encontraron productos o combos</p>
 </div>
 
-<!-- 🔹 Paginador Angular Material -->
+<!-- Paginador Angular Material -->
 <mat-paginator
   [length]="menuItemsFiltrados.length" 
   [pageSize]="pageSize" 

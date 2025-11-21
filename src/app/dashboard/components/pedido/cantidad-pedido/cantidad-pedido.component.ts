@@ -8,12 +8,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
-import { Combo } from '../../../../core/models/combo.model';
+import { Combo, ComboDetalle } from '../../../../core/models/combo.model'; // Importar ComboDetalle
 
 export interface CantidadPedidoData {
   producto?: Producto;
   combo?: Combo;
   esCombo?: boolean;
+  detallesCombo?: ComboDetalle[]; // 🔹 NUEVO: Agregar detalles del combo
 }
 
 @Component({
@@ -35,7 +36,6 @@ export class CantidadPedidoComponent implements OnInit {
   cantidad: number = 1;
   maxCantidad: number = 50;
   
-  // 🔹 CAMBIO: Solo para productos
   tamanosDisponibles: ProductoTamano[] = [];
   tamanoSeleccionado: ProductoTamano | null = null;
   
@@ -69,7 +69,28 @@ export class CantidadPedidoComponent implements OnInit {
     }
   }
 
-  // 🔹 CAMBIO: Seleccionar tamaño con botón (solo para productos)
+  // 🔹 NUEVO: Obtener productos incluidos en el combo
+  getProductosCombo(): string {
+    if (this.data.esCombo && this.data.detallesCombo) {
+      const productos = this.data.detallesCombo.map(detalle => 
+        `${detalle.Cantidad}x ${detalle.Producto_Nombre} (${detalle.Tamano_Nombre})`
+      );
+      return productos.join(', ');
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener información detallada del combo para tooltip
+  getInfoCombo(): string {
+    if (this.data.esCombo && this.data.detallesCombo) {
+      const productos = this.data.detallesCombo.map(detalle => 
+        `${detalle.Cantidad}x ${detalle.Producto_Nombre} - ${detalle.Tamano_Nombre}`
+      );
+      return `Este combo incluye:\n${productos.join('\n')}`;
+    }
+    return '';
+  }
+
   seleccionarTamano(tamano: ProductoTamano): void {
     if (!this.data.esCombo) {
       this.tamanoSeleccionado = tamano;
@@ -125,7 +146,9 @@ export class CantidadPedidoComponent implements OnInit {
         nombre_producto: this.data.combo.Nombre,
         nombre_categoria: 'Combo',
         nombre_tamano: 'Combo',
-        nombre_combo: this.data.combo.Nombre // 🔹 NUEVO: Nombre del combo
+        nombre_combo: this.data.combo.Nombre, // 🔹 NUEVO: Nombre del combo
+        // 🔹 NUEVO: Agregar información de detalles del combo
+        detallesCombo: this.data.detallesCombo || []
       };
     } else if (this.tamanoSeleccionado && this.data.producto) {
       // 🔹 CREAR DETALLE PARA PRODUCTO (existente)

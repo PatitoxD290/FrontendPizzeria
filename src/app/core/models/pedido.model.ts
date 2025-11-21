@@ -35,7 +35,9 @@ export interface PedidoDetalle {
   nombre_producto?: string;
   nombre_categoria?: string;
   nombre_tamano?: string;
-    nombre_combo?: string; 
+  nombre_combo?: string; 
+  detallesCombo?: any[]; 
+
 
 }
 

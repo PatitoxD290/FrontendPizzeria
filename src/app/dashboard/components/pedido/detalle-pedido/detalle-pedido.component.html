@@ -1,16 +1,28 @@
-<!-- 🔹 Cards de productos compactas -->
+<!-- 🔹 Cards de productos y combos compactas -->
 <div class="cards-container">
-  <div class="product-card" *ngFor="let d of detalles">
+  <div class="product-card" 
+       *ngFor="let d of detalles" 
+       [class.combo-card]="esCombo(d)"
+       [title]="esCombo(d) ? getInfoCombo(d) : ''">
+    
     <!-- Header con información principal -->
     <div class="card-main-content">
       <div class="product-basic-info">
         <div class="product-header">
-          <strong class="product-name">{{ d.nombre_producto }}</strong>
+          <strong class="product-name">
+            {{ d.nombre_producto || d.nombre_combo }}
+            <span *ngIf="esCombo(d)" class="combo-badge">COMBO</span>
+          </strong>
           <span class="categoria-badge">{{ d.nombre_categoria }}</span>
         </div>
         <div class="product-details">
           <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
           <span class="price-tag">S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}</span>
+        </div>
+        
+        <!-- 🔹 NUEVO: Mostrar productos incluidos en el combo -->
+        <div *ngIf="esCombo(d)" class="combo-detalles">
+          <small>{{ getProductosCombo(d) }}</small>
         </div>
       </div>
       
@@ -50,7 +62,7 @@
   </div>
 </div>
 
-<!-- 🔹 Total y botón MODIFICADO -->
+<!-- 🔹 Total y botón -->
 <div class="total-container">
   <h3 class="total-text">Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
   <button mat-raised-button class="order-btn" (click)="realizarPedido()">

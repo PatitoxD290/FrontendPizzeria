@@ -16,7 +16,7 @@ import { InfoTamanoComponent } from '../info-tamano/info-tamano.component';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
 import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.component';
 import { CombosService } from '../../../../core/services/combos.service';
-import { Combo } from '../../../../core/models/combo.model';
+import { Combo, ComboDetalle } from '../../../../core/models/combo.model'; // Importar ComboDetalle
 
 // 🔹 INTERFAZ PARA UNIR PRODUCTOS Y COMBOS
 interface MenuItem {
@@ -26,6 +26,7 @@ interface MenuItem {
   nombre: string;
   descripcion: string;
   esCombo?: boolean;
+  detallesCombo?: ComboDetalle[]; // 🔹 NUEVO: Agregar detalles del combo
 }
 
 @Component({
@@ -43,7 +44,6 @@ interface MenuItem {
   styleUrls: ['./menu-pedido.component.css']
 })
 export class MenuPedidoComponent implements OnInit {
-  // 🔹 CAMBIO: Ahora tenemos items del menú que pueden ser productos o combos
   productos: Producto[] = [];
   combos: Combo[] = [];
   menuItems: MenuItem[] = [];
@@ -53,10 +53,8 @@ export class MenuPedidoComponent implements OnInit {
   categoriaSeleccionada: number | null = null;
   terminoBusqueda: string = '';
   
-  // 🔹 NUEVO: Constante para identificar la categoría especial "Combos"
   readonly CATEGORIA_COMBOS = -1;
   
-  // 🔹 Variables de paginación
   pageSize = 6;
   currentPage = 0;
   paginatedItems: MenuItem[] = [];
@@ -82,24 +80,22 @@ export class MenuPedidoComponent implements OnInit {
     });
   }
 
-  // 🔹 NUEVO: Cargar productos y combos
+  // 🔹 CORREGIDO: Cargar productos y combos con detalles
   cargarProductosYCombos(): void {
     // Cargar productos
     this.productoService.getProductos().subscribe({
       next: (productosData) => {
-        // Solo productos activos que tengan tamaños activos
         this.productos = productosData.filter(p => 
           p.Estado === 'A' && 
           p.tamanos && 
           p.tamanos.some(t => t.Estado === 'A')
         );
         
-        // Asignar nombres de categoría
         this.productos.forEach(producto => {
           producto.nombre_categoria = this.obtenerNombreCategoria(producto.ID_Categoria_P);
         });
 
-        // Cargar combos
+        // Cargar combos con detalles
         this.combosService.getCombos().subscribe({
           next: (combosData) => {
             // Solo combos activos
@@ -115,7 +111,7 @@ export class MenuPedidoComponent implements OnInit {
     });
   }
 
-  // 🔹 NUEVO: Combinar productos y combos en un solo array para mostrar
+  // 🔹 CORREGIDO: Combinar productos y combos con detalles
   combinarProductosYCombos(): void {
     this.menuItems = [];
 
@@ -132,15 +128,18 @@ export class MenuPedidoComponent implements OnInit {
       });
     });
 
-    // Agregar combos
+    // 🔹 CORREGIDO: Agregar combos con detalles
     this.combos.forEach(combo => {
+      // Usar el combo extendido que incluye detalles
+      const comboConDetalles = combo as any;
       this.menuItems.push({
         tipo: 'combo',
         datos: combo,
         precio: combo.Precio,
         nombre: combo.Nombre,
         descripcion: combo.Descripcion,
-        esCombo: true
+        esCombo: true,
+        detallesCombo: comboConDetalles.detalles || [] // 🔹 NUEVO: Incluir detalles
       });
     });
 
@@ -165,33 +164,26 @@ export class MenuPedidoComponent implements OnInit {
   private aplicarFiltros(): void {
     let filtrados = [...this.menuItems];
     
-    // 🔹 FILTRAR POR CATEGORÍA (solo aplica a productos, no a combos)
     if (this.categoriaSeleccionada !== null) {
-      // 🔹 NUEVO: Lógica para la categoría especial "Combos"
       if (this.categoriaSeleccionada === this.CATEGORIA_COMBOS) {
-        // Mostrar solo combos
         filtrados = filtrados.filter(item => item.esCombo);
       } else {
-        // Filtrar por categoría normal (solo productos)
         filtrados = filtrados.filter(item => {
           if (item.tipo === 'producto') {
             const producto = item.datos as Producto;
             return producto.ID_Categoria_P === this.categoriaSeleccionada;
           }
-          // Los combos no tienen categoría, así que se muestran solo en "Todos" o "Combos"
           return false;
         });
       }
     }
     
-    // 🔹 FILTRAR POR TÉRMINO DE BÚSQUEDA
     if (this.terminoBusqueda.trim() !== '') {
       const termino = this.terminoBusqueda.toLowerCase();
       filtrados = filtrados.filter(item => {
         const nombreMatch = item.nombre.toLowerCase().includes(termino);
         const descripcionMatch = item.descripcion.toLowerCase().includes(termino);
         
-        // 🔹 CORRECCIÓN: Usar paréntesis para separar las operaciones lógicas
         const categoriaMatch = item.tipo === 'producto' && 
           ((item.datos as Producto).nombre_categoria?.toLowerCase().includes(termino) ?? false);
         
@@ -204,42 +196,38 @@ export class MenuPedidoComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
-  // 🔹 Actualizar la lista visible según la página actual
   actualizarPaginacion(): void {
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedItems = this.menuItemsFiltrados.slice(startIndex, endIndex);
   }
 
-  // 🔹 Cambiar de página
   onPageChange(event: any): void {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
     this.actualizarPaginacion();
   }
 
-  // 🔹 ABRIR MODAL CANTIDAD PARA PRODUCTOS Y COMBOS
-  abrirModalCantidad(item: MenuItem) {
-    const dialogRef = this.dialog.open(CantidadPedidoComponent, {
-      width: '400px',
-      data: {
-        producto: item.tipo === 'producto' ? item.datos : null,
-        combo: item.tipo === 'combo' ? item.datos : null,
-        esCombo: item.esCombo
-      },
-      disableClose: false,
-      autoFocus: false
-    });
+abrirModalCantidad(item: MenuItem) {
+  const dialogRef = this.dialog.open(CantidadPedidoComponent, {
+    width: '400px',
+    data: {
+      producto: item.tipo === 'producto' ? item.datos : null,
+      combo: item.tipo === 'combo' ? item.datos : null,
+      esCombo: item.esCombo,
+      detallesCombo: item.detallesCombo // 🔹 NUEVO: Pasar detalles del combo
+    },
+    disableClose: false,
+    autoFocus: false
+  });
 
-    dialogRef.afterClosed().subscribe((result: PedidoDetalle | undefined) => {
-      if (result) {
-        // Agregar al carrito con la cantidad seleccionada
-        this.ordenService.agregarProducto(result);
-      }
-    });
-  }
+  dialogRef.afterClosed().subscribe((result: PedidoDetalle | undefined) => {
+    if (result) {
+      this.ordenService.agregarProducto(result);
+    }
+  });
+}
 
-  // 🔹 Obtener el precio mínimo del producto
   getPrecioMinimoProducto(producto: Producto): number {
     if (!producto.tamanos || producto.tamanos.length === 0) return 0;
     
@@ -250,7 +238,6 @@ export class MenuPedidoComponent implements OnInit {
     return Math.min(...precios);
   }
 
-  // 🔹 Verificar si tiene múltiples tamaños (solo para productos)
   tieneMultiplesTamanos(item: MenuItem): boolean {
     if (item.tipo === 'producto') {
       const producto = item.datos as Producto;
@@ -259,7 +246,6 @@ export class MenuPedidoComponent implements OnInit {
     return false;
   }
 
-  // 🔹 Obtener información de tamaños disponibles (solo para productos)
   getTamanosDisponibles(item: MenuItem): number {
     if (item.tipo === 'producto') {
       const producto = item.datos as Producto;
@@ -268,7 +254,6 @@ export class MenuPedidoComponent implements OnInit {
     return 0;
   }
 
-  // 🔹 Obtener la categoría (solo para productos)
   getCategoria(item: MenuItem): string {
     if (item.tipo === 'producto') {
       const producto = item.datos as Producto;
@@ -277,17 +262,36 @@ export class MenuPedidoComponent implements OnInit {
     return 'Combo';
   }
 
-  // 🔹 Obtener cantidad disponible
   getCantidadDisponible(item: MenuItem): number {
     if (item.tipo === 'producto') {
       const producto = item.datos as Producto;
       return producto.Cantidad_Disponible || 0;
     }
-    // Para combos, podrías implementar lógica específica si es necesario
-    return 0; // O un valor por defecto alto
+    return 0;
   }
 
-  // 🔹 NUEVO: Obtener el texto del botón de categoría
+  // 🔹 NUEVO: Obtener los productos incluidos en el combo
+  getProductosCombo(item: MenuItem): string {
+    if (item.tipo === 'combo' && item.detallesCombo) {
+      const productos = item.detallesCombo.map(detalle => 
+        `${detalle.Producto_Nombre} (${detalle.Tamano_Nombre}) x${detalle.Cantidad}`
+      );
+      return productos.join(', ');
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener información resumida del combo para tooltip
+  getInfoCombo(item: MenuItem): string {
+    if (item.tipo === 'combo' && item.detallesCombo) {
+      const productos = item.detallesCombo.map(detalle => 
+        `${detalle.Cantidad}x ${detalle.Producto_Nombre} - ${detalle.Tamano_Nombre}`
+      );
+      return `Incluye:\n${productos.join('\n')}`;
+    }
+    return '';
+  }
+
   getCategoriaTexto(categoriaId: number | null): string {
     if (categoriaId === null) return 'Todos';
     if (categoriaId === this.CATEGORIA_COMBOS) return 'Combos';
@@ -296,7 +300,6 @@ export class MenuPedidoComponent implements OnInit {
     return categoria ? categoria.Nombre : 'Sin categoría';
   }
 
-  // 🔹 NUEVO: Verificar si la categoría está seleccionada
   isCategoriaSeleccionada(categoriaId: number | null): boolean {
     return this.categoriaSeleccionada === categoriaId;
   }

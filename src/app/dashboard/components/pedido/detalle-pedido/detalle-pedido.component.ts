@@ -18,6 +18,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { TamanoService } from '../../../../core/services/tamano.service';
 import { Tamano } from '../../../../core/models/tamano.model';
+import { ComboDetalle } from '../../../../core/models/combo.model'; // 🔹 NUEVO: Importar ComboDetalle
 
 import { MatDialog } from '@angular/material/dialog';
 import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component';
@@ -43,7 +44,6 @@ export class DetallePedidoComponent implements OnInit {
   tamanos: Tamano[] = [];
   displayedColumns = ['producto', 'tamano', 'cantidad', 'precio', 'subtotal', 'acciones'];
   
-  // 🔹 ELIMINADO: Campos de documento movidos a venta-pedido
   codigoPedido: string = '';
 
   constructor(
@@ -75,10 +75,38 @@ export class DetallePedidoComponent implements OnInit {
     return detalle.nombre_tamano || '—';
   }
 
+  // 🔹 NUEVO: Verificar si es un combo
+  esCombo(detalle: PedidoDetalle): boolean {
+    return !!detalle.ID_Combo || !!detalle.nombre_combo;
+  }
+
+  // 🔹 NUEVO: Obtener productos incluidos en el combo
+  getProductosCombo(detalle: PedidoDetalle): string {
+    if (this.esCombo(detalle) && (detalle as any).detallesCombo) {
+      const detallesCombo = (detalle as any).detallesCombo as ComboDetalle[];
+      const productos = detallesCombo.map(d => 
+        `${d.Cantidad}x ${d.Producto_Nombre} (${d.Tamano_Nombre})`
+      );
+      return productos.join(', ');
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener información detallada del combo para tooltip
+  getInfoCombo(detalle: PedidoDetalle): string {
+    if (this.esCombo(detalle) && (detalle as any).detallesCombo) {
+      const detallesCombo = (detalle as any).detallesCombo as ComboDetalle[];
+      const productos = detallesCombo.map(d => 
+        `${d.Cantidad}x ${d.Producto_Nombre} - ${d.Tamano_Nombre}`
+      );
+      return `Este combo incluye:\n${productos.join('\n')}`;
+    }
+    return '';
+  }
+
   aumentarCantidad(detalle: PedidoDetalle) {
     const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
     
-    // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
     const idProductoTamano = detalle.ID_Producto_T || 0;
     const idCombo = detalle.ID_Combo || 0;
     
@@ -89,7 +117,6 @@ export class DetallePedidoComponent implements OnInit {
     if (detalle.Cantidad > 1) {
       const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
       
-      // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
       const idProductoTamano = detalle.ID_Producto_T || 0;
       const idCombo = detalle.ID_Combo || 0;
       
@@ -108,7 +135,6 @@ export class DetallePedidoComponent implements OnInit {
       confirmButtonColor: '#d33',
     }).then(result => {
       if (result.isConfirmed) {
-        // 🔹 CORRECCIÓN: Usar valores por defecto para evitar undefined
         const idProductoTamano = detalle.ID_Producto_T || 0;
         const idCombo = detalle.ID_Combo || 0;
         
@@ -147,7 +173,6 @@ export class DetallePedidoComponent implements OnInit {
     const usuarioLogueado = this.authService.getUser();
     const idUsuario = usuarioLogueado?.ID_Usuario ?? 1;
 
-    // 🔹 MODIFICADO: Abrir modal directamente sin validar cliente aquí
     this.abrirModalPago(idUsuario);
   }
 
@@ -164,7 +189,6 @@ export class DetallePedidoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.registrado) {
-        // 🔹 Limpiar carrito si se registró exitosamente
         this.ordenService.limpiar();
         this.generarCodigoPedido();
         
