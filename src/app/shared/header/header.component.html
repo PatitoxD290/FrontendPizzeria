@@ -14,8 +14,8 @@
       class="categoria-btn"
       [class.active]="filtroCategoria === ''"
       (click)="cambiarCategoria('')">
-      <mat-icon>list</mat-icon>
-      Todos
+      <img src="/assets/icons/ic-menu.png" alt="Todos" class="categoria-icon">
+      <span class="categoria-texto">Todos</span>
     </button>
 
     <!-- Botones de categorías individuales -->
@@ -24,8 +24,8 @@
       class="categoria-btn"
       [class.active]="filtroCategoria === cat.nombre"
       (click)="cambiarCategoria(cat.nombre)">
-      <mat-icon>{{ getIconoCategoria(cat.nombre) }}</mat-icon>
-      {{ cat.nombre }}
+      <img [src]="getIconoCategoria(cat.nombre)" [alt]="cat.nombre" class="categoria-icon">
+      <span class="categoria-texto">{{ cat.nombre }}</span>
     </button>
   </div>
 </header>

@@ -4,13 +4,12 @@ import { Router, ActivatedRoute, NavigationEnd, Data } from '@angular/router';
 import { filter, map, mergeMap, startWith } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatIconModule } from '@angular/material/icon';
 import { CategoriaService } from '../../core/services/categoria.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonToggleModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatButtonToggleModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -83,15 +82,36 @@ export class HeaderComponent implements OnInit {
 
   getIconoCategoria(nombre: string): string {
     const lower = nombre.toLowerCase();
-    if (lower.includes('pizza')) return 'local_pizza';
-    if (lower.includes('bebida')) return 'local_drink';
-    if (lower.includes('combo')) return 'fastfood';
-    return 'category';
+    
+    // Bebidas
+    if (lower === 'bebida' || lower === 'bebidas') {
+      return '/assets/icons/ic-bebida.png';
+    }
+    
+    // Pizza Clásica
+    if (lower.includes('pizza clásica') || lower.includes('pizzas clásicas') || 
+        lower.includes('pizza clasica') || lower.includes('pizzas clasicas') ||
+        lower.includes('pizza clásicas') || lower.includes('pizzas clásica')) {
+      return '/assets/icons/ic-pizza-cl.png';
+    }
+    
+    // Pizza Especial
+    if (lower.includes('pizza especial') || lower.includes('pizzas especiales') ||
+        lower.includes('pizza especiales') || lower.includes('pizzas especial')) {
+      return '/assets/icons/ic-pizza-es.png';
+    }
+    
+    // Combos
+    if (lower.includes('combo')) {
+      return '/assets/icons/ic-combo.png';
+    }
+    
+    // Icono por defecto para otras categorías
+    return '/assets/icons/ic-combo.png';
   }
 
   cambiarCategoria(categoria: string): void {
     this.filtroCategoria = categoria;
-    // Emitir evento para que el MenuComponent lo escuche
     window.dispatchEvent(new CustomEvent('cambioCategoria', { detail: categoria }));
   }
 }
