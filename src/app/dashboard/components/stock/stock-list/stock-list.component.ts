@@ -149,6 +149,7 @@ export class StockListComponent implements OnInit, AfterViewInit {
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
+<<<<<<< HEAD
   openMovimientoModal(stock?: Stock) {
     const dialogRef = this.dialog.open(StockFormComponent, {
       width: '600px',
@@ -160,6 +161,26 @@ export class StockListComponent implements OnInit, AfterViewInit {
       if (result) this.loadStocks();
     });
   }
+=======
+openMovimientoModal(stock?: Stock) {
+  const dialogRef = this.dialog.open(StockFormComponent, {
+    width: '600px',
+    maxWidth: '95vw',
+    maxHeight: '90vh',
+    panelClass: 'stock-form-dialog', // Clase adicional para personalización
+    data: stock ? { 
+      ID_Stock: stock.ID_Stock,
+      stockData: stock 
+    } : null
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.loadStocks(); // Recargar la lista después de un movimiento
+    }
+  });
+}
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 
   // ✅ NUEVO: Método para ver historial
   verMovimientos(stock: Stock) {

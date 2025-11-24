@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="pedido-container">
   
   <!-- Header -->
@@ -102,4 +103,77 @@
       PROCESAR PAGO
     </button>
   </div>
+=======
+<!-- 🔹 Cards de productos y combos compactas -->
+<div class="cards-container">
+  <div class="product-card" 
+       *ngFor="let d of detalles" 
+       [class.combo-card]="esCombo(d)"
+       [title]="esCombo(d) ? getInfoCombo(d) : ''">
+    
+    <!-- Header con información principal -->
+    <div class="card-main-content">
+      <div class="product-basic-info">
+        <div class="product-header">
+          <strong class="product-name">
+            {{ d.nombre_producto || d.nombre_combo }}
+            <span *ngIf="esCombo(d)" class="combo-badge">COMBO</span>
+          </strong>
+          <span class="categoria-badge">{{ d.nombre_categoria }}</span>
+        </div>
+        <div class="product-details">
+          <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
+          <span class="price-tag">S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}</span>
+        </div>
+        
+        <!-- 🔹 NUEVO: Mostrar productos incluidos en el combo -->
+        <div *ngIf="esCombo(d)" class="combo-detalles">
+          <small>{{ getProductosCombo(d) }}</small>
+        </div>
+      </div>
+      
+      <div class="card-actions">
+        <button mat-icon-button color="warn" class="delete-btn" (click)="eliminar(d)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer con controles y subtotal -->
+    <div class="card-footer">
+      <div class="subtotal-section">
+        <span class="subtotal-label">Subtotal:</span>
+        <span class="subtotal-value">S/ {{ d.PrecioTotal | number:'1.2-2' }}</span>
+      </div>
+      
+      <div class="quantity-section">
+        <div class="cantidad-control-horizontal">
+          <button mat-mini-button class="qty-btn qty-decrease" (click)="reducirCantidad(d)">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="quantity-number">{{ d.Cantidad }}</span>
+          <button mat-mini-button class="qty-btn qty-increase" (click)="aumentarCantidad(d)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay productos -->
+  <div class="empty-state" *ngIf="detalles.length === 0">
+    <mat-icon class="empty-icon">shopping_cart</mat-icon>
+    <h3>No hay productos en el pedido</h3>
+    <p>Agrega productos para continuar</p>
+  </div>
+</div>
+
+<!-- 🔹 Total y botón -->
+<div class="total-container">
+  <h3 class="total-text">Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
+  <button mat-raised-button class="order-btn" (click)="realizarPedido()">
+    <mat-icon>send</mat-icon>
+    Confirmar pedido
+  </button>
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 </div>

@@ -29,6 +29,7 @@ export class OrdenService {
       return;
     }
 
+<<<<<<< HEAD
     // Validar si es Combo o Producto
     const esCombo = !!detalle.ID_Combo;
     const idBusqueda = esCombo ? detalle.ID_Combo : detalle.ID_Producto_T;
@@ -46,6 +47,13 @@ export class OrdenService {
         return d.ID_Producto_T === idBusqueda && !d.ID_Combo; // Asegurar que no sea parte de un combo mixto
       }
     });
+=======
+    // 🔹 CAMBIO: Buscar por ID_Producto_T O ID_Combo
+    const existente = this.detalles.find(d => 
+      (detalle.ID_Producto_T && d.ID_Producto_T === detalle.ID_Producto_T) ||
+      (detalle.ID_Combo && d.ID_Combo === detalle.ID_Combo)
+    );
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 
     if (existente) {
       // Actualizar existente
@@ -63,6 +71,7 @@ export class OrdenService {
     this.actualizarEstado();
   }
 
+<<<<<<< HEAD
   // ==========================================
   // ⬆️ AUMENTAR CANTIDAD
   // ==========================================
@@ -108,6 +117,56 @@ export class OrdenService {
     });
     this.actualizarEstado();
   }
+=======
+  // ⬆️ Aumentar cantidad
+  aumentarCantidad(idProductoTamano: number, idCombo: number, precioBase: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    const detalle = this.detalles.find(d => 
+      (idProducto > 0 && d.ID_Producto_T === idProducto) ||
+      (idComboVal > 0 && d.ID_Combo === idComboVal)
+    );
+    
+    if (detalle) {
+      detalle.Cantidad++;
+      detalle.PrecioTotal = detalle.Cantidad * precioBase;
+      this.detallesSubject.next([...this.detalles]);
+    }
+  }
+
+  reducirCantidad(idProductoTamano: number, idCombo: number, precioBase: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    const detalle = this.detalles.find(d => 
+      (idProducto > 0 && d.ID_Producto_T === idProducto) ||
+      (idComboVal > 0 && d.ID_Combo === idComboVal)
+    );
+    
+    if (detalle && detalle.Cantidad > 1) {
+      detalle.Cantidad--;
+      detalle.PrecioTotal = detalle.Cantidad * precioBase;
+      this.detallesSubject.next([...this.detalles]);
+    } else if (detalle && detalle.Cantidad === 1) {
+      this.eliminarProducto(idProducto, idComboVal);
+    }
+  }
+
+  eliminarProducto(idProductoTamano: number, idCombo: number) {
+    // 🔹 CORRECCIÓN: Asegurar que los IDs sean números válidos
+    const idProducto = idProductoTamano || 0;
+    const idComboVal = idCombo || 0;
+    
+    this.detalles = this.detalles.filter(d => 
+      !((idProducto > 0 && d.ID_Producto_T === idProducto) ||
+        (idComboVal > 0 && d.ID_Combo === idComboVal))
+    );
+    this.detallesSubject.next([...this.detalles]);
+  }
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 
   // ==========================================
   // 🧹 LIMPIAR TODO

@@ -73,7 +73,10 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.modalStateService.cerrarModal();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO
+    setTimeout(() => {
+      this.modalStateService.cerrarModal();
+    });
   }
 
   private inicializarDatos() {

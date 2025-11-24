@@ -7,88 +7,12 @@
 
     <div class="logo-container" (click)="navigateTo('/dashboard/home')">
       <div class="logo-icon">
-        <img src="/assets/imgs/logop.jpg" alt="Logo Pizzería" class="logo-img">
+        <img src="/assets/imgs/logo-aita/logop.jpg" alt="Logo Pizzería" class="logo-img">
       </div>
     </div>
   </div>
 
-  <div class="navbar-center">
-    <div class="search-container">
-      <div class="search-bar" [class.search-active]="showSuggestions">
-        <div class="search-input-container">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input 
-            type="text" 
-            placeholder="Buscar pedidos, clientes, productos..." 
-            [(ngModel)]="searchQuery"
-            (keyup.enter)="onSearch()"
-            (focus)="onSearchFocus()"
-            (blur)="onSearchBlur()"
-            class="search-input">
-          <button mat-icon-button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      </div>
-      
-      <!-- SUGERENCIAS DE BÚSQUEDA MEJORADAS -->
-      <div class="search-suggestions" *ngIf="showSuggestions && searchQuery">
-        <div class="suggestion-header">
-          <mat-icon class="suggestion-header-icon">search</mat-icon>
-          <span class="suggestion-header-text">Resultados para "{{ searchQuery }}"</span>
-        </div>
-        
-        <div class="suggestion-category">
-          <div class="category-title">Búsqueda rápida</div>
-          <div class="suggestion-item" (click)="searchByType('pedido')">
-            <div class="suggestion-icon-wrapper">
-              <div class="suggestion-icon-bg pedido">
-                <mat-icon>receipt_long</mat-icon>
-              </div>
-            </div>
-            <div class="suggestion-content">
-              <span class="suggestion-title">Pedidos</span>
-              <span class="suggestion-desc">Buscar en pedidos</span>
-            </div>
-            <div class="suggestion-shortcut">
-              <span class="shortcut-text">Enter</span>
-            </div>
-          </div>
-          
-          <div class="suggestion-item" (click)="searchByType('cliente')">
-            <div class="suggestion-icon-wrapper">
-              <div class="suggestion-icon-bg cliente">
-                <mat-icon>person</mat-icon>
-              </div>
-            </div>
-            <div class="suggestion-content">
-              <span class="suggestion-title">Clientes</span>
-              <span class="suggestion-desc">Buscar en clientes</span>
-            </div>
-          </div>
-          
-          <div class="suggestion-item" (click)="searchByType('producto')">
-            <div class="suggestion-icon-wrapper">
-              <div class="suggestion-icon-bg producto">
-                <mat-icon>inventory_2</mat-icon>
-              </div>
-            </div>
-            <div class="suggestion-content">
-              <span class="suggestion-title">Productos</span>
-              <span class="suggestion-desc">Buscar en productos</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="suggestion-footer">
-          <div class="footer-tip">
-            <mat-icon>keyboard</mat-icon>
-            <span>Presiona Enter para búsqueda general</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- SECCIÓN CENTRAL ELIMINADA (BUSCADOR) -->
 
   <div class="navbar-right">
     <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">

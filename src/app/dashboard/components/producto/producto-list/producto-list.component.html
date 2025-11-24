@@ -83,11 +83,33 @@
       </mat-card-content>
 
       <!-- Acciones -->
+<<<<<<< HEAD
       <mat-card-actions align="end" class="card-actions">
         <button mat-icon-button color="primary" (click)="openProductoForm(p)" matTooltip="Editar">
           <mat-icon>edit</mat-icon>
         </button>
         <button mat-icon-button color="warn" (click)="deleteProducto(p)" matTooltip="Eliminar">
+=======
+       <mat-card-actions class="card-actions">
+        <button 
+          mat-icon-button 
+          color="primary" 
+          (click)="openProductoForm(producto)" 
+          class="action-button"
+          matTooltip="Editar producto"
+          matTooltipPosition="above"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
+          color="warn" 
+          (click)="deleteProducto(producto)" 
+          class="action-button"
+          matTooltip="Eliminar producto"
+          matTooltipPosition="above"
+        >
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
           <mat-icon>delete</mat-icon>
         </button>
       </mat-card-actions>

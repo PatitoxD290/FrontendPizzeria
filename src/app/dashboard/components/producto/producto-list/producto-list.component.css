@@ -299,22 +299,56 @@
   padding: 0 8px 8px;
   display: flex;
   gap: 4px;
-}
-
-.action-button {
-  flex: 1;
-  height: 24px;
-  font-size: 0.7rem;
-  display: flex;
-  align-items: center;
-  gap: 2px;
   justify-content: center;
 }
 
+.action-button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
 .action-button mat-icon {
-  font-size: 12px;
-  width: 12px;
-  height: 12px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Ajustes específicos para botones de icono */
+.mat-icon-button[color="primary"] {
+  color: #1976d2;
+}
+
+.mat-icon-button[color="warn"] {
+  color: #d32f2f;
+}
+
+/* Para pantallas muy pequeñas, hacer los botones aún más compactos */
+@media (max-width: 480px) {
+  .card-actions {
+    padding: 0 6px 6px;
+    gap: 3px;
+  }
+  
+  .action-button {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .action-button mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
 }
 
 /* Pagination - Manteniendo Angular Material actual */

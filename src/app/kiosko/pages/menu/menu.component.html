@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="kiosko-container">
   
   <!-- 🔍 Barra Superior -->
@@ -12,6 +13,72 @@
       <button *ngIf="terminoBusqueda" mat-icon-button (click)="limpiarBusqueda()">
         <mat-icon>close</mat-icon>
       </button>
+=======
+<div class="menu-container">
+  <!-- 🧾 Lista de productos - AHORA MUESTRA PRODUCTOS CON RANGO DE PRECIOS -->
+  <div class="productos-grid">
+    <div
+      *ngFor="let p of productosFiltrados"
+      class="producto-card"
+      (click)="abrirPersonalizacion(p)"
+      style="cursor: pointer"
+    >
+      <div class="producto-imagen-container">
+        <img
+          [src]="p.imagen"
+          (error)="p.imagen = '/assets/imgs/logo.png'"
+          [alt]="p.Nombre"
+          class="producto-imagen"
+        />
+      </div>
+      <div class="producto-info">
+
+        <!-- 🔹 CONTENEDOR PARA CATEGORÍA Y BADGES EN LA MISMA LÍNEA -->
+        <div class="categoria-badges-container">
+          <!-- Categoría a la izquierda -->
+          <div class="meta-item categoria-item" *ngIf="!p.esCombo">
+            <span class="meta-value">{{ p.nombre_categoria }}</span>
+          </div>
+
+          <!-- Badges a la derecha -->
+          <div class="badges-right">
+            <!-- 🔹 Indicador de combo -->
+            <div *ngIf="p.esCombo" class="combo-badge meta-badge">
+              <img src="/assets/icons/ic-combo.png" alt="Combo" class="badge-icon">
+              Combo
+            </div>
+
+            <!-- 🔹 Indicador de tamaños disponibles -->
+            <div *ngIf="!p.esCombo && p.tamanos && p.tamanos.length > 1" class="tamanos-badge meta-badge">
+              <img src="/assets/icons/ic-regla.png" alt="Tamaños" class="badge-icon">
+              {{ p.tamanos.length }} Tamaños
+            </div>
+          </div>
+        </div>
+
+        <h3 class="producto-nombre">{{ p.Nombre }}</h3>
+
+        <!-- 🔹 Mostrar detalles de combo DEBAJO de la descripción -->
+        <div *ngIf="p.esCombo && p.detallesTexto" class="producto-detalles">
+          {{ p.detallesTexto }}
+        </div>
+
+        <p class="producto-descripcion">{{ p.Descripcion }}</p>
+
+        <!-- 🔹 INFORMACIÓN COMPLETA EN ORDEN VERTICAL -->
+        <div class="producto-meta-info">
+          <!-- Precio - "Desde" para productos con múltiples tamaños -->
+          <div class="meta-item precio-item">
+            <span class="meta-value precio">
+              <span *ngIf="!p.esCombo && (p.tamanos?.length || 0) > 1" class="desde-label"
+                >Precio Desde
+              </span>
+              {{ obtenerRangoPrecios(p) }}
+            </span>
+          </div>
+        </div>
+      </div>
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
     </div>
   </div>
 

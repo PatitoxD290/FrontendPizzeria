@@ -23,6 +23,9 @@ import { MatChipsModule } from '@angular/material/chips';
 
 import Swal from 'sweetalert2';
 
+// SweetAlert2
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-proveedor-list',
   standalone: true,
@@ -95,11 +98,16 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
       error: err => { 
         console.error('Error al cargar proveedores', err); 
         this.loading = false;
+<<<<<<< HEAD
         Swal.fire('Error', 'No se pudieron cargar los proveedores', 'error');
+=======
+        this.showErrorAlert('Error al cargar proveedores');
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
       }
     });
   }
 
+<<<<<<< HEAD
   // 🔍 Filtro
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -115,11 +123,18 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
     Swal.fire({
       title: '¿Eliminar proveedor?',
       text: `Se eliminará a "${proveedor.Nombre}".`,
+=======
+  deleteProveedor(id: number) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡Esta acción no se puede revertir!",
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
+<<<<<<< HEAD
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -137,10 +152,18 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
             }
           }
         });
+=======
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeDeleteProveedor(id);
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
       }
     });
   }
 
+<<<<<<< HEAD
   // 🔄 Cambiar Estado
   cambiarEstadoProveedor(proveedor: Proveedor) {
     const nuevoEstado = proveedor.Estado === 'A' ? 'I' : 'A';
@@ -171,11 +194,110 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
             Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
           }
         });
+=======
+  private executeDeleteProveedor(id: number) {
+    this.proveedorService.deleteProveedor(id).subscribe({ 
+      next: () => {
+        this.loadProveedores();
+        Swal.fire({
+          title: '¡Eliminado!',
+          text: 'Proveedor eliminado correctamente',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }, 
+      error: err => {
+        console.error(err);
+        this.showErrorAlert('Error al eliminar proveedor');
       }
     });
   }
 
+  // ✅ CORREGIDO: Método para cambiar estado (Activar/Desactivar)
+  cambiarEstadoProveedor(proveedor: Proveedor) {
+    const nuevoEstado: 'A' | 'I' = proveedor.Estado === 'A' ? 'I' : 'A';
+    const accion = nuevoEstado === 'A' ? 'activar' : 'desactivar';
+    const estadoTexto = nuevoEstado === 'A' ? 'Activo' : 'Inactivo';
+    
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} proveedor?`,
+      text: `El proveedor pasará a estado "${estadoTexto}"`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: nuevoEstado === 'A' ? '#3085d6' : '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: `Sí, ${accion}`,
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeStatusChange(proveedor, nuevoEstado);
+      }
+    });
+  }
+
+  // ✅ CORREGIDO: Tipo específico para nuevoEstado
+  private executeStatusChange(proveedor: Proveedor, nuevoEstado: 'A' | 'I') {
+    this.changingState = proveedor.ID_Proveedor;
+    
+    this.proveedorService.statusProveedor(proveedor.ID_Proveedor, nuevoEstado).subscribe({
+      next: (response) => {
+        // Actualizar el estado localmente sin recargar toda la lista
+        proveedor.Estado = nuevoEstado;
+        this.changingState = null;
+        
+        const mensaje = nuevoEstado === 'A' ? 'Proveedor activado correctamente' : 'Proveedor desactivado correctamente';
+        const icon = nuevoEstado === 'A' ? 'success' : 'info';
+        
+        Swal.fire({
+          title: '¡Estado actualizado!',
+          text: mensaje,
+          icon: icon,
+          confirmButtonText: 'Aceptar',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      },
+      error: (error) => {
+        console.error('Error al cambiar estado:', error);
+        this.changingState = null;
+        this.showErrorAlert('Error al cambiar el estado del proveedor');
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
+      }
+    });
+  }
+
+<<<<<<< HEAD
   // 📝 Abrir Modal
+=======
+  // ✅ NUEVO: Método para obtener el texto del botón según el estado
+  getEstadoButtonText(estado: 'A' | 'I'): string {
+    return estado === 'A' ? 'Desactivar' : 'Activar';
+  }
+
+  // ✅ NUEVO: Método para obtener el color del botón según el estado
+  getEstadoButtonColor(estado: 'A' | 'I'): string {
+    return estado === 'A' ? 'warn' : 'primary';
+  }
+
+  // ✅ ACTUALIZADO: Método para obtener el icono según el estado - block para desactivar, check para activar
+  getEstadoButtonIcon(estado: 'A' | 'I'): string {
+    return estado === 'A' ? 'block' : 'check';
+  }
+
+  // ✅ NUEVO: Método para verificar si el botón editar debe estar deshabilitado
+  canEditProveedor(estado: 'A' | 'I'): boolean {
+    return estado === 'A'; // Solo se puede editar si está activo
+  }
+
+  // ✅ NUEVO: Método para verificar si el botón eliminar debe estar deshabilitado
+  canDeleteProveedor(estado: 'A' | 'I'): boolean {
+    return estado === 'I'; // Solo se puede eliminar si está inactivo
+  }
+
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   openProveedorForm(proveedor?: Proveedor) {
     const dialogRef = this.dialog.open(ProveedorFormComponent, { 
       width: '700px', 
@@ -187,6 +309,7 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
     });
   }
 
+<<<<<<< HEAD
   // 🔧 Helpers Visuales
   getEstadoClass(estado: string): string {
     return estado === 'A' ? 'estado-activo' : 'estado-inactivo';
@@ -194,5 +317,23 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
 
   getEstadoLabel(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
+=======
+  // ✅ NUEVO: Método para mostrar alertas de error
+  private showErrorAlert(message: string) {
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+
+  // ✅ MÉTODO ACTUALIZADO: Para mantener compatibilidad con snackbars existentes
+  private showSnackBar(message: string, type: 'success' | 'error') {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 3000,
+      panelClass: type === 'success' ? ['snackbar-success'] : ['snackbar-error']
+    });
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   }
 }

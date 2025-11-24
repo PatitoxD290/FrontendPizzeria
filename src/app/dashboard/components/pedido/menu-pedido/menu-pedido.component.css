@@ -51,6 +51,7 @@
 }
 
 /* ====== PRODUCTO CARD ====== */
+/* Asegurar que las cards tengan el mismo tamaño */
 .producto-card {
   width: 200px;
   min-height: 180px;
@@ -88,6 +89,56 @@
   font-weight: 500;
 }
 
+
+/* ====== ESTILOS PARA COMBOS ====== */
+.combo-card {
+  border: 2px solid #ff9800 !important;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%) !important;
+}
+
+.combo-card:hover {
+  background: linear-gradient(135deg, #ffecb3 0%, #ffd54f 100%) !important;
+  border-color: #f57c00 !important;
+}
+
+.combo-badge {
+  background-color: #ff9800;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.combo-categoria {
+  color: #ff9800 !important;
+  font-weight: 600;
+}
+
+.combo-info {
+  color: #ff9800;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.combo-precio {
+  background-color: #fff3e0 !important;
+  border: 1px solid #ffb74d !important;
+}
+
+.precio-combo-text {
+  font-size: 12px;
+  color: #e65100;
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.combo-precio-number {
+  color: #e65100 !important;
+  font-weight: 700;
+}
+
 .producto-card .categoria {
   color: #2196f3;
 }
@@ -95,6 +146,50 @@
 .producto-card .tamano {
   color: #ff9800;
   font-weight: 600;
+}
+
+/* 🔹 ESTILOS PARA EL BOTÓN DE CATEGORÍA COMBOS */
+.combo-category-btn {
+  background-color: #fff3e0 !important;
+  color: #e65100 !important;
+  border: 2px solid #ff9800 !important;
+  font-weight: 600;
+}
+
+.combo-category-btn:hover {
+  background-color: #ffecb3 !important;
+  color: #bf360c !important;
+}
+
+.combo-category-btn[color="primary"] {
+  background-color: #ff9800 !important;
+  color: white !important;
+  border-color: #f57c00 !important;
+}
+
+/* 🔹 ESTILOS PARA MENSAJE DE NO RESULTADOS */
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-results mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.no-results p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 /* ====== CONTENIDO ====== */

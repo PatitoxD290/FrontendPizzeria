@@ -310,60 +310,92 @@
   padding: 0 8px 8px;
   display: flex;
   gap: 4px;
-}
-
-.action-button {
-  flex: 1;
-  height: 24px;
-  font-size: 0.7rem;
-  display: flex;
-  align-items: center;
-  gap: 2px;
   justify-content: center;
 }
 
+.action-button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
 .action-button mat-icon {
-  font-size: 12px;
-  width: 12px;
-  height: 12px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Ajustes específicos para botones de icono */
+.mat-icon-button[color="primary"] {
+  color: #1976d2;
 }
 
-
-.action-button[color="primary"]:not(.mat-flat-button) {
-  border-color: #28a745;
-  color: #28a745;
+.mat-icon-button[color="warn"] {
+  color: #d32f2f;
 }
 
-.action-button[color="warn"]:not(.mat-flat-button) {
-  border-color: #ffc107;
-  color: #ff9800;
+/* Para el botón de activar (estado inactivo) */
+.action-button[color="primary"]:hover {
+  background-color: rgba(25, 118, 210, 0.1);
 }
 
-.action-button[color="primary"]:not(.mat-flat-button):hover {
-  background-color: rgba(40, 167, 69, 0.1);
-}
-
-.action-button[color="warn"]:not(.mat-flat-button):hover {
-  background-color: rgba(255, 193, 7, 0.1);
+/* Para el botón de desactivar/eliminar (estado activo) */
+.action-button[color="warn"]:hover {
+  background-color: rgba(211, 47, 47, 0.1);
 }
 
 /* Ajustar el grid de botones para 4 botones */
 .card-actions {
   padding: 0 8px 8px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
 }
 
 /* Para pantallas muy pequeñas */
 @media (max-width: 480px) {
   .card-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+  }
+  
+  .action-button {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .action-button mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* Versión extra compacta para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .card-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  
+  .action-button {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .action-button mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
   }
 }
 

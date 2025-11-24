@@ -40,7 +40,19 @@ export interface PedidoDetalle {
   ID_Combo?: number | null;       
   
   Cantidad: number;
+<<<<<<< HEAD
   PrecioTotal: number; 
+=======
+  PrecioTotal: number;
+
+  // Campos adicionales (opcionales) usados solo para mostrar en frontend
+  nombre_producto?: string;
+  nombre_categoria?: string;
+  nombre_tamano?: string;
+  nombre_combo?: string; 
+  detallesCombo?: any[]; 
+
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 
   // 🟢 Campos Visuales (Vienen del Backend)
   Nombre_Producto?: string;

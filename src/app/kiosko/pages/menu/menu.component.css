@@ -20,6 +20,9 @@
   border: 1px solid #bebebe;
   cursor: pointer;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .producto-card:hover {
@@ -28,9 +31,12 @@
 }
 
 .producto-imagen-container {
-  width: 100%;
-  height: 160px;
+  width: 98%;
+  height: 200px;
   overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  margin-top: 6px;
 }
 
 .producto-imagen {
@@ -45,112 +51,214 @@
 }
 
 .producto-info {
-  padding: 16px;
+  padding: 12px;
   text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  gap: 4px;
+}
+
+/* 🔹 CONTENEDOR PARA CATEGORÍA Y BADGES EN LA MISMA LÍNEA */
+.categoria-badges-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: -2px;
+  gap: 0.5px; /* 🔹 REDUCIDO AÚN MÁS: de 1.8px a 0.5px */
+}
+
+/* Para combos: el badge ocupa la posición */
+.categoria-badges-container:has(.combo-badge) {
+  justify-content: flex-start;
+}
+
+/* Para productos con tamaños: ambos alineados a la izquierda en línea */
+.categoria-badges-container:has(.tamanos-badge) {
+  justify-content: flex-start;
 }
 
 .producto-nombre {
-  font-size: 1.2em;
+  font-size: 1.4em;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 8px;
-  line-height: 1.2;
+  margin-bottom: 2px;
+  line-height: 1.1;
+  text-align: left;
+  margin-top: -4px;
 }
 
 .producto-descripcion {
   color: #666;
   font-size: 0.9em;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1;
+  text-align: left;
 }
 
-/* 🔹 ESTILOS MEJORADOS PARA INFORMACIÓN META */
+/* 🔹 ESTILOS MEJORADOS PARA INFORMACIÓN META - SIN FONDO NI BORDES */
 .producto-meta-info {
-  margin-bottom: 12px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .meta-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
-.meta-item:last-child {
-  margin-bottom: 0;
+/* Categoría alineada a la izquierda encima de la descripción */
+.categoria-item {
+  justify-content: flex-start;
 }
 
-.meta-label {
+.categoria-item .meta-value {
   font-weight: 600;
-  color: #495057;
-  font-size: 0.85em;
+  color: white;
+  font-size: 0.9em;
+  padding: 4px 8px;
+  border-radius: 5px;
+  display: inline-block;
+  text-align: left;
+  background-color: #be1b1c;
+  border: 1px solid #be1b1c;
+  width: auto;
+  max-width: fit-content;
+  transform: scale(0.7);
+  transform-origin: left center;
+  line-height: 1;
 }
 
 .meta-value {
   font-weight: 500;
   color: #2c3e50;
   font-size: 0.9em;
+  width: 100%;
+  text-align: left;
 }
 
-/* 🔹 ESTILO ESPECIAL PARA PRECIO (VERDE) */
+/* 🔹 PRECIO SIEMPRE EN LA PARTE INFERIOR - SIN FONDO NI BORDES */
 .precio-item {
-  border-top: 1px solid #dee2e6;
+  margin-top: auto;
   padding-top: 8px;
-  margin-top: 4px;
+  border-top: 1px solid #e0e0e0;
 }
 
 .precio-item .meta-value.precio {
   font-weight: 700;
   color: #27ae60;
-  font-size: 1.1em;
+  font-size: 1.4em;
+  text-align: left;
+  width: 100%;
+}
+
+/* 🔹 REDUCIR TAMAÑO DE "Precio Desde" */
+.desde-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.8em;
+  margin-right: 4px;
 }
 
 /* 🔹 ESTILOS PARA DETALLES DE COMBO */
 .producto-detalles {
   font-size: 0.8em;
   color: #7f8c8d;
-  margin-bottom: 12px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  padding: 8px;
-  background: #e7f6f2;
-  border-radius: 6px;
-  border-left: 3px solid #108d74;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border-left: none;
+  text-align: left;
 }
 
-/* 🔹 BADGE PARA COMBOS */
-.combo-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+/* 🔹 ESTILO UNIFICADO PARA TODOS LOS BADGES (categoría, combo, tamaños) */
+.categoria-item .meta-value,
+.meta-badge {
+  font-weight: 600;
+  color: white;
+  font-size: 0.9em;
+  padding: 4px 8px;
+  border-radius: 5px;
+  display: inline-block;
+  text-align: left;
+  background-color: #be1b1c;
+  border: 1px solid #be1b1c;
+  width: auto;
+  max-width: fit-content;
+  transform: scale(0.7);
+  transform-origin: left center;
+  line-height: 1;
+}
+
+/* 🔹 BADGE PARA COMBOS - MISMO ESTILO QUE CATEGORÍA */
+.combo-badge.meta-badge {
+  position: static;
+  background: #be1b1c;
   color: white;
   padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7em;
+  border-radius: 5px;
+  font-size: 0.9em;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: scale(0.7);
+  transform-origin: left center;
+  box-shadow: none;
+  z-index: auto;
 }
 
-.combo-badge mat-icon {
-  font-size: 14px;
+/* 🔹 BADGE PARA TAMAÑOS DISPONIBLES - MISMO ESTILO QUE CATEGORÍA */
+.tamanos-badge.meta-badge {
+  position: static;
+  background: #be1b1c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.9em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: scale(0.7);
+  transform-origin: left center; /* 🔹 CAMBIADO: ahora desde la izquierda */
+  box-shadow: none;
+  z-index: auto;
+}
+
+/* 🔹 ESTILOS PARA LOS ICONOS DE LOS BADGES */
+.badge-icon {
   width: 14px;
   height: 14px;
+  object-fit: contain;
+}
+
+/* Eliminar estilos antiguos de mat-icon y badges antiguos */
+.combo-badge mat-icon,
+.tamanos-badge mat-icon,
+.combo-badge:not(.meta-badge),
+.tamanos-badge:not(.meta-badge) {
+  display: none;
+}
+
+/* Asegurar que los badges no se solapen */
+.producto-card {
+  position: relative;
 }
 
 /* 📱 AJUSTES RESPONSIVE */
@@ -165,7 +273,8 @@
   }
 
   .producto-imagen-container {
-    height: 140px;
+    height: 170px;
+    width: 98%;
   }
 
   .producto-info {
@@ -173,58 +282,25 @@
   }
 
   .producto-nombre {
-    font-size: 1.1em;
+    font-size: 1.3em;
   }
 
-  .meta-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-  }
-
-  .meta-label,
   .meta-value {
-    font-size: 0.8em;
+    font-size: 0.85em;
   }
 
   .precio-item .meta-value.precio {
-    font-size: 1em;
+    font-size: 1.3em;
   }
-}
 
-/* 🔹 BADGE PARA TAMAÑOS DISPONIBLES */
-.tamanos-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7em;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+  .categoria-item .meta-value,
+  .meta-badge {
+    font-size: 0.8em;
+  }
 
-.tamanos-badge mat-icon {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
-}
-
-/* Asegurar que los badges no se solapen */
-.producto-card {
-  position: relative;
-}
-
-.combo-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  /* resto del código igual */
+  .desde-label {
+    font-size: 0.75em;
+  }
 }
 
 @media (max-width: 480px) {
@@ -234,11 +310,30 @@
   }
 
   .producto-imagen-container {
-    height: 120px;
+    height: 150px;
+    width: 98%;
   }
 
   .producto-nombre {
-    font-size: 1em;
+    font-size: 1.2em;
+  }
+
+  .producto-meta-info {
+    gap: 6px;
+  }
+
+  .precio-item .meta-value.precio {
+    font-size: 1.2em;
+  }
+
+  .desde-label {
+    font-size: 0.7em;
+  }
+
+  .categoria-badges-container {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.4px; /* 🔹 REDUCIDO 70%: de 4px a 1.4px para móvil */
   }
 }
 

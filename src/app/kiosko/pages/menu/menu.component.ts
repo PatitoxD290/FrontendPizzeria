@@ -232,7 +232,51 @@ export class MenuComponent implements OnInit, OnDestroy {
     });
   }
 
+<<<<<<< HEAD
   onImageError(event: any) {
     event.target.src = 'assets/imgs/no-image.png';
+=======
+  // 🔹 MÉTODO PARA MOSTRAR RANGO DE PRECIOS
+obtenerRangoPrecios(producto: ProductoConTamanos): string {
+  if (producto.esCombo) {
+    return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+  }
+  
+  // Para productos con múltiples tamaños, mostrar solo el precio mínimo
+  if ((producto.tamanos?.length || 0) > 1) {
+    return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+  }
+  
+  // Para productos con un solo tamaño, mostrar ese precio
+  return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+}
+
+// En menu.component.ts - modifica el método abrirPersonalizacion
+abrirPersonalizacion(producto: ProductoConTamanos): void {
+  const dialogData = {
+    ...producto,
+    esCombo: producto.esCombo // 🔹 IMPORTANTE: Indicar si es combo
+  };
+
+  this.dialog.open(DetalleProductoComponent, {
+    width: '500px',
+    maxWidth: '90vw',
+    data: dialogData,
+  });
+}
+
+  calcularTotalCarrito(): number {
+    return this.carritoService
+      .obtenerProductos()
+      .reduce((total, item) => total + item.precio * item.cantidad!, 0);
+  }
+
+  confirmarPedido(): void {
+    if (this.carritoService.obtenerProductos().length === 0) {
+      alert('⚠️ El carrito está vacío.');
+      return;
+    }
+    this.router.navigate(['/kiosko/pago']);
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   }
 }

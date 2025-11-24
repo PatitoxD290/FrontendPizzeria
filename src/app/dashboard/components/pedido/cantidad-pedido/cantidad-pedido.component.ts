@@ -12,9 +12,13 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 // Core
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { Combo, ComboDetalle } from '../../../../core/models/combo.model'; // Importar ComboDetalle
 
 export interface CantidadPedidoData {
-  producto: Producto;
+  producto?: Producto;
+  combo?: Combo;
+  esCombo?: boolean;
+  detallesCombo?: ComboDetalle[]; // 🔹 NUEVO: Agregar detalles del combo
 }
 
 @Component({
@@ -49,6 +53,7 @@ export class CantidadPedidoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+<<<<<<< HEAD
     // Filtrar solo tamaños activos
     this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
     
@@ -68,6 +73,57 @@ export class CantidadPedidoComponent implements OnInit {
     this.tamanoSeleccionado = tamano;
     this.precioUnitario = Number(tamano.Precio);
     this.actualizarPrecioTotal();
+=======
+    if (this.data.esCombo && this.data.combo) {
+      // 🔹 LÓGICA PARA COMBOS
+      this.precioUnitario = this.data.combo.Precio;
+      this.precioTotal = this.precioUnitario * this.cantidad;
+      this.maxCantidad = 50; // Máximo por defecto para combos
+    } else if (this.data.producto) {
+      // 🔹 LÓGICA PARA PRODUCTOS (existente)
+      this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
+      
+      if (this.tamanosDisponibles.length > 0) {
+        this.tamanoSeleccionado = this.tamanosDisponibles[0];
+        this.precioUnitario = this.tamanoSeleccionado.Precio;
+        this.precioTotal = this.precioUnitario * this.cantidad;
+      }
+      
+      if (this.data.producto.Cantidad_Disponible) {
+        this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 50);
+      }
+    }
+  }
+
+  // 🔹 NUEVO: Obtener productos incluidos en el combo
+  getProductosCombo(): string {
+    if (this.data.esCombo && this.data.detallesCombo) {
+      const productos = this.data.detallesCombo.map(detalle => 
+        `${detalle.Cantidad}x ${detalle.Producto_Nombre} (${detalle.Tamano_Nombre})`
+      );
+      return productos.join(', ');
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener información detallada del combo para tooltip
+  getInfoCombo(): string {
+    if (this.data.esCombo && this.data.detallesCombo) {
+      const productos = this.data.detallesCombo.map(detalle => 
+        `${detalle.Cantidad}x ${detalle.Producto_Nombre} - ${detalle.Tamano_Nombre}`
+      );
+      return `Este combo incluye:\n${productos.join('\n')}`;
+    }
+    return '';
+  }
+
+  seleccionarTamano(tamano: ProductoTamano): void {
+    if (!this.data.esCombo) {
+      this.tamanoSeleccionado = tamano;
+      this.precioUnitario = tamano.Precio;
+      this.actualizarPrecioTotal();
+    }
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   }
 
   // ➕➖ Cantidad
@@ -122,6 +178,7 @@ export class CantidadPedidoComponent implements OnInit {
 
   // 🛒 Acciones Finales
   agregarAlPedido(): void {
+<<<<<<< HEAD
     if (!this.tamanoSeleccionado) return;
 
     // Crear objeto Detalle (compatible con el modelo PedidoDetalle)
@@ -139,6 +196,42 @@ export class CantidadPedidoComponent implements OnInit {
       Tipo: 'producto'
     };
 
+=======
+    let detalle: PedidoDetalle;
+
+    if (this.data.esCombo && this.data.combo) {
+      // 🔹 CREAR DETALLE PARA COMBO
+      detalle = {
+        ID_Pedido_D: 0,
+        ID_Pedido: 0,
+        ID_Producto_T: 0, // No aplica para combos
+        ID_Combo: this.data.combo.ID_Combo, // 🔹 NUEVO: ID del combo
+        Cantidad: this.cantidad,
+        PrecioTotal: this.precioTotal,
+        nombre_producto: this.data.combo.Nombre,
+        nombre_categoria: 'Combo',
+        nombre_tamano: 'Combo',
+        nombre_combo: this.data.combo.Nombre, // 🔹 NUEVO: Nombre del combo
+        // 🔹 NUEVO: Agregar información de detalles del combo
+        detallesCombo: this.data.detallesCombo || []
+      };
+    } else if (this.tamanoSeleccionado && this.data.producto) {
+      // 🔹 CREAR DETALLE PARA PRODUCTO (existente)
+      detalle = {
+        ID_Pedido_D: 0,
+        ID_Pedido: 0,
+        ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
+        Cantidad: this.cantidad,
+        PrecioTotal: this.precioTotal,
+        nombre_producto: this.data.producto.Nombre,
+        nombre_categoria: this.data.producto.nombre_categoria || 'Sin categoría',
+        nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único'
+      };
+    } else {
+      return;
+    }
+
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
     this.dialogRef.close(detalle);
   }
 
@@ -148,7 +241,55 @@ export class CantidadPedidoComponent implements OnInit {
 
   // Getters visuales
   get disponibleTexto(): string {
+<<<<<<< HEAD
     const stock = this.data.producto.Cantidad_Disponible || 0;
     return stock > 0 ? `Stock: ${stock}` : 'Agotado';
+=======
+    if (this.data.esCombo) {
+      return 'Disponible';
+    } else if (this.data.producto) {
+      return `Disponible: ${this.data.producto.Cantidad_Disponible || 0} unidades`;
+    }
+    return 'Disponible';
+  }
+
+  get tieneMultiplesTamanos(): boolean {
+    return !this.data.esCombo && this.tamanosDisponibles.length > 1;
+  }
+
+  // 🔹 NUEVO: Verificar si es un combo
+  get esCombo(): boolean {
+    return this.data.esCombo || false;
+  }
+
+  // 🔹 NUEVO: Obtener nombre del item
+  get nombreItem(): string {
+    if (this.data.esCombo && this.data.combo) {
+      return this.data.combo.Nombre;
+    } else if (this.data.producto) {
+      return this.data.producto.Nombre;
+    }
+    return 'Producto';
+  }
+
+  // 🔹 NUEVO: Obtener descripción del item
+  get descripcionItem(): string {
+    if (this.data.esCombo && this.data.combo) {
+      return this.data.combo.Descripcion;
+    } else if (this.data.producto) {
+      return this.data.producto.Descripcion;
+    }
+    return '';
+  }
+
+  // 🔹 NUEVO: Obtener categoría del item
+  get categoriaItem(): string {
+    if (this.data.esCombo) {
+      return 'Combo';
+    } else if (this.data.producto) {
+      return this.data.producto.nombre_categoria || 'Sin categoría';
+    }
+    return '';
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   }
 }

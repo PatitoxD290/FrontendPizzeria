@@ -1,5 +1,23 @@
-table {
-  width: 100%;
+mat-card {
+  padding: 16px;
+  margin: 16px;
+  overflow-x: auto; /* Permite scroll horizontal en móviles */
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 .spinner-container {
@@ -8,22 +26,116 @@ table {
   margin: 20px 0;
 }
 
-mat-card {
-  padding: 20px;
-  margin: 20px;
+/* Tabla responsiva */
+table {
+  width: 100%;
+  min-width: 800px; /* Ancho mínimo para mantener legibilidad */
+  table-layout: fixed; /* Evita que las celdas se expandan demasiado */
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+/* Contenedor de la tabla con scroll horizontal */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.acciones-container {
-  display: flex;
-  gap: 5px;
-  align-items: center;
+/* Ajustes para celdas - texto que se corta con ellipsis */
+td, th {
+  padding: 8px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Ancho máximo para celdas */
+}
+
+/* Columnas específicas con diferentes anchos */
+.mat-column-proveedor_id {
+  width: 80px;
+  min-width: 80px;
+}
+
+.mat-column-nombre_proveedor {
+  width: 120px;
+  min-width: 120px;
+}
+
+.mat-column-ruc {
+  width: 100px;
+  min-width: 100px;
+}
+
+.mat-column-direccion {
+  width: 150px;
+  min-width: 150px;
+  white-space: normal; /* Permitir múltiples líneas en dirección */
+  word-wrap: break-word;
+}
+
+.mat-column-telefono {
+  width: 100px;
+  min-width: 100px;
+}
+
+.mat-column-email {
+  width: 150px;
+  min-width: 150px;
+}
+
+.mat-column-persona_contacto {
+  width: 120px;
+  min-width: 120px;
+}
+
+.mat-column-estado {
+  width: 90px;
+  min-width: 90px;
+}
+
+.mat-column-fecha_registro {
+  width: 100px;
+  min-width: 100px;
+}
+
+.mat-column-acciones {
+  width: 140px;
+  min-width: 140px;
+}
+
+/* Para pantallas pequeñas, ajustar algunos estilos */
+@media (max-width: 600px) {
+  mat-card {
+    padding: 12px;
+    margin: 8px;
+  }
+  
+  .header h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Botón más compacto en móviles */
+  .header button {
+    font-size: 0.875rem;
+    padding: 0 12px;
+  }
+  
+  /* Celdas más compactas en móviles */
+  td, th {
+    padding: 6px 8px;
+    font-size: 0.875rem;
+  }
+  
+  /* Columnas más ajustadas en móviles */
+  .mat-column-proveedor_id {
+    width: 60px;
+    min-width: 60px;
+  }
+  
+  .mat-column-acciones {
+    width: 120px;
+    min-width: 120px;
+  }
 }
 
 /* Estilos para los estados */
@@ -33,6 +145,8 @@ mat-card {
   padding: 4px 8px;
   border-radius: 4px;
   background-color: #e8f5e8;
+  font-size: 0.75rem;
+  display: inline-block;
 }
 
 .estado-inactivo {
@@ -41,6 +155,50 @@ mat-card {
   padding: 4px 8px;
   border-radius: 4px;
   background-color: #ffebee;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+.acciones-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Ajustes para botones de acciones en móviles */
+@media (max-width: 480px) {
+  .acciones-container {
+    gap: 2px;
+  }
+  
+  .acciones-container button {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
+  
+  .acciones-container .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Asegurar que los spinners en botones se vean bien */
+.mat-icon-button .mat-spinner {
+  margin: 0 auto;
+}
+
+/* Paginator responsivo */
+mat-paginator {
+  font-size: 0.875rem;
+}
+
+@media (max-width: 480px) {
+  mat-paginator {
+    font-size: 0.75rem;
+  }
 }
 
 /* Estilos para los snackbars */
@@ -58,9 +216,4 @@ mat-card {
 button[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* Asegurar que los spinners en botones se vean bien */
-.mat-icon-button .mat-spinner {
-  margin: 0 auto;
 }

@@ -63,17 +63,27 @@ export class ClienteListComponent implements OnInit {
     this.loadClientes();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
   loadClientes() {
     this.loading = true;
     this.clienteService.getClientes().subscribe({
       next: data => {
         // Ordenar por ID descendente (más nuevos primero)
         const sortedData = data.sort((a, b) => b.ID_Cliente - a.ID_Cliente);
+<<<<<<< HEAD
         
         this.dataSource = new MatTableDataSource(sortedData);
         this.dataSource.paginator = this.paginator;
 
         // ✅ Filtro combinado (Texto + Fechas)
+=======
+        this.dataSource.data = sortedData;
+        
+        // ✅ Filtro combinado (texto + fechas)
+>>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
         this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
           const term = filter.trim().toLowerCase();
           
@@ -114,7 +124,70 @@ export class ClienteListComponent implements OnInit {
   // ✅ Aplicar filtros
   applyFilters() {
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  // ✅ Limpiar filtros
+  limpiarFiltros() {
+    this.searchTerm = '';
+    this.fechaInicio = undefined;
+    this.fechaFin = undefined;
+    this.applyFilters();
+  }
+
+  // ✅ Cambiar tamaño de página
+  onPageSizeChange(event: any) {
+    const newSize = parseInt(event.target.value);
+    if (this.paginator) {
+      this.paginator.pageSize = newSize;
+      this.paginator.pageIndex = 0;
+    }
+  }
+
+  // ✅ Métodos para la paginación
+  getStartIndex(): number {
+    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
+  }
+
+  getEndIndex(): number {
+    if (!this.paginator) return 0;
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    const endIndex = startIndex + this.paginator.pageSize;
+    return Math.min(endIndex, this.dataSource.filteredData.length);
+  }
+
+  getCurrentPage(): number {
+    return this.paginator ? this.paginator.pageIndex + 1 : 1;
+  }
+
+  getTotalPages(): number {
+    return this.paginator ? this.paginator.getNumberOfPages() : 1;
+  }
+
+  getPageSize(): number {
+    return this.paginator ? this.paginator.pageSize : 5;
+  }
+
+  hasPreviousPage(): boolean {
+    return this.paginator ? this.paginator.hasPreviousPage() : false;
+  }
+
+  hasNextPage(): boolean {
+    return this.paginator ? this.paginator.hasNextPage() : false;
+  }
+
+  previousPage(): void {
+    if (this.paginator) {
+      this.paginator.previousPage();
+    }
+  }
+
+  nextPage(): void {
+    if (this.paginator) {
+      this.paginator.nextPage();
+    }
   }
 
   // 📝 Abrir formulario (Crear/Editar)

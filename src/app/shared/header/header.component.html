@@ -1,6 +1,6 @@
 <header class="header">
   <div class="header-top">
-    <img src="/assets/imgs/loguito-aita.png" alt="Logo" class="header-img" />
+    <img src="/assets/imgs/logo-aita/loguito-aita.png" alt="Logo" class="header-img" />
     <div class="textos">
       <h1 [class.empty]="!titulo">{{ titulo }}</h1>
       <h3 class="subtitulo" [class.empty]="!subtitulo">{{ subtitulo }}</h3>
@@ -14,8 +14,8 @@
       class="categoria-btn"
       [class.active]="filtroCategoria === ''"
       (click)="cambiarCategoria('')">
-      <mat-icon>list</mat-icon>
-      Todos
+      <img src="/assets/icons/ic-menu.png" alt="Todos" class="categoria-icon">
+      <span class="categoria-texto">Todos</span>
     </button>
 
     <!-- Botones de categorías individuales -->
@@ -24,8 +24,8 @@
       class="categoria-btn"
       [class.active]="filtroCategoria === cat.nombre"
       (click)="cambiarCategoria(cat.nombre)">
-      <mat-icon>{{ getIconoCategoria(cat.nombre) }}</mat-icon>
-      {{ cat.nombre }}
+      <img [src]="getIconoCategoria(cat.nombre)" [alt]="cat.nombre" class="categoria-icon">
+      <span class="categoria-texto">{{ cat.nombre }}</span>
     </button>
   </div>
 </header>
