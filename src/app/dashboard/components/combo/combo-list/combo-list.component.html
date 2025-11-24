@@ -125,7 +125,6 @@
       </mat-card>
     </div>
 
-<<<<<<< HEAD
     <!-- Paginador -->
     <mat-paginator [length]="totalItems"
                    [pageSize]="pageSize"
@@ -134,71 +133,6 @@
                    [hidden]="totalItems === 0"
                    showFirstLastButtons
                    class="custom-paginator">
-=======
-      </mat-card-content>
-
-      <!-- Acciones -->
-        <mat-card-actions class="card-actions">
-        <!-- Botón para activar/desactivar -->
-        <button 
-          *ngIf="combo.Estado === 'I'"
-          mat-icon-button 
-          color="primary" 
-          (click)="activarCombo(combo)" 
-          class="action-button"
-          matTooltip="Activar combo"
-        >
-          <mat-icon>check</mat-icon>
-        </button>
-        
-        <button 
-          *ngIf="combo.Estado === 'A'"
-          mat-icon-button 
-          color="warn" 
-          (click)="desactivarCombo(combo)" 
-          class="action-button"
-          matTooltip="Desactivar combo"
-        >
-          <mat-icon>block</mat-icon>
-        </button>
-
-        <!-- Botón de editar -->
-        <button 
-          mat-icon-button 
-          color="primary" 
-          (click)="editarCombo(combo)" 
-          class="action-button"
-          matTooltip="Editar combo"
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-        
-        <!-- Botón de eliminar -->
-        <button 
-          mat-icon-button 
-          color="warn" 
-          (click)="eliminarCombo(combo)" 
-          class="action-button"
-          matTooltip="Eliminar combo"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-card-actions>
-
-    </mat-card>
-  </div>
-
-  <!-- Paginación -->
-  <div *ngIf="!cargando && combos.length > 0" class="pagination-container">
-    <mat-paginator 
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="pageSizeOptions"
-      [pageIndex]="currentPage"
-      (page)="onPageChange($event)"
-      showFirstLastButtons
-      class="custom-paginator">
->>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
     </mat-paginator>
   </div>
 </div>

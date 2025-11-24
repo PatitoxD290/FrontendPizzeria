@@ -6,7 +6,6 @@
 <mat-dialog-content class="dialog-content">
   <form #form="ngForm" (ngSubmit)="saveProveedor()">
 
-<<<<<<< HEAD
     <div class="form-container">
       
       <!-- Fila 1: Nombre y RUC -->
@@ -66,112 +65,16 @@
       </div>
 
     </div>
-=======
-    <!-- Campo Nombre (Obligatorio) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Nombre Proveedor *</mat-label>
-      <input matInput 
-             type="text" 
-             [(ngModel)]="proveedor.Nombre" 
-             name="nombre" 
-             required
-             (input)="onNombreInput($event)"
-             placeholder="Solo letras y espacios"
-             #nombreInput="ngModel" />
-      <mat-error *ngIf="nombreInput.invalid && nombreInput.touched">
-        El nombre es obligatorio y solo puede contener letras
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Campo RUC (Obligatorio) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>RUC *</mat-label>
-      <input matInput 
-             type="text" 
-             [(ngModel)]="proveedor.Ruc" 
-             name="ruc" 
-             required
-             (input)="onRucInput($event)"
-             placeholder="11 dígitos"
-             maxlength="11"
-             #rucInput="ngModel" />
-      <mat-hint>{{ proveedor.Ruc.length }}/11</mat-hint>
-      <mat-error *ngIf="rucInput.invalid && rucInput.touched">
-        El RUC es obligatorio y debe tener 11 dígitos
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Campo Dirección (Opcional) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Dirección</mat-label>
-      <input matInput 
-             type="text" 
-             [(ngModel)]="proveedor.Direccion" 
-             name="direccion"
-             placeholder="Ej: Av. Principal #123" />
-    </mat-form-field>
-
-    <!-- Campo Teléfono (Opcional) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Teléfono</mat-label>
-      <input matInput 
-             type="text" 
-             [(ngModel)]="proveedor.Telefono" 
-             name="telefono"
-             (input)="onTelefonoInput($event)"
-             placeholder="9 dígitos"
-             maxlength="9"
-             #telefonoInput="ngModel" />
-      <mat-hint *ngIf="proveedor.Telefono">{{ proveedor.Telefono.length }}/9</mat-hint>
-      <mat-error *ngIf="telefonoInput.value && !validateTelefono()">
-        El teléfono debe tener 9 dígitos
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Campo Email (Opcional) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Email</mat-label>
-      <input matInput 
-             type="email" 
-             [(ngModel)]="proveedor.Email" 
-             name="email"
-             (input)="onEmailInput($event)"
-             placeholder="usuario@dominio.com"
-             #emailInput="ngModel" />
-      <mat-error *ngIf="emailInput.value && !validateEmail()">
-        Formato de email inválido
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Campo Persona Contacto (Opcional) -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Persona Contacto</mat-label>
-      <input matInput 
-             type="text" 
-             [(ngModel)]="proveedor.Persona_Contacto" 
-             name="persona_contacto"
-             placeholder="Nombre de la persona de contacto" />
-    </mat-form-field>
->>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
 
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-<<<<<<< HEAD
   <button mat-button type="button" (click)="close()">Cancelar</button>
   <button mat-flat-button color="primary" (click)="saveProveedor()" 
           [disabled]="!form.valid || guardando">
     <mat-icon *ngIf="!guardando">save</mat-icon>
     <mat-spinner *ngIf="guardando" diameter="20" class="me-2 d-inline-block"></mat-spinner>
     {{ proveedor.ID_Proveedor ? 'Actualizar' : 'Guardar' }}
-=======
-  <button mat-button (click)="close()" [disabled]="isSaving">Cancelar</button>
-  <button mat-flat-button 
-          color="primary" 
-          (click)="saveProveedor()" 
-          [disabled]="isSaving || !proveedor.Nombre || !proveedor.Ruc">
-    {{ isSaving ? 'Guardando...' : 'Guardar' }}
->>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
   </button>
 </mat-dialog-actions>

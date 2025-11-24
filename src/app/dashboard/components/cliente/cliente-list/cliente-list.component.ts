@@ -1,12 +1,16 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// Modelos y Servicios
 import { Cliente } from '../../../../core/models/cliente.model';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
 
 // Angular Material
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,8 +20,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -28,6 +32,7 @@ import Swal from 'sweetalert2';
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatSortModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
@@ -36,23 +41,33 @@ import Swal from 'sweetalert2';
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatFormFieldModule
   ],
   templateUrl: './cliente-list.component.html',
   styleUrls: ['./cliente-list.component.css']
 })
-export class ClienteListComponent implements OnInit {
+export class ClienteListComponent implements OnInit, AfterViewInit {
 
-  // 🟢 Actualizamos las columnas para usar 'documento' en vez de 'DNI'
-  displayedColumns: string[] = ['ID_Cliente', 'nombre_completo', 'documento', 'Telefono', 'Fecha_Registro', 'acciones'];
+  displayedColumns: string[] = [
+    'ID_Cliente', 
+    'nombre_completo', 
+    'documento', 
+    'Telefono', 
+    'Fecha_Registro', 
+    'acciones'
+  ];
+  
   dataSource = new MatTableDataSource<Cliente>([]);
   loading = false;
   
+  // Filtros
   searchTerm: string = '';
-  fechaInicio?: Date;
-  fechaFin?: Date;
+  fechaInicio: Date | null = null;
+  fechaFin: Date | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private clienteService: ClienteService,
@@ -65,53 +80,21 @@ export class ClienteListComponent implements OnInit {
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.setupFilterPredicate();
   }
 
+  // 📥 Cargar Clientes
   loadClientes() {
     this.loading = true;
     this.clienteService.getClientes().subscribe({
       next: data => {
-        // Ordenar por ID descendente (más nuevos primero)
-        const sortedData = data.sort((a, b) => b.ID_Cliente - a.ID_Cliente);
-<<<<<<< HEAD
-        
-        this.dataSource = new MatTableDataSource(sortedData);
-        this.dataSource.paginator = this.paginator;
-
-        // ✅ Filtro combinado (Texto + Fechas)
-=======
-        this.dataSource.data = sortedData;
-        
-        // ✅ Filtro combinado (texto + fechas)
->>>>>>> 71628ab0a6a7f3d7dbb4c222b0490f1c7f17032c
-        this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
-          const term = filter.trim().toLowerCase();
-          
-          // 🟢 Buscamos en Numero_Documento en lugar de DNI
-          const matchText =
-            (cliente.Nombre?.toLowerCase().includes(term) || false) ||
-            (cliente.Apellido?.toLowerCase().includes(term) || false) ||
-            (cliente.Numero_Documento?.toLowerCase().includes(term) || false) ||
-            (cliente.Telefono?.toLowerCase().includes(term) || false);
-
-          // ✅ Filtrado por fecha
-          if (this.fechaInicio && this.fechaFin) {
-            const fechaCliente = new Date(cliente.Fecha_Registro);
-            fechaCliente.setHours(0, 0, 0, 0);
-            
-            const fInicio = new Date(this.fechaInicio);
-            fInicio.setHours(0, 0, 0, 0);
-            
-            const fFin = new Date(this.fechaFin);
-            fFin.setHours(23, 59, 59, 999);
-
-            return matchText && (fechaCliente >= fInicio && fechaCliente <= fFin);
-          }
-          
-          return matchText;
-        };
-
+        this.dataSource.data = data;
         this.loading = false;
+        
+        if (this.paginator) {
+          this.paginator.firstPage();
+        }
       },
       error: err => {
         console.error('Error al cargar clientes', err);
@@ -121,79 +104,56 @@ export class ClienteListComponent implements OnInit {
     });
   }
 
-  // ✅ Aplicar filtros
-  applyFilters() {
-    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+  // 🔍 Configuración de Filtros
+  setupFilterPredicate() {
+    this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
+      // 1. Filtro de Texto
+      const term = this.searchTerm.trim().toLowerCase();
+      const matchText =
+        (cliente.Nombre?.toLowerCase().includes(term) || false) ||
+        (cliente.Apellido?.toLowerCase().includes(term) || false) ||
+        (cliente.Numero_Documento?.toLowerCase().includes(term) || false) ||
+        (cliente.Telefono?.toLowerCase().includes(term) || false);
+
+      // 2. Filtro de Fechas
+      let matchDate = true;
+      if (this.fechaInicio || this.fechaFin) {
+        const fechaCliente = new Date(cliente.Fecha_Registro);
+        fechaCliente.setHours(0, 0, 0, 0);
+        
+        if (this.fechaInicio) {
+          const inicio = new Date(this.fechaInicio);
+          inicio.setHours(0, 0, 0, 0);
+          if (fechaCliente < inicio) matchDate = false;
+        }
+        
+        if (this.fechaFin) {
+          const fin = new Date(this.fechaFin);
+          fin.setHours(23, 59, 59, 999);
+          if (fechaCliente > fin) matchDate = false;
+        }
+      }
+      
+      return matchText && matchDate;
+    };
   }
 
-  // ✅ Limpiar filtros
+  applyFilters() {
+    this.dataSource.filter = 'trigger'; // Disparar el predicado
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  }
+
   limpiarFiltros() {
     this.searchTerm = '';
-    this.fechaInicio = undefined;
-    this.fechaFin = undefined;
+    this.fechaInicio = null;
+    this.fechaFin = null;
     this.applyFilters();
   }
 
-  // ✅ Cambiar tamaño de página
-  onPageSizeChange(event: any) {
-    const newSize = parseInt(event.target.value);
-    if (this.paginator) {
-      this.paginator.pageSize = newSize;
-      this.paginator.pageIndex = 0;
-    }
-  }
-
-  // ✅ Métodos para la paginación
-  getStartIndex(): number {
-    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
-  }
-
-  getEndIndex(): number {
-    if (!this.paginator) return 0;
-    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
-    const endIndex = startIndex + this.paginator.pageSize;
-    return Math.min(endIndex, this.dataSource.filteredData.length);
-  }
-
-  getCurrentPage(): number {
-    return this.paginator ? this.paginator.pageIndex + 1 : 1;
-  }
-
-  getTotalPages(): number {
-    return this.paginator ? this.paginator.getNumberOfPages() : 1;
-  }
-
-  getPageSize(): number {
-    return this.paginator ? this.paginator.pageSize : 5;
-  }
-
-  hasPreviousPage(): boolean {
-    return this.paginator ? this.paginator.hasPreviousPage() : false;
-  }
-
-  hasNextPage(): boolean {
-    return this.paginator ? this.paginator.hasNextPage() : false;
-  }
-
-  previousPage(): void {
-    if (this.paginator) {
-      this.paginator.previousPage();
-    }
-  }
-
-  nextPage(): void {
-    if (this.paginator) {
-      this.paginator.nextPage();
-    }
-  }
-
-  // 📝 Abrir formulario (Crear/Editar)
+  // 📝 Abrir Formulario
   openClienteForm(cliente?: Cliente) {
     const dialogRef = this.dialog.open(ClienteFormComponent, {
-      width: '500px', // Un poco más ancho para el nuevo diseño
+      width: '550px',
       disableClose: true,
       data: { cliente }
     });
@@ -203,16 +163,17 @@ export class ClienteListComponent implements OnInit {
     });
   }
 
-  // 🗑️ Eliminar cliente
+  // 🗑️ Eliminar
   deleteCliente(cliente: Cliente) {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Eliminarás al cliente "${cliente.Nombre} ${cliente.Apellido || ''}"`,
+      title: '¿Eliminar cliente?',
+      text: `Se eliminará a "${cliente.Nombre} ${cliente.Apellido || ''}"`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar'
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
         this.clienteService.deleteCliente(cliente.ID_Cliente).subscribe({
@@ -223,7 +184,7 @@ export class ClienteListComponent implements OnInit {
           error: (err) => {
             console.error(err);
             if (err.status === 400 || err.status === 409) {
-              Swal.fire('No se puede eliminar', err.error.error || 'El cliente tiene ventas asociadas', 'error');
+              Swal.fire('No se puede eliminar', 'El cliente tiene ventas asociadas.', 'warning');
             } else {
               Swal.fire('Error', 'Ocurrió un problema al eliminar', 'error');
             }
@@ -233,9 +194,8 @@ export class ClienteListComponent implements OnInit {
     });
   }
 
-  // 🌟 Ver Puntos del Cliente
+  // 🌟 Ver Puntos
   verPuntos(cliente: Cliente) {
-    // Evitar consultar para "Clientes Varios" si es ID 1
     if (cliente.ID_Cliente === 1) {
         Swal.fire('Información', 'El cliente genérico no acumula puntos.', 'info');
         return;
@@ -246,14 +206,14 @@ export class ClienteListComponent implements OnInit {
         Swal.fire({
           title: 'Puntos de Fidelidad',
           html: `
-            <div style="font-size: 1.2em; margin-bottom: 10px;">
-              Cliente: <b>${data.Nombre_Completo}</b>
+            <div style="margin-bottom: 15px;">
+              <div style="font-size: 1.1em; color: #555;">Cliente: <b>${data.Nombre_Completo}</b></div>
             </div>
-            <div style="color: #ff9800; font-size: 3em; font-weight: bold;">
-              <i class="fas fa-star"></i> ${data.Puntos}
-            </div>
-            <div style="color: #666; margin-top: 10px;">
-              Puntos Acumulados
+            <div style="background: #fff3e0; padding: 15px; border-radius: 10px; display: inline-block;">
+              <div style="color: #ff9800; font-size: 3.5em; font-weight: bold; line-height: 1;">
+                ${data.Puntos}
+              </div>
+              <div style="color: #f57c00; font-weight: 500; margin-top: 5px;">PUNTOS ACUMULADOS</div>
             </div>
           `,
           icon: 'info',
