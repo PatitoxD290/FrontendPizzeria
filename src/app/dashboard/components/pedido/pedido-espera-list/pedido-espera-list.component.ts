@@ -17,6 +17,7 @@ import Swal from 'sweetalert2';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { ProductoService } from '../../../../core/services/producto.service';
+import { CombosService } from '../../../../core/services/combos.service'; // 🔴 AGREGAR ESTE
 import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model';
 import { Cliente } from '../../../../core/models/cliente.model';
 import { Producto } from '../../../../core/models/producto.model';
@@ -26,7 +27,11 @@ interface PedidoEnEspera extends Pedido {
   cliente?: Cliente;
   detallesCompletos?: (PedidoDetalle & {
     productoInfo?: Producto;
+    comboInfo?: any; 
     tamanoInfo?: string;
+    nombreItem?: string; 
+    precioUnitario?: number; 
+    precioTotal?: number; 
   })[];
 }
 
@@ -63,12 +68,13 @@ export class PedidoEsperaListComponent implements OnInit {
   error: string = '';
   processingId: number | null = null;
 
-  constructor(
-    private pedidoService: PedidoService,
-    private clienteService: ClienteService,
-    private productoService: ProductoService,
-    private snackBar: MatSnackBar
-  ) {}
+constructor(
+  private pedidoService: PedidoService,
+  private clienteService: ClienteService,
+  private productoService: ProductoService,
+  private comboService: CombosService,
+  private snackBar: MatSnackBar
+) {}
 
   ngOnInit(): void {
     this.cargarPedidosEnEspera();
@@ -172,32 +178,70 @@ export class PedidoEsperaListComponent implements OnInit {
     return Promise.all(promesas);
   }
 
-  private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
-    return Promise.all(detalles.map(async (detalle) => {
-      let productoInfo: Producto | undefined;
-      let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
+private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
+  return Promise.all(detalles.map(async (detalle) => {
+    let productoInfo: Producto | undefined;
+    let comboInfo: any = undefined;
+    let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
+    let precioUnitario = 0;
+    let nombreItem = '';
 
-      try {
-        // Si es producto (no combo), buscamos info extra del catálogo
-        if (!detalle.ID_Combo && detalle.ID_Producto_T) {
-          productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
-          
-          // Si no vino el nombre del tamaño en el detalle, lo sacamos del producto
-          if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
-            tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
+    try {
+      // 🔵 CASO 1: Es un COMBO
+      if (detalle.ID_Combo) {
+        try {
+          // Obtener información del combo desde el servicio
+          comboInfo = await firstValueFrom(this.comboService.getComboById(detalle.ID_Combo));
+          nombreItem = comboInfo.Nombre || detalle.Nombre_Combo || 'Combo';
+          precioUnitario = comboInfo.Precio || 0;
+          tamanoInfo = '(Combo)';
+        } catch {
+          // Si falla, usar datos del detalle
+          nombreItem = detalle.Nombre_Combo || 'Combo';
+          // Calcular precio desde el total si es posible
+          if (detalle.Cantidad > 0) {
+            precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
           }
         }
-      } catch {
-        // Ignorar errores individuales de productos
-      }
+      } 
+      // 🔵 CASO 2: Es un PRODUCTO normal
+      else if (detalle.ID_Producto_T) {
+        productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
+        
+        nombreItem = productoInfo?.Nombre || detalle.Nombre_Producto || 'Producto';
+        
+        // Si no vino el nombre del tamaño en el detalle, lo sacamos del producto
+        if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
+          tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
+        }
 
-      return {
-        ...detalle,
-        productoInfo,
-        tamanoInfo
-      };
-    }));
-  }
+        // Calcular precio unitario desde el producto
+        if (productoInfo?.tamanos?.[0]?.Precio) {
+          precioUnitario = productoInfo.tamanos[0].Precio;
+        }
+      }
+    } catch (err) {
+      console.warn('Error obteniendo info del item:', err);
+    }
+
+    // 🟢 SI NO ENCONTRAMOS PRECIO UNITARIO, CALCULARLO DESDE EL TOTAL
+    if (!precioUnitario && detalle.Cantidad > 0) {
+      precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+    }
+
+    return {
+      ...detalle,
+      productoInfo,
+      comboInfo,
+      tamanoInfo,
+      nombreItem,
+      precioUnitario: precioUnitario || 0,
+      // 🟢 Asegurar que precioTotal tenga valor (en minúscula para HTML)
+      precioTotal: detalle.PrecioTotal || (precioUnitario * detalle.Cantidad) || 0
+    };
+  }));
+}
+
 
   private async obtenerProductoPorTamano(idProductoTamano: number): Promise<Producto | undefined> {
     try {

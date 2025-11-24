@@ -340,7 +340,7 @@
             animation-delay: 0.4s;
         }
   
-/* ---------------- CONTENEDOR GRÁFICO ---------------- */
+
 /* ---------------- CONTENEDOR GRÁFICO ---------------- */
 .contenedor-grafico {
   width: 600px; /* ancho reducido */
@@ -564,18 +564,141 @@
   }
 }
 
+
+/* ---------------- CONTENEDOR GRÁFICO Y PIZZAS ---------------- */
+.grafico-pizzas-container {
+  display: flex;
+  gap: 20px;
+  align-items: stretch; /* Cambiado de flex-start a stretch */
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 /* ---------------- CONTENEDOR POPULARES ---------------- */
 .contenedor-populares {
-    width: 100%;
-    max-width: 320px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow-medium);
-    padding: 16px;
-    margin: 10px;
+    width: 100%; /* Corregido de 900% */
+    max-width: 410px;
+    height: 340px; /* Misma altura que el gráfico */
+    background: linear-gradient(135deg, #ffffff 0%, #fef7ff 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 20px; /* Corregido de 75px */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Asegurar que la lista de pizzas ocupe el espacio disponible */
+.lista-pizzas {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    transition: all 0.3s ease;
+    flex: 1;
+    overflow-y: auto; /* Scroll si hay muchas pizzas */
+    max-height: 240px; /* Altura máxima para la lista */
 }
 
+/* Ajustar el padding de los items para mejor distribución */
+.pizza-item {
+    display: flex;
+    align-items: center;
+    padding: 14px; /* Reducido ligeramente */
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0; /* Evitar que se compriman */
+}
+
+/* Ajustar el header para mejor proporción */
+.header-populares {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px; /* Reducido */
+    padding-bottom: 12px; /* Reducido */
+    border-bottom: 2px solid #f8f9fa;
+    position: relative;
+    flex-shrink: 0; /* No se comprime */
+}
+
+/* Ajustar el footer */
+.footer-populares {
+    margin-top: 12px; /* Reducido */
+    padding-top: 12px; /* Reducido */
+    border-top: 2px solid #f8f9fa;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0; /* No se comprime */
+}
+
+/* Scroll personalizado para la lista */
+.lista-pizzas::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lista-pizzas::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.lista-pizzas::-webkit-scrollbar-thumb {
+    background: #ff6b35;
+    border-radius: 10px;
+}
+
+.lista-pizzas::-webkit-scrollbar-thumb:hover {
+    background: #e55a2b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .grafico-pizzas-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .contenedor-populares {
+        width: 100%;
+        max-width: 600px;
+        height: auto; /* Altura automática en móvil */
+        min-height: 340px;
+    }
+    
+    .lista-pizzas {
+        max-height: none; /* Sin límite en móvil */
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor-populares {
+        padding: 16px;
+        height: auto;
+    }
+    
+    .pizza-item {
+        padding: 12px;
+    }
+    
+    .header-populares h2 {
+        font-size: 18px;
+    }
+    
+    .ranking-numero {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .grafico-pizzas-container {
+        gap: 16px;
+    }
+}

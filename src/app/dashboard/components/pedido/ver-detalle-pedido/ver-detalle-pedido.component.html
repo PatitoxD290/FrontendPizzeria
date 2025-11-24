@@ -30,7 +30,7 @@
   <!-- 📦 Detalles como cards -->
   <div *ngIf="!loading && !error && detalles.length > 0; else sinDatos">
     
-    <!-- Lista de productos usando el diseño del segundo componente -->
+    <!-- Lista de productos -->
     <div class="items-list">
       <div *ngFor="let d of detalles" class="item-row">
         
@@ -45,14 +45,18 @@
             {{ getItemName(d) }}
             <span *ngIf="isCombo(d)" class="combo-badge">Combo</span>
           </div>
-          <div class="item-meta text-muted small">
+          <div class="item-meta">
             {{ getItemDetail(d) }}
+            <!-- 🟢 MOSTRAR PRECIO UNITARIO -->
+            <div class="precio-unitario" *ngIf="getPrecioUnitario(d) > 0">
+              S/ {{ getPrecioUnitario(d) | number:'1.2-2' }} c/u
+            </div>
           </div>
         </div>
 
-        <!-- Precio -->
+        <!-- Precio Total del item -->
         <div class="item-price">
-          S/ {{ d.PrecioTotal | number:'1.2-2' }}
+          S/ {{ getPrecioTotal(d) | number:'1.2-2' }}
         </div>
 
       </div>

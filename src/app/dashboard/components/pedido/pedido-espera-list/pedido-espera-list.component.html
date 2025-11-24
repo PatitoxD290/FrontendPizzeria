@@ -73,14 +73,14 @@
               <div *ngFor="let detalle of pedido.detallesCompletos" class="producto-item">
                 <div class="producto-info">
                   <span class="producto-nombre">
-                    {{ detalle.productoInfo?.Nombre || detalle.Nombre_Producto || detalle.Nombre_Combo || 'Producto' }}
+                    {{ detalle.nombreItem || detalle.productoInfo?.Nombre || detalle.comboInfo?.Nombre || detalle.Nombre_Producto || detalle.Nombre_Combo || 'Producto' }}
                   </span>
                   <span class="producto-tamano">
-                    {{ detalle.ID_Combo ? '(Combo)' : detalle.tamanoInfo }} x{{ detalle.Cantidad }}
+                    {{ detalle.tamanoInfo }} x{{ detalle.Cantidad }}
                   </span>
                 </div>
                 <span class="producto-precio">
-                  S/ {{ detalle.PrecioTotal | number:'1.2-2' }}
+                  S/ {{ (detalle.precioTotal || detalle.PrecioTotal) | number:'1.2-2' }}
                 </span>
               </div>
             </div>

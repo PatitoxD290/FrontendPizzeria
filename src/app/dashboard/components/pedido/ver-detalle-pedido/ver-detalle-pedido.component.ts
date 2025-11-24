@@ -11,6 +11,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
 
+// 🟢 INTERFAZ EXTENDIDA LOCALMENTE
+interface PedidoDetalleCompleto extends PedidoDetalle {
+  precioUnitario?: number;
+}
+
 @Component({
   selector: 'app-ver-detalle-pedido',
   standalone: true,
@@ -29,7 +34,7 @@ import { PedidoDetalle } from '../../../../core/models/pedido.model';
 })
 export class VerDetallePedidoComponent implements OnInit {
   
-  detalles: PedidoDetalle[] = [];
+  detalles: PedidoDetalleCompleto[] = [];
   notas: string = '';
   loading = true;
   error = '';
@@ -47,7 +52,11 @@ export class VerDetallePedidoComponent implements OnInit {
   private cargarDetalles(): void {
     this.pedidoService.getPedidoById(this.data.pedido_id).subscribe({
       next: (res) => {
-        this.detalles = res.detalles || [];
+        // 🟢 ENRIQUECER DETALLES CON PRECIO UNITARIO
+        this.detalles = (res.detalles || []).map(detalle => ({
+          ...detalle,
+          precioUnitario: this.calcularPrecioUnitario(detalle)
+        }));
         this.notas = res.Notas || '';
         this.loading = false;
       },
@@ -59,23 +68,40 @@ export class VerDetallePedidoComponent implements OnInit {
     });
   }
 
-  // 🛠️ Helpers Visuales (mantenidos del segundo componente)
-  
+  // 🟢 MÉTODO PARA CALCULAR PRECIO UNITARIO
+  private calcularPrecioUnitario(detalle: PedidoDetalle): number {
+    if (detalle.Cantidad > 0 && detalle.PrecioTotal) {
+      return detalle.PrecioTotal / detalle.Cantidad;
+    }
+    return 0;
+  }
+
+  // 🛠️ Helpers Visuales
   getItemName(d: PedidoDetalle): string {
-    return d.Nombre_Combo || d.Nombre_Producto || 'Item desconocido';
+    return d.Nombre_Combo || d.Nombre_Producto || d.Nombre_Item || 'Producto';
   }
 
   getItemDetail(d: PedidoDetalle): string {
     if (d.ID_Combo) return 'Combo';
-    return d.Tamano_Nombre || 'Estándar';
+    return d.Tamano_Nombre || 'Tamaño único';
   }
 
   isCombo(d: PedidoDetalle): boolean {
     return !!d.ID_Combo;
   }
 
+  // 🟢 OBTENER PRECIO UNITARIO SEGURO
+  getPrecioUnitario(d: PedidoDetalleCompleto): number {
+    return d.precioUnitario || this.calcularPrecioUnitario(d);
+  }
+
+  // 🟢 OBTENER PRECIO TOTAL SEGURO
+  getPrecioTotal(d: PedidoDetalle): number {
+    return d.PrecioTotal || 0;
+  }
+
   getTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + (Number(d.PrecioTotal) || 0), 0);
+    return this.detalles.reduce((acc, d) => acc + this.getPrecioTotal(d), 0);
   }
 
   close(): void {

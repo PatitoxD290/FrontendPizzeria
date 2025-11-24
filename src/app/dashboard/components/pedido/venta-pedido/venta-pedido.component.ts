@@ -385,14 +385,587 @@ export class VentaPedidoComponent implements OnInit {
   }
 
   // ============================================================
-  // 📄 GENERACIÓN DE PDF
+  // 📄 GENERACIÓN DE PDF (ACTUALIZADO)
   // ============================================================
 
   private generarComprobantePDF(idVenta: number, idPedido: number) {
     console.log(`Generando PDF para Venta #${idVenta}, Pedido #${idPedido}`);
     
-    // Aquí puedes implementar la lógica de PDF del primer componente
-    // Por ahora solo log
+    if (this.selectedTipoComprobante === this.TIPO_VENTA.BOLETA) {
+      this.generarBoletaPDF(idPedido);
+    } else if (this.selectedTipoComprobante === this.TIPO_VENTA.FACTURA) {
+      this.generarFacturaPDF(idPedido);
+    } else {
+      this.generarBoletaSimplePDF();
+    }
+  }
+
+// ============================================================
+// 🎯 MÉTODOS PARA GENERAR PDFs - CORREGIDOS
+// ============================================================
+
+generarBoletaPDF(pedidoId: number) {
+  // Tamaño: 58mm x 297mm (formato ticket largo)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [58, 297]
+  });
+  
+  const productos = this.data.detalles;
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  
+  // Número de boleta (simulado)
+  const numeroBoleta = `BP01-${pedidoId.toString().padStart(7, '0')}`;
+
+  // Configuración inicial - MÁRGENES 4mm EN AMBOS LADOS
+  const pageWidth = 58;
+  const marginLeft = 4;
+  const marginRight = 4;
+  const contentWidth = pageWidth - (marginLeft + marginRight);
+  let yPosition = 8;
+
+  // ========== ENCABEZADO PRINCIPAL ==========
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BOLETA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(9);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFontSize(7);
+  doc.text('Jr. 2 de Mayo - Yarina', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.setLineWidth(0.2);
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== INFORMACIÓN DEL DOCUMENTO ==========
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`BOLETA: ${numeroBoleta}`, marginLeft, yPosition);
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
+  yPosition += 3;
+  doc.text(`Canal: Caja`, marginLeft, yPosition);
+  yPosition += 3;
+  
+  // ========== INFORMACIÓN DEL CLIENTE ==========
+  if (this.clienteData) {
+    const nombreCompleto = `${this.clienteData.Nombre || ''} ${this.clienteData.Apellido || ''}`.trim();
+    const clienteText = `Cliente: ${nombreCompleto || '—'}`;
+    const clienteLines = doc.splitTextToSize(clienteText, contentWidth);
+    doc.text(clienteLines, marginLeft, yPosition);
+    yPosition += clienteLines.length * 3;
+    
+    const dniText = `DNI: ${this.numeroDocumento || '—'}`;
+    doc.text(dniText, marginLeft, yPosition);
+    yPosition += 4;
+  }
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE DEL PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Cabecera de tabla
+  doc.setFontSize(7);
+  doc.text('Descripción', marginLeft, yPosition);
+  doc.text('Precio', 20, yPosition);
+  doc.text('Cant', 33, yPosition);
+  doc.text('Total', 48, yPosition, { align: 'right' });
+  yPosition += 3;
+
+  // Línea bajo cabecera
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // 🔹 MOSTRAR PRODUCTOS Y COMBOS - CORREGIDO
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    // 🔹 DETERMINAR SI ES PRODUCTO O COMBO
+    const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+    
+    // 🔹 CORRECCIÓN: Usar Nombre_Combo y Nombre_Producto según tus modelos
+    const nombre = esCombo ? 
+      (producto.Nombre_Combo || 'Combo') : 
+      (producto.Nombre_Producto || 'Producto');
+    
+    const cantidad = producto.Cantidad || 1;
+    const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
+    const total = producto.PrecioTotal || 0;
+    
+    // 🔹 AGREGAR INDICADOR DE COMBO SI APLICA
+    const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+    
+    // Truncar nombre para caber en el ancho disponible
+    const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
+    
+    // Una sola línea con todas las columnas
+    doc.text(nombreTruncado, marginLeft, yPosition);
+    doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition);
+    doc.text(cantidad.toString(), 33, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' });
+    yPosition += 4;
+    
+    // Verificar si necesitamos nueva página
+    if (yPosition > 285) {
+      doc.addPage([58, 297]);
+      yPosition = 8;
+    }
+  });
+
+  // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
+  yPosition += 2;
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== TOTALES ==========
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text(`Pago: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
+  yPosition += 3;
+  
+  if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO && parseFloat(this.recibe) > 0) {
+    doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, yPosition);
+    yPosition += 3;
+  }
+  yPosition += 5;
+
+  // ========== MONTO EN LETRAS ==========
+  const montoEnLetras = this.convertirNumeroALetras(this.data.total);
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, contentWidth);
+  doc.text(lineas, marginLeft, yPosition);
+  yPosition += lineas.length * 2.5 + 4;
+
+  // ========== INFORMACIÓN LEGAL ==========
+  doc.setFontSize(5);
+  const leyenda = 'Exonerado IGV Ley 27037 - Zona Oriente';
+  const leyendaLines = doc.splitTextToSize(leyenda, contentWidth);
+  doc.text(leyendaLines, pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += leyendaLines.length * 2.5 + 4;
+
+  // ========== MENSAJE FINAL ==========
+  doc.setFontSize(7);
+  doc.text('¡Gracias por tu compra!', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('@AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.setFont('helvetica', 'italic');
+  doc.text('"Sabor auténtico"', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+}
+
+generarFacturaPDF(pedidoId: number) {
+  // Tamaño: 58mm x 297mm (formato ticket largo)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [58, 297]
+  });
+  
+  const productos = this.data.detalles;
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  
+  // Número de factura (simulado)
+  const numeroFactura = `F001-${pedidoId.toString().padStart(7, '0')}`;
+
+  // Configuración inicial
+  const pageWidth = 58;
+  const marginLeft = 4;
+  const marginRight = 4;
+  const contentWidth = pageWidth - (marginLeft + marginRight);
+  let yPosition = 8;
+
+  // ========== ENCABEZADO PRINCIPAL ==========
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FACTURA ELECTRÓNICA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(9);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFontSize(7);
+  doc.text('Jr. 2 de Mayo - Yarina', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.text('Pucallpa, Ucayali', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 6;
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.setLineWidth(0.2);
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== INFORMACIÓN DEL DOCUMENTO ==========
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`FACTURA: ${numeroFactura}`, marginLeft, yPosition);
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
+  yPosition += 3;
+  doc.text(`Canal: Caja`, marginLeft, yPosition);
+  yPosition += 3;
+  
+  // ========== INFORMACIÓN DEL CLIENTE ==========
+  if (this.clienteData) {
+    const razonSocial = this.clienteData.Nombre || 'CLIENTE';
+    const razonSocialLines = doc.splitTextToSize(`Cliente: ${razonSocial}`, contentWidth);
+    doc.text(razonSocialLines, marginLeft, yPosition);
+    yPosition += razonSocialLines.length * 3;
+    
+    doc.text(`RUC: ${this.numeroDocumento || '—'}`, marginLeft, yPosition);
+    yPosition += 3;
+  }
+  
+  doc.text(`Condición: Contado`, marginLeft, yPosition);
+  yPosition += 5;
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE DE VENTA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Cabecera de tabla
+  doc.setFontSize(7);
+  doc.text('Descripción', marginLeft, yPosition);
+  doc.text('Precio', 20, yPosition);
+  doc.text('Cant', 33, yPosition);
+  doc.text('Total', 48, yPosition, { align: 'right' });
+  yPosition += 3;
+
+  // Línea bajo cabecera
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // 🔹 MOSTRAR PRODUCTOS Y COMBOS - CORREGIDO
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+    
+    // 🔹 CORRECCIÓN: Usar Nombre_Combo y Nombre_Producto según tus modelos
+    const nombre = esCombo ? 
+      (producto.Nombre_Combo || 'Combo') : 
+      (producto.Nombre_Producto || 'Producto');
+    
+    const cantidad = producto.Cantidad || 1;
+    const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
+    const total = producto.PrecioTotal || 0;
+    
+    const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+    const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
+    
+    doc.text(nombreTruncado, marginLeft, yPosition);
+    doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition);
+    doc.text(cantidad.toString(), 33, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' });
+    yPosition += 4;
+    
+    if (yPosition > 285) {
+      doc.addPage([58, 297]);
+      yPosition = 8;
+    }
+  });
+
+  // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
+  yPosition += 2;
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== TOTALES ==========
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text(`Pago: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
+  yPosition += 3;
+  
+  if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO && parseFloat(this.recibe) > 0) {
+    doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, yPosition);
+    yPosition += 3;
+  }
+  yPosition += 5;
+
+  // ========== MONTO EN LETRAS ==========
+  const montoEnLetras = this.convertirNumeroALetras(this.data.total);
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  const lineas = doc.splitTextToSize(`SON: ${montoEnLetras}`, contentWidth);
+  doc.text(lineas, marginLeft, yPosition);
+  yPosition += lineas.length * 2.5 + 5;
+
+  // ========== MENSAJE FINAL ==========
+  doc.setFontSize(7);
+  doc.text('¡Gracias por su compra!', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('@AITA.PIZZA', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.setFont('helvetica', 'italic');
+  doc.text('"Sabor auténtico"', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+}
+
+generarBoletaSimplePDF() {
+  // Tamaño: 58mm x 180mm
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [58, 180]
+  });
+  
+  const productos = this.data.detalles;
+  const fecha = new Date();
+  
+  // Formatear fecha y hora
+  const fechaStr = fecha.toLocaleDateString('es-PE');
+  const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+  // Configuración inicial
+  const pageWidth = 58;
+  const marginLeft = 4;
+  const marginRight = 4;
+  const contentWidth = pageWidth - (marginLeft + marginRight);
+  let yPosition = 8;
+
+  // ========== ENCABEZADO PRINCIPAL ==========
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('COMPROBANTE', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('DE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  
+  doc.setFontSize(8);
+  doc.text('AITA PIZZA S.A.C.', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text('RUC: 10713414561', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.setLineWidth(0.2);
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== INFORMACIÓN DEL PEDIDO ==========
+  doc.setFontSize(7);
+  doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, yPosition);
+  yPosition += 4;
+  doc.text(`Código: ${this.data.codigoPedido}`, marginLeft, yPosition);
+  yPosition += 4;
+  doc.text(`Método: ${this.getMetodoPagoText()}`, marginLeft, yPosition);
+  yPosition += 6;
+
+  // ========== LÍNEA SEPARADORA ==========
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== DETALLE DE PRODUCTOS Y COMBOS ==========
+  doc.setFont('helvetica', 'bold');
+  doc.text('DETALLE PEDIDO', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+
+  // Cabecera de tabla
+  doc.setFontSize(7);
+  doc.text('Descripción', marginLeft, yPosition);
+  doc.text('Precio', 20, yPosition);
+  doc.text('Cant', 33, yPosition);
+  doc.text('Total', 48, yPosition, { align: 'right' });
+  yPosition += 3;
+
+  // Línea bajo cabecera
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // 🔹 MOSTRAR PRODUCTOS Y COMBOS - CORREGIDO
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  productos.forEach(producto => {
+    const esCombo = producto.ID_Combo && producto.ID_Combo > 0;
+    
+    // 🔹 CORRECCIÓN: Usar Nombre_Combo y Nombre_Producto según tus modelos
+    const nombre = esCombo ? 
+      (producto.Nombre_Combo || 'Combo') : 
+      (producto.Nombre_Producto || 'Producto');
+    
+    const cantidad = producto.Cantidad || 1;
+    const precioUnitario = (producto.PrecioTotal / cantidad) || 0;
+    const total = producto.PrecioTotal || 0;
+    
+    const nombreConTipo = esCombo ? `${nombre} (COMBO)` : nombre;
+    const nombreTruncado = nombreConTipo.length > 18 ? nombreConTipo.substring(0, 18) + '...' : nombreConTipo;
+    
+    doc.text(nombreTruncado, marginLeft, yPosition);
+    doc.text(`S/.${precioUnitario.toFixed(2)}`, 20, yPosition);
+    doc.text(cantidad.toString(), 33, yPosition);
+    doc.text(`S/.${total.toFixed(2)}`, 48, yPosition, { align: 'right' });
+    yPosition += 4;
+  });
+
+  // ========== LÍNEA SEPARADORA ANTES DE TOTAL ==========
+  yPosition += 2;
+  doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+  yPosition += 4;
+
+  // ========== TOTAL ==========
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text(`TOTAL: S/ ${this.data.total.toFixed(2)}`, marginLeft, yPosition);
+  yPosition += 6;
+
+  // ========== CÓDIGO DE PEDIDO DESTACADO ==========
+  doc.setFontSize(9);
+  doc.text('CÓDIGO PEDIDO:', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 5;
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text(this.data.codigoPedido, pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 8;
+
+  // ========== MENSAJE IMPORTANTE ==========
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Presente este código', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 3;
+  doc.text('para recoger su pedido', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 4;
+  doc.text('¡Gracias por su compra!', pageWidth / 2, yPosition, { align: 'center' });
+
+  // Abrir en nueva ventana
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  window.open(pdfUrl, '_blank');
+}
+
+  // ============================================================
+  // 🔢 MÉTODO PARA CONVERTIR NÚMERO A LETRAS
+  // ============================================================
+
+  private convertirNumeroALetras(numero: number): string {
+    const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+    const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+    const entero = Math.floor(numero);
+    const decimal = Math.round((numero - entero) * 100);
+
+    if (entero === 0) {
+      return `cero con ${decimal.toString().padStart(2, '0')}/100 soles`;
+    }
+
+    let letras = '';
+
+    // Miles
+    if (entero >= 1000) {
+      const miles = Math.floor(entero / 1000);
+      if (miles === 1) {
+        letras += 'mil ';
+      } else {
+        letras += this.convertirCentenas(miles) + ' mil ';
+      }
+    }
+
+    // Centenas restantes
+    const resto = entero % 1000;
+    letras += this.convertirCentenas(resto);
+
+    // Eliminar espacios extra y capitalizar primera letra
+    letras = letras.trim();
+    if (letras.length > 0) {
+      letras = letras.charAt(0).toUpperCase() + letras.slice(1);
+    }
+
+    return `${letras} con ${decimal.toString().padStart(2, '0')}/100 soles`;
+  }
+
+  private convertirCentenas(numero: number): string {
+    const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+    const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+    if (numero === 100) return 'cien';
+    
+    const c = Math.floor(numero / 100);
+    const r = numero % 100;
+    const d = Math.floor(r / 10);
+    const u = r % 10;
+
+    let resultado = '';
+
+    if (c > 0) {
+      resultado += centenas[c] + ' ';
+    }
+
+    if (r === 0) {
+      return resultado.trim();
+    }
+
+    if (r < 10) {
+      resultado += unidades[r];
+    } else if (r < 20) {
+      resultado += especiales[r - 10];
+    } else {
+      resultado += decenas[d];
+      if (u > 0) {
+        resultado += ' y ' + unidades[u];
+      }
+    }
+
+    return resultado.trim();
   }
 
   // ============================================================
