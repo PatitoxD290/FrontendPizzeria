@@ -231,17 +231,19 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   // 🔹 MÉTODO PARA MOSTRAR RANGO DE PRECIOS
-  obtenerRangoPrecios(producto: ProductoConTamanos): string {
-    if (producto.esCombo) {
-      return `S/. ${producto.precioMinimo?.toFixed(2)}`;
-    }
-    
-    if (producto.precioMinimo === producto.precioMaximo) {
-      return `S/. ${producto.precioMinimo?.toFixed(2)}`;
-    }
-    
-    return `S/. ${producto.precioMinimo?.toFixed(2)} - S/. ${producto.precioMaximo?.toFixed(2)}`;
+obtenerRangoPrecios(producto: ProductoConTamanos): string {
+  if (producto.esCombo) {
+    return `S/. ${producto.precioMinimo?.toFixed(2)}`;
   }
+  
+  // Para productos con múltiples tamaños, mostrar solo el precio mínimo
+  if ((producto.tamanos?.length || 0) > 1) {
+    return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+  }
+  
+  // Para productos con un solo tamaño, mostrar ese precio
+  return `S/. ${producto.precioMinimo?.toFixed(2)}`;
+}
 
 // En menu.component.ts - modifica el método abrirPersonalizacion
 abrirPersonalizacion(producto: ProductoConTamanos): void {
