@@ -26,13 +26,19 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   modalAbierto = false;
   private modalSubscription!: Subscription;
   private routerSubscription!: Subscription;
+  private carritoSubscription!: Subscription;
+
+  // Variables reactivas
+  productos: DatosPedido[] = [];
+  total: number = 0;
+  cantidadItemsDistintos: number = 0;
 
   constructor(
     public carritoService: CarritoService,
     public router: Router,
     private location: Location,
     private modalStateService: ModalStateService,
-    private cdr: ChangeDetectorRef // ✅ Cambiado a cdr para coincidir con el diseño
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -43,7 +49,7 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     this.modalSubscription = this.modalStateService.modalAbierto$.subscribe(
       (abierto) => {
         this.modalAbierto = abierto;
-        this.cdr.detectChanges(); // ✅ Forzar detección de cambios
+        this.cdr.detectChanges();
       }
     );
 
@@ -52,8 +58,26 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.checkRoute();
-        this.cdr.detectChanges(); // ✅ Forzar detección de cambios
+        this.cdr.detectChanges();
       });
+
+    // 🔹 NUEVO: Suscribirse a cambios en el carrito
+    this.carritoSubscription = this.carritoService.productos$.subscribe(
+      (productos) => {
+        this.productos = productos;
+        this.total = this.carritoService.obtenerTotal();
+        this.cantidadItemsDistintos = this.carritoService.obtenerCantidadItems();
+        this.cdr.detectChanges(); // Forzar actualización de la vista
+        console.log('🔄 Carrito actualizado en componente:', {
+          productos: this.productos,
+          total: this.total,
+          cantidad: this.cantidadItemsDistintos
+        });
+      }
+    );
+
+    // Cargar estado inicial
+    this.actualizarEstadoCarrito();
   }
 
   ngOnDestroy() {
@@ -63,21 +87,29 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+    if (this.carritoSubscription) {
+      this.carritoSubscription.unsubscribe();
+    }
+  }
+
+  // 🔹 NUEVO: Actualizar estado del carrito
+  private actualizarEstadoCarrito(): void {
+    this.productos = this.carritoService.obtenerProductos();
+    this.total = this.carritoService.obtenerTotal();
+    this.cantidadItemsDistintos = this.carritoService.obtenerCantidadItems();
+    this.cdr.detectChanges();
   }
 
   checkRoute() {
-    // Actualizamos las variables de estado
     this.esPaginaCarrito = this.router.url.includes('/carrito');
     this.esPaginaPagoVariable = this.router.url.includes('/pago');
   }
 
-  // Getter simple para usar en el HTML en lugar de función
   get esPaginaPago(): boolean {
     return this.esPaginaPagoVariable;
   }
 
   toggleCarrito() {
-    // ✅ No hacer nada si hay modales abiertos o está en página de pago
     if (this.modalAbierto || this.esPaginaPago) {
       console.log('Botón bloqueado - Modal abierto:', this.modalAbierto);
       return;
@@ -106,7 +138,7 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   }
 
   confirmarPedido() {
-    if (this.carritoService.obtenerProductos().length === 0) {
+    if (this.productos.length === 0) {
       alert('⚠️ El carrito está vacío.');
       return;
     }
@@ -117,18 +149,5 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     if(confirm('¿Estás seguro de vaciar el carrito?')) {
       this.carritoService.vaciarCarrito();
     }
-  }
-
-  // Getters
-  get cantidadItemsDistintos(): number {
-    return this.carritoService.obtenerCantidadItems();
-  }
-
-  get total(): number {
-    return this.carritoService.obtenerTotal();
-  }
-  
-  get productos(): DatosPedido[] {
-    return this.carritoService.obtenerProductos();
   }
 }

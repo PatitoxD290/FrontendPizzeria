@@ -83,40 +83,63 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
     });
   }
 
-  private inicializarDatos() {
-    this.esCombo = !!this.data.ID_Combo;
+private inicializarDatos() {
+  this.esCombo = !!this.data.ID_Combo;
 
-    if (this.esCombo) {
-      const combo = this.data as Combo;
-      this.nombre = combo.Nombre;
-      this.descripcion = combo.Descripcion;
-      this.precioBase = Number(combo.Precio);
-      this.imagen = this.construirUrlImagen(combo.imagenes);
-      this.esBebida = false;
-    } else {
-      const producto = this.data as Producto;
-      this.nombre = producto.Nombre;
-      this.descripcion = producto.Descripcion;
-      this.imagen = this.construirUrlImagen(producto.imagenes);
+  if (this.esCombo) {
+    const combo = this.data as Combo;
+    this.nombre = combo.Nombre;
+    this.descripcion = combo.Descripcion;
+    this.precioBase = Number(combo.Precio);
+    this.imagen = this.construirUrlImagenCompleta(combo);
+    this.esBebida = false;
+  } else {
+    const producto = this.data as Producto;
+    this.nombre = producto.Nombre;
+    this.descripcion = producto.Descripcion;
+    this.imagen = this.construirUrlImagenCompleta(producto);
 
-      this.tamanosDisponibles = producto.tamanos?.filter(t => t.Estado === 'A') || [];
-      if (this.tamanosDisponibles.length > 0) {
-        this.seleccionarTamano(this.tamanosDisponibles[0]);
-      }
-
-      const cat = producto.nombre_categoria?.toLowerCase() || '';
-      this.esBebida = cat.includes('bebida') || cat.includes('refresco');
+    this.tamanosDisponibles = producto.tamanos?.filter(t => t.Estado === 'A') || [];
+    if (this.tamanosDisponibles.length > 0) {
+      this.seleccionarTamano(this.tamanosDisponibles[0]);
     }
+
+    const cat = producto.nombre_categoria?.toLowerCase() || '';
+    this.esBebida = cat.includes('bebida') || cat.includes('refresco');
   }
+}
+
+
+private construirUrlImagenCompleta(item: any): string {
+  // Si ya viene con imagen del menú, usarla
+  if (item.imagen && item.imagen !== '/assets/imgs/logo.png') {
+    return item.imagen;
+  }
+  
+  // Si no, construirla
+  const id = this.esCombo ? item.ID_Combo : item.ID_Producto;
+  const tipo = this.esCombo ? 'combo' : 'producto';
+  const urlBase = `${this.baseUrl}/imagenesCata/${tipo}_${id}_1`;
+  
+  return urlBase;
+}
 
   // 🖼️ Helper para construir URL de imagen limpia
-  private construirUrlImagen(imagenes?: string[]): string {
-    if (imagenes && imagenes.length > 0) {
-      const filename = imagenes[0].split(/[/\\]/).pop();
-      return `${this.baseUrl}/imagenesCata/${filename}`;
-    }
-    return 'assets/imgs/no-image.png';
+private construirUrlImagen(imagenes?: string[]): string {
+  if (imagenes && imagenes.length > 0) {
+    const filename = imagenes[0].split(/[/\\]/).pop();
+    return `${this.baseUrl}/imagenesCata/${filename}`;
   }
+  
+  // 🔹 NUEVO: Si no hay imagen en el array, intentar construirla desde los datos
+  if (this.data && this.data.ID_Producto) {
+    const id = this.data.ID_Producto;
+    const tipo = this.esCombo ? 'combo' : 'producto';
+    return `${this.baseUrl}/imagenesCata/${tipo}_${id}_1.png`;
+  }
+  
+  return 'assets/imgs/no-image.png';
+}
 
   seleccionarTamano(tamano: ProductoTamano) {
     this.tamanoSeleccionado = tamano;

@@ -1,42 +1,4 @@
 <div class="menu-container">
-  <!-- 🔍 Barra de Búsqueda -->
-  <div class="search-section">
-    <div class="search-box">
-      <mat-icon>search</mat-icon>
-      <input 
-        type="text" 
-        placeholder="¿Qué desea ordenar hoy?" 
-        [(ngModel)]="searchTerm" 
-        (keyup)="aplicarFiltros()">
-      <button *ngIf="searchTerm" mat-icon-button (click)="searchTerm=''; aplicarFiltros()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </div>
-
-  <!-- 🏷️ Categorías -->
-  <div class="categorias-container">
-    <button mat-raised-button 
-            [color]="filtroCategoria === '' ? 'primary' : ''" 
-            (click)="filtrarPorCategoria(null)">
-      Todos
-    </button>
-
-    <button mat-raised-button 
-            [color]="filtroCategoria === 'Combos' ? 'primary' : ''" 
-            class="combo-category-btn"
-            (click)="filtrarPorCategoria(999)">
-      Combos
-    </button>
-
-    <button *ngFor="let cat of categorias" 
-            mat-raised-button 
-            [color]="filtroCategoria === cat.Nombre ? 'primary' : ''" 
-            (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
-      {{ cat.Nombre }}
-    </button>
-  </div>
-
   <!-- 🌀 Loading -->
   <div *ngIf="loading" class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
