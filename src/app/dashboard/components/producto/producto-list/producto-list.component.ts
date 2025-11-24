@@ -1,13 +1,8 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
-import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
-import { ProductoService } from '../../../../core/services/producto.service';
-import { CategoriaService } from '../../../../core/services/categoria.service';
-import { RecetaService } from '../../../../core/services/receta.service';
-import { TamanoService } from '../../../../core/services/tamano.service';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { Subject, forkJoin } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 // Angular Material
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -18,8 +13,19 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+
+// Core
+import { Producto } from '../../../../core/models/producto.model';
+import { CategoriaProducto } from '../../../../core/models/categoria.model';
+import { ProductoService } from '../../../../core/services/producto.service';
+import { CategoriaService } from '../../../../core/services/categoria.service';
+
+// Componentes
 import { ProductoFormComponent } from '../producto-form/producto-form.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-producto-list',
@@ -35,24 +41,34 @@ import { ProductoFormComponent } from '../producto-form/producto-form.component'
     MatDialogModule,
     MatChipsModule,
     MatTooltipModule,
-    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule
   ],
   templateUrl: './producto-list.component.html',
   styleUrls: ['./producto-list.component.css'],
 })
 export class ProductoListComponent implements OnInit, OnDestroy {
+  
+  // Datos
   productos: Producto[] = [];
   paginatedProductos: Producto[] = [];
-  categorias: any[] = [];
-  recetas: any[] = [];
-  tamanos: any[] = [];
+  categorias: CategoriaProducto[] = [];
+  
+  // UI
   loading = false;
+  error = '';
+  baseUrl = 'http://localhost:3000'; // Base de tu backend
 
-  // Configuración de paginación
+  // Paginación
   pageSize = 8;
   pageSizeOptions = [4, 8, 12, 16];
   currentPage = 0;
   totalItems = 0;
+
+  // Filtros
+  terminoBusqueda = '';
+  filtroCategoria = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -61,13 +77,11 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   constructor(
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
-    private recetaService: RecetaService,
-    private tamanoService: TamanoService,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.loadProductos();
+    this.loadData();
   }
 
   ngOnDestroy(): void {
@@ -75,250 +89,147 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Método para obtener la ruta de la imagen
-  getProductoImage(idProducto: number): string {
-    const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
-    for (const ext of extensiones) {
-      const url = `http://localhost:3000/imagenesCata/producto_${idProducto}_1.${ext}`;
-      return url;
-    }
-    return 'assets/imgs/logo.png';
+  // 📥 Carga inicial de datos
+  loadData() {
+    this.loading = true;
+    
+    forkJoin({
+      productos: this.productoService.getProductos(),
+      categorias: this.categoriaService.getCategoriasProducto()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (data) => {
+        this.categorias = data.categorias;
+        
+        // Enriquecer productos con nombre de categoría
+        this.productos = data.productos.map(p => ({
+          ...p,
+          nombre_categoria: this.getNombreCategoria(p.ID_Categoria_P, data.categorias)
+        }));
+
+        this.aplicarFiltros();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando datos:', err);
+        this.error = 'No se pudieron cargar los productos.';
+        this.loading = false;
+      }
+    });
   }
 
-  // Método para fallback si la imagen falla al cargar
+  // 🔍 Filtros y Paginación
+  aplicarFiltros() {
+    let resultado = [...this.productos];
+
+    // Filtro por texto
+    if (this.terminoBusqueda.trim()) {
+      const term = this.terminoBusqueda.toLowerCase();
+      resultado = resultado.filter(p => 
+        p.Nombre.toLowerCase().includes(term) || 
+        (p.Descripcion && p.Descripcion.toLowerCase().includes(term))
+      );
+    }
+
+    // Filtro por categoría
+    if (this.filtroCategoria > 0) {
+      resultado = resultado.filter(p => p.ID_Categoria_P === this.filtroCategoria);
+    }
+
+    this.totalItems = resultado.length;
+    
+    if (this.paginator && this.currentPage * this.pageSize >= this.totalItems) {
+      this.currentPage = 0;
+      this.paginator.firstPage();
+    }
+
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedProductos = resultado.slice(startIndex, endIndex);
+  }
+
+  limpiarFiltros() {
+    this.terminoBusqueda = '';
+    this.filtroCategoria = 0;
+    this.aplicarFiltros();
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.aplicarFiltros();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 🖼️ Helpers Visuales (LÓGICA DE IMAGEN SOLICITADA)
+  getProductoImage(producto: Producto): string {
+    // Verificamos si el backend nos devolvió el nombre del archivo (ej: /uploads/producto_1_1.jpg)
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      // Extraemos solo el nombre del archivo (producto_1_1.jpg) para ignorar la carpeta /uploads/ del backend
+      const filename = producto.imagenes[0].split('/').pop();
+      
+      // Construimos la ruta correcta: localhost:3000/imagenesCata/producto_1_1.jpg
+      return `${this.baseUrl}/imagenesCata/${filename}`;
+    }
+    return 'assets/imgs/logo.png'; // Fallback si no hay imagen
+  }
+
   onImageError(event: any) {
     event.target.src = 'assets/imgs/logo.png';
   }
 
-  async loadProductos() {
-    this.loading = true;
-    try {
-      const [categorias, recetas, tamanos, productos] = await Promise.all([
-        this.categoriaService.getCategoriasProducto().toPromise(),
-        this.recetaService.getRecetas().toPromise(),
-        this.tamanoService.getTamanos().toPromise(),
-        this.productoService.getProductos().toPromise(),
-      ]);
-
-      this.categorias = categorias || [];
-      this.recetas = recetas || [];
-      this.tamanos = tamanos || [];
-
-      this.productos = (productos || []).map((p) => ({
-        ...p,
-        nombre_categoria:
-          this.categorias.find((c) => c.ID_Categoria_P === p.ID_Categoria_P)?.Nombre ||
-          'Sin categoría',
-        nombre_receta:
-          this.recetas.find((r) => r.ID_Receta === p.ID_Receta)?.Nombre || 'Sin receta',
-        tamanos: p.tamanos?.map(tamano => ({
-          ...tamano,
-          nombre_tamano: this.getNombreTamano(tamano.ID_Tamano)
-        })) || []
-      }));
-
-      this.totalItems = this.productos.length;
-      this.updatePaginatedData();
-
-    } catch (err) {
-      console.error('Error al cargar datos', err);
-      this.showError('Error al cargar productos', 'No se pudieron cargar los datos.');
-    } finally {
-      this.loading = false;
-    }
+  getNombreCategoria(id: number, categorias: CategoriaProducto[]): string {
+    return categorias.find(c => c.ID_Categoria_P === id)?.Nombre || 'Sin Categoría';
   }
 
-  // Actualizar datos paginados
-  updatePaginatedData() {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedProductos = this.productos.slice(startIndex, endIndex);
+  getStockClass(stock: number): string {
+    if (stock === 0) return 'stock-agotado';
+    if (stock <= 10) return 'stock-bajo';
+    return 'stock-ok';
   }
 
-  // Manejar cambio de página
-  onPageChange(event: PageEvent) {
-    this.currentPage = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.updatePaginatedData();
-    
-    // Scroll suave hacia arriba al cambiar de página
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  // 🛠️ Acciones CRUD
+  openProductoForm(producto?: Producto) {
+    const dialogRef = this.dialog.open(ProductoFormComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      disableClose: true,
+      data: { producto }
+    });
 
-  // 🔹 Obtener el nombre del tamaño por ID
-  getNombreTamano(idTamano: number): string {
-    const tamano = this.tamanos.find(t => t.ID_Tamano === idTamano);
-    return tamano?.Tamano || `Tamaño ${idTamano}`;
-  }
-
-  // 🔹 Obtener tamaños activos del producto
-  getTamanosActivos(producto: Producto): ProductoTamano[] {
-    return producto.tamanos?.filter(t => t.Estado === 'A') || [];
-  }
-
-  // 🔹 Obtener cantidad de tamaños activos
-  getCantidadTamanos(producto: Producto): number {
-    return this.getTamanosActivos(producto).length;
-  }
-
-  // 🔹 Obtener el precio mínimo de los tamaños activos
-  getPrecioMinimo(producto: Producto): number {
-    const tamanosActivos = this.getTamanosActivos(producto);
-    if (tamanosActivos.length === 0) return 0;
-    return Math.min(...tamanosActivos.map(t => t.Precio));
-  }
-
-  // 🔹 Obtener el precio máximo de los tamaños activos
-  getPrecioMaximo(producto: Producto): number {
-    const tamanosActivos = this.getTamanosActivos(producto);
-    if (tamanosActivos.length === 0) return 0;
-    return Math.max(...tamanosActivos.map(t => t.Precio));
-  }
-
-  // 🔹 Mostrar rango de precios o precio único
-  getDisplayPrecio(producto: Producto): string {
-    const tamanosActivos = this.getTamanosActivos(producto);
-    
-    if (tamanosActivos.length === 0) {
-      return 'Sin precios';
-    }
-    
-    const precioMin = this.getPrecioMinimo(producto);
-    const precioMax = this.getPrecioMaximo(producto);
-    
-    if (precioMin === precioMax) {
-      return `S/ ${precioMin.toFixed(2)}`;
-    } else {
-      return `S/ ${precioMin.toFixed(2)} - S/ ${precioMax.toFixed(2)}`;
-    }
-  }
-
-  // 🔹 Obtener información combinada de precios y tamaños
-  getPrecioTamanoInfo(producto: Producto): { texto: string, tooltip: string } {
-    const tamanosActivos = this.getTamanosActivos(producto);
-    const cantidadTamanos = this.getCantidadTamanos(producto);
-    
-    if (tamanosActivos.length === 0) {
-      return {
-        texto: 'Sin tamaños',
-        tooltip: 'No hay tamaños disponibles para este producto'
-      };
-    }
-
-    const precioTexto = this.getDisplayPrecio(producto);
-    const tamanosTexto = `${cantidadTamanos} tamaño${cantidadTamanos !== 1 ? 's' : ''}`;
-    
-    const texto = `${precioTexto} • ${tamanosTexto}`;
-    const tooltip = this.getTamanosConPrecios(producto);
-    
-    return { texto, tooltip };
-  }
-
-  // 🔹 Obtener lista de tamaños con precios para tooltip
-  getTamanosConPrecios(producto: Producto): string {
-    const tamanosActivos = this.getTamanosActivos(producto);
-    if (tamanosActivos.length === 0) return 'Sin tamaños disponibles';
-    
-    return tamanosActivos
-      .map(t => `${t.nombre_tamano || this.getNombreTamano(t.ID_Tamano)}: S/ ${t.Precio.toFixed(2)}`)
-      .join('\n');
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.loadData();
+    });
   }
 
   deleteProducto(producto: Producto) {
     Swal.fire({
       title: '¿Eliminar producto?',
-      html: `¿Estás seguro de eliminar <strong>"${producto.Nombre}"</strong>?`,
+      text: `Se eliminará "${producto.Nombre}".`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.productoService
-          .deleteProducto(producto.ID_Producto)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.showSuccess('Producto eliminado', 'El producto fue eliminado correctamente.');
-              this.loadProductos();
-              // Resetear a la primera página después de eliminar
-              this.resetToFirstPage();
-            },
-            error: () => this.showError('Error', 'No se pudo eliminar el producto.'),
-          });
+        this.productoService.deleteProducto(producto.ID_Producto).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'Producto eliminado correctamente', 'success');
+            this.loadData();
+          },
+          error: (err) => {
+            console.error(err);
+            if (err.status === 409) {
+              Swal.fire('No se puede eliminar', 'El producto está en uso en combos o ventas.', 'error');
+            } else {
+              Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+            }
+          }
+        });
       }
     });
-  }
-
-  // Resetear a la primera página
-  resetToFirstPage() {
-    this.currentPage = 0;
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-    this.updatePaginatedData();
-  }
-
-  openProductoForm(producto?: Producto) {
-    const dialogRef = this.dialog.open(ProductoFormComponent, {
-      width: '1000px',
-      maxWidth: '95vw',
-      height: 'auto',
-      autoFocus: false,
-      data: { 
-        producto, 
-        categorias: this.categorias, 
-        recetas: this.recetas,
-        tamanos: this.tamanos
-      },
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result) {
-          this.loadProductos();
-          // Resetear a la primera página después de agregar/editar
-          this.resetToFirstPage();
-        }
-      });
-  }
-
-  getEstadoColor(estado: string): string {
-    return estado === 'A' ? 'success' : 'warn';
-  }
-
-  getEstadoText(estado: string): string {
-    return estado === 'A' ? 'Activo' : 'Inactivo';
-  }
-
-  getStockColor(cantidad: number): string {
-    if (cantidad === 0) return 'warn';
-    if (cantidad <= 10) return 'accent';
-    return 'primary';
-  }
-
-  getStockText(cantidad: number): string {
-    if (cantidad === 0) return 'Agotado';
-    if (cantidad <= 10) return 'Bajo stock';
-    return 'En stock';
-  }
-
-  // 🔹 Método para truncar texto
-  truncateText(text: string, maxLength: number): string {
-    if (!text) return 'Sin descripción';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  }
-
-  private showSuccess(title: string, text: string) {
-    Swal.fire({ icon: 'success', title, text, timer: 2000, showConfirmButton: false });
-  }
-
-  private showError(title: string, text: string) {
-    Swal.fire({ icon: 'error', title, text, confirmButtonColor: '#d33' });
   }
 }

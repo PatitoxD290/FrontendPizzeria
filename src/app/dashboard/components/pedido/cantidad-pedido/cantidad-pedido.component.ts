@@ -1,11 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// Angular Material
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+
+// Core
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
 
@@ -24,17 +28,18 @@ export interface CantidadPedidoData {
     MatInputModule,
     MatFormFieldModule,
     MatDialogModule
-    // 🔹 QUITAMOS MatRadioModule ya que usaremos botones
   ],
   templateUrl: './cantidad-pedido.component.html',
   styleUrls: ['./cantidad-pedido.component.css']
 })
 export class CantidadPedidoComponent implements OnInit {
+  
   cantidad: number = 1;
   maxCantidad: number = 50;
   
   tamanosDisponibles: ProductoTamano[] = [];
   tamanoSeleccionado: ProductoTamano | null = null;
+  
   precioUnitario: number = 0;
   precioTotal: number = 0;
 
@@ -44,26 +49,28 @@ export class CantidadPedidoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Filtrar solo tamaños activos
     this.tamanosDisponibles = this.data.producto.tamanos?.filter(t => t.Estado === 'A') || [];
     
+    // Seleccionar el primero por defecto
     if (this.tamanosDisponibles.length > 0) {
-      this.tamanoSeleccionado = this.tamanosDisponibles[0];
-      this.precioUnitario = this.tamanoSeleccionado.Precio;
-      this.precioTotal = this.precioUnitario * this.cantidad;
+      this.seleccionarTamano(this.tamanosDisponibles[0]);
     }
     
+    // Validar stock máximo disponible
     if (this.data.producto.Cantidad_Disponible) {
-      this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 50);
+      this.maxCantidad = Math.min(this.data.producto.Cantidad_Disponible, 100); // Limite lógico de 100 o stock real
     }
   }
 
-  // 🔹 CAMBIO: Seleccionar tamaño con botón
+  // 📏 Selección de Tamaño
   seleccionarTamano(tamano: ProductoTamano): void {
     this.tamanoSeleccionado = tamano;
-    this.precioUnitario = tamano.Precio;
+    this.precioUnitario = Number(tamano.Precio);
     this.actualizarPrecioTotal();
   }
 
+  // ➕➖ Cantidad
   aumentarCantidad(): void {
     if (this.cantidad < this.maxCantidad) {
       this.cantidad++;
@@ -92,24 +99,44 @@ export class CantidadPedidoComponent implements OnInit {
     event.target.value = value.toString();
   }
 
+  validarEntrada(event: any): void {
+    const input = event.target;
+    // Eliminar no numéricos
+    let value = input.value.replace(/[^0-9]/g, '');
+    
+    // Validar rangos
+    if (value !== '') {
+        let num = parseInt(value, 10);
+        if (num < 1) num = 1;
+        if (num > this.maxCantidad) num = this.maxCantidad;
+        this.cantidad = num;
+    }
+    
+    input.value = this.cantidad.toString();
+    this.actualizarPrecioTotal();
+  }
+
   private actualizarPrecioTotal(): void {
     this.precioTotal = this.precioUnitario * this.cantidad;
   }
 
+  // 🛒 Acciones Finales
   agregarAlPedido(): void {
-    if (!this.tamanoSeleccionado) {
-      return;
-    }
+    if (!this.tamanoSeleccionado) return;
 
+    // Crear objeto Detalle (compatible con el modelo PedidoDetalle)
     const detalle: PedidoDetalle = {
-      ID_Pedido_D: 0,
-      ID_Pedido: 0,
+      ID_Pedido_D: 0, // Temporal
+      ID_Pedido: 0,   // Temporal
       ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
       Cantidad: this.cantidad,
       PrecioTotal: this.precioTotal,
-      nombre_producto: this.data.producto.Nombre,
-      nombre_categoria: this.data.producto.nombre_categoria || 'Sin categoría',
-      nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único'
+      
+      // Datos visuales para el carrito
+      Nombre_Producto: this.data.producto.Nombre,
+      // Nombre_Categoria: this.data.producto.nombre_categoria || '', // Opcional si lo tienes en el modelo
+      Tamano_Nombre: this.tamanoSeleccionado.nombre_tamano || 'Estándar',
+      Tipo: 'producto'
     };
 
     this.dialogRef.close(detalle);
@@ -119,26 +146,9 @@ export class CantidadPedidoComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  validarEntrada(event: any): void {
-    const input = event.target;
-    let value = input.value.replace(/[^0-9]/g, '');
-    
-    if (value === '' || parseInt(value, 10) < 1) {
-      value = '1';
-    } else if (parseInt(value, 10) > this.maxCantidad) {
-      value = this.maxCantidad.toString();
-    }
-    
-    input.value = value;
-    this.cantidad = parseInt(value, 10);
-    this.actualizarPrecioTotal();
-  }
-
+  // Getters visuales
   get disponibleTexto(): string {
-    return `Disponible: ${this.data.producto.Cantidad_Disponible || 0} unidades`;
-  }
-
-  get tieneMultiplesTamanos(): boolean {
-    return this.tamanosDisponibles.length > 1;
+    const stock = this.data.producto.Cantidad_Disponible || 0;
+    return stock > 0 ? `Stock: ${stock}` : 'Agotado';
   }
 }

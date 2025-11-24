@@ -1,34 +1,40 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+// Modelos
+import { Stock, StockMovimientoDTO } from '../../../../core/models/stock.model';
+import { Insumo } from '../../../../core/models/insumo.model';
+
+// Servicios
+import { StockService } from '../../../../core/services/stock.service';
+import { InsumoService } from '../../../../core/services/insumo.service'; // ⚠️ Antes IngredienteService
+import { AuthService } from '../../../../core/services/auth/auth.service';
+
+// Angular Material
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { Observable, map, startWith } from 'rxjs';
 
-import { StockMovimiento } from '../../../../core/models/stock.model';
-import { Insumo } from '../../../../core/models/ingrediente.model';
-import { StockService } from '../../../../core/services/stock.service';
-import { AuthService } from '../../../../core/services/auth/auth.service';
-import { IngredienteService } from '../../../../core/services/ingrediente.service';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 export interface StockFormData {
-  ID_Stock: number;
-  stockData?: any;
+  // Si venimos desde un lote específico (ej: botón "Movimiento" en la fila de stock)
+  stockData?: Stock; 
 }
 
 @Component({
   selector: 'app-stock-form',
-  templateUrl: './stock-form.component.html',
-  styleUrls: ['./stock-form.component.css'],
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -38,37 +44,44 @@ export interface StockFormData {
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule
+  ],
+  templateUrl: './stock-form.component.html',
+  styleUrls: ['./stock-form.component.css'],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }
   ]
 })
 export class StockFormComponent implements OnInit {
+  
   movimientoForm: FormGroup;
   loading = false;
   loadingInsumos = false;
+  
   tiposMovimiento = ['Entrada', 'Salida', 'Ajuste'];
   usuarioLogueado: any = null;
 
-  // Propiedades para el autocomplete
+  // Autocomplete Insumos
   insumos: Insumo[] = [];
   filteredInsumos!: Observable<Insumo[]>;
-  stocksDisponibles: any[] = [];
+  
+  // Lotes de stock disponibles para el insumo seleccionado
+  stocksDisponibles: Stock[] = [];
+  
   selectedInsumo: Insumo | null = null;
-  selectedStock: any = null;
+  selectedStock: Stock | null = null;
 
-  // Nueva propiedad para saber si es un movimiento desde un registro específico
+  // Modo: ¿Viene pre-seleccionado un lote?
   isFromSpecificRecord: boolean = false;
-  stockRecord: any = null;
 
   constructor(
     private fb: FormBuilder,
     private stockService: StockService,
-    private ingredienteService: IngredienteService,
+    private insumoService: InsumoService,
     private authService: AuthService,
-    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<StockFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: StockFormData
   ) {
@@ -76,215 +89,181 @@ export class StockFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Obtener usuario logueado
     this.usuarioLogueado = this.authService.getUser();
     
-    // Verificar si viene de un registro específico
-    this.isFromSpecificRecord = !!this.data?.stockData;
-    this.stockRecord = this.data?.stockData;
-
-    if (this.isFromSpecificRecord) {
-      // Si viene de un registro específico, cargar directamente ese stock
-      this.cargarInsumoYStockEspecifico();
+    // Verificar si abrieron el modal desde un registro específico
+    if (this.data?.stockData) {
+      this.isFromSpecificRecord = true;
+      this.selectedStock = this.data.stockData;
+      
+      // Pre-cargar datos
+      this.cargarDatosIniciales(this.selectedStock!.ID_Insumo, this.selectedStock!.ID_Stock);
     } else {
-      // Si es nuevo movimiento, cargar todos los insumos para búsqueda
-      this.cargarInsumos();
+      // Cargar lista completa para el buscador
+      this.cargarTodosInsumos();
     }
 
-    // Configurar el filtro para el autocomplete (solo para nuevo movimiento)
+    // Configurar filtro autocomplete
     this.filteredInsumos = this.movimientoForm.get('insumoNombre')!.valueChanges.pipe(
       startWith(''),
       map(value => this._filterInsumos(value || ''))
     );
+
+    // Listener para cambios en Tipo de Movimiento (para validar cantidad máxima en salida)
+    this.movimientoForm.get('Tipo_Mov')?.valueChanges.subscribe(() => {
+      this.movimientoForm.get('Cantidad')?.updateValueAndValidity();
+    });
   }
 
   createForm(): FormGroup {
     return this.fb.group({
-      insumoNombre: [''], // Campo para buscar insumo por nombre (solo para nuevo movimiento)
-      ID_Stock: [null, Validators.required], // Campo oculto para ID_Stock
+      insumoNombre: [''], // Solo para búsqueda visual
+      ID_Stock: [null, Validators.required], // ID Real del lote
       Tipo_Mov: ['Entrada', Validators.required],
       Cantidad: ['', [Validators.required, Validators.min(1)]],
-      Motivo: [''] // Opcional
+      Motivo: [''] 
     });
   }
 
-  cargarInsumoYStockEspecifico() {
+  // =========================================
+  // 📥 CARGA DE DATOS
+  // =========================================
+
+  cargarTodosInsumos() {
     this.loadingInsumos = true;
-    
-    // Cargar todos los insumos para obtener el nombre del insumo específico
-    this.ingredienteService.getIngredientes().subscribe({
-      next: (insumos) => {
-        this.insumos = insumos;
-        
-        // Encontrar el insumo correspondiente al stock
-        const insumo = this.insumos.find(i => i.ID_Insumo === this.stockRecord.ID_Insumo);
-        
-        if (insumo) {
-          this.selectedInsumo = insumo;
-          
-          // Cargar los stocks disponibles para este insumo
-          this.cargarStocksPorInsumo(this.stockRecord.ID_Insumo, true);
-        } else {
-          this.snackBar.open('No se encontró información del insumo', 'Cerrar', { duration: 3000 });
-          this.loadingInsumos = false;
-        }
+    this.insumoService.getInsumos().subscribe({
+      next: (data) => {
+        this.insumos = data.filter(i => i.Estado === 'D'); // Solo disponibles
+        this.loadingInsumos = false;
       },
-      error: (error) => {
-        console.error('Error al cargar insumos:', error);
-        this.snackBar.open('Error al cargar la información del insumo', 'Cerrar', { duration: 3000 });
+      error: (err) => {
+        console.error(err);
         this.loadingInsumos = false;
       }
     });
   }
 
-  cargarInsumos() {
+  cargarDatosIniciales(idInsumo: number, idStockPreseleccionado?: number) {
     this.loadingInsumos = true;
-    this.ingredienteService.getIngredientes().subscribe({
-      next: (insumos) => {
-        // Cargar TODOS los insumos sin filtrar
-        this.insumos = insumos;
-        console.log('Insumos cargados:', this.insumos.length);
-        this.loadingInsumos = false;
+    // 1. Obtener info del insumo
+    this.insumoService.getInsumoById(idInsumo).subscribe({
+      next: (insumo) => {
+        this.selectedInsumo = insumo;
+        this.movimientoForm.patchValue({ insumoNombre: insumo.Nombre });
+        
+        // 2. Obtener lotes
+        this.cargarLotesStock(idInsumo, idStockPreseleccionado);
       },
-      error: (error) => {
-        console.error('Error al cargar insumos:', error);
-        this.snackBar.open('Error al cargar los insumos', 'Cerrar', { duration: 3000 });
-        this.loadingInsumos = false;
-      }
+      error: () => this.loadingInsumos = false
     });
   }
 
-  cargarStocksPorInsumo(idInsumo: number, selectSpecificStock: boolean = false) {
+  cargarLotesStock(idInsumo: number, idStockPreseleccionado?: number) {
     this.stockService.getStockByInsumoId(idInsumo).subscribe({
       next: (stocks) => {
-        // Filtrar solo stocks activos
-        this.stocksDisponibles = stocks.filter(stock => stock.Estado === 'A');
-        console.log('Stocks disponibles:', this.stocksDisponibles);
+        // Filtrar activos
+        this.stocksDisponibles = stocks.filter(s => s.Estado === 'A');
         
-        if (this.stocksDisponibles.length === 0) {
-          this.snackBar.open('No hay stock disponible para este insumo', 'Cerrar', { duration: 3000 });
-          this.movimientoForm.patchValue({ ID_Stock: null });
-        } else if (selectSpecificStock && this.stockRecord) {
-          // Si viene de un registro específico, seleccionar automáticamente ese stock
-          this.selectedStock = this.stocksDisponibles.find(stock => stock.ID_Stock === this.stockRecord.ID_Stock);
+        if (idStockPreseleccionado) {
+          this.selectedStock = this.stocksDisponibles.find(s => s.ID_Stock === idStockPreseleccionado) || null;
           if (this.selectedStock) {
             this.movimientoForm.patchValue({ ID_Stock: this.selectedStock.ID_Stock });
           }
         } else if (this.stocksDisponibles.length === 1) {
-          // Si solo hay un stock, seleccionarlo automáticamente
+          // Auto-seleccionar si solo hay uno
           this.selectedStock = this.stocksDisponibles[0];
           this.movimientoForm.patchValue({ ID_Stock: this.selectedStock.ID_Stock });
-        } else {
-          // Si hay múltiples stocks, el usuario deberá seleccionar uno
-          this.movimientoForm.patchValue({ ID_Stock: null });
         }
         
         this.loadingInsumos = false;
       },
-      error: (error) => {
-        console.error('Error al cargar stocks:', error);
-        this.snackBar.open('Error al cargar el stock del insumo', 'Cerrar', { duration: 3000 });
+      error: (err) => {
+        console.error(err);
         this.loadingInsumos = false;
       }
     });
   }
 
+  // =========================================
+  // 🔍 AUTOCOMPLETE LOGIC
+  // =========================================
+
   private _filterInsumos(value: string): Insumo[] {
     const filterValue = value.toLowerCase();
-    return this.insumos.filter(insumo => 
-      insumo.Nombre.toLowerCase().includes(filterValue) ||
-      (insumo.Descripcion && insumo.Descripcion.toLowerCase().includes(filterValue))
+    return this.insumos.filter(option => 
+      option.Nombre.toLowerCase().includes(filterValue) ||
+      (option.Descripcion && option.Descripcion.toLowerCase().includes(filterValue))
     );
   }
 
+  displayInsumoFn(nombre: string): string {
+    return nombre || '';
+  }
+
   onInsumoSelected(event: any) {
-    const insumoNombre = event.option.value;
-    this.selectedInsumo = this.insumos.find(insumo => insumo.Nombre === insumoNombre) || null;
+    const nombre = event.option.value;
+    const insumo = this.insumos.find(i => i.Nombre === nombre);
     
-    if (this.selectedInsumo) {
-      console.log('Insumo seleccionado:', this.selectedInsumo);
-      // Cargar los stocks disponibles para este insumo
-      this.cargarStocksPorInsumo(this.selectedInsumo.ID_Insumo);
-    } else {
-      this.stocksDisponibles = [];
+    if (insumo) {
+      this.selectedInsumo = insumo;
+      this.selectedStock = null;
       this.movimientoForm.patchValue({ ID_Stock: null });
+      this.cargarLotesStock(insumo.ID_Insumo);
     }
   }
 
-  onStockSelected(event: any) {
-    const stockId = event.value;
-    this.selectedStock = this.stocksDisponibles.find(stock => stock.ID_Stock === stockId) || null;
+  onStockSelected(idStock: number) {
+    this.selectedStock = this.stocksDisponibles.find(s => s.ID_Stock === idStock) || null;
+    this.movimientoForm.get('Cantidad')?.updateValueAndValidity();
   }
 
-  displayInsumoFn(insumo: Insumo): string {
-    return insumo && insumo.Nombre ? insumo.Nombre : '';
-  }
+  // =========================================
+  // 💾 SUBMIT
+  // =========================================
 
   onSubmit() {
-    if (this.movimientoForm.valid) {
-      this.loading = true;
-      
-      // Preparar datos del movimiento
-      const movimientoData = {
-        ID_Stock: this.movimientoForm.value.ID_Stock,
-        Tipo_Mov: this.movimientoForm.value.Tipo_Mov,
-        Cantidad: this.movimientoForm.value.Cantidad,
-        Motivo: this.movimientoForm.value.Motivo?.trim() || null
-      };
-
-      console.log('Enviando movimiento:', movimientoData);
-
-      this.stockService.registrarMovimiento(movimientoData).subscribe({
-        next: (response) => {
-          this.snackBar.open('Movimiento registrado exitosamente', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.loading = false;
-          this.dialogRef.close(true);
-        },
-        error: (error) => {
-          console.error('Error al registrar movimiento:', error);
-          this.snackBar.open(
-            error.error?.error || 'Error al registrar el movimiento', 
-            'Cerrar', 
-            { duration: 5000 }
-          );
-          this.loading = false;
-        }
-      });
-    } else {
-      this.movimientoForm.markAllAsTouched();
+    // Validación personalizada de stock
+    if (this.movimientoForm.value.Tipo_Mov === 'Salida' && this.selectedStock) {
+      if (this.movimientoForm.value.Cantidad > this.selectedStock.Cantidad_Recibida) {
+        Swal.fire('Error', `No hay suficiente stock en este lote. Disponible: ${this.selectedStock.Cantidad_Recibida}`, 'error');
+        return;
+      }
     }
+
+    if (this.movimientoForm.invalid) {
+      this.movimientoForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+
+    const dto: StockMovimientoDTO = {
+      ID_Stock: this.movimientoForm.value.ID_Stock,
+      Tipo_Mov: this.movimientoForm.value.Tipo_Mov,
+      Cantidad: this.movimientoForm.value.Cantidad,
+      Motivo: this.movimientoForm.value.Motivo
+    };
+
+    this.stockService.registrarMovimiento(dto).subscribe({
+      next: () => {
+        Swal.fire('Éxito', 'Movimiento registrado correctamente', 'success');
+        this.dialogRef.close(true);
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', err.error?.error || 'No se pudo registrar el movimiento', 'error');
+        this.loading = false;
+      }
+    });
   }
 
   onCancel() {
     this.dialogRef.close(false);
   }
 
-  get formControls() {
-    return this.movimientoForm.controls;
-  }
-
-  // Método para obtener la clase CSS según el estado del insumo
-  getEstadoInsumoClass(): string {
-    if (!this.selectedInsumo) return '';
-    
-    switch (this.selectedInsumo.Estado) {
-      case 'D': return 'estado-disponible'; // D = Disponible
-      case 'A': return 'estado-agotado';    // A = Agotado
-      default: return '';
-    }
-  }
-
-  // Método para obtener el texto del estado del insumo
-  getEstadoInsumoText(): string {
-    if (!this.selectedInsumo) return '';
-    
-    switch (this.selectedInsumo.Estado) {
-      case 'D': return 'Disponible';
-      case 'A': return 'Agotado';
-      default: return 'Desconocido';
-    }
+  // Helpers Visuales
+  get stockLabelInfo(): string {
+    if (!this.selectedStock) return '';
+    return `Actual: ${this.selectedStock.Cantidad_Recibida} ${this.selectedInsumo?.Unidad_Med || ''}`;
   }
 }

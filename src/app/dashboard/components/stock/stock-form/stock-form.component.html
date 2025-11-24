@@ -1,177 +1,103 @@
-<h2 mat-dialog-title>
-  <mat-icon>swap_vert</mat-icon>
-  {{ isFromSpecificRecord ? 'Registrar Movimiento' : 'Nuevo Movimiento de Stock' }}
+<h2 mat-dialog-title class="d-flex align-items-center">
+  <mat-icon class="me-2 text-primary">swap_vert</mat-icon>
+  {{ isFromSpecificRecord ? 'Registrar Movimiento' : 'Nuevo Movimiento' }}
 </h2>
 
-<mat-dialog-content class="dialog-content">
-  <form [formGroup]="movimientoForm" class="movimiento-form">
+<mat-dialog-content class="pt-2">
+  <form [formGroup]="movimientoForm" (ngSubmit)="onSubmit()">
     
-    <!-- Buscar Insumo por Nombre (solo para nuevo movimiento) -->
-    <mat-form-field appearance="outline" class="full-width" *ngIf="!isFromSpecificRecord">
-      <mat-label>Buscar Insumo</mat-label>
-      <input 
-        type="text"
-        matInput
-        formControlName="insumoNombre"
-        [matAutocomplete]="auto"
-        placeholder="Escriba el nombre del insumo"
-        [readonly]="loadingInsumos">
-      <mat-icon matSuffix>search</mat-icon>
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onInsumoSelected($event)" [displayWith]="displayInsumoFn">
-        <mat-option *ngFor="let insumo of filteredInsumos | async" [value]="insumo.Nombre">
-          <div class="insumo-option">
-            <div class="insumo-header">
-              <strong>{{ insumo.Nombre }}</strong>
-              <span class="estado-badge" [class]="insumo.Estado === 'D' ? 'estado-disponible' : 'estado-agotado'">
-                {{ insumo.Estado === 'D' ? 'Disponible' : 'Agotado' }}
-              </span>
+    <!-- 1. Selección de Insumo (Solo si no viene pre-seleccionado) -->
+    <div class="form-section" *ngIf="!isFromSpecificRecord">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Buscar Insumo</mat-label>
+        <input type="text" matInput formControlName="insumoNombre" [matAutocomplete]="auto"
+               placeholder="Ej: Harina, Leche..." required>
+        <mat-icon matSuffix>search</mat-icon>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onInsumoSelected($event)">
+          <mat-option *ngFor="let insumo of filteredInsumos | async" [value]="insumo.Nombre">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-medium">{{ insumo.Nombre }}</span>
+              <span class="small text-muted">{{ insumo.Unidad_Med }}</span>
             </div>
-            <span class="insumo-desc">{{ insumo.Descripcion }}</span>
-            <small class="insumo-unidad">{{ insumo.Unidad_Med }}</small>
-          </div>
-        </mat-option>
-      </mat-autocomplete>
-      <mat-hint>Escriba para buscar todos los insumos</mat-hint>
-      <mat-error *ngIf="formControls['insumoNombre'].hasError('required')">
-        Debe seleccionar un insumo
-      </mat-error>
-    </mat-form-field>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error>Debe seleccionar un insumo</mat-error>
+      </mat-form-field>
+    </div>
 
-    <!-- Mostrar información del insumo seleccionado (para movimientos desde registro específico) -->
-    <div class="selected-insumo-info" *ngIf="isFromSpecificRecord && selectedInsumo">
-      <mat-label>Insumo Seleccionado:</mat-label>
-      <div class="insumo-details">
-        <div class="info-row">
-          <span><strong>{{ selectedInsumo.Nombre }}</strong></span>
-          <span class="estado-badge" [class]="getEstadoInsumoClass()">
-            {{ getEstadoInsumoText() }}
-          </span>
-        </div>
-        <div class="insumo-meta">
-          <span *ngIf="selectedInsumo.Descripcion">{{ selectedInsumo.Descripcion }}</span>
-          <span>Unidad: {{ selectedInsumo.Unidad_Med }}</span>
+    <!-- Información del Insumo Seleccionado -->
+    <div *ngIf="selectedInsumo" class="info-box mb-3">
+      <div class="d-flex align-items-center">
+        <mat-icon class="me-2 text-secondary">inventory_2</mat-icon>
+        <div>
+          <h6 class="m-0 text-primary">{{ selectedInsumo.Nombre }}</h6>
+          <small class="text-muted">Unidad: {{ selectedInsumo.Unidad_Med }} | Categoría: {{ selectedInsumo.Nombre_Categoria || '---' }}</small>
         </div>
       </div>
     </div>
 
-    <!-- Seleccionar Stock (si hay múltiples) -->
-    <mat-form-field appearance="outline" class="full-width" *ngIf="stocksDisponibles.length > 1">
+    <!-- 2. Selección de Lote (Stock) -->
+    <mat-form-field appearance="outline" class="w-100" *ngIf="stocksDisponibles.length > 0">
       <mat-label>Seleccionar Lote de Stock</mat-label>
-      <mat-select formControlName="ID_Stock" (selectionChange)="onStockSelected($event)">
-        <mat-option *ngFor="let stock of stocksDisponibles" [value]="stock.ID_Stock">
-          Lote #{{ stock.ID_Stock }} - 
-          Cantidad: {{ stock.Cantidad_Recibida }} - 
-          Fecha: {{ stock.Fecha_Entrada | date:'shortDate' }}
-          <span *ngIf="stock.Fecha_Vencimiento">
-            - Vence: {{ stock.Fecha_Vencimiento | date:'shortDate' }}
-          </span>
+      <mat-select formControlName="ID_Stock" (selectionChange)="onStockSelected($event.value)">
+        <mat-option *ngFor="let s of stocksDisponibles" [value]="s.ID_Stock">
+          Lote #{{ s.ID_Stock }} (Entrada: {{ s.Fecha_Entrada | date:'shortDate' }}) 
+          - Disp: <strong>{{ s.Cantidad_Recibida }}</strong>
         </mat-option>
       </mat-select>
-      <mat-error *ngIf="formControls['ID_Stock'].hasError('required')">
-        Debe seleccionar un lote de stock
-      </mat-error>
+      <mat-error>Requerido</mat-error>
     </mat-form-field>
 
-    <!-- Información del Stock Seleccionado -->
-    <div class="stock-info" *ngIf="selectedStock && selectedInsumo">
-      <mat-label>Información del Stock Seleccionado:</mat-label>
-      <div class="stock-details">
-        <div class="info-row">
-          <span><strong>Insumo:</strong> {{ selectedInsumo.Nombre }}</span>
-          <span class="estado-badge" [class]="getEstadoInsumoClass()">
-            {{ getEstadoInsumoText() }}
-          </span>
-        </div>
-        <div><strong>Stock Actual:</strong> {{ selectedStock.Cantidad_Recibida }} {{ selectedInsumo.Unidad_Med }}</div>
-        <div><strong>Lote ID:</strong> {{ selectedStock.ID_Stock }}</div>
-        <div *ngIf="selectedStock.Fecha_Vencimiento">
-          <strong>Vencimiento:</strong> {{ selectedStock.Fecha_Vencimiento | date:'longDate' }}
-        </div>
+    <div *ngIf="selectedInsumo && stocksDisponibles.length === 0 && !loadingInsumos" class="alert alert-warning p-2">
+      <small><mat-icon inline>warning</mat-icon> No hay lotes de stock activos para este insumo. Debe registrar una entrada primero.</small>
+    </div>
+
+    <!-- 3. Detalles del Movimiento -->
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Tipo Movimiento</mat-label>
+          <mat-select formControlName="Tipo_Mov">
+            <mat-option value="Entrada">Entrada (+)</mat-option>
+            <mat-option value="Salida">Salida (-)</mat-option>
+            <mat-option value="Ajuste">Ajuste (=)</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="Cantidad" min="1">
+          <span matSuffix class="ms-2 text-secondary">{{ selectedInsumo?.Unidad_Med }}</span>
+          <mat-hint *ngIf="selectedStock && movimientoForm.get('Tipo_Mov')?.value === 'Salida'" class="text-danger">
+            Máx: {{ selectedStock.Cantidad_Recibida }}
+          </mat-hint>
+          <mat-error>Requerido y mayor a 0</mat-error>
+        </mat-form-field>
       </div>
     </div>
 
-    <!-- Advertencia para insumos agotados -->
-    <div class="warning-info" *ngIf="selectedInsumo && selectedInsumo.Estado === 'A'">
-      <mat-icon>warning</mat-icon>
-      <span>Este insumo está marcado como AGOTADO. Verifique la disponibilidad antes de realizar movimientos.</span>
-    </div>
-
-    <!-- Tipo de Movimiento -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Tipo de Movimiento</mat-label>
-      <mat-select formControlName="Tipo_Mov">
-        <mat-option *ngFor="let tipo of tiposMovimiento" [value]="tipo">
-          {{ tipo }}
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="formControls['Tipo_Mov'].hasError('required')">
-        El tipo de movimiento es requerido
-      </mat-error>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Motivo / Observación</mat-label>
+      <textarea matInput formControlName="Motivo" rows="2" placeholder="Ej: Merma, Compra extra, Ajuste de inventario..."></textarea>
     </mat-form-field>
 
-    <!-- Cantidad -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Cantidad</mat-label>
-      <input 
-        matInput 
-        formControlName="Cantidad" 
-        type="number"
-        placeholder="Ingrese la cantidad"
-        min="1">
-      <mat-icon matSuffix>format_list_numbered</mat-icon>
-      <span matSuffix *ngIf="selectedInsumo">{{ selectedInsumo.Unidad_Med }}</span>
-      <mat-error *ngIf="formControls['Cantidad'].hasError('required')">
-        La cantidad es requerida
-      </mat-error>
-      <mat-error *ngIf="formControls['Cantidad'].hasError('min')">
-        La cantidad debe ser mayor a 0
-      </mat-error>
-      <mat-hint *ngIf="selectedStock && formControls['Tipo_Mov'].value === 'Salida'">
-        Stock disponible: {{ selectedStock.Cantidad_Recibida }}
-      </mat-hint>
-    </mat-form-field>
-
-    <!-- Motivo -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Motivo (Opcional)</mat-label>
-      <textarea 
-        matInput 
-        formControlName="Motivo" 
-        placeholder="Describa el motivo del movimiento (opcional)"
-        rows="3">
-      </textarea>
-    </mat-form-field>
-
-    <!-- Información del usuario (solo lectura) -->
-    <div class="user-info" *ngIf="usuarioLogueado">
-      <mat-label>Usuario que registra:</mat-label>
-      <div class="user-details">
-        <strong>{{ usuarioLogueado.nombre }}</strong>
-        <span>(ID: {{ usuarioLogueado.ID_Usuario }})</span>
-      </div>
+    <!-- Usuario -->
+    <div class="d-flex align-items-center justify-content-end text-muted small" *ngIf="usuarioLogueado">
+      <mat-icon class="me-1" style="font-size: 16px; width: 16px; height: 16px;">person</mat-icon>
+      Registra: {{ usuarioLogueado.Perfil || 'Usuario' }}
     </div>
 
   </form>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end" class="dialog-actions">
-  <button 
-    mat-button 
-    (click)="onCancel()" 
-    [disabled]="loading">
-    Cancelar
-  </button>
-  <button 
-    mat-raised-button 
-    color="primary" 
-    (click)="onSubmit()" 
-    [disabled]="loading || movimientoForm.invalid">
-    <span *ngIf="loading" class="button-loading">
-      <mat-spinner diameter="16"></mat-spinner>
-      Procesando...
-    </span>
-    <span *ngIf="!loading">
-      Registrar Movimiento
-    </span>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" 
+          [disabled]="movimientoForm.invalid || loading || stocksDisponibles.length === 0">
+    <mat-icon *ngIf="!loading">save</mat-icon>
+    <mat-spinner *ngIf="loading" diameter="20" class="me-2 d-inline-block"></mat-spinner>
+    Registrar
   </button>
 </mat-dialog-actions>

@@ -1,20 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Combo, ComboDetalle } from '../models/combo.model';
-
-// Interface para crear/actualizar combos con detalles
-interface ComboConDetalles extends Combo {
-  detalles: Array<{
-    ID_Producto_T: number;
-    Cantidad: number;
-  }>;
-}
-
-// Interface para cambiar estado
-interface EstadoCombo {
-  Estado: 'A' | 'I';
-}
+import { Combo, ComboCreacionDTO } from '../../core/models/combo.model'; // ⚠️ Ajusta la ruta
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +11,11 @@ export class CombosService {
 
   constructor(private http: HttpClient) {}
 
-  // Obtener todos los combos
+  // =========================================
+  // 📘 LECTURA
+  // =========================================
+
+  // Obtener todos los combos (El backend ya filtra por stock automáticamente)
   getCombos(): Observable<Combo[]> {
     return this.http.get<Combo[]>(this.apiUrl);
   }
@@ -34,52 +25,60 @@ export class CombosService {
     return this.http.get<Combo>(`${this.apiUrl}/${id}`);
   }
 
-  // Crear un nuevo combo (JSON) - CORREGIDO
-  createCombo(comboData: ComboConDetalles): Observable<any> {
+  // =========================================
+  // 📗 ESCRITURA (JSON - Sin imágenes)
+  // =========================================
+
+  // Crear un nuevo combo (Solo datos)
+  createCombo(comboData: ComboCreacionDTO): Observable<any> {
     return this.http.post(this.apiUrl, comboData);
   }
 
-  // Actualizar un combo existente (JSON) - CORREGIDO
-  updateCombo(id: number, comboData: Partial<ComboConDetalles>): Observable<any> {
+  // Actualizar un combo existente (Solo datos)
+  updateCombo(id: number, comboData: Partial<ComboCreacionDTO>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, comboData);
   }
 
-  // Eliminar un combo
-  deleteCombo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
+  // =========================================
+  // 📷 ESCRITURA (FormData - Con imágenes)
+  // =========================================
 
-  // Crear un nuevo combo con FormData (para subir imágenes)
+  // Crear con imágenes
   createComboFormData(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl, formData);
   }
 
-  // Actualizar un combo existente con FormData (para subir imágenes)
+  // Actualizar con imágenes
   updateComboFormData(id: number, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
-  // ==================================================
-  // 🔄 MÉTODOS PARA CAMBIAR ESTADO DEL COMBO
-  // ==================================================
+  // =========================================
+  // 📕 ELIMINAR
+  // =========================================
 
-  // 🔄 CAMBIAR ESTADO DEL COMBO (Activar/Desactivar)
-  cambiarEstadoCombo(id: number, estado: 'A' | 'I'): Observable<any> {
-    const estadoData: EstadoCombo = { Estado: estado };
-    return this.http.patch(`${this.apiUrl}/${id}/status`, estadoData);
+  deleteCombo(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  // 🔄 ACTIVAR COMBO (Método específico)
+  // ==================================================
+  // 🔄 MÉTODOS DE ESTADO (ACTIVAR / DESACTIVAR)
+  // ==================================================
+
+  // Cambiar estado manualmente
+  cambiarEstadoCombo(id: number, estado: 'A' | 'I'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/status`, { Estado: estado });
+  }
+
   activarCombo(id: number): Observable<any> {
     return this.cambiarEstadoCombo(id, 'A');
   }
 
-  // 🔄 DESACTIVAR COMBO (Método específico)
   desactivarCombo(id: number): Observable<any> {
     return this.cambiarEstadoCombo(id, 'I');
   }
 
-  // 🔄 TOGGLE ESTADO (Alternar entre Activo/Inactivo)
+  // Alternar estado actual
   toggleEstadoCombo(id: number, estadoActual: 'A' | 'I'): Observable<any> {
     const nuevoEstado = estadoActual === 'A' ? 'I' : 'A';
     return this.cambiarEstadoCombo(id, nuevoEstado);

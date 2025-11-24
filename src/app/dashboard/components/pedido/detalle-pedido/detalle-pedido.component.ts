@@ -1,26 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// Angular Material
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import Swal from 'sweetalert2';
-
-// Servicios y modelos
-import { VentaService } from '../../../../core/services/venta.service';
-import { OrdenService } from '../../../../core/services/orden.service';
-import { PedidoDetalle, PedidoConDetalle } from '../../../../core/models/pedido.model';
-import { PedidoService } from '../../../../core/services/pedido.service';
-import { AuthService } from '../../../../core/services/auth/auth.service';
-import { ClienteService } from '../../../../core/services/cliente.service';
-import { TamanoService } from '../../../../core/services/tamano.service';
-import { Tamano } from '../../../../core/models/tamano.model';
-
 import { MatDialog } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+// Servicios y Modelos
+import { OrdenService } from '../../../../core/services/orden.service';
+import { AuthService } from '../../../../core/services/auth/auth.service';
+import { PedidoDetalle } from '../../../../core/models/pedido.model';
 import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component';
+
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalle-pedido',
@@ -31,115 +27,130 @@ import { VentaPedidoComponent } from '../venta-pedido/venta-pedido.component';
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
+    MatChipsModule,
+    MatTooltipModule
   ],
   templateUrl: './detalle-pedido.component.html',
   styleUrls: ['./detalle-pedido.component.css'],
 })
 export class DetallePedidoComponent implements OnInit {
-  detalles: PedidoDetalle[] = [];
-  tamanos: Tamano[] = [];
-  displayedColumns = ['producto', 'tamano', 'cantidad', 'precio', 'subtotal', 'acciones'];
   
-  // 🔹 ELIMINADO: Campos de documento movidos a venta-pedido
+  detalles: PedidoDetalle[] = [];
+  displayedColumns = ['producto', 'cantidad', 'precio', 'subtotal', 'acciones'];
   codigoPedido: string = '';
 
   constructor(
     private ordenService: OrdenService,
-    private pedidoService: PedidoService,
     private authService: AuthService,
-    private clienteService: ClienteService,
-    private tamanoService: TamanoService,
-    private dialog: MatDialog, 
-    private ventaService: VentaService 
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.tamanoService.getTamanos().subscribe({
-      next: (data) => {
-        this.tamanos = data;
-        // Suscribirse a los detalles del servicio
-        this.ordenService.detalles$.subscribe((detalles) => {
-          this.detalles = detalles;
-        });
-      },
-      error: (err) => console.error('Error al cargar tamaños:', err),
+    // Suscribirse a los cambios del carrito
+    this.ordenService.detalles$.subscribe((detalles) => {
+      this.detalles = detalles;
     });
 
     this.generarCodigoPedido();
   }
 
-  getNombreTamano(detalle: PedidoDetalle): string {
-    return detalle.nombre_tamano || '—';
+  // 🔄 Getters Visuales
+  getNombreItem(detalle: PedidoDetalle): string {
+    // El modelo ya trae Nombre_Producto o Nombre_Combo
+    return detalle.Nombre_Producto || detalle.Nombre_Combo || 'Item sin nombre';
   }
 
+  getDetalleItem(detalle: PedidoDetalle): string {
+    // Mostrar descripción o categoría
+    return detalle.Descripcion || detalle.Tamano_Nombre || '';
+  }
+
+  esCombo(detalle: PedidoDetalle): boolean {
+    return !!detalle.ID_Combo;
+  }
+
+  // ➕➖ Gestión de Cantidades
   aumentarCantidad(detalle: PedidoDetalle) {
     const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-    this.ordenService.aumentarCantidad(detalle.ID_Producto_T, precioUnitario);
+    const isCombo = this.esCombo(detalle);
+    const id = isCombo ? detalle.ID_Combo! : detalle.ID_Producto_T!;
+    
+    this.ordenService.aumentarCantidad(id, isCombo, precioUnitario);
   }
 
   reducirCantidad(detalle: PedidoDetalle) {
-    if (detalle.Cantidad > 1) {
-      const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-      this.ordenService.reducirCantidad(detalle.ID_Producto_T, precioUnitario);
-    }
+    const precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+    const isCombo = this.esCombo(detalle);
+    const id = isCombo ? detalle.ID_Combo! : detalle.ID_Producto_T!;
+
+    this.ordenService.reducirCantidad(id, isCombo, precioUnitario);
   }
 
   eliminar(detalle: PedidoDetalle) {
+    const nombre = this.getNombreItem(detalle);
+    
     Swal.fire({
-      title: '¿Eliminar producto?',
-      text: `Se eliminará ${detalle.nombre_producto} (${detalle.nombre_tamano}).`,
+      title: '¿Quitar del pedido?',
+      text: `Se eliminará "${nombre}".`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, quitar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
     }).then(result => {
       if (result.isConfirmed) {
-        this.ordenService.eliminarProducto(detalle.ID_Producto_T);
-        Swal.fire({
-          title: 'Eliminado',
-          text: 'El producto fue eliminado del pedido.',
-          icon: 'success',
+        const isCombo = this.esCombo(detalle);
+        const id = isCombo ? detalle.ID_Combo! : detalle.ID_Producto_T!;
+        
+        this.ordenService.eliminarProducto(id, isCombo);
+        
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true
         });
+        Toast.fire({ icon: 'success', title: 'Eliminado' });
       }
     });
   }
 
+  // 💰 Total
   getTotal(): number {
-    return this.detalles.reduce((acc, d) => acc + (d.PrecioTotal || 0), 0);
+    return this.ordenService.obtenerTotal();
   }
 
+  // 🆔 Generador de Código Local (Visual)
   generarCodigoPedido() {
-    const numeros = '0123456789';
-    const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let codigo = '';
-    for (let i = 0; i < 2; i++) codigo += numeros.charAt(Math.floor(Math.random() * numeros.length));
-    for (let i = 0; i < 2; i++) codigo += letras.charAt(Math.floor(Math.random() * letras.length));
-    this.codigoPedido = codigo;
+    const timestamp = Date.now().toString().slice(-4);
+    const random = Math.floor(Math.random() * 100);
+    this.codigoPedido = `PED-${timestamp}-${random}`;
   }
 
+  // 🚀 Finalizar
   realizarPedido() {
     if (this.detalles.length === 0) {
-      Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de realizar el pedido.' });
+      Swal.fire({ 
+        icon: 'warning', 
+        title: 'Carrito vacío', 
+        text: 'Agrega productos antes de continuar.' 
+      });
       return;
     }
 
     const usuarioLogueado = this.authService.getUser();
     const idUsuario = usuarioLogueado?.ID_Usuario ?? 1;
 
-    // 🔹 MODIFICADO: Abrir modal directamente sin validar cliente aquí
     this.abrirModalPago(idUsuario);
   }
 
   private abrirModalPago(idUsuario: number) {
     const dialogRef = this.dialog.open(VentaPedidoComponent, {
-      width: '500px',
+      width: '900px', // Más ancho para que quepa el selector de cliente y resumen
+      maxWidth: '95vw',
+      disableClose: true,
       data: { 
         total: this.getTotal(),
         codigoPedido: this.codigoPedido,
@@ -150,16 +161,12 @@ export class DetallePedidoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.registrado) {
-        // 🔹 Limpiar carrito si se registró exitosamente
+        // Venta exitosa -> Limpiar todo
         this.ordenService.limpiar();
         this.generarCodigoPedido();
         
-        Swal.fire({ 
-          icon: 'success', 
-          title: 'Venta Registrada', 
-          text: `Pedido ${this.codigoPedido} procesado correctamente.`,
-          confirmButtonText: 'Aceptar'
-        });
+        // El feedback de éxito lo da el componente de VentaPedido o aquí
+        // Swal.fire(...) ya se suele manejar en el modal de pago al finalizar
       }
     });
   }

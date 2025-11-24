@@ -1,76 +1,105 @@
-<!-- 🔹 ELIMINADO: Se quita toda la sección de cliente-input-container -->
+<div class="pedido-container">
+  
+  <!-- Header -->
+  <div class="pedido-header">
+    <h3>Resumen del Pedido</h3>
+    <span class="codigo-badge">{{ codigoPedido }}</span>
+  </div>
 
-<!-- 🔹 Tabla de detalle -->
-<table mat-table [dataSource]="detalles" class="mat-elevation-z2 full-width">
+  <!-- Tabla -->
+  <div class="table-wrapper mat-elevation-z1">
+    <table mat-table [dataSource]="detalles" class="w-100">
 
-  <!-- Producto -->
-  <ng-container matColumnDef="producto">
-    <th mat-header-cell *matHeaderCellDef>Producto</th>
-    <td mat-cell *matCellDef="let d">
-      <strong>{{ d.nombre_producto }}</strong>
-      <div class="categoria-texto">{{ d.nombre_categoria }}</div>
-    </td>
-  </ng-container>
+      <!-- Producto / Combo -->
+      <ng-container matColumnDef="producto">
+        <th mat-header-cell *matHeaderCellDef> Descripción </th>
+        <td mat-cell *matCellDef="let d">
+          <div class="item-info">
+            <div class="item-name">
+              <mat-icon *ngIf="esCombo(d)" class="icon-combo">fastfood</mat-icon>
+              <mat-icon *ngIf="!esCombo(d)" class="icon-product">restaurant</mat-icon>
+              {{ getNombreItem(d) }}
+            </div>
+            
+            <div class="item-meta">
+              <span class="badge-tipo" [class.is-combo]="esCombo(d)">
+                {{ esCombo(d) ? 'Combo' : d.Tamano_Nombre }}
+              </span>
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-  <!-- Tamaño -->
-  <ng-container matColumnDef="tamano">
-    <th mat-header-cell *matHeaderCellDef>Tamaño</th>
-    <td mat-cell *matCellDef="let d">
-      <span class="tamano-badge">{{ getNombreTamano(d) }}</span>
-    </td>
-  </ng-container>
+      <!-- Cantidad -->
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Cant. </th>
+        <td mat-cell *matCellDef="let d">
+          <div class="qty-control">
+            <button mat-icon-button class="small-btn" (click)="reducirCantidad(d)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty-value">{{ d.Cantidad }}</span>
+            <button mat-icon-button class="small-btn" (click)="aumentarCantidad(d)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
 
-  <!-- Cantidad -->
-  <ng-container matColumnDef="cantidad">
-    <th mat-header-cell *matHeaderCellDef>Cant.</th>
-    <td mat-cell *matCellDef="let d">
-      <div class="cantidad-control-horizontal">
-        <button mat-mini-button (click)="reducirCantidad(d)">
-          <mat-icon>remove</mat-icon>
-        </button>
-        <span>{{ d.Cantidad }}</span>
-        <button mat-mini-button (click)="aumentarCantidad(d)">
-          <mat-icon>add</mat-icon>
-        </button>
-      </div>
-    </td>
-  </ng-container>
+      <!-- Precio Unitario -->
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef class="text-right"> P. Unit </th>
+        <td mat-cell *matCellDef="let d" class="text-right text-muted">
+          S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}
+        </td>
+      </ng-container>
 
-  <!-- Precio -->
-  <ng-container matColumnDef="precio">
-    <th mat-header-cell *matHeaderCellDef>Precio</th>
-    <td mat-cell *matCellDef="let d">
-      S/ {{ (d.PrecioTotal / d.Cantidad) | number:'1.2-2' }}
-    </td>
-  </ng-container>
+      <!-- Subtotal -->
+      <ng-container matColumnDef="subtotal">
+        <th mat-header-cell *matHeaderCellDef class="text-right"> Subtotal </th>
+        <td mat-cell *matCellDef="let d" class="text-right fw-bold">
+          S/ {{ d.PrecioTotal | number:'1.2-2' }}
+        </td>
+      </ng-container>
 
-  <!-- Subtotal -->
-  <ng-container matColumnDef="subtotal">
-    <th mat-header-cell *matHeaderCellDef>Subtotal</th>
-    <td mat-cell *matCellDef="let d">
-      S/ {{ d.PrecioTotal | number:'1.2-2' }}
-    </td>
-  </ng-container>
+      <!-- Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let d" class="text-right">
+          <button mat-icon-button color="warn" (click)="eliminar(d)" matTooltip="Quitar">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
-  <!-- Acciones -->
-  <ng-container matColumnDef="acciones">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let d">
-      <button mat-icon-button color="warn" (click)="eliminar(d)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </td>
-  </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      
+      <!-- Empty State -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell text-center py-5" colspan="5">
+          <div class="empty-cart">
+            <mat-icon>shopping_cart_off</mat-icon>
+            <p>El carrito está vacío</p>
+            <small>Agrega productos para comenzar una venta</small>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let d; columns: displayedColumns;"></tr>
-</table>
-
-<!-- 🔹 Total y botón -->
-<div class="total-container">
-  <h3>Total: S/ {{ getTotal() | number:'1.2-2' }}</h3>
-  <button mat-raised-button color="primary" (click)="realizarPedido()">
-    <mat-icon>send</mat-icon>
-    Realizar pedido
-  </button>
+  <!-- Footer Totales -->
+  <div class="pedido-footer mat-elevation-z4">
+    <div class="total-row">
+      <span class="label">Total a Pagar:</span>
+      <span class="value">S/ {{ getTotal() | number:'1.2-2' }}</span>
+    </div>
+    
+    <button mat-flat-button color="primary" class="btn-checkout" 
+            (click)="realizarPedido()" 
+            [disabled]="detalles.length === 0">
+      <mat-icon>point_of_sale</mat-icon>
+      PROCESAR PAGO
+    </button>
+  </div>
 </div>

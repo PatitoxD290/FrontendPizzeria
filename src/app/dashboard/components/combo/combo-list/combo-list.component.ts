@@ -2,6 +2,8 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
+
+// Angular Material
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,20 +11,17 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { Combo, ComboDetalle } from '../../../../core/models/combo.model';
+// Core
+import { Combo } from '../../../../core/models/combo.model';
 import { CombosService } from '../../../../core/services/combos.service';
 import { ComboFormComponent } from '../combo-form/combo-form.component';
 import Swal from 'sweetalert2';
 
-// Interface extendida para incluir detalles
-interface ComboConDetalles extends Combo {
-  detalles?: ComboDetalle[];
-}
-
 @Component({
   selector: 'app-combo-list',
+  standalone: true,
   imports: [
     CommonModule, 
     FormsModule, 
@@ -32,18 +31,23 @@ interface ComboConDetalles extends Combo {
     MatChipsModule,
     MatTooltipModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   templateUrl: './combo-list.component.html',
   styleUrl: './combo-list.component.css'
 })
 export class ComboListComponent implements OnInit, OnDestroy {
-  combos: ComboConDetalles[] = [];
-  paginatedCombos: ComboConDetalles[] = [];
+  
+  // Datos
+  combos: Combo[] = [];
+  paginatedCombos: Combo[] = [];
+  
+  // Estados UI
   cargando: boolean = false;
   error: string = '';
   
-  // Configuración de paginación similar a producto-list
+  // Paginación
   pageSize = 8;
   pageSizeOptions = [4, 8, 12, 16];
   currentPage = 0;
@@ -54,6 +58,7 @@ export class ComboListComponent implements OnInit, OnDestroy {
   terminoBusqueda: string = '';
 
   private destroy$ = new Subject<void>();
+  private baseUrl = 'http://localhost:3000'; // URL base para imágenes
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -71,194 +76,136 @@ export class ComboListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // 📥 Cargar datos
   cargarCombos() {
     this.cargando = true;
     this.combosService.getCombos().subscribe({
-      next: (combos: any[]) => {
+      next: (combos) => {
         this.combos = combos;
-        this.totalItems = this.combos.length;
-        this.updatePaginatedData();
+        this.aplicarFiltros(); // Aplica filtros y paginación inicial
         this.cargando = false;
       },
       error: (error) => {
         console.error('Error al cargar combos:', error);
-        this.error = 'Error al cargar los combos';
+        this.error = 'Error al cargar los combos. Intente nuevamente.';
         this.cargando = false;
       }
     });
   }
 
-  // 🔄 ACTIVAR COMBO
-  activarCombo(combo: ComboConDetalles) {
-    Swal.fire({
-      title: '¿Activar combo?',
-      html: `¿Estás seguro de activar <strong>"${combo.Nombre}"</strong>?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, activar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#6c757d',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.combosService.activarCombo(combo.ID_Combo).subscribe({
-          next: (response) => {
-            this.showSuccess('Combo activado', 'El combo fue activado correctamente.');
-            // Actualizar estado local
-            combo.Estado = 'A';
-          },
-          error: (error) => {
-            console.error('Error al activar combo:', error);
-            this.showError('Error', 'No se pudo activar el combo.');
-          }
-        });
-      }
-    });
-  }
-
-  // 🔄 DESACTIVAR COMBO
-  desactivarCombo(combo: ComboConDetalles) {
-    Swal.fire({
-      title: '¿Desactivar combo?',
-      html: `¿Estás seguro de desactivar <strong>"${combo.Nombre}"</strong>?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, desactivar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#ffc107',
-      cancelButtonColor: '#6c757d',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.combosService.desactivarCombo(combo.ID_Combo).subscribe({
-          next: (response) => {
-            this.showSuccess('Combo desactivado', 'El combo fue desactivado correctamente.');
-            // Actualizar estado local
-            combo.Estado = 'I';
-          },
-          error: (error) => {
-            console.error('Error al desactivar combo:', error);
-            this.showError('Error', 'No se pudo desactivar el combo.');
-          }
-        });
-      }
-    });
-  }
-
-  // 🔄 TOGGLE ESTADO (Alternar entre activo/inactivo)
-  toggleEstadoCombo(combo: ComboConDetalles) {
-    if (combo.Estado === 'A') {
-      this.desactivarCombo(combo);
-    } else {
-      this.activarCombo(combo);
+  // 🖼️ Obtener imagen segura (Lógica corregida /imagenesCata/)
+  getComboImage(combo: Combo): string {
+    if (combo.imagenes && combo.imagenes.length > 0) {
+      // 1. Extraemos solo el nombre del archivo (ej: combo_1_1.jpg)
+      //    Esto limpia cualquier ruta relativa previa como 'uploads/' o '\'
+      const filename = combo.imagenes[0].split(/[/\\]/).pop();
+      
+      // 2. Construimos la URL pública correcta
+      return `${this.baseUrl}/imagenesCata/${filename}`;
     }
-  }
-
-  // Resto de métodos existentes...
-  updatePaginatedData() {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedCombos = this.combos.slice(startIndex, endIndex);
-  }
-
-  onPageChange(event: PageEvent) {
-    this.currentPage = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.updatePaginatedData();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  getComboImage(idCombo: number): string {
-    const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
-    for (const ext of extensiones) {
-      const url = `http://localhost:3000/imagenesCata/combo_${idCombo}_1.${ext}`;
-      return url;
-    }
-    return 'assets/imgs/logo.png';
+    return 'assets/imgs/no-image.png'; // Fallback
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/imgs/logo.png';
+    event.target.src = 'assets/imgs/no-image.png';
   }
 
+  // 🔍 Filtros y Búsqueda
   aplicarFiltros() {
-    let combosFiltrados = [...this.combos];
+    let resultado = [...this.combos];
 
+    // 1. Filtro Estado
     if (this.filtroEstado !== 'todos') {
-      combosFiltrados = combosFiltrados.filter(combo => combo.Estado === this.filtroEstado);
+      resultado = resultado.filter(c => c.Estado === this.filtroEstado);
     }
 
+    // 2. Búsqueda Texto
     if (this.terminoBusqueda.trim()) {
       const termino = this.terminoBusqueda.toLowerCase().trim();
-      combosFiltrados = combosFiltrados.filter(combo => 
-        combo.Nombre.toLowerCase().includes(termino) ||
-        combo.Descripcion.toLowerCase().includes(termino)
+      resultado = resultado.filter(c => 
+        c.Nombre.toLowerCase().includes(termino) ||
+        (c.Descripcion && c.Descripcion.toLowerCase().includes(termino))
       );
     }
 
-    this.totalItems = combosFiltrados.length;
-    this.currentPage = 0;
-    this.combos = combosFiltrados;
-    this.updatePaginatedData();
+    this.totalItems = resultado.length;
+    
+    // Resetear paginador si es necesario
+    if (this.paginator && this.currentPage * this.pageSize >= this.totalItems) {
+      this.currentPage = 0;
+      this.paginator.firstPage();
+    }
+
+    // 3. Paginar resultados filtrados
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedCombos = resultado.slice(startIndex, endIndex);
   }
 
   limpiarBusqueda() {
     this.terminoBusqueda = '';
     this.filtroEstado = 'todos';
-    this.cargarCombos();
+    this.aplicarFiltros();
   }
+
+  // 📄 Paginación
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.aplicarFiltros(); // Recalcular slice
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // =========================================
+  // 🛠️ ACCIONES CRUD
+  // =========================================
 
   crearCombo() {
     const dialogRef = this.dialog.open(ComboFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
-      height: 'auto',
-      autoFocus: false,
+      disableClose: true,
       data: { combo: null }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.cargarCombos();
-      }
+      if (result) this.cargarCombos();
     });
   }
 
-  editarCombo(combo: ComboConDetalles) {
+  editarCombo(combo: Combo) {
     const dialogRef = this.dialog.open(ComboFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
-      height: 'auto',
-      autoFocus: false,
+      disableClose: true,
       data: { combo }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.cargarCombos();
-      }
+      if (result) this.cargarCombos();
     });
   }
 
-  eliminarCombo(combo: ComboConDetalles) {
+  // 🗑️ Eliminar
+  eliminarCombo(combo: Combo) {
     Swal.fire({
       title: '¿Eliminar combo?',
-      html: `¿Estás seguro de eliminar <strong>"${combo.Nombre}"</strong>?`,
+      html: `Se eliminará <strong>"${combo.Nombre}"</strong> permanentemente.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
+      cancelButtonColor: '#3085d6',
     }).then((result) => {
       if (result.isConfirmed) {
         this.combosService.deleteCombo(combo.ID_Combo).subscribe({
           next: () => {
-            this.showSuccess('Combo eliminado', 'El combo fue eliminado correctamente.');
+            this.showSuccess('Eliminado', 'El combo ha sido eliminado.');
             this.cargarCombos();
-            this.resetToFirstPage();
           },
-          error: (error) => {
-            console.error('Error al eliminar combo:', error);
+          error: (err) => {
+            console.error(err);
             this.showError('Error', 'No se pudo eliminar el combo.');
           }
         });
@@ -266,44 +213,58 @@ export class ComboListComponent implements OnInit, OnDestroy {
     });
   }
 
-  resetToFirstPage() {
-    this.currentPage = 0;
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-    this.updatePaginatedData();
+  // 🔄 Activar/Desactivar
+  toggleEstadoCombo(combo: Combo) {
+    const esActivo = combo.Estado === 'A';
+    const accion = esActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = esActivo ? 'I' : 'A';
+    const colorBtn = esActivo ? '#ffc107' : '#28a745';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} combo?`,
+      html: `El combo <strong>"${combo.Nombre}"</strong> pasará a estado <b>${nuevoEstado === 'A' ? 'Activo' : 'Inactivo'}</b>.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: `Sí, ${accion}`,
+      confirmButtonColor: colorBtn
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.combosService.toggleEstadoCombo(combo.ID_Combo, combo.Estado).subscribe({
+          next: (res) => {
+            // Actualizar localmente para feedback inmediato
+            combo.Estado = res.Estado || nuevoEstado;
+            
+            // Si el backend dice que se quedó inactivo (por falta de stock), avisar
+            if (nuevoEstado === 'A' && combo.Estado === 'I') {
+              Swal.fire('Atención', 'El combo no se pudo activar porque faltan ingredientes en el stock.', 'warning');
+            } else {
+              this.showSuccess('Actualizado', `Combo ${accion}do correctamente.`);
+            }
+          },
+          error: (err) => this.showError('Error', `No se pudo ${accion} el combo.`)
+        });
+      }
+    });
   }
 
+  // =========================================
+  // 🎨 HELPERS VISUALES
+  // =========================================
+
   getEstadoColor(estado: string): string {
-    return estado === 'A' ? 'success' : 'warn';
+    return estado === 'A' ? 'primary' : 'warn'; // Material colors
   }
 
   getEstadoText(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
   }
 
-  getPrecioInfo(combo: ComboConDetalles): string {
-    return `Precio del combo: S/ ${combo.Precio.toFixed(2)}`;
-  }
-
-  getProductosInfo(combo: ComboConDetalles): string {
-    if (!combo.detalles || combo.detalles.length === 0) {
-      return 'No hay productos en este combo';
-    }
+  getProductosInfo(combo: Combo): string {
+    if (!combo.detalles || combo.detalles.length === 0) return 'Sin productos';
     
     return combo.detalles
-      .map(detalle => `${detalle.Producto_Nombre}${detalle.Tamano_Nombre ? ` (${detalle.Tamano_Nombre})` : ''} x${detalle.Cantidad}`)
+      .map(d => `• ${d.Producto_Nombre} (${d.Tamano_Nombre}) x${d.Cantidad}`)
       .join('\n');
-  }
-
-  getCantidadProductos(combo: ComboConDetalles): number {
-    return combo.detalles?.length || 0;
-  }
-
-  truncateText(text: string, maxLength: number): string {
-    if (!text) return 'Sin descripción';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
   }
 
   private showSuccess(title: string, text: string) {
@@ -311,6 +272,6 @@ export class ComboListComponent implements OnInit, OnDestroy {
   }
 
   private showError(title: string, text: string) {
-    Swal.fire({ icon: 'error', title, text, confirmButtonColor: '#d33' });
+    Swal.fire({ icon: 'error', title, text });
   }
 }

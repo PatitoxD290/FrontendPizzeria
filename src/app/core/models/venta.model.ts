@@ -1,42 +1,61 @@
 // ===========================================
-// VENTA (para leer datos)
+// VENTA (Para LEER datos desde el Backend)
 // ===========================================
 export interface Venta {
   ID_Venta: number;
   ID_Pedido: number;
-  Tipo_Venta: 'B' | 'F' | 'N'; // Boleta | Factura | Nota
-  Metodo_Pago: 'E' | 'T' | 'B'; // Efectivo | Tarjeta | Billetera
-  Lugar_Emision: 'A' | 'B'; // A: Tupac | B: Yarina
+  
+  // 🟢 Ahora son IDs numéricos (relaciones BD)
+  ID_Tipo_Venta: number; 
+  ID_Tipo_Pago: number;  
+  ID_Origen_Venta: number; // Antes Lugar_Emision
+
+  // 🔵 Nombres descriptivos (Vienen del JOIN en el backend para mostrar en tabla)
+  Tipo_Venta_Nombre?: string;   // Ej: "Boleta"
+  Metodo_Pago_Nombre?: string;  // Ej: "Efectivo"
+  Origen_Venta_Nombre?: string; // Ej: "Mostrador"
+  Cliente_Nombre?: string;
+
   IGV: number;
   Total: number;
-  Monto_Recibido: number; // 🔹 NUEVO
-  Vuelto: number; // 🔹 NUEVO
+  Monto_Recibido: number;
+  Vuelto: number;
   
-  Cliente_Nombre: string;
-  Productos: VentaProducto[];
   Fecha_Registro: string; 
+  
+  // Opcional: si el backend te devuelve los detalles anidados en alguna vista
+  Productos?: VentaProducto[];
 }
 
 // ===========================================
-// PRODUCTO EN VENTA (para leer datos)
+// PRODUCTO EN VENTA (Para LEER detalles de boleta/historial)
 // ===========================================
 export interface VentaProducto {
-  id_producto: number;
-  nombre_producto: string;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
+  // Identificadores
+  ID_Pedido_D?: number;
+  ID_Producto_T?: number;
+  ID_Combo?: number;
+
+  // Datos visuales
+  Item_Nombre: string;   // Nombre del Producto o Combo
+  Tamano_Nombre: string; // Ej: "Familiar" o "Combo"
+  Tipo: 'producto' | 'combo';
+  
+  Cantidad: number;
+  PrecioTotal: number;   // El backend devuelve el precio total de la línea
 }
 
 // ===========================================
-// VENTA CREACION DTO (para escribir datos)
-// 🟢 ESTE ES EL TIPO QUE USAMOS PARA CREAR VENTAS
+// VENTA CREACION DTO (Para ESCRIBIR/ENVIAR al Backend)
+// 🟢 USAR ESTE PARA EL POST /ventas
 // ===========================================
 export type VentaCreacionDTO = {
   ID_Pedido: number;
-  Tipo_Venta: 'B' | 'F' | 'N';
-  Metodo_Pago: 'E' | 'T' | 'B';
-  Lugar_Emision: 'A' | 'B';
-  IGV_Porcentaje: number; // El backend espera el porcentaje
-  Monto_Recibido?: number; // 🔹 NUEVO: Opcional para mantener compatibilidad
+  
+  // Enviar el ID seleccionado del <select>/spinner
+  ID_Tipo_Venta: number;   // Ej: 1 (Boleta)
+  ID_Tipo_Pago: number;    // Ej: 1 (Efectivo)
+  ID_Origen_Venta: number; // Ej: 1 (Mostrador)
+  
+  Monto_Recibido: number;
 };

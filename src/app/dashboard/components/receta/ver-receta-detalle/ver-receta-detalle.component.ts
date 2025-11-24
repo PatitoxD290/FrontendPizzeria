@@ -1,10 +1,13 @@
-// src/app/dashboard/components/ver-receta-detalle/ver-receta-detalle.component.ts
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
+
 import { RecetaService } from '../../../../core/services/receta.service';
 import { RecetaDetalle } from '../../../../core/models/receta.model';
 
@@ -16,16 +19,21 @@ import { RecetaDetalle } from '../../../../core/models/receta.model';
     MatDialogModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatDividerModule
   ],
   templateUrl: './ver-receta-detalle.component.html',
   styleUrls: ['./ver-receta-detalle.component.css']
 })
 export class VerRecetaDetalleComponent implements OnInit {
+  
   recetaNombre: string = '';
   recetaDescripcion: string = '';
   recetaTiempo: string = '';
   detalles: RecetaDetalle[] = [];
+  
   loading = true;
   error = '';
 
@@ -40,11 +48,12 @@ export class VerRecetaDetalleComponent implements OnInit {
   }
 
   private cargarReceta(): void {
-    this.recetaService.getRecetaDetalle(this.data.recetaId).subscribe({
+    // Usamos el método del servicio que trae todo junto
+    this.recetaService.getRecetaCompleta(this.data.recetaId).subscribe({
       next: (res) => {
         this.recetaNombre = res.receta.Nombre;
-        this.recetaDescripcion = res.receta.Descripcion || '';
-        this.recetaTiempo = res.receta.Tiempo_Preparacion || '';
+        this.recetaDescripcion = res.receta.Descripcion || 'Sin descripción';
+        this.recetaTiempo = res.receta.Tiempo_Preparacion || '—';
         this.detalles = res.detalles || [];
         this.loading = false;
       },

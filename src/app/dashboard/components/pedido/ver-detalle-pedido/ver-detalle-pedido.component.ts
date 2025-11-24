@@ -1,10 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { PedidoService } from '../../../../core/services/pedido.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+
+import { PedidoService } from '../../../../core/services/pedido.service';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
 
 @Component({
@@ -15,12 +19,16 @@ import { PedidoDetalle } from '../../../../core/models/pedido.model';
     MatDialogModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    MatButtonModule
+    MatButtonModule,
+    MatListModule,
+    MatIconModule,
+    MatDividerModule
   ],
   templateUrl: './ver-detalle-pedido.component.html',
   styleUrls: ['./ver-detalle-pedido.component.css']
 })
 export class VerDetallePedidoComponent implements OnInit {
+  
   detalles: PedidoDetalle[] = [];
   notas: string = '';
   loading = true;
@@ -37,6 +45,7 @@ export class VerDetallePedidoComponent implements OnInit {
   }
 
   private cargarDetalles(): void {
+    // Usamos getPedidoById para traer cabecera (notas) y detalles
     this.pedidoService.getPedidoById(this.data.pedido_id).subscribe({
       next: (res) => {
         this.detalles = res.detalles || [];
@@ -51,11 +60,27 @@ export class VerDetallePedidoComponent implements OnInit {
     });
   }
 
-  close(): void {
-    this.dialogRef.close();
+  // 🛠️ Helpers Visuales
+  
+  getItemName(d: PedidoDetalle): string {
+    // Prioridad: Nombre Combo -> Nombre Producto -> Fallback
+    return d.Nombre_Combo || d.Nombre_Producto || 'Item desconocido';
+  }
+
+  getItemDetail(d: PedidoDetalle): string {
+    if (d.ID_Combo) return 'Combo';
+    return d.Tamano_Nombre || 'Estándar';
+  }
+
+  isCombo(d: PedidoDetalle): boolean {
+    return !!d.ID_Combo;
   }
 
   getTotal(): number {
     return this.detalles.reduce((acc, d) => acc + (Number(d.PrecioTotal) || 0), 0);
+  }
+
+  close(): void {
+    this.dialogRef.close();
   }
 }

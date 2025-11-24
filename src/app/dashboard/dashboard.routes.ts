@@ -70,7 +70,7 @@ export const DASHBOARD_ROUTES: Routes = [
       {        
         path: 'ingrediente',
         loadComponent: () =>
-          import('./pages/ingrediente/ingrediente.page').then(m => m.IngredientePage)
+          import('./pages/insumo/insumo.page').then(m => m.insumoPage)
       },
       {        
         path: 'stock',

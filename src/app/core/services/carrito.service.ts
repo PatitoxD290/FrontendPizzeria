@@ -1,90 +1,94 @@
-// carrito.service.ts
 import { Injectable } from '@angular/core';
+import { DatosPedido } from '../models/pedido.model'; // Asegúrate de importar el modelo
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarritoService {
-  private productos: any[] = [];
+  // 🟢 Usamos el modelo DatosPedido en lugar de any[]
+  private productos: DatosPedido[] = [];
 
   /** 🛒 Agregar un producto o combo al carrito */
-agregarProducto(producto: any) {
-  console.log('🛒 Recibiendo producto para agregar:', producto);
+  agregarProducto(item: any) {
+    console.log('🛒 Recibiendo item:', item);
 
-  // 🔹 NUEVO: Para complementos de combos, mantener la relación
-  if (producto.esComplementoCombo && producto.ID_Combo_Asociado) {
-    // Agregar directamente sin buscar duplicados (pueden haber múltiples complementos iguales)
-    const productoCarrito = {
-      ...producto,
-      precio: producto.precio || producto.Precio,
-      subtotal: producto.subtotal || (producto.precio || producto.Precio) * producto.cantidad
+    // Normalizar el objeto al modelo DatosPedido
+    const nuevoItem: DatosPedido = {
+      id: Date.now() + Math.random(), // ID temporal único para el frontend
+      
+      // IDs Reales para el Backend
+      idProductoT: item.ID_Producto_T || null,
+      idCombo: item.ID_Combo || null,
+      
+      // Datos Visuales
+      nombre: item.Nombre || item.nombre || 'Ítem sin nombre',
+      cantidad: item.cantidad || 1,
+      precioUnitario: Number(item.Precio || item.precio || 0),
+      precioTotal: 0, // Se calcula abajo
+      
+      tamano: item.nombre_tamano || item.tamano || '',
+      esCombo: !!item.esCombo || !!item.ID_Combo, // Detectar si es combo
+      descripcion: item.Descripcion || ''
     };
-    this.productos.push(productoCarrito);
-    console.log('🛒 Complemento de combo agregado:', productoCarrito);
-    return;
+
+    // Calcular subtotal inicial
+    nuevoItem.precioTotal = nuevoItem.precioUnitario * nuevoItem.cantidad;
+
+    // 1. LÓGICA PARA COMBOS (Se agrupan por ID de Combo)
+    if (nuevoItem.esCombo && nuevoItem.idCombo) {
+      const existente = this.productos.find(p => p.esCombo && p.idCombo === nuevoItem.idCombo);
+
+      if (existente) {
+        existente.cantidad += nuevoItem.cantidad;
+        existente.precioTotal = existente.precioUnitario * existente.cantidad;
+        console.log('🛒 Combo actualizado:', existente);
+      } else {
+        this.productos.push(nuevoItem);
+        console.log('🛒 Nuevo combo agregado:', nuevoItem);
+      }
+    } 
+    // 2. LÓGICA PARA PRODUCTOS (Se agrupan por ID_Producto_T, que es Producto+Tamaño)
+    else if (nuevoItem.idProductoT) {
+      const existente = this.productos.find(p => !p.esCombo && p.idProductoT === nuevoItem.idProductoT);
+
+      if (existente) {
+        existente.cantidad += nuevoItem.cantidad;
+        existente.precioTotal = existente.precioUnitario * existente.cantidad;
+        console.log('🛒 Producto actualizado:', existente);
+      } else {
+        this.productos.push(nuevoItem);
+        console.log('🛒 Nuevo producto agregado:', nuevoItem);
+      }
+    } else {
+        console.warn('⚠️ Ítem inválido: no tiene ID de producto ni de combo', item);
+    }
+
+    console.log('🛒 Carrito actual:', this.productos);
   }
 
-  // El resto del método para combos y productos individuales se mantiene igual...
-  // 🔹 PARA COMBOS: buscar por ID_Combo
-  if (producto.esCombo && producto.ID_Combo) {
-    const existente = this.productos.find(
-      p => p.esCombo && p.ID_Combo === producto.ID_Combo && !p.esComplementoCombo
-    );
-
-    if (existente) {
-      existente.cantidad += producto.cantidad;
-      existente.subtotal = existente.precio * existente.cantidad;
-      console.log('🛒 Combo existente actualizado:', existente);
-    } else {
-      const productoCarrito = {
-        ...producto,
-        precio: producto.precio || producto.Precio,
-        subtotal: producto.subtotal || (producto.precio || producto.Precio) * producto.cantidad
-      };
-      this.productos.push(productoCarrito);
-      console.log('🛒 Nuevo combo agregado:', productoCarrito);
-    }
-  } 
-  // 🔹 PARA PRODUCTOS INDIVIDUALES: buscar por ID_Producto_T
-  else if (producto.ID_Producto_T && !producto.esComplementoCombo) {
-    const existente = this.productos.find(
-      p => p.ID_Producto_T === producto.ID_Producto_T && !p.esComplementoCombo
-    );
-
-    if (existente) {
-      existente.cantidad += producto.cantidad;
-      existente.subtotal = existente.precio * existente.cantidad;
-    } else {
-      const productoCarrito = {
-        ...producto,
-        precio: producto.precio || producto.Precio,
-        subtotal: producto.subtotal || (producto.precio || producto.Precio) * producto.cantidad
-      };
-      this.productos.push(productoCarrito);
-    }
-  }
-
-  console.log('🛒 Carrito actual:', this.productos);
-}
-
-  // Los demás métodos se mantienen igual...
-  obtenerProductos() {
+  // Obtener lista
+  obtenerProductos(): DatosPedido[] {
     return this.productos;
   }
 
+  // Eliminar
   eliminarProducto(index: number) {
     this.productos.splice(index, 1);
   }
 
+  // +1 Cantidad
   incrementarCantidad(index: number) {
-    this.productos[index].cantidad++;
-    this.productos[index].subtotal = this.productos[index].precio * this.productos[index].cantidad;
+    const item = this.productos[index];
+    item.cantidad++;
+    item.precioTotal = item.precioUnitario * item.cantidad;
   }
 
+  // -1 Cantidad
   decrementarCantidad(index: number) {
-    if (this.productos[index].cantidad > 1) {
-      this.productos[index].cantidad--;
-      this.productos[index].subtotal = this.productos[index].precio * this.productos[index].cantidad;
+    const item = this.productos[index];
+    if (item.cantidad > 1) {
+      item.cantidad--;
+      item.precioTotal = item.precioUnitario * item.cantidad;
     } else {
       this.eliminarProducto(index);
     }
@@ -94,8 +98,9 @@ agregarProducto(producto: any) {
     this.productos = [];
   }
 
+  // Calcular Total General
   obtenerTotal(): number {
-    return this.productos.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+    return this.productos.reduce((sum, item) => sum + item.precioTotal, 0);
   }
 
   obtenerCantidadItems(): number {

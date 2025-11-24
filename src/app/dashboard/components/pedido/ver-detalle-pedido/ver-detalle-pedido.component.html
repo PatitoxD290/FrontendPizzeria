@@ -1,57 +1,92 @@
-<h2 mat-dialog-title class="dialog-title">
-  Detalles del Pedido #{{ data.pedido_id }}
-</h2>
-
-<mat-dialog-content class="dialog-content">
-  <!-- 🌀 Loading Spinner -->
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner diameter="50"></mat-spinner>
+<div class="dialog-container">
+  
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="m-0 d-flex align-items-center">
+      <mat-icon class="me-2 text-primary">receipt_long</mat-icon>
+      Pedido #{{ data.pedido_id }}
+    </h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
-  <!-- ⚠️ Error -->
-  <div *ngIf="!loading && error" class="error-text">
-    <mat-card>
-      <mat-card-content>
-        <p>{{ error }}</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <mat-dialog-content class="dialog-content">
+    
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-3 text-secondary">Cargando información...</p>
+    </div>
 
-  <!-- 📝 Notas del pedido -->
-  <div *ngIf="!loading && !error && notas" class="detalle-texto">
-    <mat-card>
-      <mat-card-content>
-        <p><strong>Notas:</strong></p>
-        <p>{{ notas }}</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="error-state">
+      <mat-icon color="warn" class="large-icon">error_outline</mat-icon>
+      <p>{{ error }}</p>
+    </div>
 
-  <!-- 📦 Detalles como cards -->
-  <div *ngIf="!loading && !error && detalles.length > 0; else sinDatos">
-    <mat-card *ngFor="let d of detalles" class="detalle-card">
-      <mat-card-content>
-        <p><strong>Producto:</strong> {{ d.nombre_producto }}</p>
-        <p><strong>Categoría:</strong> {{ d.nombre_categoria }}</p>
-        <p><strong>Tamaño:</strong> {{ d.nombre_tamano }}</p>
-        <p><strong>Cantidad:</strong> {{ d.Cantidad }}</p>
-        <p><strong>SubTotal:</strong> S/ {{ d.PrecioTotal | number:'1.2-2' }}</p>
-      </mat-card-content>
-    </mat-card>
+    <!-- Contenido -->
+    <div *ngIf="!loading && !error">
+      
+      <!-- Notas -->
+      <div *ngIf="notas" class="notes-section">
+        <h4 class="section-title">
+          <mat-icon class="icon-small">comment</mat-icon> Notas
+        </h4>
+        <p class="notes-text">{{ notas }}</p>
+      </div>
 
-    <!-- Total -->
-    <mat-card class="total-card">
-      <mat-card-content>
-        <p><strong>Total del pedido:</strong> S/ {{ getTotal() | number:'1.2-2' }}</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+      <mat-divider *ngIf="notas" class="my-3"></mat-divider>
 
-  <ng-template #sinDatos>
-    <p class="text-gray-500 text-center">No hay detalles disponibles para este pedido.</p>
-  </ng-template>
-</mat-dialog-content>
+      <!-- Lista de Productos -->
+      <h4 class="section-title mb-2">
+        <mat-icon class="icon-small">list</mat-icon> Detalle de Productos
+      </h4>
 
-<mat-dialog-actions align="end">
-  <button mat-raised-button color="primary" (click)="close()">Cerrar</button>
-</mat-dialog-actions>
+      <div class="items-list">
+        <div *ngFor="let d of detalles" class="item-row">
+          
+          <!-- Cantidad -->
+          <div class="item-qty">
+            {{ d.Cantidad }}x
+          </div>
+
+          <!-- Descripción -->
+          <div class="item-desc">
+            <div class="item-name">
+              {{ getItemName(d) }}
+              <span *ngIf="isCombo(d)" class="combo-badge">Combo</span>
+            </div>
+            <div class="item-meta text-muted small">
+              {{ getItemDetail(d) }}
+            </div>
+          </div>
+
+          <!-- Precio -->
+          <div class="item-price">
+            S/ {{ d.PrecioTotal | number:'1.2-2' }}
+          </div>
+
+        </div>
+      </div>
+
+      <div *ngIf="detalles.length === 0" class="empty-state">
+        No hay detalles disponibles.
+      </div>
+
+      <mat-divider class="my-3"></mat-divider>
+
+      <!-- Total -->
+      <div class="total-section">
+        <span class="total-label">TOTAL</span>
+        <span class="total-amount">S/ {{ getTotal() | number:'1.2-2' }}</span>
+      </div>
+
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button color="primary" (click)="close()">Cerrar</button>
+  </mat-dialog-actions>
+</div>

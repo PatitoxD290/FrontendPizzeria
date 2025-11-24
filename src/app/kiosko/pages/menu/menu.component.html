@@ -1,52 +1,114 @@
-<div class="menu-container">
-  <!-- 🧾 Lista de productos - AHORA MUESTRA PRODUCTOS CON RANGO DE PRECIOS -->
-  <div class="productos-grid">
-    <div *ngFor="let p of productosFiltrados" class="producto-card" (click)="abrirPersonalizacion(p)" style="cursor: pointer;">
-      <div class="producto-imagen-container">
-        <img [src]="p.imagen" (error)="p.imagen = '/assets/imgs/logo.png'" [alt]="p.Nombre" class="producto-imagen" />
-      </div>
-      <div class="producto-info">
-        <h3 class="producto-nombre">{{ p.Nombre }}</h3>
-        <p class="producto-descripcion">{{ p.Descripcion }}</p>
-        
-        <!-- 🔹 INFORMACIÓN COMPLETA EN ORDEN SOLICITADO -->
-        <div class="producto-meta-info">
-          <!-- Categoría -->
-          <div class="meta-item">
-            <span class="meta-label">Categoría:</span>
-            <span class="meta-value">{{ p.nombre_categoria }}</span>
-          </div>
-          
-          <!-- Tamaños disponibles -->
-          <div class="meta-item" *ngIf="!p.esCombo && p.tamanos && p.tamanos.length > 0">
-            <span class="meta-label">Tamaños:</span>
-            <span class="meta-value">{{ p.tamanos.length }} disponible(s)</span>
-          </div>
-          
-          <!-- Precio -->
-          <div class="meta-item precio-item">
-            <span class="meta-label">Precio:</span>
-            <span class="meta-value precio">{{ obtenerRangoPrecios(p) }}</span>
-          </div>
-        </div>
-
-        <!-- 🔹 Mostrar detalles de combo si es combo -->
-        <div *ngIf="p.esCombo && p.detallesTexto" class="producto-detalles">
-          <strong>Contenido:</strong> {{ p.detallesTexto }}
-        </div>
-
-        <!-- 🔹 Indicador de combo -->
-        <div *ngIf="p.esCombo" class="combo-badge">
-          <mat-icon>local_offer</mat-icon>
-          COMBO
-        </div>
-
-        <!-- 🔹 Indicador de tamaños disponibles -->
-        <div *ngIf="!p.esCombo && p.tamanos && p.tamanos.length > 1" class="tamanos-badge">
-          <mat-icon>straighten</mat-icon>
-          {{ p.tamanos.length }} TAMAÑOS
-        </div>
-      </div>
+<div class="kiosko-container">
+  
+  <!-- 🔍 Barra Superior -->
+  <div class="search-header">
+    <div class="search-box mat-elevation-z2">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        type="text" 
+        placeholder="¿Qué se te antoja hoy?" 
+        [(ngModel)]="terminoBusqueda" 
+        (keyup)="aplicarFiltros()">
+      <button *ngIf="terminoBusqueda" mat-icon-button (click)="limpiarBusqueda()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
+
+  <!-- 🏷️ Categorías (Horizontal Scroll) -->
+  <div class="categories-bar">
+    <mat-chip-listbox>
+      <mat-chip-option 
+        [selected]="categoriaSeleccionada === null" 
+        (click)="filtrarPorCategoria(null)"
+        color="accent">
+        Todo
+      </mat-chip-option>
+      
+      <mat-chip-option 
+        [selected]="categoriaSeleccionada === 999" 
+        (click)="filtrarPorCategoria(999)"
+        color="warn">
+        🔥 Combos
+      </mat-chip-option>
+
+      <mat-chip-option 
+        *ngFor="let cat of categorias" 
+        [selected]="categoriaSeleccionada === cat.ID_Categoria_P"
+        (click)="filtrarPorCategoria(cat.ID_Categoria_P)"
+        color="primary">
+        {{ cat.Nombre }}
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
+
+  <!-- 🌀 Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="60" color="accent"></mat-spinner>
+    <p>Preparando el menú...</p>
+  </div>
+
+  <!-- 📦 Grid de Productos -->
+  <div *ngIf="!loading" class="menu-content" id="menu-grid">
+    
+    <div class="products-grid">
+      <mat-card *ngFor="let item of paginatedItems" 
+                class="menu-card" 
+                (click)="abrirDetalle(item)">
+        
+        <!-- Imagen -->
+        <div class="card-image">
+          <!-- 🖼️ Aquí se aplica la imagen cargada dinámicamente -->
+          <img [src]="item.imagen" [alt]="item.nombre" (error)="onImageError($event)">
+          
+          <!-- Badge Combo -->
+          <div class="combo-badge" *ngIf="item.tipo === 'combo'">
+            <mat-icon>local_offer</mat-icon> COMBO
+          </div>
+
+          <!-- Badge Agotado -->
+          <div class="agotado-overlay" *ngIf="item.tipo === 'producto' && item.stock === 0">
+             <span>AGOTADO</span>
+          </div>
+          
+          <!-- Overlay Click -->
+          <div class="card-overlay" *ngIf="item.stock > 0">
+            <span>Seleccionar</span>
+          </div>
+        </div>
+
+        <!-- Contenido -->
+        <mat-card-content class="card-content">
+          <h3 class="product-title">{{ item.nombre }}</h3>
+          <p class="product-desc">{{ item.descripcion }}</p>
+          
+          <div class="card-footer">
+            <span class="price">{{ item.precioDisplay }}</span>
+            <button mat-mini-fab color="primary" class="add-btn" [disabled]="item.stock === 0">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="paginatedItems.length === 0" class="no-results">
+      <mat-icon>restaurant_menu</mat-icon>
+      <h3>No encontramos lo que buscas</h3>
+      <button mat-button color="primary" (click)="limpiarBusqueda()">Ver todo el menú</button>
+    </div>
+
+  </div>
+
+  <!-- 📄 Paginador -->
+  <mat-paginator 
+    [length]="filteredItems.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPageChange($event)"
+    [hidden]="filteredItems.length === 0"
+    class="custom-paginator">
+  </mat-paginator>
+
 </div>

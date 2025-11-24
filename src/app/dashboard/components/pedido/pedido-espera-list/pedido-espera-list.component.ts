@@ -1,12 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
+
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // Añadir paginación
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatDividerModule } from '@angular/material/divider';
 import Swal from 'sweetalert2';
 
 // Servicios y modelos
@@ -15,7 +19,16 @@ import { ClienteService } from '../../../../core/services/cliente.service';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model';
 import { Cliente } from '../../../../core/models/cliente.model';
-import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
+import { Producto } from '../../../../core/models/producto.model';
+
+// 🔹 Interfaz extendida localmente para la vista
+interface PedidoEnEspera extends Pedido {
+  cliente?: Cliente;
+  detallesCompletos?: (PedidoDetalle & {
+    productoInfo?: Producto;
+    tamanoInfo?: string;
+  })[];
+}
 
 @Component({
   selector: 'app-pedido-espera-list',
@@ -28,7 +41,8 @@ import { Producto, ProductoTamano } from '../../../../core/models/producto.model
     MatChipsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatPaginatorModule // Añadir paginación
+    MatPaginatorModule,
+    MatDividerModule
   ],
   templateUrl: './pedido-espera-list.component.html',
   styleUrls: ['./pedido-espera-list.component.css']
@@ -37,20 +51,17 @@ export class PedidoEsperaListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   // Propiedades para paginación
-  pageSize = 6; // Número de cards por página
-  pageIndex = 0; // Página actual
-  pageSizeOptions = [6, 12, 18]; // Opciones de items por página
+  pageSize = 6;
+  pageIndex = 0;
+  pageSizeOptions = [6, 12, 18];
 
-  pedidos: (Pedido & {
-    cliente?: Cliente;
-    detallesCompletos?: (PedidoDetalle & {
-      productoInfo?: Producto;
-      tamanoInfo?: string;
-    })[];
-  })[] = [];
-
+  // Datos
+  pedidos: PedidoEnEspera[] = [];
+  
+  // Estados UI
   isLoading: boolean = true;
   error: string = '';
+  processingId: number | null = null;
 
   constructor(
     private pedidoService: PedidoService,
@@ -73,318 +84,218 @@ export class PedidoEsperaListComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-cargarPedidosEnEspera(): void {
-  this.isLoading = true;
-  this.error = '';
+  // 🔄 Carga Principal
+  cargarPedidosEnEspera(): void {
+    this.isLoading = true;
+    this.error = '';
 
-  this.pedidoService.getPedidos().subscribe({
-    next: async (pedidos) => {
-      try {
-        // 🔹 FILTRAR SOLO PEDIDOS PENDIENTES (no usar estado 'D')
-        const pedidosFiltrados = pedidos.filter(p => p.Estado_P === 'P');
+    this.pedidoService.getPedidos().subscribe({
+      next: async (pedidos) => {
+        try {
+          // 1. FILTRAR: Solo pedidos pendientes 'P'
+          const pedidosFiltrados = pedidos.filter(p => p.Estado_P === 'P');
 
-        // 🔹 ORDENAR POR FECHA Y HORA (más recientes primero)
-        const pedidosOrdenados = pedidosFiltrados.sort((a, b) => {
-          // Crear objetos Date combinando fecha y hora
-          const fechaA = this.crearFechaCompleta(a.Fecha_Registro, a.Hora_Pedido);
-          const fechaB = this.crearFechaCompleta(b.Fecha_Registro, b.Hora_Pedido);
+          // 2. ORDENAR: Por fecha y hora (más recientes primero)
+          const pedidosOrdenados = pedidosFiltrados.sort((a, b) => {
+            const fechaA = this.crearFechaCompleta(a.Fecha_Registro, a.Hora_Pedido);
+            const fechaB = this.crearFechaCompleta(b.Fecha_Registro, b.Hora_Pedido);
+            return fechaB.getTime() - fechaA.getTime();
+          });
+
+          // 3. ENRIQUECER: Cargar info extra (Cliente, Productos, Tamaños)
+          this.pedidos = await this.cargarInformacionCompleta(pedidosOrdenados);
           
-          // Ordenar descendente (más recientes primero)
-          return fechaB.getTime() - fechaA.getTime();
-        });
-
-        // Cargar información adicional para cada pedido
-        this.pedidos = await this.cargarInformacionCompleta(pedidosOrdenados);
+          this.isLoading = false;
+          this.pageIndex = 0; // Resetear paginación
+        } catch (error) {
+          this.error = 'Error al procesar la información de los pedidos';
+          this.isLoading = false;
+          console.error('Error:', error);
+        }
+      },
+      error: (err) => {
+        this.error = 'Error al conectar con el servidor';
         this.isLoading = false;
-        
-        // Resetear paginación cuando se cargan nuevos datos
-        this.pageIndex = 0;
-      } catch (error) {
-        this.error = 'Error al cargar la información de los pedidos';
-        this.isLoading = false;
-        console.error('Error:', error);
+        console.error('Error:', err);
       }
-    },
-    error: (err) => {
-      this.error = 'Error al cargar los pedidos';
-      this.isLoading = false;
-      console.error('Error:', err);
-    }
-  });
-}
-
-// Método auxiliar para crear fecha completa a partir de fecha y hora
-private crearFechaCompleta(fecha: string, hora: string): Date {
-  try {
-    // Si la hora está en formato TIME de SQL Server (HH:MM:SS)
-    if (hora && hora.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
-      // Combinar fecha y hora
-      const fechaHoraString = `${fecha}T${hora}`;
-      return new Date(fechaHoraString);
-    }
-    
-    // Si la hora ya está en formato timestamp, usar directamente
-    if (hora.includes('T')) {
-      return new Date(hora);
-    }
-    
-    // Si solo tenemos fecha, usar inicio del día
-    if (fecha) {
-      return new Date(fecha);
-    }
-    
-    // Fallback: fecha actual
-    return new Date();
-  } catch (error) {
-    console.warn('Error al parsear fecha:', error);
-    return new Date(); // Fallback a fecha actual
+    });
   }
-}
 
-  private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<any[]> {
-    const pedidosCompletos = [];
+  // 🛠️ Helpers de Fecha
+  private crearFechaCompleta(fecha: string, hora: string): Date {
+    try {
+      if (hora && hora.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+        return new Date(`${fecha}T${hora}`);
+      }
+      if (hora?.includes('T')) return new Date(hora);
+      if (fecha) return new Date(fecha);
+      return new Date();
+    } catch {
+      return new Date();
+    }
+  }
 
-    for (const pedido of pedidos) {
+  // 📦 Lógica de Enriquecimiento (Hydration)
+  private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<PedidoEnEspera[]> {
+    // Usamos Promise.all para procesar pedidos en paralelo (mejora rendimiento)
+    const promesas = pedidos.map(async (pedido) => {
+      const pedidoCompleto: PedidoEnEspera = { ...pedido };
+
       try {
-        // Cargar información del cliente
-        let cliente: Cliente | undefined;
-        if (pedido.ID_Cliente && pedido.ID_Cliente !== 1) { // No es cliente genérico
+        // A. Cargar Cliente
+        if (pedido.ID_Cliente && pedido.ID_Cliente !== 1) {
           try {
-            cliente = await this.clienteService.getClienteById(pedido.ID_Cliente).toPromise();
-          } catch (error) {
-            console.warn(`No se pudo cargar cliente ID: ${pedido.ID_Cliente}`);
+            pedidoCompleto.cliente = await firstValueFrom(this.clienteService.getClienteById(pedido.ID_Cliente));
+          } catch {
+            console.warn(`Cliente ${pedido.ID_Cliente} no encontrado`);
           }
         }
 
-        // Cargar detalles del pedido
-        let detallesCompletos: any[] = [];
+        // B. Cargar Detalles
         try {
-          const detalles = await this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise();
-          detallesCompletos = await this.enriquecerDetalles(detalles || []);
-        } catch (error) {
-          console.warn(`No se pudieron cargar detalles del pedido ID: ${pedido.ID_Pedido}`);
+          const detalles = await firstValueFrom(this.pedidoService.getPedidoDetalles(pedido.ID_Pedido));
+          if (detalles) {
+            pedidoCompleto.detallesCompletos = await this.enriquecerDetalles(detalles);
+          }
+        } catch {
+          console.warn(`Detalles del pedido ${pedido.ID_Pedido} no encontrados`);
         }
-
-        pedidosCompletos.push({
-          ...pedido,
-          cliente,
-          detallesCompletos
-        });
-      } catch (error) {
-        console.error(`Error procesando pedido ${pedido.ID_Pedido}:`, error);
+      } catch (err) {
+        console.error(`Error procesando pedido ${pedido.ID_Pedido}`, err);
       }
-    }
 
-    return pedidosCompletos;
+      return pedidoCompleto;
+    });
+
+    return Promise.all(promesas);
   }
 
   private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
-    const detallesEnriquecidos = [];
+    // Procesar detalles en paralelo
+    return Promise.all(detalles.map(async (detalle) => {
+      let productoInfo: Producto | undefined;
+      let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
 
-    for (const detalle of detalles) {
       try {
-        // Obtener información del producto-tamaño
-        const productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
-        
-        detallesEnriquecidos.push({
-          ...detalle,
-          productoInfo,
-          tamanoInfo: this.obtenerNombreTamano(detalle, productoInfo)
-        });
-      } catch (error) {
-        console.warn(`No se pudo cargar producto-tamaño ID: ${detalle.ID_Producto_T}`);
-        detallesEnriquecidos.push({
-          ...detalle,
-          productoInfo: undefined,
-          tamanoInfo: detalle.nombre_tamano || 'Tamaño no disponible'
-        });
+        // Si es producto (no combo), buscamos info extra del catálogo
+        if (!detalle.ID_Combo && detalle.ID_Producto_T) {
+          productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
+          
+          // Si no vino el nombre del tamaño en el detalle, lo sacamos del producto
+          if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
+            tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
+          }
+        }
+      } catch {
+        // Ignorar errores individuales de productos
       }
-    }
 
-    return detallesEnriquecidos;
+      return {
+        ...detalle,
+        productoInfo,
+        tamanoInfo
+      };
+    }));
   }
 
   private async obtenerProductoPorTamano(idProductoTamano: number): Promise<Producto | undefined> {
     try {
-      const productos = await this.productoService.getProductos().toPromise();
+      // Nota: Esto podría optimizarse cargando todos los productos una sola vez al inicio
+      // pero mantenemos tu lógica de buscar bajo demanda por seguridad.
+      const productos = await firstValueFrom(this.productoService.getProductos());
       
-      for (const producto of productos || []) {
-        const productoTamano = producto.tamanos?.find(t => t.ID_Producto_T === idProductoTamano);
-        if (productoTamano) {
-          return {
-            ...producto,
-            tamanos: [productoTamano] // Mantener solo el tamaño relevante
-          };
-        }
+      for (const p of productos || []) {
+        const tamano = p.tamanos?.find(t => t.ID_Producto_T === idProductoTamano);
+        if (tamano) return { ...p, tamanos: [tamano] };
       }
       return undefined;
-    } catch (error) {
-      console.error('Error al obtener productos:', error);
+    } catch {
       return undefined;
     }
   }
 
-  private obtenerNombreTamano(detalle: PedidoDetalle, productoInfo?: Producto): string {
-    // Primero intentar usar la información del detalle
-    if (detalle.nombre_tamano) {
-      return detalle.nombre_tamano;
-    }
+  // 🚀 Acciones (Cambio de Estado)
+  cambiarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C') {
+    const accion = nuevoEstado === 'E' ? 'entregar' : 'cancelar';
+    const colorBtn = nuevoEstado === 'E' ? '#2e7d32' : '#d32f2f';
+    const cliente = this.getNombreCliente(pedido);
 
-    // Luego buscar en la información del producto
-    if (productoInfo?.tamanos?.[0]?.nombre_tamano) {
-      return productoInfo.tamanos[0].nombre_tamano;
-    }
-
-    return 'Tamaño único';
-  }
-
-  getEstadoColor(estado: string): string {
-    switch (estado) {
-      case 'P': return 'primary'; // Pendiente - Azul
-      case 'D': return 'accent';  // En preparación - Naranja
-      case 'E': return 'primary'; // Entregado - Verde (pero no debería aparecer)
-      case 'C': return 'warn';    // Cancelado - Rojo (pero no debería aparecer)
-      default: return 'primary';
-    }
-  }
-
-  getEstadoTexto(estado: string): string {
-    switch (estado) {
-      case 'P': return 'Pendiente';
-      case 'D': return 'En preparación';
-      case 'E': return 'Entregado';
-      case 'C': return 'Cancelado';
-      default: return estado;
-    }
-  }
-
-  getNombreCliente(pedido: any): string {
-    if (pedido.cliente) {
-      return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido}`;
-    }
-    return 'Cliente Varios';
-  }
-
-getHoraFormateada(hora: string): string {
-  if (!hora) return '';
-  
-  // Si la hora ya está en formato HH:MM:SS, formatearla directamente
-  if (hora.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
-    const [hours, minutes] = hora.split(':');
-    const hourNum = parseInt(hours, 10);
-    
-    // Formato 12 horas con AM/PM
-    const period = hourNum >= 12 ? 'PM' : 'AM';
-    const displayHour = hourNum % 12 || 12;
-    
-    return `${displayHour.toString().padStart(2, '0')}:${minutes} ${period}`;
-  }
-  
-  // Si es un timestamp, extraer solo la hora
-  try {
-    const date = new Date(hora);
-    return date.toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} pedido?`,
+      html: `Pedido <strong>#${pedido.ID_Pedido}</strong> de <strong>${cliente}</strong>`,
+      icon: nuevoEstado === 'E' ? 'question' : 'warning',
+      showCancelButton: true,
+      confirmButtonText: `Sí, ${accion}`,
+      confirmButtonColor: colorBtn,
+      cancelButtonText: 'Volver',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.procesarCambioEstado(pedido.ID_Pedido, nuevoEstado);
+      }
     });
-  } catch {
-    return hora;
   }
-}
 
-
-
-  async actualizarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C'): Promise<void> {
-    // Mostrar SweetAlert2 para cancelar
-    if (nuevoEstado === 'C') {
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        html: `El pedido <strong>#${pedido.ID_Pedido}</strong> se marcará como <strong>No Entregado</strong>.<br>¿Deseas continuar?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, marcar como No Entregado',
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true
-      });
-
-      if (!result.isConfirmed) {
-        return;
-      }
-    }
-
-    this.pedidoService.statusPedido(pedido.ID_Pedido, nuevoEstado).subscribe({
-      next: (response) => {
-        // Mostrar mensaje de éxito
-        let mensaje = '';
-        let icon: 'success' | 'info' = 'success';
+  private procesarCambioEstado(id: number, estado: 'E' | 'C') {
+    this.processingId = id;
+    
+    this.pedidoService.statusPedido(id, estado).subscribe({
+      next: () => {
+        const msg = estado === 'E' ? 'Pedido entregado.' : 'Pedido cancelado.';
+        Swal.fire({ icon: 'success', title: 'Listo', text: msg, timer: 1500, showConfirmButton: false });
         
-        switch (nuevoEstado) {
-          case 'E':
-            mensaje = `Pedido #${pedido.ID_Pedido} marcado como Entregado`;
-            break;
-          case 'C':
-            mensaje = `Pedido #${pedido.ID_Pedido} marcado como No Entregado`;
-            icon = 'info';
-            break;
+        // Remover localmente
+        this.pedidos = this.pedidos.filter(p => p.ID_Pedido !== id);
+        // Ajustar paginación si la página quedó vacía
+        if (this.pedidosPaginados.length === 0 && this.pageIndex > 0) {
+          this.pageIndex--;
         }
-
-        // Mostrar SweetAlert2 para éxito
-        Swal.fire({
-          title: '¡Éxito!',
-          text: mensaje,
-          icon: icon,
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar'
-        });
-
-        // También mostrar snackbar opcional
-        this.snackBar.open(mensaje, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-
-        // Remover el pedido de la lista inmediatamente
-        this.pedidos = this.pedidos.filter(p => p.ID_Pedido !== pedido.ID_Pedido);
+        
+        this.processingId = null;
       },
       error: (err) => {
-        console.error('Error completo al actualizar estado del pedido:', err);
-        
-        let mensajeError = 'Error al actualizar el estado del pedido';
-        
-        // Manejar errores específicos de CORS
-        if (err.status === 0) {
-          mensajeError = 'Error de conexión con el servidor. Verifica que el backend esté ejecutándose.';
-        } else if (err.error && err.error.error) {
-          mensajeError = err.error.error;
-        }
-        
-        // Mostrar SweetAlert2 para error
-        Swal.fire({
-          title: 'Error',
-          text: mensajeError,
-          icon: 'error',
-          confirmButtonColor: '#d33',
-          confirmButtonText: 'Aceptar'
-        });
-
-        this.snackBar.open(mensajeError, 'Cerrar', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        console.error(err);
+        Swal.fire('Error', 'No se pudo cambiar el estado.', 'error');
+        this.processingId = null;
       }
     });
   }
 
-  // También actualizar el método refrescar para recargar correctamente
-  refrescar(): void {
-    this.cargarPedidosEnEspera();
-    this.snackBar.open('Lista actualizada', 'Cerrar', {
-      duration: 2000
-    });
+  // 🛠️ Visual Helpers
+  getNombreCliente(pedido: PedidoEnEspera): string {
+    if (pedido.cliente) return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido || ''}`;
+    // Fallback al campo visual que viene del backend si existe
+    return pedido.Cliente_Nombre || 'Cliente General';
+  }
+
+  getHoraFormateada(hora: string): string {
+    if (!hora) return '';
+    if (hora.match(/^\d{1,2}:\d{2}/)) {
+      const [h, m] = hora.split(':');
+      return `${h}:${m}`;
+    }
+    try {
+      return new Date(hora).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    } catch { return hora; }
+  }
+
+  // Calcular tiempo transcurrido
+  getTiempoEspera(fecha: string, hora: string): string {
+    const fechaPedido = this.crearFechaCompleta(fecha, hora);
+    const diff = Date.now() - fechaPedido.getTime();
+    const mins = Math.floor(diff / 60000);
+    
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    return `${h}h ${mins % 60}m`;
+  }
+
+  esTiempoCritico(fecha: string, hora: string): boolean {
+    const fechaPedido = this.crearFechaCompleta(fecha, hora);
+    const diff = Date.now() - fechaPedido.getTime();
+    return diff > 30 * 60000; // > 30 min es crítico
   }
 }

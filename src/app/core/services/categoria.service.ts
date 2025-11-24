@@ -1,63 +1,72 @@
-// src/app/dashboard/services/categoria.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CategoriaProducto, CategoriaInsumos } from '../models/categoria.model';
+import { 
+  CategoriaProducto, 
+  CategoriaProductoDTO, 
+  CategoriaInsumos, 
+  CategoriaInsumoDTO 
+} from '../../core/models/categoria.model'; // ⚠️ Ajusta la ruta según tu estructura de carpetas
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriaService {
-  private apiUrlProducto = 'http://localhost:3000/api/v2/categorias/producto';
-  private apiUrlInsumos = 'http://localhost:3000/api/v2/categorias/insumos';
+  // Asegúrate de que este puerto coincida con tu backend
+  private apiUrlBase = 'http://localhost:3000/api/v2/categorias';
 
   constructor(private http: HttpClient) {}
 
-  // =============================
+  // =================================================
   // 🟦 CATEGORÍAS PRODUCTO
-  // =============================
+  // =================================================
 
   getCategoriasProducto(): Observable<CategoriaProducto[]> {
-    return this.http.get<CategoriaProducto[]>(this.apiUrlProducto);
+    return this.http.get<CategoriaProducto[]>(`${this.apiUrlBase}/producto`);
   }
 
   getCategoriaProductoById(id: number): Observable<CategoriaProducto> {
-    return this.http.get<CategoriaProducto>(`${this.apiUrlProducto}/${id}`);
+    return this.http.get<CategoriaProducto>(`${this.apiUrlBase}/producto/${id}`);
   }
 
-  createCategoriaProducto(categoria: CategoriaProducto): Observable<any> {
-    return this.http.post(this.apiUrlProducto, categoria);
+  // 🟢 Usa DTO para crear (solo enviamos Nombre)
+  createCategoriaProducto(categoria: CategoriaProductoDTO): Observable<any> {
+    return this.http.post(`${this.apiUrlBase}/producto`, categoria);
   }
 
-  updateCategoriaProducto(id: number, categoria: CategoriaProducto): Observable<any> {
-    return this.http.put(`${this.apiUrlProducto}/${id}`, categoria);
+  // 🟠 Usa DTO para actualizar
+  updateCategoriaProducto(id: number, categoria: CategoriaProductoDTO): Observable<any> {
+    return this.http.put(`${this.apiUrlBase}/producto/${id}`, categoria);
   }
 
   deleteCategoriaProducto(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrlProducto}/${id}`);
+    return this.http.delete(`${this.apiUrlBase}/producto/${id}`);
   }
 
-  // =============================
+  // =================================================
   // 🟨 CATEGORÍAS INSUMOS
-  // =============================
+  // =================================================
 
   getCategoriasInsumos(): Observable<CategoriaInsumos[]> {
-    return this.http.get<CategoriaInsumos[]>(this.apiUrlInsumos);
+    // Nota: El backend acepta "insumo" o "insumos", mantengo tu URL
+    return this.http.get<CategoriaInsumos[]>(`${this.apiUrlBase}/insumos`);
   }
 
   getCategoriaInsumoById(id: number): Observable<CategoriaInsumos> {
-    return this.http.get<CategoriaInsumos>(`${this.apiUrlInsumos}/${id}`);
+    return this.http.get<CategoriaInsumos>(`${this.apiUrlBase}/insumos/${id}`);
   }
 
-  createCategoriaInsumo(categoria: CategoriaInsumos): Observable<any> {
-    return this.http.post(this.apiUrlInsumos, categoria);
+  // 🟢 Usa DTO para crear
+  createCategoriaInsumo(categoria: CategoriaInsumoDTO): Observable<any> {
+    return this.http.post(`${this.apiUrlBase}/insumos`, categoria);
   }
 
-  updateCategoriaInsumo(id: number, categoria: CategoriaInsumos): Observable<any> {
-    return this.http.put(`${this.apiUrlInsumos}/${id}`, categoria);
+  // 🟠 Usa DTO para actualizar
+  updateCategoriaInsumo(id: number, categoria: CategoriaInsumoDTO): Observable<any> {
+    return this.http.put(`${this.apiUrlBase}/insumos/${id}`, categoria);
   }
 
   deleteCategoriaInsumo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrlInsumos}/${id}`);
+    return this.http.delete(`${this.apiUrlBase}/insumos/${id}`);
   }
 }

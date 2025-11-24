@@ -1,46 +1,76 @@
-<h2 mat-dialog-title>{{ cliente.ID_Cliente ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+<h2 mat-dialog-title>
+  <div class="titulo-container">
+    <mat-icon class="titulo-icono">person</mat-icon>
+    <span>{{ cliente.ID_Cliente ? 'Editar' : 'Nuevo' }} Cliente</span>
+  </div>
+</h2>
 
-<mat-dialog-content>
-  <form #form="ngForm" (ngSubmit)="saveCliente()">
+<form #form="ngForm" (ngSubmit)="saveCliente()">
+  <mat-dialog-content class="dialog-content">
+    
+    <!-- Fila 1: Nombre (Obligatorio) -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput 
+               [(ngModel)]="cliente.Nombre" 
+               name="nombre" 
+               required 
+               autocomplete="off"
+               placeholder="Ej: Juan">
+        <mat-icon matSuffix>badge</mat-icon>
+        <mat-error *ngIf="!cliente.Nombre">El nombre es obligatorio</mat-error>
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Nombre Completo</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="cliente.Nombre"
-        name="nombre_completo"
-        required
-      />
-    </mat-form-field>
+    <!-- Fila 2: Apellido (Opcional / Razón Social) -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Apellido / Razón Social</mat-label>
+        <input matInput 
+               [(ngModel)]="cliente.Apellido" 
+               name="apellido" 
+               autocomplete="off"
+               placeholder="Ej: Perez o Empresa SAC">
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>DNI (opcional, 8 dígitos)</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="cliente.DNI"
-        name="dni"
-        maxlength="8"
-        minlength="8"
-      />
-    </mat-form-field>
+    <!-- Fila 3: Documento y Teléfono (En 2 columnas) -->
+    <div class="form-row two-columns">
+      
+      <!-- Documento: Soporta DNI (8) y RUC (11) -->
+      <mat-form-field appearance="outline">
+        <mat-label>Documento (DNI / RUC)</mat-label>
+        <input matInput 
+               [(ngModel)]="cliente.Numero_Documento" 
+               name="documento" 
+               placeholder="8 u 11 dígitos" 
+               maxlength="11">
+        <mat-icon matSuffix>assignment_ind</mat-icon>
+        <mat-hint align="end">{{ (cliente.Numero_Documento || '').length }} / 11</mat-hint>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Teléfono (opcional)</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="cliente.Telefono"
-        name="telefono"
-        maxlength="20"
-      />
-    </mat-form-field>
+      <!-- Teléfono -->
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono</mat-label>
+        <input matInput 
+               [(ngModel)]="cliente.Telefono" 
+               name="telefono" 
+               type="tel"
+               autocomplete="off">
+        <mat-icon matSuffix>phone</mat-icon>
+      </mat-form-field>
 
-  </form>
-</mat-dialog-content>
+    </div>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="saveCliente()">Guardar</button>
-</mat-dialog-actions>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Cancelar</button>
+    <!-- Deshabilitar botón si el nombre no es válido -->
+    <button mat-flat-button color="primary" type="submit" [disabled]="!form.valid">
+      <mat-icon>save</mat-icon>
+      Guardar
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,62 +1,84 @@
-<mat-card class="info-card">
-  <mat-card-header>
-    <mat-card-title>{{ producto.Nombre }}</mat-card-title>
-    <mat-card-subtitle *ngIf="primerTamano">
-      S/ {{ primerTamano.Precio | number:'1.2-2' }} - {{ primerTamano.nombre_tamano || 'Tamaño único' }}
-    </mat-card-subtitle>
-    <mat-card-subtitle *ngIf="!primerTamano" class="text-warn">
-      Producto no disponible
-    </mat-card-subtitle>
-  </mat-card-header>
+<div class="dialog-header">
+  <h2 mat-dialog-title class="m-0">Agregar Producto</h2>
+  <button mat-icon-button (click)="cancelar()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-  <mat-card-content>
-    <p>{{ producto.Descripcion }}</p>
-
-    <!-- 🔹 Información del tamaño seleccionado automáticamente -->
-    <div *ngIf="primerTamano" class="tamano-info">
-      <strong>Tamaño:</strong> {{ primerTamano.nombre_tamano || 'Tamaño único' }}
+<mat-dialog-content class="dialog-content">
+  
+  <!-- Tarjeta Principal -->
+  <div class="product-summary">
+    <div class="icon-container">
+      <mat-icon class="product-icon">restaurant</mat-icon>
     </div>
-
-    <!-- 🔹 Campo cantidad validado -->
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Cantidad</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="cantidad"
-        (input)="validarCantidad($event)"
-        inputmode="numeric"
-        pattern="[0-9]*"
-        minlength="1"
-        maxlength="3"
-      />
-    </mat-form-field>
-
-    <!-- 🔹 Botones de incremento/decremento (opcional) -->
-    <div class="cantidad-controls" *ngIf="primerTamano">
-      <button mat-mini-button (click)="decrementarCantidad()" [disabled]="cantidad <= 1">
-        <mat-icon>remove</mat-icon>
-      </button>
-      <span class="cantidad-display">{{ cantidad }}</span>
-      <button mat-mini-button (click)="incrementarCantidad()">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-
-    <!-- 🔹 Total dinámico -->
-    <h3 class="total-text" *ngIf="primerTamano">Total: S/ {{ getPrecioTotal() | number:'1.2-2' }}</h3>
+    <h3 class="product-title">{{ producto.Nombre }}</h3>
+    <p class="product-desc">{{ producto.Descripcion || 'Sin descripción' }}</p>
     
-    <div *ngIf="!primerTamano" class="error-message">
-      Este producto no está disponible actualmente.
+    <div class="tags">
+      <span class="tag-category">{{ producto.nombre_categoria || 'General' }}</span>
+      <span class="tag-stock" [class.agotado]="producto.Cantidad_Disponible === 0">
+        {{ stockTexto }}
+      </span>
     </div>
-  </mat-card-content>
+  </div>
 
-  <mat-card-actions class="actions">
-    <button mat-raised-button color="primary" 
-            (click)="agregarAlPedido()"
-            [disabled]="!primerTamano || cantidad <= 0">
-      Agregar al Pedido
-    </button>
-    <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
-  </mat-card-actions>
-</mat-card>
+  <div class="divider"></div>
+
+  <!-- Detalles de Precio (Si existe tamaño) -->
+  <div *ngIf="primerTamano; else noPrice" class="price-details">
+    
+    <div class="info-row">
+      <span class="label">Precio Unitario:</span>
+      <span class="value">S/ {{ primerTamano.Precio | number:'1.2-2' }}</span>
+    </div>
+    <div class="info-row text-muted">
+      <span class="label">Tamaño:</span>
+      <span class="value">{{ primerTamano.nombre_tamano || 'Estándar' }}</span>
+    </div>
+
+    <!-- Control de Cantidad -->
+    <div class="qty-container">
+      <span class="qty-label">Cantidad:</span>
+      <div class="qty-controls">
+        <button mat-mini-fab color="basic" (click)="decrementarCantidad()" [disabled]="cantidad <= 1">
+          <mat-icon>remove</mat-icon>
+        </button>
+        
+        <input type="number" 
+               class="qty-input" 
+               [value]="cantidad" 
+               (input)="validarCantidad($event)">
+        
+        <button mat-mini-fab color="basic" (click)="incrementarCantidad()" [disabled]="cantidad >= maxCantidad">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div class="total-box">
+      <span class="total-label">Total a Pagar:</span>
+      <span class="total-amount">S/ {{ getPrecioTotal() | number:'1.2-2' }}</span>
+    </div>
+
+  </div>
+
+  <!-- Template Error: Sin Precios -->
+  <ng-template #noPrice>
+    <div class="error-state">
+      <mat-icon color="warn">money_off</mat-icon>
+      <p>Este producto no tiene precios configurados.</p>
+    </div>
+  </ng-template>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="actions-container">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="agregarAlPedido()" 
+          [disabled]="!primerTamano || cantidad <= 0" class="btn-add">
+    <mat-icon>add_shopping_cart</mat-icon>
+    Agregar
+  </button>
+</mat-dialog-actions>

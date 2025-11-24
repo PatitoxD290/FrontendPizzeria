@@ -1,44 +1,47 @@
 <h2 mat-dialog-title>
-  <mat-icon>{{ iconoTipo }}</mat-icon>
+  <mat-icon class="titulo-icono" [color]="colorTipo">{{ iconoTipo }}</mat-icon>
   {{ esEdicion ? 'Editar' : 'Nueva' }} Categoría
 </h2>
 
 <form #form="ngForm" (ngSubmit)="saveCategoria()">
-  <mat-dialog-content>
+  <mat-dialog-content class="dialog-content">
 
     <!-- Indicador del tipo de categoría -->
     <div class="tipo-indicator">
-      <mat-chip [color]="colorTipo" selected class="tipo-chip">
-        <mat-icon class="chip-icon">{{ iconoTipo }}</mat-icon>
-        Categoría de {{ tipoCategoriaTexto }}
-        <span *ngIf="esEdicion" class="id-badge">ID: {{ idCategoria }}</span>
-      </mat-chip>
+      <mat-chip-listbox>
+        <mat-chip-option [color]="colorTipo" selected [selectable]="false">
+          Categoría de {{ tipoCategoriaTexto }}
+        </mat-chip-option>
+      </mat-chip-listbox>
       
+      <span *ngIf="esEdicion" class="id-badge">ID: {{ idCategoria }}</span>
+
       <!-- Solo mostrar botón de cambio si es nueva categoría -->
       <button *ngIf="esTogglePermitido" 
               mat-stroked-button 
-              color="accent" 
+              [color]="colorTipo === 'primary' ? 'accent' : 'primary'" 
               type="button" 
               (click)="toggleTipo()"
-              class="toggle-btn">
+              class="toggle-btn"
+              matTooltip="Cambiar tipo">
         <mat-icon>swap_horiz</mat-icon>
         Cambiar a {{ tipoCategoria === 'producto' ? 'Insumos' : 'Productos' }}
       </button>
     </div>
 
-    <!-- Información para el usuario -->
-    <div *ngIf="!esEdicion && esTogglePermitido" class="info-message">
+    <!-- Información visual -->
+    <div *ngIf="!esEdicion && esTogglePermitido" class="info-message info-blue">
       <mat-icon>info</mat-icon>
-      <span>Puedes cambiar el tipo de categoría antes de guardar</span>
+      <span>Puedes cambiar el tipo antes de guardar.</span>
     </div>
 
-    <div *ngIf="esEdicion" class="info-message">
+    <div *ngIf="esEdicion" class="info-message info-orange">
       <mat-icon>lock</mat-icon>
-      <span>No puedes cambiar el tipo de categoría durante la edición</span>
+      <span>El tipo de categoría no se puede cambiar al editar.</span>
     </div>
 
     <!-- Campo de nombre -->
-    <mat-form-field appearance="fill" class="w-100">
+    <mat-form-field appearance="outline" class="w-100 mt-3">
       <mat-label>Nombre de la Categoría</mat-label>
       <input
         matInput
@@ -46,18 +49,21 @@
         [(ngModel)]="categoria.Nombre"
         name="nombre"
         required
+        autocomplete="off"
         placeholder="Ej: {{ tipoCategoria === 'producto' ? 'Bebidas, Postres...' : 'Frutas, Lácteos...' }}"
       />
-      <mat-hint>Ingresa el nombre de la categoría de {{ tipoCategoriaTexto.toLowerCase() }}</mat-hint>
+      <mat-icon matSuffix>edit</mat-icon>
+      <mat-hint>Nombre descriptivo para agrupar {{ tipoCategoriaTexto.toLowerCase() }}</mat-hint>
+      <mat-error *ngIf="!categoria.Nombre">El nombre es obligatorio</mat-error>
     </mat-form-field>
 
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button type="button" (click)="close()">Cancelar</button>
-    <button mat-flat-button [color]="colorTipo" type="submit">
+    <button mat-flat-button [color]="colorTipo" type="submit" [disabled]="!form.valid">
       <mat-icon>save</mat-icon>
-      {{ esEdicion ? 'Actualizar' : 'Crear' }} Categoría
+      {{ esEdicion ? 'Actualizar' : 'Crear' }}
     </button>
   </mat-dialog-actions>
 </form>

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Cliente } from '../../../../core/models/cliente.model';
 import { ClienteService } from '../../../../core/services/cliente.service';
@@ -15,15 +15,16 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cliente-list',
   standalone: true,
   imports: [
     CommonModule,
-    NgIf,
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
@@ -34,16 +35,19 @@ import { ClienteFormComponent } from '../cliente-form/cliente-form.component';
     MatDialogModule,
     MatInputModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatTooltipModule
   ],
   templateUrl: './cliente-list.component.html',
   styleUrls: ['./cliente-list.component.css']
 })
 export class ClienteListComponent implements OnInit {
 
-  displayedColumns: string[] = ['ID_Cliente', 'nombre_completo', 'DNI', 'Telefono', 'Fecha_Registro', 'acciones'];
+  // 🟢 Actualizamos las columnas para usar 'documento' en vez de 'DNI'
+  displayedColumns: string[] = ['ID_Cliente', 'nombre_completo', 'documento', 'Telefono', 'Fecha_Registro', 'acciones'];
   dataSource = new MatTableDataSource<Cliente>([]);
   loading = false;
+  
   searchTerm: string = '';
   fechaInicio?: Date;
   fechaFin?: Date;
@@ -63,37 +67,37 @@ export class ClienteListComponent implements OnInit {
     this.loading = true;
     this.clienteService.getClientes().subscribe({
       next: data => {
+        // Ordenar por ID descendente (más nuevos primero)
         const sortedData = data.sort((a, b) => b.ID_Cliente - a.ID_Cliente);
+        
         this.dataSource = new MatTableDataSource(sortedData);
         this.dataSource.paginator = this.paginator;
 
-        // ✅ Filtro combinado (texto + fechas)
+        // ✅ Filtro combinado (Texto + Fechas)
         this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
           const term = filter.trim().toLowerCase();
+          
+          // 🟢 Buscamos en Numero_Documento en lugar de DNI
           const matchText =
-            cliente.Nombre?.toLowerCase().includes(term) ||
-            cliente.Apellido?.toLowerCase().includes(term) ||
-            cliente.DNI?.toLowerCase().includes(term) ||
-            cliente.Telefono?.toLowerCase().includes(term);
+            (cliente.Nombre?.toLowerCase().includes(term) || false) ||
+            (cliente.Apellido?.toLowerCase().includes(term) || false) ||
+            (cliente.Numero_Documento?.toLowerCase().includes(term) || false) ||
+            (cliente.Telefono?.toLowerCase().includes(term) || false);
 
-          // ✅ Filtrado por fecha si ambas fechas existen
+          // ✅ Filtrado por fecha
           if (this.fechaInicio && this.fechaFin) {
-            // Crear fechas sin hora para comparación
             const fechaCliente = new Date(cliente.Fecha_Registro);
             fechaCliente.setHours(0, 0, 0, 0);
             
-            const fechaInicio = new Date(this.fechaInicio);
-            fechaInicio.setHours(0, 0, 0, 0);
+            const fInicio = new Date(this.fechaInicio);
+            fInicio.setHours(0, 0, 0, 0);
             
-            const fechaFin = new Date(this.fechaFin);
-            fechaFin.setHours(23, 59, 59, 999);
+            const fFin = new Date(this.fechaFin);
+            fFin.setHours(23, 59, 59, 999);
 
-            return (
-              matchText &&
-              fechaCliente >= fechaInicio &&
-              fechaCliente <= fechaFin
-            );
+            return matchText && (fechaCliente >= fInicio && fechaCliente <= fFin);
           }
+          
           return matchText;
         };
 
@@ -102,24 +106,91 @@ export class ClienteListComponent implements OnInit {
       error: err => {
         console.error('Error al cargar clientes', err);
         this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los clientes', 'error');
       }
     });
   }
 
-  // ✅ Filtro combinado
+  // ✅ Aplicar filtros
   applyFilters() {
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
+  // 📝 Abrir formulario (Crear/Editar)
   openClienteForm(cliente?: Cliente) {
     const dialogRef = this.dialog.open(ClienteFormComponent, {
-      width: '400px',
+      width: '500px', // Un poco más ancho para el nuevo diseño
+      disableClose: true,
       data: { cliente }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadClientes();
+      if (result === true) this.loadClientes();
+    });
+  }
+
+  // 🗑️ Eliminar cliente
+  deleteCliente(cliente: Cliente) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Eliminarás al cliente "${cliente.Nombre} ${cliente.Apellido || ''}"`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.clienteService.deleteCliente(cliente.ID_Cliente).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'Cliente eliminado correctamente', 'success');
+            this.loadClientes();
+          },
+          error: (err) => {
+            console.error(err);
+            if (err.status === 400 || err.status === 409) {
+              Swal.fire('No se puede eliminar', err.error.error || 'El cliente tiene ventas asociadas', 'error');
+            } else {
+              Swal.fire('Error', 'Ocurrió un problema al eliminar', 'error');
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // 🌟 Ver Puntos del Cliente
+  verPuntos(cliente: Cliente) {
+    // Evitar consultar para "Clientes Varios" si es ID 1
+    if (cliente.ID_Cliente === 1) {
+        Swal.fire('Información', 'El cliente genérico no acumula puntos.', 'info');
+        return;
+    }
+
+    this.clienteService.getPuntosCliente(cliente.ID_Cliente).subscribe({
+      next: (data) => {
+        Swal.fire({
+          title: 'Puntos de Fidelidad',
+          html: `
+            <div style="font-size: 1.2em; margin-bottom: 10px;">
+              Cliente: <b>${data.Nombre_Completo}</b>
+            </div>
+            <div style="color: #ff9800; font-size: 3em; font-weight: bold;">
+              <i class="fas fa-star"></i> ${data.Puntos}
+            </div>
+            <div style="color: #666; margin-top: 10px;">
+              Puntos Acumulados
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'Genial',
+          confirmButtonColor: '#ff9800'
+        });
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudieron obtener los puntos', 'error');
+      }
     });
   }
 }

@@ -1,163 +1,111 @@
-<div class="products-container">
-  <!-- Header con título y botón -->
-  <div class="products-header">
-    <h1 class="page-title">Lista de Productos</h1>
-    <button mat-flat-button color="primary" (click)="openProductoForm()" class="add-button">
-      <mat-icon>add</mat-icon>
-      Nuevo Producto
+<div class="container-fluid p-4">
+  
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 header-section">
+    <div>
+      <h1 class="mat-headline-5 mb-0">Catálogo de Productos</h1>
+      <p class="text-secondary mb-0">Gestiona tus productos, precios y stock</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openProductoForm()">
+      <mat-icon>add</mat-icon> Nuevo Producto
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-container mat-elevation-z1 mb-4">
+    
+    <!-- Buscador -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar producto</mat-label>
+      <input matInput [(ngModel)]="terminoBusqueda" (keyup)="aplicarFiltros()" placeholder="Nombre, descripción...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    
+    <!-- Selector Categoría -->
+    <mat-form-field appearance="outline" class="category-field">
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="filtroCategoria" (selectionChange)="aplicarFiltros()">
+        <mat-option [value]="0">Todas</mat-option>
+        <mat-option *ngFor="let c of categorias" [value]="c.ID_Categoria_P">
+          {{ c.Nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button color="warn" *ngIf="terminoBusqueda || filtroCategoria !== 0" (click)="limpiarFiltros()" matTooltip="Limpiar filtros">
+      <mat-icon>filter_alt_off</mat-icon>
     </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Cargando productos...</p>
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="mt-3">Cargando catálogo...</p>
   </div>
 
-  <!-- Stats bar -->
-  <div *ngIf="!loading" class="stats-bar">
-    <mat-chip-set>
-      <mat-chip color="primary" highlighted>
-        <mat-icon>inventory_2</mat-icon>
-        Total: {{ productos.length }} productos
-      </mat-chip>
-      <mat-chip color="accent" highlighted>
-        <mat-icon>visibility</mat-icon>
-        Mostrando: {{ paginatedProductos.length }} productos
-      </mat-chip>
-    </mat-chip-set>
-  </div>
-
-  <!-- Grid de Cards -->
-  <div *ngIf="!loading && productos.length > 0" class="products-grid">
-    <mat-card *ngFor="let producto of paginatedProductos" class="product-card">
+  <!-- Grid -->
+  <div *ngIf="!loading" class="products-grid">
+    <mat-card *ngFor="let p of paginatedProductos" class="product-card">
       
-      <!-- Header con imagen y estado -->
-      <div class="card-header">
-        <div class="image-container">
-          <img 
-            [src]="getProductoImage(producto.ID_Producto)" 
-            [alt]="producto.Nombre"
-            class="product-image"
-            (error)="onImageError($event)"
-          >
-          <div class="image-overlay">
-            <mat-chip [color]="getEstadoColor(producto.Estado)" class="status-chip">
-              {{ getEstadoText(producto.Estado) }}
-            </mat-chip>
-          </div>
-        </div>
+      <!-- Imagen y Badges -->
+      <div class="card-image">
+        <!-- 🖼️ Aquí se usa la función corregida con /imagenesCata/ -->
+        <img [src]="getProductoImage(p)" [alt]="p.Nombre" (error)="onImageError($event)">
+        
+        <span class="status-badge" [class.active]="p.Estado === 'A'">
+          {{ p.Estado === 'A' ? 'Activo' : 'Inactivo' }}
+        </span>
+        
+        <span class="stock-badge" [ngClass]="getStockClass(p.Cantidad_Disponible)">
+          {{ p.Cantidad_Disponible }} unid.
+        </span>
       </div>
 
-      <!-- Contenido principal -->
-      <mat-card-content class="card-content">
-        
-        <!-- Información básica -->
-        <div class="product-basic-info">
-          <h3 class="product-name" [matTooltip]="producto.Nombre" matTooltipPosition="above">
-            {{ producto.Nombre }}
-          </h3>
-          <p class="product-id">ID: {{ producto.ID_Producto }}</p>
-        </div>
-
-        <!-- Descripción -->
-        <div class="product-description">
-          <p class="description-text" [matTooltip]="producto.Descripcion || 'Sin descripción'" matTooltipPosition="above">
-            {{ truncateText(producto.Descripcion || 'Sin descripción', 60) }}
-          </p>
-        </div>
-
-        <!-- Categoría y Receta -->
-        <div class="product-details">
-          <div class="detail-item">
-            <mat-icon class="detail-icon">category</mat-icon>
-            <span class="detail-text">{{ producto.nombre_categoria }}</span>
-          </div>
-          <div class="detail-item">
-            <mat-icon class="detail-icon">menu_book</mat-icon>
-            <span class="detail-text">{{ producto.nombre_receta }}</span>
+      <!-- Contenido -->
+      <mat-card-content class="p-3 card-content">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div style="overflow: hidden;">
+            <h3 class="product-title" [matTooltip]="p.Nombre">{{ p.Nombre }}</h3>
+            <span class="category-text">{{ p.nombre_categoria }}</span>
           </div>
         </div>
 
-        <!-- Stock -->
-        <div class="stock-section">
-          <mat-chip [color]="getStockColor(producto.Cantidad_Disponible)" class="stock-chip">
-            <mat-icon>inventory</mat-icon>
-            {{ producto.Cantidad_Disponible }} unidades
-            <span class="stock-status">({{ getStockText(producto.Cantidad_Disponible) }})</span>
-          </mat-chip>
-        </div>
-
-        <!-- Precios y Tamaños -->
-        <div class="pricing-section" 
-             [matTooltip]="getPrecioTamanoInfo(producto).tooltip" 
-             matTooltipPosition="above">
-          <div class="price-info">
-            <mat-icon class="price-icon">attach_money</mat-icon>
-            <span class="price-text">{{ getDisplayPrecio(producto) }}</span>
+        <!-- Lista de Tamaños/Precios -->
+        <div class="sizes-list custom-scrollbar">
+          <div *ngFor="let t of p.tamanos" class="size-item">
+            <span class="size-name">{{ t.nombre_tamano }}</span>
+            <span class="size-price">S/ {{ t.Precio | number:'1.2-2' }}</span>
           </div>
-          <div class="sizes-info">
-            <mat-icon class="sizes-icon">straighten</mat-icon>
-            <span class="sizes-text">
-              {{ getCantidadTamanos(producto) }} tamaño{{ getCantidadTamanos(producto) !== 1 ? 's' : '' }}
-            </span>
+          <div *ngIf="!p.tamanos?.length" class="text-muted small text-center mt-2">
+            Sin precios configurados
           </div>
         </div>
-
-        <!-- Fecha de registro -->
-        <div class="date-section">
-          <mat-icon class="date-icon">calendar_today</mat-icon>
-          <span class="date-text">Registrado: {{ producto.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
-        </div>
-
       </mat-card-content>
 
       <!-- Acciones -->
-      <mat-card-actions class="card-actions">
-        <button 
-          mat-flat-button 
-          color="primary" 
-          (click)="openProductoForm(producto)" 
-          class="action-button"
-        >
+      <mat-card-actions align="end" class="card-actions">
+        <button mat-icon-button color="primary" (click)="openProductoForm(p)" matTooltip="Editar">
           <mat-icon>edit</mat-icon>
-          Editar
         </button>
-        <button 
-          mat-stroked-button 
-          color="warn" 
-          (click)="deleteProducto(producto)" 
-          class="action-button"
-        >
+        <button mat-icon-button color="warn" (click)="deleteProducto(p)" matTooltip="Eliminar">
           <mat-icon>delete</mat-icon>
-          Eliminar
         </button>
       </mat-card-actions>
-
     </mat-card>
   </div>
 
-  <!-- Paginación -->
-  <div *ngIf="!loading && productos.length > 0" class="pagination-container">
-    <mat-paginator 
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="pageSizeOptions"
-      [pageIndex]="currentPage"
-      (page)="onPageChange($event)"
-      showFirstLastButtons
-      class="custom-paginator">
-    </mat-paginator>
+  <!-- No Data -->
+  <div *ngIf="!loading && paginatedProductos.length === 0" class="no-data">
+    <mat-icon class="large-icon">search_off</mat-icon>
+    <p>No se encontraron productos con los filtros actuales.</p>
   </div>
 
-  <!-- Sin resultados -->
-  <div *ngIf="!loading && productos.length === 0" class="no-data">
-    <mat-icon class="no-data-icon">inventory_2</mat-icon>
-    <h3>No hay productos registrados</h3>
-    <p>Comienza agregando tu primer producto al sistema</p>
-    <button mat-flat-button color="primary" (click)="openProductoForm()">
-      <mat-icon>add</mat-icon>
-      Agregar primer producto
-    </button>
-  </div>
+  <!-- Paginador -->
+  <mat-paginator [length]="totalItems"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="pageSizeOptions"
+                 (page)="onPageChange($event)"
+                 showFirstLastButtons
+                 [hidden]="totalItems === 0">
+  </mat-paginator>
 </div>

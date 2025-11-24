@@ -1,50 +1,83 @@
-<h2 mat-dialog-title class="dialog-title">
-  Receta: {{ recetaNombre }}
-</h2>
-
-<mat-dialog-content class="dialog-content">
-
-  <!-- Loading spinner -->
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner diameter="50"></mat-spinner>
+<div class="dialog-container">
+  
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="m-0 d-flex align-items-center">
+      <mat-icon class="me-2 header-icon">restaurant_menu</mat-icon>
+      {{ recetaNombre || 'Cargando...' }}
+    </h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="!loading && error" class="error-text">
-    <mat-card>
-      <mat-card-content>
-        <p>{{ error }}</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <mat-dialog-content class="dialog-content">
 
-  <!-- Receta info -->
-  <div *ngIf="!loading && !error">
-    <mat-card class="detalle-card">
-      <mat-card-content>
-        <p><strong>Descripción:</strong> {{ recetaDescripcion }}</p>
-        <p><strong>Tiempo de preparación:</strong> {{ recetaTiempo }}</p>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Detalles de la receta -->
-    <div *ngIf="detalles.length > 0; else sinDetalles">
-      <mat-card *ngFor="let d of detalles" class="detalle-card">
-        <mat-card-content>
-          <p><strong>Ingrediente:</strong> {{ d.nombre_ingrediente }}</p>
-          <p><strong>Cantidad:</strong> {{ d.Cantidad }}</p>
-          <p><strong>Uso:</strong> {{ d.Uso }}</p>
-        </mat-card-content>
-      </mat-card>
+    <!-- Loading -->
+    <div *ngIf="loading" class="spinner-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-3 text-secondary">Cargando ingredientes...</p>
     </div>
 
-    <ng-template #sinDetalles>
-      <p class="text-gray-500 text-center">No hay detalles disponibles para esta receta.</p>
-    </ng-template>
-  </div>
+    <!-- Error -->
+    <div *ngIf="!loading && error" class="error-state">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ error }}</p>
+    </div>
 
-</mat-dialog-content>
+    <!-- Contenido -->
+    <div *ngIf="!loading && !error">
+      
+      <!-- Info General -->
+      <div class="info-section">
+        <div class="info-item">
+          <mat-icon class="info-icon">description</mat-icon>
+          <div>
+            <span class="label">Descripción</span>
+            <p class="value">{{ recetaDescripcion }}</p>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <mat-icon class="info-icon">timer</mat-icon>
+          <div>
+            <span class="label">Tiempo de Preparación</span>
+            <p class="value fw-bold">{{ recetaTiempo }}</p>
+          </div>
+        </div>
+      </div>
 
-<mat-dialog-actions align="end">
-  <button mat-raised-button color="primary" (click)="close()">Cerrar</button>
-</mat-dialog-actions>
+      <mat-divider></mat-divider>
+
+      <!-- Lista de Ingredientes -->
+      <h3 class="section-title mt-3 mb-2">
+        <mat-icon inline>kitchen</mat-icon> Ingredientes ({{ detalles.length }})
+      </h3>
+
+      <div class="ingredientes-list">
+        <div *ngIf="detalles.length === 0" class="empty-state">
+          No hay ingredientes registrados para esta receta.
+        </div>
+
+        <mat-list>
+          <mat-list-item *ngFor="let d of detalles" class="ingrediente-item">
+            <mat-icon matListItemIcon class="bullet-icon">fiber_manual_record</mat-icon>
+            <div matListItemTitle class="fw-medium">
+              {{ d.Nombre_Insumo }}
+            </div>
+            <div matListItemLine class="text-secondary">
+              Cantidad: <span class="text-dark fw-bold">{{ d.Cantidad }} {{ d.Unidad_Med }}</span>
+              <span *ngIf="d.Uso" class="ms-2 fst-italic text-muted">— {{ d.Uso }}</span>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button (click)="close()">Cerrar</button>
+  </mat-dialog-actions>
+</div>

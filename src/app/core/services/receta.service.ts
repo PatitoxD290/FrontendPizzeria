@@ -1,55 +1,68 @@
-// src/app/dashboard/services/receta.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Receta, RecetaDetalle} from '../models/receta.model';
+// ⚠️ Asegúrate de importar el DTO
+import { Receta, RecetaDetalle, RecetaCreacionDTO } from '../../core/models/receta.model';
 
+// Interfaz específica para la respuesta del backend que trae todo junto
+export interface RecetaCompletaResponse {
+  receta: Receta;
+  detalles: RecetaDetalle[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecetaService {
-  private apiUrl = 'http://localhost:3000/api/v2'; // raíz de la API
+  // Ajusta la URL base para apuntar al recurso recetas
+  private apiUrl = 'http://localhost:3000/api/v2/recetas'; 
+  // URL auxiliar para detalles sueltos (si el backend lo separó)
+  private apiUrlDetalles = 'http://localhost:3000/api/v2/detalle-receta';
 
   constructor(private http: HttpClient) {}
 
-  // 📘 Obtener todas las recetas
+  // =========================================
+  // 📘 LECTURA
+  // =========================================
+
+  // Obtener todas las recetas (Solo cabeceras)
   getRecetas(): Observable<Receta[]> {
-    return this.http.get<Receta[]>(`${this.apiUrl}/recetas`);
+    return this.http.get<Receta[]>(this.apiUrl);
   }
 
-  // 📗 Obtener receta con sus detalles
-  getRecetaDetalle(id: number): Observable<{ receta: Receta, detalles: RecetaDetalle[] }> {
-    return this.http.get<{ receta: Receta, detalles: RecetaDetalle[] }>(`${this.apiUrl}/recetas/${id}`);
+  // Obtener una receta específica con sus detalles
+  // El backend devuelve un objeto { receta: {...}, detalles: [...] }
+  getRecetaCompleta(id: number): Observable<RecetaCompletaResponse> {
+    return this.http.get<RecetaCompletaResponse>(`${this.apiUrl}/${id}`);
   }
 
-  // 📗 Crear receta con detalles
-  createRecetaConDetalle(data: {
-    Nombre: string;
-    Descripcion?: string;
-    Tiempo_Preparacion?: string;
-    Detalles: RecetaDetalle[];
-  }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/recetas`, data);
-  }
-
-  // 📙 Actualizar receta (y/o sus detalles)
-  updateReceta(id: number, data: {
-    Nombre?: string;
-    Descripcion?: string;
-    Tiempo_Preparacion?: string;
-    Detalles?: RecetaDetalle[];
-  }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/recetas/${id}`, data);
-  }
-
-  // 📕 Eliminar receta (y sus detalls)
-  deleteReceta(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/recetas/${id}`);
-  }
-
-  // 📒 Obtener los detalles de una receta específica
+  // Obtener SOLO los detalles (ingredientes) de una receta
   getDetallesPorReceta(recetaId: number): Observable<RecetaDetalle[]> {
-    return this.http.get<RecetaDetalle[]>(`${this.apiUrl}/detalle-receta/por-receta/${recetaId}`);
+    // Asegúrate que esta ruta coincida con tu backend (recetas.controller.js > getDetallesPorReceta)
+    // En el backend que hicimos era: /api/v2/recetas/:id/detalles o similar.
+    // Si usaste la ruta separada:
+    return this.http.get<RecetaDetalle[]>(`${this.apiUrlDetalles}/por-receta/${recetaId}`);
+  }
+
+  // =========================================
+  // 📗 ESCRITURA (Usando DTOs)
+  // =========================================
+
+  // Crear receta (El DTO asegura que Tiempo_Preparacion sea number)
+  createReceta(recetaData: RecetaCreacionDTO): Observable<any> {
+    return this.http.post(this.apiUrl, recetaData);
+  }
+
+  // Actualizar receta
+  updateReceta(id: number, recetaData: Partial<RecetaCreacionDTO>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, recetaData);
+  }
+
+  // =========================================
+  // 📕 ELIMINAR
+  // =========================================
+
+  deleteReceta(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

@@ -1,12 +1,19 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule,NgIf, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// Modelos
 import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
+import { CategoriaProducto } from '../../../../core/models/categoria.model';
+import { Receta } from '../../../../core/models/receta.model';
+import { Tamano } from '../../../../core/models/tamano.model';
+
+// Servicios
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { RecetaService } from '../../../../core/services/receta.service';
 import { TamanoService } from '../../../../core/services/tamano.service';
-import { Tamano } from '../../../../core/models/tamano.model';
+
 import Swal from 'sweetalert2';
 
 // Angular Material
@@ -17,6 +24,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-producto-form',
@@ -30,22 +39,31 @@ import { MatIconModule } from '@angular/material/icon';
     MatInputModule,
     MatSelectModule,
     MatOptionModule,
-    MatIconModule
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './producto-form.component.html',
   styleUrls: ['./producto-form.component.css']
 })
 export class ProductoFormComponent implements OnInit {
+  
   producto: Producto;
-  CategoriaProducto: any[] = [];
-  Receta: any[] = [];
+  
+  // Listas para selects
+  categorias: CategoriaProducto[] = [];
+  recetas: Receta[] = [];
   todosLosTamanos: Tamano[] = [];
   
-  // Array para manejar múltiples tamaños con precios
+  // Array local para manejar la configuración de precios
   tamanosConPrecio: ProductoTamano[] = [];
   
+  // Manejo de Imágenes
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
+  
+  // Estado UI
+  guardando: boolean = false;
 
   constructor(
     private productoService: ProductoService,
@@ -55,16 +73,23 @@ export class ProductoFormComponent implements OnInit {
     private dialogRef: MatDialogRef<ProductoFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { producto?: Producto }
   ) {
-    this.producto = data?.producto ? { ...data.producto } : {
-      ID_Producto: 0,
-      Nombre: '',
-      Descripcion: '',
-      ID_Categoria_P: 0,
-      ID_Receta: null,
-      Cantidad_Disponible: 0,
-      Estado: 'A',
-      Fecha_Registro: new Date().toISOString()
-    };
+    // Inicializar producto (Edición o Nuevo)
+    if (data?.producto) {
+      this.producto = { ...data.producto };
+      // Si hay imagen existente, podrías asignarla para visualización (opcional)
+      // this.imagePreview = ... 
+    } else {
+      this.producto = {
+        ID_Producto: 0,
+        Nombre: '',
+        Descripcion: '',
+        ID_Categoria_P: 0,
+        ID_Receta: null,
+        Cantidad_Disponible: 0,
+        Estado: 'A',
+        Fecha_Registro: new Date().toISOString()
+      };
+    }
   }
 
   ngOnInit(): void {
@@ -73,86 +98,108 @@ export class ProductoFormComponent implements OnInit {
     this.loadTamanos();
   }
 
+  // =========================================
+  // 📥 CARGA DE DATOS
+  // =========================================
+
   loadCategorias() {
     this.categoriaService.getCategoriasProducto().subscribe({
-      next: (data) => (this.CategoriaProducto = data),
+      next: (data) => (this.categorias = data),
       error: (err) => console.error('Error al cargar categorías', err)
     });
   }
 
   loadRecetas() {
     this.recetaService.getRecetas().subscribe({
-      next: (data) => (this.Receta = data),
+      next: (data) => (this.recetas = data),
       error: (err) => console.error('Error al cargar recetas', err)
     });
   }
 
-loadTamanos() {
-  this.tamanoService.getTamanos().subscribe({
-    next: (data) => {
-      this.todosLosTamanos = data;
-      
-      // Si es edición y el producto tiene tamaños, cargarlos
-      if (this.producto.tamanos && this.producto.tamanos.length > 0) {
-        this.tamanosConPrecio = this.producto.tamanos.map(t => ({
-          ...t,
-          nombre_tamano: this.getNombreTamano(t.ID_Tamano)
-        }));
-      } else {
-        // Si es nuevo, agregar un tamaño por defecto
-        this.agregarTamano();
-      }
-    },
-    error: (err) => console.error('Error al cargar tamaños', err)
-  });
-}
+  loadTamanos() {
+    this.tamanoService.getTamanos().subscribe({
+      next: (data) => {
+        this.todosLosTamanos = data;
+        this.inicializarTamanosProducto();
+      },
+      error: (err) => console.error('Error al cargar tamaños', err)
+    });
+  }
+
+  inicializarTamanosProducto() {
+    // Si es edición y tiene tamaños, cargarlos
+    if (this.producto.tamanos && this.producto.tamanos.length > 0) {
+      // Clonar para no mutar el original hasta guardar
+      this.tamanosConPrecio = this.producto.tamanos.map(t => ({
+        ...t,
+        nombre_tamano: this.getNombreTamano(t.ID_Tamano)
+      }));
+    } else {
+      // Si es nuevo o no tiene, agregar una fila vacía por defecto
+      this.agregarTamano();
+    }
+  }
+
+  // =========================================
+  // 📏 GESTIÓN DE TAMAÑOS
+  // =========================================
 
   getNombreTamano(idTamano: number): string {
     return this.todosLosTamanos.find(t => t.ID_Tamano === idTamano)?.Tamano || '';
   }
 
-  // Agregar un nuevo tamaño
   agregarTamano() {
+    // Buscar el primer tamaño que NO esté seleccionado todavía
+    const primerDisponible = this.todosLosTamanos.find(t => 
+      !this.tamanosConPrecio.some(tp => tp.ID_Tamano === t.ID_Tamano)
+    );
+    
+    const idInicial = primerDisponible ? primerDisponible.ID_Tamano : (this.todosLosTamanos[0]?.ID_Tamano || 0);
+
     const nuevoTamano: ProductoTamano = {
       ID_Producto_T: 0,
       ID_Producto: this.producto.ID_Producto,
-      ID_Tamano: this.todosLosTamanos.length > 0 ? this.todosLosTamanos[0].ID_Tamano : 0,
+      ID_Tamano: idInicial,
       Precio: 0,
       Estado: 'A',
       Fecha_Registro: new Date().toISOString(),
-      nombre_tamano: this.todosLosTamanos.length > 0 ? this.todosLosTamanos[0].Tamano : ''
+      nombre_tamano: this.getNombreTamano(idInicial)
     };
+    
     this.tamanosConPrecio.push(nuevoTamano);
   }
 
-  // Eliminar un tamaño
   eliminarTamano(index: number) {
     if (this.tamanosConPrecio.length > 1) {
       this.tamanosConPrecio.splice(index, 1);
     } else {
       Swal.fire({
         icon: 'warning',
-        title: 'No se puede eliminar',
-        text: 'Debe haber al menos un tamaño para el producto.',
+        title: 'Atención',
+        text: 'El producto debe tener al menos un tamaño y precio.',
         confirmButtonColor: '#3085d6'
       });
     }
   }
 
-  // Verificar si un tamaño ya está seleccionado en otros campos
+  // Verificar si un tamaño ya está seleccionado en OTRA fila
   isTamanoDisponible(tamanoId: number, currentIndex: number): boolean {
     return !this.tamanosConPrecio.some((tamano, index) => 
       index !== currentIndex && tamano.ID_Tamano === tamanoId
     );
   }
 
-  // Cuando cambia la selección de tamaño
+  // Actualizar nombre visual al cambiar el select
   onTamanoChange(tamanoId: number, index: number) {
     const tamanoSeleccionado = this.todosLosTamanos.find(t => t.ID_Tamano === tamanoId);
     if (tamanoSeleccionado) {
       this.tamanosConPrecio[index].nombre_tamano = tamanoSeleccionado.Tamano;
     }
   }
+
+  // =========================================
+  // 🖼️ IMÁGENES
+  // =========================================
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -163,137 +210,94 @@ loadTamanos() {
         this.imagePreview = e.target?.result || null;
       };
       reader.readAsDataURL(file);
-    } else {
-      this.selectedFile = null;
-      this.imagePreview = null;
     }
   }
 
-  // Método para quitar imagen
   removeImage() {
     this.selectedFile = null;
     this.imagePreview = null;
-    
-    // También limpia el input file
-    const fileInput = document.getElementById('file') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   }
 
+  // =========================================
+  // 💾 GUARDAR
+  // =========================================
+
   saveProducto() {
-    // Capitalizar nombre
-    if (this.producto.Nombre) {
-      this.producto.Nombre = this.capitalizeWords(this.producto.Nombre.trim());
-    }
-
-    // Validar campos obligatorios
-    if (!this.producto.Nombre || !this.producto.ID_Categoria_P) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos incompletos',
-        text: 'Por favor completa los campos obligatorios: nombre y categoría.',
-        confirmButtonColor: '#3085d6'
-      });
+    // 1. Validaciones
+    if (!this.producto.Nombre?.trim() || !this.producto.ID_Categoria_P) {
+      Swal.fire('Campos incompletos', 'Nombre y Categoría son obligatorios.', 'warning');
       return;
     }
 
-    // Validar que la cantidad disponible no sea negativa
     if (this.producto.Cantidad_Disponible < 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Cantidad inválida',
-        text: 'La cantidad disponible no puede ser negativa.',
-        confirmButtonColor: '#3085d6'
-      });
+      Swal.fire('Error', 'La cantidad no puede ser negativa.', 'error');
       return;
     }
 
-    // Validar que haya al menos un tamaño
-    if (this.tamanosConPrecio.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sin tamaños',
-        text: 'Debes agregar al menos un tamaño para el producto.',
-        confirmButtonColor: '#3085d6'
-      });
+    // Validar tamaños
+    const preciosValidos = this.tamanosConPrecio.every(t => t.Precio > 0);
+    if (!preciosValidos) {
+      Swal.fire('Precios inválidos', 'Todos los tamaños deben tener un precio mayor a 0.', 'warning');
       return;
     }
 
-    // Validar que todos los tamaños tengan precio válido
-    const tamanosValidos = this.tamanosConPrecio.filter(t => t.Precio > 0);
-    if (tamanosValidos.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Precios inválidos',
-        text: 'Todos los tamaños deben tener un precio mayor a 0.',
-        confirmButtonColor: '#3085d6'
-      });
+    // Validar duplicados (backup)
+    const ids = this.tamanosConPrecio.map(t => t.ID_Tamano);
+    if (new Set(ids).size !== ids.length) {
+      Swal.fire('Duplicados', 'No puedes tener el mismo tamaño repetido.', 'error');
       return;
     }
 
-    // Validar que no haya tamaños duplicados
-    const tamanosIds = this.tamanosConPrecio.map(t => t.ID_Tamano);
-    const tieneDuplicados = new Set(tamanosIds).size !== tamanosIds.length;
-    if (tieneDuplicados) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Tamaños duplicados',
-        text: 'No puedes seleccionar el mismo tamaño más de una vez.',
-        confirmButtonColor: '#3085d6'
-      });
-      return;
-    }
+    this.guardando = true;
 
-    // Preparar FormData
+    // 2. Preparar FormData
     const formData = new FormData();
     
-    // Datos del producto
-    formData.append('Nombre', this.producto.Nombre);
+    // Campos simples
+    formData.append('Nombre', this.producto.Nombre.trim());
     formData.append('Descripcion', this.producto.Descripcion || '');
     formData.append('ID_Categoria_P', String(this.producto.ID_Categoria_P));
-    formData.append('ID_Receta', this.producto.ID_Receta ? String(this.producto.ID_Receta) : '');
+    // Enviar ID_Receta solo si no es null
+    if (this.producto.ID_Receta) formData.append('ID_Receta', String(this.producto.ID_Receta));
     formData.append('Cantidad_Disponible', String(this.producto.Cantidad_Disponible));
     formData.append('Estado', this.producto.Estado);
-    
-    // Agregar tamaños como JSON string
-    formData.append('Producto_Tamano', JSON.stringify(tamanosValidos));
-    
-    // Agregar imagen si existe
+
+    // 3. Array de Tamaños -> JSON String
+    const tamanosLimpios = this.tamanosConPrecio.map(t => ({
+      ID_Tamano: t.ID_Tamano,
+      Precio: Number(t.Precio)
+    }));
+    formData.append('Producto_Tamano', JSON.stringify(tamanosLimpios));
+
+    // 4. Imagen
     if (this.selectedFile) {
       formData.append('file', this.selectedFile);
     }
 
-    // Debug
-    console.log('Datos a enviar:');
-    console.log('Producto:', this.producto);
-    console.log('Tamaños válidos:', tamanosValidos);
-
-    // Enviar
+    // 5. Enviar al servicio
     if (!this.producto.ID_Producto || this.producto.ID_Producto === 0) {
+      // CREAR
       this.productoService.createProductoFormData(formData).subscribe({
-        next: () => this.handleSuccess('Producto creado', 'El producto se registró correctamente.'),
+        next: () => this.handleSuccess('Producto creado correctamente'),
         error: (err) => this.handleError('crear', err)
       });
     } else {
+      // ACTUALIZAR
       this.productoService.updateProductoFormData(this.producto.ID_Producto, formData).subscribe({
-        next: () => this.handleSuccess('Producto actualizado', 'El producto fue actualizado correctamente.'),
+        next: () => this.handleSuccess('Producto actualizado correctamente'),
         error: (err) => this.handleError('actualizar', err)
       });
     }
   }
 
-  private capitalizeWords(text: string): string {
-    return text
-      .toLowerCase()
-      .replace(/\b\w/g, (char) => char.toUpperCase());
-  }
-
-  private handleSuccess(title: string, text: string) {
+  private handleSuccess(msg: string) {
+    this.guardando = false;
     Swal.fire({
       icon: 'success',
-      title,
-      text,
+      title: '¡Éxito!',
+      text: msg,
       timer: 1500,
       showConfirmButton: false
     });
@@ -301,13 +305,9 @@ loadTamanos() {
   }
 
   private handleError(action: string, err: any) {
-    console.error(`Error al ${action} producto`, err);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: `No se pudo ${action} el producto.`,
-      confirmButtonColor: '#d33'
-    });
+    this.guardando = false;
+    console.error(`Error al ${action} producto:`, err);
+    Swal.fire('Error', `No se pudo ${action} el producto.`, 'error');
   }
 
   close() {

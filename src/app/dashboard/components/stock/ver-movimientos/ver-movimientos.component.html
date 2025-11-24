@@ -1,0 +1,81 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="m-0">
+      <mat-icon class="header-icon">history</mat-icon>
+      Historial de Movimientos
+    </h2>
+    <div class="stock-summary">
+      <span class="lote">Lote #{{ data.stock.ID_Stock }}</span>
+      <span class="insumo">{{ data.stock.Nombre_Insumo }}</span>
+    </div>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando historial...</p>
+    </div>
+
+    <div *ngIf="!loading && movimientos.length === 0" class="empty-state">
+      <mat-icon>history_toggle_off</mat-icon>
+      <p>No hay movimientos registrados para este lote.</p>
+    </div>
+
+    <table mat-table [dataSource]="movimientos" class="w-100" *ngIf="!loading && movimientos.length > 0">
+
+      <!-- Fecha -->
+      <ng-container matColumnDef="Fecha">
+        <th mat-header-cell *matHeaderCellDef> Fecha </th>
+        <td mat-cell *matCellDef="let row"> {{ row.Fecha_Mov | date:'dd/MM/yy HH:mm' }} </td>
+      </ng-container>
+
+      <!-- Tipo -->
+      <ng-container matColumnDef="Tipo">
+        <th mat-header-cell *matHeaderCellDef> Tipo </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-chip [color]="getTipoColor(row.Tipo_Mov)" selected class="tipo-chip">
+            <mat-icon class="chip-icon">{{ getTipoIcon(row.Tipo_Mov) }}</mat-icon>
+            {{ row.Tipo_Mov }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Cantidad -->
+      <ng-container matColumnDef="Cantidad">
+        <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+        <td mat-cell *matCellDef="let row" class="font-weight-bold"> 
+          {{ row.Cantidad }} 
+        </td>
+      </ng-container>
+
+      <!-- Stock Resultante -->
+      <ng-container matColumnDef="Stock_Resultante">
+        <th mat-header-cell *matHeaderCellDef> Stock Final </th>
+        <td mat-cell *matCellDef="let row" class="text-muted"> 
+          {{ row.Stock_ACT }} 
+        </td>
+      </ng-container>
+
+      <!-- Motivo -->
+      <ng-container matColumnDef="Motivo">
+        <th mat-header-cell *matHeaderCellDef> Motivo </th>
+        <td mat-cell *matCellDef="let row"> {{ row.Motivo || '---' }} </td>
+      </ng-container>
+
+      <!-- Usuario -->
+      <ng-container matColumnDef="Usuario">
+        <th mat-header-cell *matHeaderCellDef> Usuario </th>
+        <td mat-cell *matCellDef="let row"> ID: {{ row.Usuario_ID || '?' }} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button color="primary" (click)="close()">Cerrar</button>
+  </mat-dialog-actions>
+</div>

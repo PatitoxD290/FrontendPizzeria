@@ -1,16 +1,20 @@
-// src/app/dashboard/services/proveedor.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Proveedor } from '../models/proveedor.model';
+// ⚠️ Asegúrate de importar el DTO
+import { Proveedor, ProveedorDTO } from '../../core/models/proveedor.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProveedorService {
-  private apiUrl = 'http://localhost:3000/api/v2/proveedores'; // Ajusta el puerto si tu backend usa otro
+  private apiUrl = 'http://localhost:3000/api/v2/proveedores';
 
   constructor(private http: HttpClient) {}
+
+  // =========================================
+  // 📘 LECTURA
+  // =========================================
 
   // Obtener todos los proveedores
   getProveedores(): Observable<Proveedor[]> {
@@ -22,23 +26,32 @@ export class ProveedorService {
     return this.http.get<Proveedor>(`${this.apiUrl}/${id}`);
   }
 
+  // =========================================
+  // 📗 ESCRITURA (Usando DTOs)
+  // =========================================
+
   // Crear proveedor
-  createProveedor(proveedor: Proveedor): Observable<any> {
+  createProveedor(proveedor: ProveedorDTO): Observable<any> {
     return this.http.post(this.apiUrl, proveedor);
   }
 
   // Actualizar proveedor
-  updateProveedor(id: number, proveedor: Proveedor): Observable<any> {
+  updateProveedor(id: number, proveedor: Partial<ProveedorDTO>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, proveedor);
   }
+
+  // =========================================
+  // 📕 ELIMINAR / ESTADO
+  // =========================================
 
   // Eliminar proveedor
   deleteProveedor(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  // ✅ NUEVO: Cambiar estado del proveedor (A=Activo, I=Inactivo)
+  // Cambiar estado del proveedor (A=Activo, I=Inactivo)
   statusProveedor(id: number, estado: 'A' | 'I'): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/estado`, { Estado: estado });
+    // Nota: Estandaricé la ruta a '/status' para que coincida con los otros servicios
+    return this.http.patch(`${this.apiUrl}/${id}/status`, { Estado: estado });
   }
 }

@@ -1,16 +1,19 @@
-// src/app/dashboard/services/cliente.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Cliente } from '../models/cliente.model';
+import { Cliente, ClienteDTO, ClientePuntos } from '../../core/models/cliente.model'; // ⚠️ Ajusta la ruta
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrl = 'http://localhost:3000/api/v2/clientes'; // Ajusta el puerto según tu backend
+  private apiUrl = 'http://localhost:3000/api/v2/clientes';
 
   constructor(private http: HttpClient) {}
+
+  // =========================================
+  // 📘 LECTURA
+  // =========================================
 
   // Obtener todos los clientes
   getClientes(): Observable<Cliente[]> {
@@ -22,14 +25,17 @@ export class ClienteService {
     return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
   }
 
-  // Crear cliente
-  createCliente(cliente: Partial<Cliente>): Observable<Cliente> {
-  return this.http.post<Cliente>(this.apiUrl, cliente);
-}
+  // =========================================
+  // 📗 ESCRITURA (Usando DTOs)
+  // =========================================
 
+  // Crear cliente
+  createCliente(cliente: ClienteDTO): Observable<Cliente> {
+    return this.http.post<Cliente>(this.apiUrl, cliente);
+  }
 
   // Actualizar cliente
-  updateCliente(id: number, cliente: Cliente): Observable<any> {
+  updateCliente(id: number, cliente: ClienteDTO): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, cliente);
   }
 
@@ -38,10 +44,18 @@ export class ClienteService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  // ============================
-  // 🔍 Buscar cliente por DNI o RUC
-  // ============================
+  // =========================================
+  // 🔍 BÚSQUEDA Y EXTRAS
+  // =========================================
+
+  // Buscar cliente por DNI o RUC (Consulta externa + interna)
   buscarClientePorDocumento(doc: string): Observable<any> {
+    // Retorna { message: string, cliente: Cliente }
     return this.http.get<any>(`${this.apiUrl}/buscar/${doc}`);
+  }
+
+  // 🌟 Obtener puntos de fidelidad (NUEVO)
+  getPuntosCliente(id: number): Observable<ClientePuntos> {
+    return this.http.get<ClientePuntos>(`${this.apiUrl}/${id}/puntos`);
   }
 }

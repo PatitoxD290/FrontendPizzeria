@@ -1,57 +1,97 @@
-<!-- Buscador -->
-<div class="buscador-container">
-  <mat-icon>search</mat-icon>
-  <input type="text" placeholder="Buscar por nombre, categoría o descripción..." [(ngModel)]="terminoBusqueda" (input)="buscarProducto()" />
-</div>
+<div class="menu-container">
+  
+  <!-- 🔍 Barra de Búsqueda -->
+  <div class="search-section">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input 
+        type="text" 
+        placeholder="¿Qué desea ordenar hoy?" 
+        [(ngModel)]="terminoBusqueda" 
+        (keyup)="buscarProducto()">
+      <button *ngIf="terminoBusqueda" mat-icon-button (click)="terminoBusqueda=''; buscarProducto()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
 
-<!-- Botones de categorías -->
-<div class="categorias-container">
-  <button mat-raised-button color="{{ categoriaSeleccionada === null ? 'primary' : '' }}" (click)="filtrarPorCategoria(null)">
-    Todos
-  </button>
-  <button *ngFor="let cat of categorias" mat-raised-button [color]="categoriaSeleccionada === cat.ID_Categoria_P ? 'primary' : ''" (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
-    {{ cat.Nombre }}
-  </button>
-</div>
+  <!-- 🏷️ Categorías (Scroll Horizontal) -->
+  <div class="categories-scroll">
+    <mat-chip-listbox class="mat-mdc-chip-set-stacked">
+      <mat-chip-option 
+        [selected]="categoriaSeleccionada === null" 
+        (click)="filtrarPorCategoria(null)"
+        color="accent">
+        Todos
+      </mat-chip-option>
+      <mat-chip-option 
+        *ngFor="let cat of categorias" 
+        [selected]="categoriaSeleccionada === cat.ID_Categoria_P"
+        (click)="filtrarPorCategoria(cat.ID_Categoria_P)"
+        color="primary">
+        {{ cat.Nombre }}
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
 
-<!-- 🔹 CAMBIO: LISTA DE PRODUCTOS GENERALES -->
-<div class="menu-scroll">
-  <mat-card *ngFor="let producto of paginatedProductos" 
-            class="producto-card"
-            (click)="abrirModalCantidad(producto)">
+  <!-- 🌀 Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- 📦 Grid de Productos -->
+  <div *ngIf="!loading" class="products-grid" id="menu-grid">
     
-    <mat-card-header>
-      <mat-card-title>{{ producto.Nombre }}</mat-card-title>
-      <mat-card-subtitle>
-        <span class="categoria">{{ producto.nombre_categoria }}</span>
-        <!-- 🔹 INDICADOR DE TAMAÑOS DISPONIBLES -->
-        <span *ngIf="tieneMultiplesTamanos(producto)" class="multiples-tamanos">• {{ getTamanosDisponibles(producto) }} tamaños</span>
-        <span *ngIf="!tieneMultiplesTamanos(producto)" class="tamano-unico">• 1 tamaño</span>
-      </mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <p class="descripcion">{{ producto.Descripcion }}</p>
+    <mat-card 
+      *ngFor="let producto of paginatedProductos" 
+      class="product-card" 
+      (click)="seleccionarProducto(producto)"
+      [class.disabled]="producto.Cantidad_Disponible === 0">
       
-      <!-- 🔹 PRECIO MÍNIMO -->
-      <div class="precio-container">
-        <span *ngIf="tieneMultiplesTamanos(producto)" class="precio-desde">Desde: </span>
-        <span class="precio">S/ {{ getPrecioMinimo(producto) | number:'1.2-2' }}</span>
+      <div class="card-image">
+        <img [src]="getProductoImage(producto)" [alt]="producto.Nombre" (error)="onImageError($event)">
+        <div class="stock-badge" *ngIf="producto.Cantidad_Disponible > 0 && producto.Cantidad_Disponible <= 5">
+          ¡Quedan {{producto.Cantidad_Disponible}}!
+        </div>
+        <div class="agotado-overlay" *ngIf="producto.Cantidad_Disponible === 0">
+          <span>AGOTADO</span>
+        </div>
       </div>
 
-      <!-- 🔹 Información adicional del producto -->
-      <div class="info-adicional">
-        <small>Disponible • {{ producto.Cantidad_Disponible || 0 }} unidades</small>
-      </div>
+      <mat-card-content class="card-content">
+        <h3 class="product-title">{{ producto.Nombre }}</h3>
+        <p class="product-category">{{ producto.nombre_categoria }}</p>
+        
+        <div class="product-footer">
+          <span class="price-tag">{{ getPrecioDisplay(producto) }}</span>
+          <span class="size-tag">{{ getInfoTamanos(producto) }}</span>
+        </div>
+      </mat-card-content>
 
-    </mat-card-content>
-  </mat-card>
+      <div class="card-action-overlay">
+        <button mat-mini-fab color="accent">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </mat-card>
+
+    <!-- Empty State -->
+    <div *ngIf="paginatedProductos.length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No encontramos productos con esa búsqueda.</p>
+      <button mat-button color="primary" (click)="filtrarPorCategoria(null); terminoBusqueda=''">Ver todo el menú</button>
+    </div>
+
+  </div>
+
+  <!-- 📄 Paginación -->
+  <mat-paginator 
+    [length]="productosFiltrados.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPageChange($event)"
+    [hidden]="productosFiltrados.length === 0"
+    class="custom-paginator">
+  </mat-paginator>
+
 </div>
-
-<!-- 🔹 Paginador Angular Material -->
-<mat-paginator a
-  [length]="productosFiltrados.length" 
-  [pageSize]="pageSize" 
-  [pageSizeOptions]="[3, 6, 9, 12]" 
-  (page)="onPageChange($event)">
-</mat-paginator>

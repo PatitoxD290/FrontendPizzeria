@@ -1,5 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+// Angular Material
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -11,13 +14,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatChipsModule } from '@angular/material/chips';
+
+// Models & Services
 import { Stock } from '../../../../core/models/stock.model';
-import { Insumo } from '../../../../core/models/ingrediente.model';
+import { Insumo } from '../../../../core/models/insumo.model';
 import { Proveedor } from '../../../../core/models/proveedor.model';
 import { StockService } from '../../../../core/services/stock.service';
-import { IngredienteService } from '../../../../core/services/ingrediente.service';
+import { InsumoService } from '../../../../core/services/insumo.service'; 
 import { ProveedorService } from '../../../../core/services/proveedor.service';
 import { StockFormComponent } from '../stock-form/stock-form.component';
+// 👇 IMPORTANTE: Importar el nuevo componente
+import { VerMovimientosComponent } from '../ver-movimientos/ver-movimientos.component';
 
 // PDF
 import jsPDF from 'jspdf';
@@ -25,10 +34,10 @@ import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-stock-list',
-  templateUrl: './stock-list.component.html',
-  styleUrls: ['./stock-list.component.css'],
+  standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -39,41 +48,45 @@ import autoTable from 'jspdf-autotable';
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
-  ]
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatChipsModule
+  ],
+  templateUrl: './stock-list.component.html',
+  styleUrls: ['./stock-list.component.css']
 })
-export class StockListComponent implements OnInit {
+export class StockListComponent implements OnInit, AfterViewInit {
+  
   displayedColumns: string[] = [
     'ID_Stock', 
     'Nombre_Insumo',
     'Nombre_Proveedor',
     'Cantidad_Recibida', 
-    'Costo_Unitario', 
+    'Nivel_Stock', 
     'Costo_Total', 
     'Fecha_Entrada', 
     'Fecha_Vencimiento', 
-    'Estado',
     'acciones'
   ];
   
   dataSource = new MatTableDataSource<Stock>();
   loading = false;
-  insumos: Insumo[] = [];
+  
   proveedores: Proveedor[] = [];
+  insumos: Insumo[] = []; 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private stockService: StockService,
-    private ingredienteService: IngredienteService,
+    private insumoService: InsumoService,
     private proveedorService: ProveedorService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
-    this.loadInsumos();
     this.loadProveedores();
     this.loadStocks();
   }
@@ -82,314 +95,143 @@ export class StockListComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     
-    // Filtro personalizado que busca en los nombres
     this.dataSource.filterPredicate = (data: Stock, filter: string) => {
       const searchStr = filter.toLowerCase();
-      const insumoNombre = this.getNombreInsumo(data.ID_Insumo).toLowerCase();
-      const proveedorNombre = this.getNombreProveedor(data.ID_Proveedor).toLowerCase();
+      const insumo = data.Nombre_Insumo?.toLowerCase() || '';
+      const proveedor = this.getNombreProveedor(data.ID_Proveedor).toLowerCase();
+      const estadoLlenado = data.Estado_Llenado?.toLowerCase() || '';
       
-      return insumoNombre.includes(searchStr) || 
-             proveedorNombre.includes(searchStr) ||
-             data.Cantidad_Recibida.toString().includes(searchStr) ||
-             data.Costo_Unitario.toString().includes(searchStr);
+      return insumo.includes(searchStr) || 
+             proveedor.includes(searchStr) ||
+             estadoLlenado.includes(searchStr) ||
+             data.ID_Stock.toString().includes(searchStr);
     };
   }
 
-  // 📥 Cargar insumos
-  loadInsumos() {
-    this.ingredienteService.getIngredientes().subscribe({
-      next: (insumos) => {
-        this.insumos = insumos;
-      },
-      error: (error) => {
-        console.error('Error loading insumos:', error);
-        this.snackBar.open('Error al cargar los insumos', 'Cerrar', { duration: 3000 });
-      }
-    });
-  }
-
-  // 📥 Cargar proveedores
   loadProveedores() {
     this.proveedorService.getProveedores().subscribe({
-      next: (proveedores) => {
-        this.proveedores = proveedores;
-      },
-      error: (error) => {
-        console.error('Error loading proveedores:', error);
-        this.snackBar.open('Error al cargar los proveedores', 'Cerrar', { duration: 3000 });
-      }
+      next: (data) => this.proveedores = data,
+      error: (err) => console.error('Error loading proveedores', err)
     });
   }
 
-  // 📦 Cargar stocks
   loadStocks() {
     this.loading = true;
     this.stockService.getStocks().subscribe({
-      next: (stocks) => {
-        this.dataSource.data = stocks;
+      next: (data) => {
+        this.dataSource.data = data;
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading stocks:', error);
-        this.snackBar.open('Error al cargar los stocks', 'Cerrar', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading stocks', err);
+        this.showSnackBar('Error al cargar el inventario', 'error');
         this.loading = false;
       }
     });
   }
 
-  // 🔍 Obtener nombre del insumo por ID
-  getNombreInsumo(idInsumo: number): string {
-    const insumo = this.insumos.find(i => i.ID_Insumo === idInsumo);
-    return insumo ? insumo.Nombre : `Insumo #${idInsumo}`;
+  getNombreProveedor(id: number | null | undefined): string {
+    if (!id) return '---';
+    const p = this.proveedores.find(prov => prov.ID_Proveedor === id);
+    return p ? p.Nombre : 'Desconocido';
   }
 
-  // 🔍 Obtener nombre del proveedor por ID
-  getNombreProveedor(idProveedor: number | null): string {
-    if (!idProveedor) return 'No asignado';
-    
-    const proveedor = this.proveedores.find(p => p.ID_Proveedor === idProveedor);
-    return proveedor ? proveedor.Nombre : `Proveedor #${idProveedor}`;
+  getProgressBarColor(porcentaje: number | undefined): string {
+    if (!porcentaje) return 'primary';
+    if (porcentaje <= 10) return 'warn';
+    if (porcentaje <= 30) return 'accent';
+    return 'primary';
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   openMovimientoModal(stock?: Stock) {
     const dialogRef = this.dialog.open(StockFormComponent, {
       width: '600px',
-      data: stock ? { 
-        ID_Stock: stock.ID_Stock,
-        stockData: stock 
-      } : null
+      disableClose: true,
+      data: stock ? { stockData: stock } : null
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadStocks(); // Recargar la lista después de un movimiento
-      }
+      if (result) this.loadStocks();
     });
   }
 
-  getEstadoText(estado: string): string {
-    const estados: { [key: string]: string } = {
-      'A': 'Activo',
-      'I': 'Inactivo',
-      'C': 'Caducado'
-    };
-    return estados[estado] || estado;
+  // ✅ NUEVO: Método para ver historial
+  verMovimientos(stock: Stock) {
+    this.dialog.open(VerMovimientosComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      data: { stock }
+    });
   }
 
-  getEstadoClass(estado: string): string {
-    const clases: { [key: string]: string } = {
-      'A': 'estado-activo',
-      'I': 'estado-inactivo',
-      'C': 'estado-caducado'
-    };
-    return clases[estado] || '';
-  }
-
-  // 🆕 EXPORTAR PDF
   exportarPDF(): void {
     if (this.dataSource.filteredData.length === 0) {
-      this.snackBar.open('No hay datos para generar el reporte PDF', 'Cerrar', { 
-        duration: 3000,
-        panelClass: ['warn-snackbar']
-      });
+      this.showSnackBar('No hay datos para exportar', 'warning');
       return;
     }
 
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    });
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const data = this.dataSource.filteredData;
 
-    const stocks = this.dataSource.filteredData;
-    
-    // Título y cabecera
-    this.agregarCabeceraPDF(doc, stocks.length);
-    
-    // Tabla de datos
-    this.agregarTablaPDF(doc, stocks);
-    
-    // Totales y pie de página
-    this.agregarTotalesPDF(doc, stocks);
-    
-    // Guardar PDF
-    doc.save(`Reporte_Stock_${new Date().toISOString().slice(0, 10)}.pdf`);
-    
-    this.snackBar.open('Reporte PDF generado correctamente', 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-  }
-
-  private agregarCabeceraPDF(doc: jsPDF, totalStocks: number): void {
-    // Fondo decorativo - Naranja para stock/inventario
-    doc.setFillColor(255, 152, 0);
-    doc.rect(0, 0, 297, 30, 'F');
-    
-    // Logo o ícono
-    doc.setFontSize(20);
+    doc.setFillColor(0, 150, 136);
+    doc.rect(0, 0, 297, 25, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.text('📊', 15, 18);
-    
-    // Título principal
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('REPORTE DE INVENTARIO - STOCK', 25, 18);
-    
-    // Información de la empresa
+    doc.setFontSize(18);
+    doc.text('Reporte de Inventario (Stock)', 14, 16);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Sistema de Gestión Comercial', 200, 12);
-    doc.text('Tel: (01) 123-4567', 200, 17);
-    doc.text('Email: info@empresa.com', 200, 22);
-    
-    // Fecha de generación
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
-    doc.text(`Total de registros: ${totalStocks}`, 200, 40);
-  }
+    doc.text(`Generado: ${new Date().toLocaleString()}`, 220, 16);
 
-  private agregarTablaPDF(doc: jsPDF, stocks: Stock[]): void {
-    const headers = [
-      ['ID', 'INSUMO', 'PROVEEDOR', 'CANTIDAD', 'COSTO UNIT.', 'COSTO TOTAL', 'FECHA ENTRADA', 'FECHA VENC.', 'ESTADO']
+    const columns = [
+      'ID', 'Insumo', 'Unidad', 'Proveedor', 'Cantidad', 'Costo Unit.', 'Total', 'Estado Stock', 'Vencimiento'
     ];
 
-    const data = stocks.map(stock => [
-      stock.ID_Stock.toString(),
-      this.getNombreInsumo(stock.ID_Insumo),
-      this.getNombreProveedor(stock.ID_Proveedor),
-      stock.Cantidad_Recibida.toString(),
-      `S/${stock.Costo_Unitario.toFixed(2)}`,
-      `S/${stock.Costo_Total.toFixed(2)}`,
-      this.formatDateForPDF(stock.Fecha_Entrada),
-      stock.Fecha_Vencimiento ? this.formatDateForPDF(stock.Fecha_Vencimiento) : 'No vence',
-      this.getEstadoText(stock.Estado)
+    const rows = data.map(s => [
+      s.ID_Stock.toString(),
+      s.Nombre_Insumo || '',
+      s.Unidad_Med || '',
+      this.getNombreProveedor(s.ID_Proveedor),
+      s.Cantidad_Recibida.toString(),
+      `S/ ${s.Costo_Unitario.toFixed(2)}`,
+      `S/ ${s.Costo_Total.toFixed(2)}`,
+      s.Estado_Llenado || '',
+      s.Fecha_Vencimiento ? new Date(s.Fecha_Vencimiento).toLocaleDateString() : 'N/A'
     ]);
 
     autoTable(doc, {
-      head: headers,
-      body: data,
-      startY: 50,
-      theme: 'grid',
-      styles: {
-        fontSize: 7,
-        cellPadding: 2,
-        lineColor: [200, 200, 200],
-        lineWidth: 0.1
-      },
-      headStyles: {
-        fillColor: [255, 152, 0], // Naranja
-        textColor: 255,
-        fontStyle: 'bold',
-        fontSize: 8
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
+      head: [columns],
+      body: rows,
+      startY: 35,
+      theme: 'striped',
+      headStyles: { fillColor: [0, 150, 136] },
+      styles: { fontSize: 8 },
       columnStyles: {
-        0: { cellWidth: 12, halign: 'center' }, // ID
-        1: { cellWidth: 35 }, // Insumo
-        2: { cellWidth: 35 }, // Proveedor
-        3: { cellWidth: 15, halign: 'center' }, // Cantidad
-        4: { cellWidth: 20, halign: 'right' }, // Costo Unitario
-        5: { cellWidth: 22, halign: 'right', fontStyle: 'bold' }, // Costo Total
-        6: { cellWidth: 25, halign: 'center' }, // Fecha Entrada
-        7: { cellWidth: 25, halign: 'center' }, // Fecha Vencimiento
-        8: { cellWidth: 18, halign: 'center' } // Estado
-      },
-      margin: { left: 10, right: 10 },
-      didDrawCell: (data) => {
-        // Colorear estados
-        if (data.section === 'body' && data.column.index === 8) {
-          const estado = data.cell.raw as string;
-          const ctx = doc as any;
-          
-          if (estado === 'Activo') {
-            ctx.setTextColor(56, 142, 60); // Verde
-          } else if (estado === 'Inactivo') {
-            ctx.setTextColor(244, 67, 54); // Rojo
-          } else if (estado === 'Caducado') {
-            ctx.setTextColor(255, 152, 0); // Naranja
-          }
-        }
-      },
-      willDrawCell: (data) => {
-        // Restaurar color negro para otras celdas
-        if (data.section === 'body' && data.column.index !== 8) {
-          const ctx = doc as any;
-          ctx.setTextColor(0, 0, 0);
-        }
+        0: { cellWidth: 15 }, 
+        4: { halign: 'center' }, 
+        5: { halign: 'right' },
+        6: { halign: 'right' }
       }
     });
+
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    const valorTotal = data.reduce((sum, i) => sum + i.Costo_Total, 0);
+    
+    doc.setTextColor(0);
+    doc.setFontSize(12);
+    doc.text(`Valor Total del Inventario: S/ ${valorTotal.toFixed(2)}`, 14, finalY);
+
+    doc.save(`Inventario_${new Date().toISOString().split('T')[0]}.pdf`);
   }
 
-  private agregarTotalesPDF(doc: jsPDF, stocks: Stock[]): void {
-    const finalY = (doc as any).lastAutoTable.finalY || 100;
-    
-    // Calcular totales
-    const totalRegistros = stocks.length;
-    const totalCantidad = stocks.reduce((sum, stock) => sum + stock.Cantidad_Recibida, 0);
-    const totalCostoUnitario = stocks.reduce((sum, stock) => sum + stock.Costo_Unitario, 0);
-    const totalCostoTotal = stocks.reduce((sum, stock) => sum + stock.Costo_Total, 0);
-    
-    const stocksActivos = stocks.filter(s => s.Estado === 'A').length;
-    const stocksInactivos = stocks.filter(s => s.Estado === 'I').length;
-    const stocksCaducados = stocks.filter(s => s.Estado === 'C').length;
-
-    // Fondo para totales
-    doc.setFillColor(240, 240, 240);
-    doc.rect(10, finalY + 5, 277, 35, 'F');
-
-    // Restaurar color negro
-    doc.setTextColor(0, 0, 0);
-
-    // Totales principales
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    
-    doc.text('RESUMEN DE INVENTARIO', 15, finalY + 15);
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Registros: ${totalRegistros}`, 15, finalY + 22);
-    doc.text(`Cantidad Total: ${totalCantidad} unidades`, 15, finalY + 28);
-    doc.text(`Valor Total Stock: S/${totalCostoTotal.toFixed(2)}`, 15, finalY + 34);
-
-    // Estados de stock
-    doc.text('POR ESTADO:', 120, finalY + 15);
-    doc.text(`Activos: ${stocksActivos}`, 120, finalY + 22);
-    doc.text(`Inactivos: ${stocksInactivos}`, 120, finalY + 28);
-    doc.text(`Caducados: ${stocksCaducados}`, 120, finalY + 34);
-
-    // Métricas adicionales
-    doc.text('MÉTRICAS:', 200, finalY + 15);
-    doc.text(`Costo Unit. Promedio: S/${(totalCostoUnitario / totalRegistros).toFixed(2)}`, 200, finalY + 22);
-    doc.text(`Cantidad Promedio: ${(totalCantidad / totalRegistros).toFixed(1)}`, 200, finalY + 28);
-
-    // Pie de página
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
-    doc.text('Página 1 de 1', 260, 190);
-  }
-
-  private formatDateForPDF(dateString: string): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+  private showSnackBar(msg: string, type: 'success' | 'error' | 'warning') {
+    this.snackBar.open(msg, 'Cerrar', {
+      duration: 3000,
+      panelClass: type === 'success' ? ['snackbar-success'] : ['snackbar-error']
     });
   }
 }

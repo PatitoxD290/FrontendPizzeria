@@ -1,50 +1,75 @@
-// src/app/dashboard/services/producto.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Producto } from '../models/producto.model';
+// ⚠️ Asegúrate que esta ruta sea correcta en tu proyecto
+import { Producto, ProductoCreacionDTO } from '../../core/models/producto.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
+  // Ajusta el puerto si tu backend corre en otro (ej: 4000)
   private apiUrl = 'http://localhost:3000/api/v2/productos'; 
 
   constructor(private http: HttpClient) {}
 
-  // Obtener todos los productos
+  // =========================================
+  // 📘 LECTURA
+  // =========================================
+
+  /** Obtener todos los productos (incluye tamaños e imágenes) */
   getProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(this.apiUrl);
   }
 
-  // Obtener un producto por ID
+  /** Obtener un producto por ID */
   getProductoById(id: number): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiUrl}/${id}`);
   }
 
-  // Crear un nuevo producto (JSON)
-  createProducto(producto: Producto): Observable<any> {
+  // =========================================
+  // 📗 ESCRITURA (JSON)
+  // =========================================
+
+  /** * Crear producto enviando JSON puro.
+   * Útil si NO estás subiendo imágenes en este paso.
+   */
+  createProducto(producto: ProductoCreacionDTO): Observable<any> {
     return this.http.post(this.apiUrl, producto);
   }
 
-  // Actualizar un producto existente (JSON)
-  updateProducto(id: number, producto: Producto): Observable<any> {
+  /** * Actualizar producto enviando JSON puro.
+   * Usamos Partial para permitir enviar solo algunos campos.
+   */
+  updateProducto(id: number, producto: Partial<ProductoCreacionDTO>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, producto);
   }
 
-  // Eliminar un producto
-  deleteProducto(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
+  // =========================================
+  // 📷 ESCRITURA (FormData - Imágenes)
+  // =========================================
 
-  // Crear un nuevo producto con FormData (para subir imágenes)
+  /**
+   * Crear producto con imagen.
+   * ⚠️ El componente debe armar el FormData.
+   * Recuerda: El array de tamaños debe ir como string JSON dentro del FormData.
+   */
   createProductoFormData(formData: FormData): Observable<any> {
-    // NO seteamos headers Content-Type: el navegador lo hará automáticamente.
     return this.http.post(this.apiUrl, formData);
   }
 
-  // Actualizar un producto existente con FormData (para subir imágenes)
+  /**
+   * Actualizar producto con imagen.
+   */
   updateProductoFormData(id: number, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, formData);
+  }
+
+  // =========================================
+  // 📕 ELIMINAR
+  // =========================================
+
+  deleteProducto(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

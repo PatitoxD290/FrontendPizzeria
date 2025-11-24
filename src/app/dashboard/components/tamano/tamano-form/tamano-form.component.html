@@ -1,18 +1,37 @@
-<h2 mat-dialog-title>{{ data ? 'Editar Tamaño' : 'Nuevo Tamaño' }}</h2>
+<div class="dialog-header">
+  <h2 mat-dialog-title class="m-0 d-flex align-items-center">
+    <mat-icon class="me-2 text-primary">straighten</mat-icon>
+    {{ data ? 'Editar Tamaño' : 'Nuevo Tamaño' }}
+  </h2>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <mat-dialog-content class="dialog-content">
-    <mat-form-field appearance="fill" style="width: 100%;">
-      <mat-label>Nombre del Tamaño</mat-label>
-      <input matInput formControlName="Tamano" placeholder="Ej: Pequeño, Mediano, Grande">
-      <mat-error *ngIf="form.get('Tamano')?.hasError('required')">El nombre del tamaño es requerido</mat-error>
-    </mat-form-field>
-  </mat-dialog-content>
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form" (ngSubmit)="saveTamano()">
+    
+    <div class="form-container">
+      <p class="text-muted mb-3 small">Define las variantes de tamaño para tus productos (Ej: Personal, Mediano, Familiar).</p>
+      
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Nombre del Tamaño</mat-label>
+        <input matInput formControlName="Tamano" placeholder="Ej: Grande" autocomplete="off">
+        <mat-icon matSuffix>edit</mat-icon>
+        <mat-error *ngIf="form.get('Tamano')?.hasError('required')">El nombre es requerido</mat-error>
+        <mat-error *ngIf="form.get('Tamano')?.hasError('minlength')">Mínimo 2 caracteres</mat-error>
+      </mat-form-field>
+    </div>
 
-  <mat-dialog-actions align="end">
-    <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
-      {{ data ? 'Actualizar' : 'Crear' }}
-    </button>
-  </mat-dialog-actions>
-</form>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="saveTamano()" 
+          [disabled]="form.invalid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" class="me-2 d-inline-block"></mat-spinner>
+    {{ data ? 'Actualizar' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

@@ -1,58 +1,96 @@
-<h2 mat-dialog-title>{{ receta.ID_Receta ? 'Editar Receta' : 'Nueva Receta' }}</h2>
+<div class="dialog-container">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon class="header-icon">menu_book</mat-icon>
+    {{ receta.ID_Receta ? 'Editar Receta' : 'Nueva Receta' }}
+  </h2>
 
-<mat-dialog-content>
-  <form #form="ngForm" (ngSubmit)="saveReceta()">
+  <mat-dialog-content class="dialog-content">
+    <form #form="ngForm" (ngSubmit)="saveReceta()">
+      
+      <!-- Sección 1: Datos Generales -->
+      <div class="form-section">
+        <h3 class="section-header">Datos Generales</h3>
+        
+        <div class="row">
+          <mat-form-field appearance="outline" class="col-md-8 w-100">
+            <mat-label>Nombre de la Receta</mat-label>
+            <input matInput [(ngModel)]="receta.Nombre" name="Nombre" required placeholder="Ej: Arroz con Pollo">
+            <mat-error>Requerido</mat-error>
+          </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Nombre de la Receta</mat-label>
-      <input matInput type="text" [(ngModel)]="receta.Nombre" name="Nombre" required />
-    </mat-form-field>
+          <mat-form-field appearance="outline" class="col-md-4 w-100">
+            <mat-label>Tiempo (minutos)</mat-label>
+            <input matInput type="number" [(ngModel)]="tiempoMinutos" name="tiempo" required min="1">
+            <mat-icon matSuffix>timer</mat-icon>
+            <mat-hint>Ej: 90 para 1h 30m</mat-hint>
+          </mat-form-field>
+        </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Descripción</mat-label>
-      <textarea matInput rows="2" [(ngModel)]="receta.Descripcion" name="Descripcion" required></textarea>
-    </mat-form-field>
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Descripción / Instrucciones</mat-label>
+          <textarea matInput rows="2" [(ngModel)]="receta.Descripcion" name="Descripcion" placeholder="Breve descripción de la preparación..."></textarea>
+        </mat-form-field>
+      </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Tiempo estimado (minutos)</mat-label>
-      <input matInput type="number" [(ngModel)]="receta.Tiempo_Preparacion" name="tiempo_estimado_minutos" required />
-    </mat-form-field>
+      <!-- Sección 2: Ingredientes -->
+      <div class="form-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="section-header m-0">Ingredientes</h3>
+          <button mat-stroked-button color="primary" type="button" (click)="addDetalle()">
+            <mat-icon>add</mat-icon> Agregar Ingrediente
+          </button>
+        </div>
 
-    <h3>🧂 Detalles de Receta</h3>
+        <div class="ingredientes-list">
+          <div *ngFor="let det of detalles; let i = index" class="ingrediente-row">
+            
+            <!-- Selector de Insumo -->
+            <mat-form-field appearance="outline" class="flex-grow-1 select-insumo">
+              <mat-label>Insumo</mat-label>
+              <mat-select [(ngModel)]="det.ID_Insumo" name="insumo_{{i}}" required (selectionChange)="onInsumoChange(det)">
+                <mat-option *ngFor="let ing of insumos" [value]="ing.ID_Insumo">
+                  {{ ing.Nombre }} <span class="unit-badge">({{ ing.Unidad_Med }})</span>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
 
-    <div *ngFor="let det of detalles; let i = index" class="detalle-item">
-      <mat-form-field appearance="outline">
-        <mat-label>Ingrediente</mat-label>
-        <mat-select [(ngModel)]="det.ID_Insumo" name="ingrediente_id_{{i}}" required>
-          <mat-option *ngFor="let ing of ingredientes" [value]="ing.ID_Insumo">
-            {{ ing.Nombre }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+            <!-- Cantidad -->
+            <mat-form-field appearance="outline" class="input-cantidad">
+              <mat-label>Cant.</mat-label>
+              <input matInput type="number" [(ngModel)]="det.Cantidad" name="cant_{{i}}" required min="0.01" step="0.01">
+              <span matSuffix class="small-suffix" *ngIf="det.Unidad_Med">{{det.Unidad_Med}}</span>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Cantidad</mat-label>
-        <input matInput type="number" [(ngModel)]="det.Cantidad" name="cantidad_requerida_{{i}}" required />
-      </mat-form-field>
+            <!-- Uso/Notas -->
+            <mat-form-field appearance="outline" class="input-uso">
+              <mat-label>Uso (Ej: Picar)</mat-label>
+              <input matInput type="text" [(ngModel)]="det.Uso" name="uso_{{i}}" placeholder="Opcional">
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-        <mat-label>Descripción de uso</mat-label>
-        <input matInput type="text" [(ngModel)]="det.Uso" name="descripcion_uso_{{i}}" />
-      </mat-form-field>
+            <!-- Botón Eliminar -->
+            <button mat-icon-button color="warn" type="button" (click)="removeDetalle(i)" 
+                    [disabled]="detalles.length === 1" matTooltip="Quitar ingrediente">
+              <mat-icon>delete</mat-icon>
+            </button>
 
-      <button mat-icon-button color="warn" type="button" (click)="removeDetalle(i)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
+          </div>
+        </div>
+        
+        <div class="empty-state" *ngIf="detalles.length === 0">
+          <p>Agrega ingredientes a la receta.</p>
+        </div>
+      </div>
 
-    <button mat-button type="button" color="primary" (click)="addDetalle()">
-      <mat-icon>add</mat-icon> Agregar Ingrediente
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="close()">Cancelar</button>
+    <button mat-flat-button color="primary" (click)="saveReceta()" 
+            [disabled]="!form.valid || guardando || tiempoMinutos <= 0">
+      <mat-icon *ngIf="!guardando">save</mat-icon>
+      <mat-spinner *ngIf="guardando" diameter="20" class="me-2 d-inline-block"></mat-spinner>
+      {{ receta.ID_Receta ? 'Actualizar' : 'Guardar' }}
     </button>
-
-  </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="saveReceta()">Guardar</button>
-</mat-dialog-actions>
+  </mat-dialog-actions>
+</div>

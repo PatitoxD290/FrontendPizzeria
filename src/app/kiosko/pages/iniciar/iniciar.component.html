@@ -1,26 +1,37 @@
 <div class="iniciar-container">
-  <!-- Imágenes de pizza decorativas -->
+  
+  <!-- Fondo decorativo (Capa base) -->
+  <div class="background-pattern"></div>
+
+  <!-- Imágenes de Pizza (Esquinas) -->
   <div class="pizza-images">
-    <img src="/assets/imgs/pizza1.png" alt="Pizza Slice" class="pizza top-left">
-    <img src="/assets/imgs/pizza2.png" alt="Pizza Slice" class="pizza top-right">
-    <img src="/assets/imgs/pizza3.png" alt="Pizza Slice" class="pizza bottom-left">
-    <img src="/assets/imgs/pizza4.png" alt="Pizza Slice" class="pizza bottom-right">
+    <img src="assets/imgs/pizza1.png" alt="Pizza" class="pizza top-left float-animation">
+    <img src="assets/imgs/pizza2.png" alt="Pizza" class="pizza top-right float-animation-delayed">
+    <img src="assets/imgs/pizza3.png" alt="Pizza" class="pizza bottom-left float-animation">
+    <img src="assets/imgs/pizza4.png" alt="Pizza" class="pizza bottom-right float-animation-delayed">
   </div>
 
-  <!-- Decoraciones -->
+  <!-- Decoraciones (Ingredientes flotantes) -->
   <div class="decorations">
-    <img src="/assets/imgs/bail1.png" alt="Basil Leaf" class="decor basil-top">
-    <img src="/assets/imgs/bail2.png" alt="Basil Leaf" class="decor basil-bottom">
-    <img src="/assets/imgs/tomate1.png" alt="Tomato" class="decor tomato-left">
-    <img src="/assets/imgs/tomate1.png" alt="Tomato" class="decor tomato-right">
+    <img src="assets/imgs/bail1.png" alt="Basil" class="decor basil-top fade-in">
+    <img src="assets/imgs/bail2.png" alt="Basil" class="decor basil-bottom fade-in">
+    <img src="assets/imgs/tomate1.png" alt="Tomato" class="decor tomato-left fade-in">
+    <img src="assets/imgs/tomate1.png" alt="Tomato" class="decor tomato-right fade-in">
   </div>
 
-  <!-- Contenido principal -->
-  <h1>Bienvenido</h1>
-  <img src="/assets/imgs/loguito-aita.png" alt="Logo Aita Pizza" class="logo-pizzeria">
-  <h3 class="subtitulo">Te espera un<br>mundo de sabor</h3>
+  <!-- Contenido Central -->
+  <div class="content-wrapper">
+    <h1 class="welcome-text">Bienvenido a</h1>
+    
+    <div class="logo-container">
+      <img src="assets/imgs/loguito-aita.png" alt="Logo Aita Pizza" class="logo-pizzeria pop-in">
+    </div>
+    
+    <h3 class="subtitulo">Te espera un<br>mundo de sabor</h3>
 
-  <button mat-raised-button class="btn-custom" (click)="irMenu()">
-    Iniciar Pedido
-  </button>
+    <button mat-flat-button color="primary" class="btn-custom pulse-animation" (click)="irMenu()">
+      INICIAR PEDIDO <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+    </button>
+  </div>
+
 </div>

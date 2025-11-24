@@ -1,195 +1,134 @@
 <h2 mat-dialog-title>
+  <mat-icon class="header-icon">shopping_bag</mat-icon>
   {{ producto.ID_Producto ? 'Editar Producto' : 'Nuevo Producto' }}
 </h2>
 
-<mat-dialog-content>
-  <form #form="ngForm" (ngSubmit)="saveProducto()" class="producto-form">
+<mat-dialog-content class="dialog-content">
+  <form #form="ngForm" (ngSubmit)="saveProducto()">
     
-    <div class="form-container">
-      <!-- Columna Izquierda: Información básica del producto -->
+    <div class="form-layout">
+      <!-- COLUMNA IZQUIERDA: DATOS GENERALES -->
       <div class="left-column">
-        <div class="form-section">
-          <h3 class="section-title">Información del Producto</h3>
+        <div class="section">
+          <h3 class="section-title">Datos Generales</h3>
           
-          <!-- Nombre del Producto -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Nombre del Producto *</mat-label>
-            <input matInput type="text" [(ngModel)]="producto.Nombre" name="Nombre" required />
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Nombre del Producto</mat-label>
+            <input matInput [(ngModel)]="producto.Nombre" name="nombre" required placeholder="Ej: Pizza Americana">
+            <mat-error>Requerido</mat-error>
           </mat-form-field>
 
-          <!-- Descripción (Opcional) -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Descripción (Opcional)</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="producto.Descripcion" name="Descripcion" 
-                     placeholder="Descripción detallada del producto..."></textarea>
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Descripción</mat-label>
+            <textarea matInput rows="3" [(ngModel)]="producto.Descripcion" name="desc" placeholder="Ingredientes, detalles..."></textarea>
           </mat-form-field>
 
-          <!-- Categoría -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Categoría *</mat-label>
-            <mat-select [(ngModel)]="producto.ID_Categoria_P" name="id_categoria_p" required>
-              <mat-option *ngFor="let c of CategoriaProducto" [value]="c.ID_Categoria_P">
-                {{ c.Nombre }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="row">
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Categoría</mat-label>
+              <mat-select [(ngModel)]="producto.ID_Categoria_P" name="cat" required>
+                <mat-option *ngFor="let c of categorias" [value]="c.ID_Categoria_P">{{ c.Nombre }}</mat-option>
+              </mat-select>
+              <mat-error>Requerido</mat-error>
+            </mat-form-field>
 
-          <!-- Receta (Opcional) -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Receta (Opcional)</mat-label>
-            <mat-select [(ngModel)]="producto.ID_Receta" name="ID_Receta">
-              <mat-option [value]="null">Sin receta</mat-option>
-              <mat-option *ngFor="let r of Receta" [value]="r.ID_Receta">
-                {{ r.Nombre }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Receta (Opcional)</mat-label>
+              <mat-select [(ngModel)]="producto.ID_Receta" name="receta">
+                <mat-option [value]="null">-- Sin Receta --</mat-option>
+                <mat-option *ngFor="let r of recetas" [value]="r.ID_Receta">{{ r.Nombre }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-          <!-- Cantidad Disponible -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Cantidad Disponible *</mat-label>
-            <input 
-              matInput 
-              type="number" 
-              [(ngModel)]="producto.Cantidad_Disponible" 
-              name="Cantidad_Disponible" 
-              min="0" 
-              step="1"
-              required 
-            />
-            <mat-hint>Stock inicial del producto</mat-hint>
-          </mat-form-field>
+          <div class="row">
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Stock Disponible</mat-label>
+              <input matInput type="number" [(ngModel)]="producto.Cantidad_Disponible" name="stock" min="0" required>
+            </mat-form-field>
 
-          <!-- Estado -->
-          <mat-form-field appearance="fill" class="field-full">
-            <mat-label>Estado *</mat-label>
-            <mat-select [(ngModel)]="producto.Estado" name="Estado" required>
-              <mat-option value="A">Activo</mat-option>
-              <mat-option value="I">Inactivo</mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Estado</mat-label>
+              <mat-select [(ngModel)]="producto.Estado" name="estado" required>
+                <mat-option value="A">Activo</mat-option>
+                <mat-option value="I">Inactivo</mat-option>
+                <mat-option value="G">Agotado</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
-      <!-- Columna Derecha: Tamaños, Precios e Imagen -->
+      <!-- COLUMNA DERECHA: TAMAÑOS E IMAGEN -->
       <div class="right-column">
-        <!-- Tamaños y Precios -->
-        <div class="form-section">
-          <div class="section-header">
-            <h3 class="section-title">Tamaños y Precios</h3>
-            <button 
-              type="button" 
-              mat-raised-button 
-              color="primary" 
-              (click)="agregarTamano()"
-              class="add-button"
-            >
+        
+        <!-- Sección Tamaños -->
+        <div class="section">
+          <div class="section-header-row">
+            <h3 class="section-title m-0">Precios por Tamaño</h3>
+            <button type="button" mat-mini-fab color="primary" (click)="agregarTamano()" matTooltip="Agregar tamaño" class="add-mini-btn">
               <mat-icon>add</mat-icon>
-              Agregar Tamaño
             </button>
           </div>
-          
-          <p class="hint">Puedes agregar múltiples tamaños con sus respectivos precios. Debe haber al menos un tamaño.</p>
-          
+
           <div class="tamanos-list">
-            <div class="tamano-item" *ngFor="let tamano of tamanosConPrecio; let i = index">
-              <div class="tamano-content">
-                <!-- Selección de Tamaño -->
-                <mat-form-field appearance="fill" class="tamano-select">
-                  <mat-label>Tamaño</mat-label>
-                  <mat-select 
-                    [(ngModel)]="tamano.ID_Tamano" 
-                    [name]="'tamano_' + i"
-                    (selectionChange)="onTamanoChange(tamano.ID_Tamano, i)"
-                    required
-                  >
-                    <mat-option 
-                      *ngFor="let tamanoOption of todosLosTamanos" 
-                      [value]="tamanoOption.ID_Tamano"
-                      [disabled]="!isTamanoDisponible(tamanoOption.ID_Tamano, i)"
-                    >
-                      {{ tamanoOption.Tamano }}
-                      <span *ngIf="!isTamanoDisponible(tamanoOption.ID_Tamano, i)" class="disabled-hint">
-                        (Ya seleccionado)
-                      </span>
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
+            <div class="tamano-row" *ngFor="let item of tamanosConPrecio; let i = index">
+              
+              <mat-form-field appearance="outline" class="tamano-select">
+                <mat-label>Tamaño</mat-label>
+                <mat-select [(ngModel)]="item.ID_Tamano" [name]="'tam_' + i" required (selectionChange)="onTamanoChange(item.ID_Tamano, i)">
+                  <mat-option *ngFor="let t of todosLosTamanos" 
+                              [value]="t.ID_Tamano" 
+                              [disabled]="!isTamanoDisponible(t.ID_Tamano, i)">
+                    {{ t.Tamano }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
 
-                <!-- Precio -->
-                <mat-form-field appearance="fill" class="tamano-price">
-                  <mat-label>Precio (S/)</mat-label>
-                  <input 
-                    matInput 
-                    type="number" 
-                    [(ngModel)]="tamano.Precio" 
-                    [name]="'precio_' + i"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
-                </mat-form-field>
+              <mat-form-field appearance="outline" class="precio-input">
+                <mat-label>Precio</mat-label>
+                <input matInput type="number" [(ngModel)]="item.Precio" [name]="'price_' + i" min="0" step="0.5" required>
+                <span matPrefix>S/.&nbsp;</span>
+              </mat-form-field>
 
-                <!-- Botón Eliminar -->
-                <button 
-                  type="button" 
-                  mat-icon-button 
-                  color="warn" 
-                  (click)="eliminarTamano(i)"
-                  class="delete-button"
-                  [disabled]="tamanosConPrecio.length === 1"
-                  matTooltip="Eliminar tamaño"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
+              <button type="button" mat-icon-button color="warn" (click)="eliminarTamano(i)" [disabled]="tamanosConPrecio.length === 1">
+                <mat-icon>delete</mat-icon>
+              </button>
+
             </div>
           </div>
         </div>
 
-        <!-- Imagen del Producto -->
-        <div class="form-section">
-          <h3 class="section-title">Imagen del Producto (Opcional)</h3>
-          <div class="imagen-content">
-            <div class="file-upload-area">
-              <input 
-                type="file" 
-                id="file" 
-                (change)="onFileSelected($event)" 
-                accept="image/*" 
-                name="file"
-                class="file-input"
-              />
-              <div class="upload-hint">
-                <mat-icon>cloud_upload</mat-icon>
-                <span>Haz clic para seleccionar una imagen</span>
-              </div>
-            </div>
+        <!-- Sección Imagen -->
+        <div class="section">
+          <h3 class="section-title">Imagen</h3>
+          <div class="image-upload-wrapper">
+            <button type="button" mat-stroked-button (click)="fileInput.click()">
+              <mat-icon>cloud_upload</mat-icon> Subir Imagen
+            </button>
+            <input #fileInput type="file" id="fileInput" hidden (change)="onFileSelected($event)" accept="image/*">
             
-            <div *ngIf="imagePreview" class="image-preview">
-              <img [src]="imagePreview" alt="Vista previa" />
-              <button 
-                type="button" 
-                mat-icon-button 
-                color="warn" 
-                class="remove-image"
-                (click)="removeImage()"
-                matTooltip="Quitar imagen"
-              >
+            <div *ngIf="imagePreview" class="image-preview mt-2">
+              <img [src]="imagePreview" alt="Preview">
+              <button type="button" mat-icon-button color="warn" class="remove-btn" (click)="removeImage()">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
-    <!-- Acciones -->
-    <mat-dialog-actions align="end" class="form-actions">
-      <button mat-button type="button" (click)="close()">Cancelar</button>
-      <button mat-flat-button color="primary" type="submit">Guardar</button>
-    </mat-dialog-actions>
-
   </form>
 </mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="saveProducto()" 
+          [disabled]="!form.valid || guardando">
+    <mat-icon *ngIf="!guardando">save</mat-icon>
+    <mat-spinner *ngIf="guardando" diameter="20" class="me-2"></mat-spinner>
+    {{ producto.ID_Producto ? 'Actualizar' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

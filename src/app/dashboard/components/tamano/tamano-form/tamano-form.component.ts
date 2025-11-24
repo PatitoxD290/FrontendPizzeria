@@ -1,12 +1,18 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+// Angular Material
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// Core
 import { TamanoService } from '../../../../core/services/tamano.service';
-import { Tamano } from '../../../../core/models/tamano.model';
+import { Tamano, TamanoDTO } from '../../../../core/models/tamano.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -18,13 +24,16 @@ import Swal from 'sweetalert2';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './tamano-form.component.html',
   styleUrls: ['./tamano-form.component.css']
 })
 export class TamanoFormComponent {
   form: FormGroup;
+  guardando = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,69 +41,67 @@ export class TamanoFormComponent {
     private dialogRef: MatDialogRef<TamanoFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Tamano | null
   ) {
-    // 🔹 CORRECCIÓN: Solo el campo Tamano según el modelo
     this.form = this.fb.group({
-      Tamano: [data?.Tamano || '', Validators.required]
+      Tamano: [data?.Tamano || '', [Validators.required, Validators.minLength(2)]]
     });
   }
 
-  submit() {
+  saveTamano() {
     if (this.form.invalid) return;
 
-    // Normalizar nombre del tamaño antes de enviar
-    const tamanoValue = this.form.get('Tamano')?.value;
-    this.form.patchValue({
-      Tamano: this.capitalizeWords(tamanoValue.trim())
-    });
+    this.guardando = true;
 
-    const payload = this.form.value;
+    // Normalizar nombre (Capitalizar)
+    const nombreRaw = this.form.get('Tamano')?.value;
+    const nombreNormalizado = this.capitalizeWords(nombreRaw.trim());
+    
+    const payload: TamanoDTO = {
+      Tamano: nombreNormalizado
+    };
 
     if (this.data) {
-      // Editar
+      // EDITAR
       this.tamanoService.updateTamano(this.data.ID_Tamano, payload).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Actualizado',
-            text: 'El tamaño fue actualizado correctamente',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo actualizar el tamaño', 'error');
-        }
+        next: () => this.handleSuccess('Tamaño actualizado correctamente'),
+        error: (err) => this.handleError('actualizar', err)
       });
     } else {
-      // Crear
+      // CREAR
       this.tamanoService.createTamano(payload).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Creado',
-            text: 'El tamaño fue registrado correctamente',
-            timer: 1500,
-            showConfirmButton: false
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo crear el tamaño', 'error');
-        }
+        next: () => this.handleSuccess('Tamaño registrado correctamente'),
+        error: (err) => this.handleError('crear', err)
       });
     }
   }
 
-  private capitalizeWords(text: string): string {
-    return text
-      .toLowerCase()
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+  private handleSuccess(msg: string) {
+    this.guardando = false;
+    Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: msg,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    this.dialogRef.close(true);
   }
 
-  cancel() {
+  private handleError(action: string, err: any) {
+    this.guardando = false;
+    console.error(err);
+    
+    if (err.status === 409) {
+      Swal.fire('Duplicado', 'Ya existe un tamaño con este nombre.', 'warning');
+    } else {
+      Swal.fire('Error', `No se pudo ${action} el tamaño.`, 'error');
+    }
+  }
+
+  private capitalizeWords(text: string): string {
+    return text.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  close() {
     this.dialogRef.close(false);
   }
 }

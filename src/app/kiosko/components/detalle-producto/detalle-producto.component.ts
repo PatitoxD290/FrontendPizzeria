@@ -1,30 +1,63 @@
-// detalle-producto.component.ts
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+// Angular Material
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// Servicios y Modelos
 import { CarritoService } from '../../../core/services/carrito.service';
 import { ComplementoService } from '../../../core/services/complemento.service';
-import { ProductoTamano } from '../../../core/models/producto.model';
-import { ComplementoProductoComponent } from '../complemento-producto/complemento-producto.component';
-import { MatIconModule } from '@angular/material/icon';
 import { ModalStateService } from '../../../core/services/modal-state.service';
+import { Producto, ProductoTamano } from '../../../core/models/producto.model';
+import { Combo } from '../../../core/models/combo.model';
+import { DatosPedido } from '../../../core/models/pedido.model';
+import { ComplementoProductoComponent } from '../complemento-producto/complemento-producto.component';
+
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalle-producto',
-  templateUrl: './detalle-producto.component.html',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatProgressSpinnerModule
+  ],
+  templateUrl: './detalle-producto.component.html',
   styleUrls: ['./detalle-producto.component.css'],
 })
 export class DetalleProductoComponent implements OnInit, OnDestroy {
+  
+  // Datos
   cantidad: number = 1;
-  tieneComplementos: boolean = false;
-  esBebida: boolean = false;
   tamanoSeleccionado: ProductoTamano | null = null;
+  tamanosDisponibles: ProductoTamano[] = [];
+  
+  // Estados
   esCombo: boolean = false;
+  esBebida: boolean = false;
+  tieneComplementos: boolean = false;
+  cantidadComplementos: number = 0;
+
+  // Datos visuales
+  nombre: string = '';
+  descripcion: string = '';
+  imagen: string = '';
+  precioBase: number = 0;
+
+  private baseUrl = 'http://localhost:3000'; // Ajusta tu puerto si es necesario
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: any, // Puede ser Producto o Combo
     private dialogRef: MatDialogRef<DetalleProductoComponent>,
     private carritoService: CarritoService,
     public complementoService: ComplementoService,
@@ -34,186 +67,167 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.modalStateService.abrirModal();
-    
-    // 🔹 DETERMINAR SI ES UN COMBO O PRODUCTO INDIVIDUAL
-    this.esCombo = this.data.esCombo || false;
-    
-    // 🔹 CAMBIO: LOS COMBOS TAMBIÉN PUEDEN TENER COMPLEMENTOS
-    this.verificarSiEsBebida();
-    this.verificarComplementos();
-    
-    if (!this.esCombo && this.data.tamanos && this.data.tamanos.length > 0) {
-      this.tamanoSeleccionado = this.data.tamanos[0];
-    }
+    this.complementoService.limpiarComplementosTemporales();
+    this.inicializarDatos();
+    this.verificarEstadoComplementos();
   }
 
   ngOnDestroy(): void {
     this.modalStateService.cerrarModal();
   }
 
-  verificarSiEsBebida(): void {
+  private inicializarDatos() {
+    this.esCombo = !!this.data.ID_Combo;
+
     if (this.esCombo) {
-      // 🔹 CAMBIO: Los combos pueden contener bebidas, pero igual pueden tener complementos adicionales
-      this.esBebida = false; // Los combos siempre pueden tener complementos adicionales
+      const combo = this.data as Combo;
+      this.nombre = combo.Nombre;
+      this.descripcion = combo.Descripcion;
+      this.precioBase = Number(combo.Precio);
+      
+      // ✅ CORRECCIÓN: Usar lógica segura para extraer nombre de imagen
+      this.imagen = this.construirUrlImagen(combo.imagenes);
+      
+      this.esBebida = false; 
+
     } else {
-      const nombreCategoria = this.data.nombre_categoria?.toLowerCase() || '';
-      this.esBebida = nombreCategoria.includes('bebida') || 
-                      nombreCategoria.includes('bebidas');
+      const producto = this.data as Producto;
+      this.nombre = producto.Nombre;
+      this.descripcion = producto.Descripcion;
+      
+      // ✅ CORRECCIÓN: Usar lógica segura para extraer nombre de imagen
+      this.imagen = this.construirUrlImagen(producto.imagenes);
+
+      this.tamanosDisponibles = producto.tamanos?.filter(t => t.Estado === 'A') || [];
+      if (this.tamanosDisponibles.length > 0) {
+        this.seleccionarTamano(this.tamanosDisponibles[0]);
+      }
+
+      const cat = producto.nombre_categoria?.toLowerCase() || '';
+      this.esBebida = cat.includes('bebida') || cat.includes('refresco');
     }
   }
 
-  verificarComplementos(): void {
-    // 🔹 CAMBIO: Tanto productos como combos pueden tener complementos
-    this.tieneComplementos = this.complementoService.tieneComplementos();
+  // 🖼️ Helper para construir URL de imagen limpia
+  private construirUrlImagen(imagenes?: string[]): string {
+    if (imagenes && imagenes.length > 0) {
+      // Extraer solo el nombre del archivo (ej: producto_1_1.jpg) eliminando rutas como 'uploads/' o '\'
+      const filename = imagenes[0].split(/[/\\]/).pop();
+      return `${this.baseUrl}/imagenesCata/${filename}`;
+    }
+    return 'assets/imgs/no-image.png';
   }
 
-  incrementarCantidad(): void {
+  seleccionarTamano(tamano: ProductoTamano) {
+    this.tamanoSeleccionado = tamano;
+    this.precioBase = Number(tamano.Precio);
+  }
+
+  incrementar() {
+    if (!this.esCombo) {
+      const stock = (this.data as Producto).Cantidad_Disponible;
+      if (this.cantidad >= stock) return;
+    }
     this.cantidad++;
   }
 
-  decrementarCantidad(): void {
+  decrementar() {
     if (this.cantidad > 1) this.cantidad--;
   }
 
-  seleccionarTamano(tamano: ProductoTamano): void {
-    this.tamanoSeleccionado = tamano;
-  }
-
-  cerrar(): void {
-    this.complementoService.limpiarComplementosTemporales();
-    this.dialogRef.close();
-  }
-
-  abrirComplementos(): void {
-    // 🔹 CAMBIO: TANTO PRODUCTOS COMO COMBOS PUEDEN TENER COMPLEMENTOS
+  abrirComplementos() {
     const dialogRef = this.dialog.open(ComplementoProductoComponent, {
       width: '800px',
-      maxWidth: '90vw',
+      maxWidth: '95vw',
+      height: 'auto',
       maxHeight: '90vh',
-      data: {
-        esCombo: this.esCombo // 🔹 Opcional: pasar información si es combo
+      disableClose: false,
+      data: { 
+        titulo: this.esCombo ? 'Elige tus bebidas' : 'Agregar complementos'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.complementosSeleccionados) {
-        this.verificarComplementos();
+      if (result) {
+        this.verificarEstadoComplementos();
       }
     });
   }
 
-  agregarCarrito(): void {
-    if (this.cantidad <= 0) {
-      return;
-    }
+  verificarEstadoComplementos() {
+    this.tieneComplementos = this.complementoService.tieneComplementos();
+    this.cantidadComplementos = this.complementoService.obtenerCantidadComplementos();
+  }
 
-    // 🔹 AGREGAR COMBO
-      if (this.esCombo) {
-    const combo = {
-      ID_Combo: this.data.ID_Combo,
-      nombre: this.data.Nombre,
-      descripcion: this.data.Descripcion,
-      precio: this.data.Precio || this.data.precioMinimo || this.data.precio, // 🔹 MÚLTIPLES FUENTES DE PRECIO
+  // 🛒 Agregar al Carrito
+  agregarAlCarrito() {
+    if (this.cantidad <= 0) return;
+
+    // 1. Construir ítem principal
+    const itemPrincipal: DatosPedido = {
+      id: Date.now(),
+      
+      // Usar undefined en lugar de null para opcionales
+      idProductoT: this.esCombo ? undefined : (this.tamanoSeleccionado?.ID_Producto_T || undefined),
+      idCombo: this.esCombo ? this.data.ID_Combo : undefined,
+      
+      nombre: this.nombre,
       cantidad: this.cantidad,
-      subtotal: (this.data.Precio || this.data.precioMinimo || this.data.precio) * this.cantidad,
-      imagen: this.data.imagen || 'assets/default-combo.png',
-      nombre_combo: this.data.Nombre,
-      esCombo: true
+      precioUnitario: this.precioBase,
+      precioTotal: this.precioBase * this.cantidad,
+      
+      tamano: this.esCombo ? 'Combo' : (this.tamanoSeleccionado?.nombre_tamano || 'Estándar'),
+      esCombo: this.esCombo,
+      descripcion: this.descripcion
     };
 
-      console.log('🛒 Agregando combo al carrito:', combo);
+    console.log('🛒 Agregando principal:', itemPrincipal);
+    this.carritoService.agregarProducto(itemPrincipal);
 
-      this.carritoService.agregarProducto(combo);
-
-      // 🔹 CAMBIO: LOS COMBOS TAMBIÉN PUEDEN TENER COMPLEMENTOS
+    // 2. Agregar complementos
+    if (this.tieneComplementos) {
       const complementos = this.complementoService.obtenerComplementosTemporales();
-      if (complementos.length > 0) {
-        complementos.forEach(complemento => {
-          // 🔹 Marcar complementos como asociados al combo
-          const complementoConCombo = {
-            ...complemento,
-            ID_Combo_Asociado: this.data.ID_Combo, // 🔹 NUEVO: Relacionar con el combo
-            esComplementoCombo: true
-          };
-          this.carritoService.agregarProducto(complementoConCombo);
-        });
-      }
-
-      this.complementoService.limpiarComplementosTemporales();
-
-      this.dialogRef.close({ 
-        agregar: true, 
-        combo: combo,
-        complementosAgregados: complementos.length,
-        tipo: 'combo'
+      
+      complementos.forEach(comp => {
+        const itemComplemento: DatosPedido = {
+          id: Date.now() + Math.random(),
+          idProductoT: comp.ID_Producto_T,
+          idCombo: undefined, 
+          
+          nombre: `+ ${comp.Nombre}`,
+          cantidad: comp.Cantidad * this.cantidad,
+          precioUnitario: comp.Precio,
+          precioTotal: (comp.Precio * comp.Cantidad) * this.cantidad,
+          
+          tamano: 'Complemento',
+          esCombo: false,
+          descripcion: `Acompañamiento para ${this.nombre}`
+        };
+        
+        this.carritoService.agregarProducto(itemComplemento);
       });
-    } 
-    // 🔹 AGREGAR PRODUCTO INDIVIDUAL
-    else if (this.tamanoSeleccionado) {
-      const productoPrincipal = {
-        ID_Producto: this.data.ID_Producto,
-        ID_Producto_T: this.tamanoSeleccionado.ID_Producto_T,
-        nombre: this.data.Nombre,
-        descripcion: this.data.Descripcion,
-        precio: this.tamanoSeleccionado.Precio,
-        cantidad: this.cantidad,
-        subtotal: this.tamanoSeleccionado.Precio * this.cantidad,
-        imagen: this.data.imagen || 'assets/default-product.png',
-        nombre_tamano: this.tamanoSeleccionado.nombre_tamano || 'Tamaño único',
-        ID_Tamano: this.tamanoSeleccionado.ID_Tamano,
-        ID_Categoria_P: this.data.ID_Categoria_P,
-        esPrincipal: true
-      };
-
-      this.carritoService.agregarProducto(productoPrincipal);
-
-      const complementos = this.complementoService.obtenerComplementosTemporales();
-      if (complementos.length > 0) {
-        complementos.forEach(complemento => {
-          this.carritoService.agregarProducto(complemento);
-        });
-      }
-
+      
       this.complementoService.limpiarComplementosTemporales();
-
-      this.dialogRef.close({ 
-        agregar: true, 
-        producto: productoPrincipal,
-        complementosAgregados: complementos.length,
-        tipo: 'producto'
-      });
     }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Agregado',
+      text: `${this.nombre} se agregó al pedido`,
+      timer: 1000,
+      showConfirmButton: false,
+      position: 'top-end',
+      toast: true
+    });
+
+    this.dialogRef.close(true);
   }
 
-  get precioUnitario(): number {
-    if (this.esCombo) {
-      return this.data.Precio || 0;
-    } else {
-      return this.tamanoSeleccionado?.Precio || 0;
-    }
+  onImageError(event: any) {
+    event.target.src = 'assets/imgs/no-image.png';
   }
 
-  get precioTotal(): number {
-    return this.precioUnitario * this.cantidad;
-  }
-
-  get cantidadComplementos(): number {
-    // 🔹 CAMBIO: Tanto productos como combos pueden tener complementos
-    return this.complementoService.obtenerCantidadComplementos();
-  }
-
-  // 🔹 NUEVO: Obtener el texto del tipo de producto
-  get tipoProducto(): string {
-    return this.esCombo ? 'Combo' : 'Producto';
-  }
-
-  // 🔹 NUEVO: Determinar si se pueden agregar complementos
-  get puedeAgregarComplementos(): boolean {
-    // 🔹 CAMBIO: Tanto productos como combos pueden tener complementos, excepto bebidas individuales
-    if (this.esCombo) {
-      return true; // Los combos siempre pueden tener complementos adicionales
-    } else {
-      return !this.esBebida; // Los productos individuales solo si no son bebidas
-    }
+  cerrar() {
+    this.dialogRef.close();
   }
 }

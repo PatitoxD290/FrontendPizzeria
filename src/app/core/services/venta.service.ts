@@ -1,58 +1,41 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Venta, VentaCreacionDTO } from '../models/venta.model';
+import { map } from 'rxjs/operators';
+import { Venta, VentaCreacionDTO } from '../../core/models/venta.model'; // ⚠️ Ajusta la ruta
 
-export interface VentasHoyResponse {
-  ventas: Venta[];
-  estadisticas: {
-    totalVentas: number;
-    totalIngresos: number;
-    promedioVenta: number;
-    fecha: string;
-  };
+// ==========================================
+// 📝 INTERFACES DE RESPUESTA (Backend)
+// ==========================================
+
+export interface ResumenVentasHoy {
+  totalVentas: number;
+  ingresos: number;
 }
 
-export interface VentasPorPeriodoResponse {
+export interface VentasHoyResponse {
+  resumen: ResumenVentasHoy;
   ventas: Venta[];
-  estadisticas: {
-    periodo: string;
-    fechaConsulta: string;
-    totalVentas: number;
-    totalIngresos: number;
-    promedioVenta: number;
-    fechaInicio: string;
-    fechaFin: string;
-  };
 }
 
 export interface EstadisticasVentasResponse {
-  estadisticas: {
-    hoy: {
-      totalVentas: number;
-      ingresos: number;
-    };
-    semana: {
-      totalVentas: number;
-      ingresos: number;
-    };
-    mes: {
-      totalVentas: number;
-      ingresos: number;
-    };
+  hoy: {
+    totalVentas: number;
+    ingresos: number;
   };
-  metodosPago: Array<{
-    metodo: string;
-    cantidad: number;
-    total: number;
+  semana: {
+    totalVentas: number;
+    ingresos: number;
+  };
+  mes: {
+    totalVentas: number;
+    ingresos: number;
+  };
+  metodos_pago: Array<{
+    Metodo: string;
+    Cantidad: number;
+    Total: number;
   }>;
-}
-
-export interface MetodoPagoStats {
-  metodo: string;
-  cantidad: number;
-  total: number;
-  porcentaje?: number;
 }
 
 @Injectable({
@@ -63,224 +46,101 @@ export class VentaService {
 
   constructor(private http: HttpClient) {}
 
-  // =============================
-  // 🟦 VENTAS BÁSICAS
-  // =============================
+  // ==========================================
+  // 🟦 VENTAS BÁSICAS (CRUD)
+  // ==========================================
 
-  // 📘 Obtener todas las ventas
+  // Obtener historial completo
   getVentas(): Observable<Venta[]> {
     return this.http.get<Venta[]>(this.apiUrl);
   }
 
-  // 📗 Obtener una venta por ID
+  // Obtener una venta por ID
   getVentaById(id: number): Observable<Venta> {
     return this.http.get<Venta>(`${this.apiUrl}/${id}`);
   }
 
-  // 📙 Crear una nueva venta
+  // Crear una nueva venta
   createVenta(ventaData: VentaCreacionDTO): Observable<any> {
     return this.http.post(this.apiUrl, ventaData);
   }
 
-  // 📒 Actualizar venta existente
+  // Actualizar venta (montos)
   updateVenta(id: number, venta: Partial<Venta>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, venta);
   }
 
-  // 📕 Eliminar una venta
-  deleteVenta(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
+  // ==========================================
+  // 🧾 DETALLES Y BOLETA
+  // ==========================================
 
-  // 📗 Obtener ventas por fecha o rango
-  getVentasPorFecha(fechaInicio: string, fechaFin: string): Observable<Venta[]> {
-    return this.http.get<Venta[]>(`${this.apiUrl}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
-  }
-
-  // 📊 Obtener resumen o reporte de ventas
-  getResumenVentas(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/resumen`);
-  }
-
-  // 🧾 Obtener datos completos de boleta (datosBoletaVenta)
+  // Datos para imprimir boleta
   getDatosBoletaVenta(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/boleta/${id}`);
   }
 
-  // 🧩 Obtener detalles completos de la venta (detallesVenta)
+  // Detalles completos para visualizar en pantalla
   getDetallesVenta(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/detalles/${id}`);
   }
 
-  // =============================
-  // 🟩 NUEVOS ENDPOINTS - VENTAS DE HOY Y ESTADÍSTICAS
-  // =============================
+  // ==========================================
+  // 🟩 REPORTES Y DASHBOARD
+  // ==========================================
 
   /**
-   * Obtener todas las ventas del día de hoy
+   * Obtener ventas de hoy + resumen rápido
    */
   getVentasHoy(): Observable<VentasHoyResponse> {
     return this.http.get<VentasHoyResponse>(`${this.apiUrl}/hoy`);
   }
 
   /**
-   * Obtener ventas por período específico
-   * @param periodo 'dia', 'semana', 'mes', 'año'
-   * @param fecha Fecha específica (opcional, formato YYYY-MM-DD)
+   * Obtener ventas por período (día, semana, mes, año)
    */
-  getVentasPorPeriodo(periodo: 'dia' | 'semana' | 'mes' | 'año', fecha?: string): Observable<VentasPorPeriodoResponse> {
+  getVentasPorPeriodo(periodo: 'dia' | 'semana' | 'mes' | 'año', fecha?: string): Observable<Venta[]> {
     let params = new HttpParams().set('periodo', periodo);
     if (fecha) {
       params = params.set('fecha', fecha);
     }
-    return this.http.get<VentasPorPeriodoResponse>(`${this.apiUrl}/periodo`, { params });
+    return this.http.get<Venta[]>(`${this.apiUrl}/periodo`, { params });
   }
 
   /**
-   * Obtener estadísticas generales de ventas
+   * Obtener estadísticas generales (Cards del Dashboard)
    */
   getEstadisticasVentas(): Observable<EstadisticasVentasResponse> {
     return this.http.get<EstadisticasVentasResponse>(`${this.apiUrl}/estadisticas`);
   }
 
-  // =============================
-  // 🟪 MÉTODOS UTILITARIOS AVANZADOS
-  // =============================
+  // ==========================================
+  // 🟪 MÉTODOS UTILITARIOS (Filtros en Frontend)
+  // ==========================================
 
   /**
-   * Obtener estadísticas rápidas del día
+   * Obtener solo el resumen numérico de hoy
    */
-  getEstadisticasHoy(): Observable<VentasHoyResponse['estadisticas']> {
-    return new Observable(observer => {
-      this.getVentasHoy().subscribe({
-        next: (response) => {
-          observer.next(response.estadisticas);
-          observer.complete();
-        },
-        error: (error) => observer.error(error)
-      });
-    });
+  getResumenHoy(): Observable<ResumenVentasHoy> {
+    return this.getVentasHoy().pipe(map(res => res.resumen));
   }
 
   /**
-   * Obtener ventas de hoy con estadísticas de métodos de pago
+   * Obtener listado de métodos de pago para gráficas
    */
-  getVentasHoyConMetodosPago(): Observable<{ventas: Venta[], estadisticas: VentasHoyResponse['estadisticas'], metodosPago: MetodoPagoStats[]}> {
-    return new Observable(observer => {
-      this.getVentasHoy().subscribe({
-        next: (ventasResponse) => {
-          this.getEstadisticasVentas().subscribe({
-            next: (estadisticasResponse) => {
-              const resultado = {
-                ventas: ventasResponse.ventas,
-                estadisticas: ventasResponse.estadisticas,
-                metodosPago: estadisticasResponse.metodosPago
-              };
-              observer.next(resultado);
-              observer.complete();
-            },
-            error: (error) => observer.error(error)
-          });
-        },
-        error: (error) => observer.error(error)
-      });
-    });
+  getMetodosPagoStats(): Observable<any[]> {
+    return this.getEstadisticasVentas().pipe(map(res => res.metodos_pago));
   }
 
   /**
-   * Obtener ventas de la semana actual
-   */
-  getVentasSemanaActual(): Observable<VentasPorPeriodoResponse> {
-    return this.getVentasPorPeriodo('semana');
-  }
-
-  /**
-   * Obtener ventas del mes actual
-   */
-  getVentasMesActual(): Observable<VentasPorPeriodoResponse> {
-    return this.getVentasPorPeriodo('mes');
-  }
-
-  /**
-   * Obtener ventas del año actual
-   */
-  getVentasAñoActual(): Observable<VentasPorPeriodoResponse> {
-    return this.getVentasPorPeriodo('año');
-  }
-
-  /**
-   * Obtener ventas de un día específico
-   */
-  getVentasPorDia(fecha: string): Observable<VentasPorPeriodoResponse> {
-    return this.getVentasPorPeriodo('dia', fecha);
-  }
-
-  /**
-   * Obtener ventas de un mes específico
-   */
-  getVentasPorMes(año: number, mes: number): Observable<VentasPorPeriodoResponse> {
-    const fecha = `${año}-${mes.toString().padStart(2, '0')}-01`;
-    return this.getVentasPorPeriodo('mes', fecha);
-  }
-
-  /**
-   * Obtener ventas de un año específico
-   */
-  getVentasPorAño(año: number): Observable<VentasPorPeriodoResponse> {
-    const fecha = `${año}-01-01`;
-    return this.getVentasPorPeriodo('año', fecha);
-  }
-
-  /**
-   * Obtener método de pago más popular del día
-   */
-  getMetodoPagoMasPopularHoy(): Observable<MetodoPagoStats> {
-    return new Observable(observer => {
-      this.getEstadisticasVentas().subscribe({
-        next: (response) => {
-          const metodoPopular = response.metodosPago.length > 0 
-            ? response.metodosPago[0] 
-            : { metodo: 'N/A', cantidad: 0, total: 0 };
-          observer.next(metodoPopular);
-          observer.complete();
-        },
-        error: (error) => observer.error(error)
-      });
-    });
-  }
-
-  /**
-   * Obtener ingresos totales del día
-   */
-  getIngresosHoy(): Observable<number> {
-    return new Observable(observer => {
-      this.getEstadisticasVentas().subscribe({
-        next: (response) => {
-          observer.next(response.estadisticas.hoy.ingresos);
-          observer.complete();
-        },
-        error: (error) => observer.error(error)
-      });
-    });
-  }
-
-  /**
-   * Obtener comparativa de ingresos (hoy vs semana vs mes)
+   * Obtener comparativa rápida de ingresos
    */
   getComparativaIngresos(): Observable<{hoy: number, semana: number, mes: number}> {
-    return new Observable(observer => {
-      this.getEstadisticasVentas().subscribe({
-        next: (response) => {
-          const comparativa = {
-            hoy: response.estadisticas.hoy.ingresos,
-            semana: response.estadisticas.semana.ingresos,
-            mes: response.estadisticas.mes.ingresos
-          };
-          observer.next(comparativa);
-          observer.complete();
-        },
-        error: (error) => observer.error(error)
-      });
-    });
+    return this.getEstadisticasVentas().pipe(
+      map(res => ({
+        hoy: res.hoy.ingresos,
+        semana: res.semana.ingresos,
+        mes: res.mes.ingresos
+      }))
+    );
   }
 }

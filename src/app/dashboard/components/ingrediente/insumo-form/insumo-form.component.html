@@ -1,0 +1,126 @@
+<div class="form-container">
+  
+  <!-- Encabezado -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="m-0">
+      <mat-icon class="header-icon">inventory_2</mat-icon>
+      {{ formData.ID_Insumo ? 'Editar Insumo' : 'Nuevo Insumo' }}
+    </h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <form #form="ngForm" (ngSubmit)="saveInsumo()">
+
+      <!-- Sección 1: Datos Principales -->
+      <div class="form-section">
+        <h3 class="section-title">Información Básica</h3>
+        
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Nombre del Insumo</mat-label>
+          <input matInput [(ngModel)]="formData.Nombre" name="nombre" required placeholder="Ej: Harina de Trigo">
+          <mat-error>El nombre es obligatorio</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Descripción (Opcional)</mat-label>
+          <textarea matInput [(ngModel)]="formData.Descripcion" name="descripcion" rows="2" placeholder="Detalles adicionales..."></textarea>
+        </mat-form-field>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Unidad de Medida</mat-label>
+            <mat-select [(ngModel)]="formData.Unidad_Med" name="unidad" required>
+              <mat-option value="kg">Kilogramos (kg)</mat-option>
+              <mat-option value="g">Gramos (g)</mat-option>
+              <mat-option value="l">Litros (l)</mat-option>
+              <mat-option value="ml">Mililitros (ml)</mat-option>
+              <mat-option value="unidad">Unidad (u)</mat-option>
+              <mat-option value="paquete">Paquete</mat-option>
+              <mat-option value="caja">Caja</mat-option>
+            </mat-select>
+            <mat-error>Requerido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Categoría</mat-label>
+            <mat-select [(ngModel)]="formData.ID_Categoria_I" name="categoria" required>
+              <mat-option *ngFor="let cat of categorias" [value]="cat.ID_Categoria_I">
+                {{ cat.Nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Requerido</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Sección 2: Configuración de Stock -->
+      <div class="form-section">
+        <h3 class="section-title">Configuración de Stock</h3>
+        <div class="row">
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Stock Mínimo</mat-label>
+            <input matInput type="number" [(ngModel)]="formData.Stock_Min" name="stock_min" min="0" required>
+            <mat-hint>Alerta si baja de esto</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Stock Máximo</mat-label>
+            <input matInput type="number" [(ngModel)]="formData.Stock_Max" name="stock_max" min="1" required>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Sección 3: Datos de Entrada (Opcional) -->
+      <div class="form-section stock-entry-section">
+        <h3 class="section-title">
+          {{ formData.ID_Insumo ? 'Actualizar Datos de Proveedor/Costo' : 'Datos Iniciales (Opcional)' }}
+        </h3>
+        <p class="section-subtitle" *ngIf="!formData.ID_Insumo">
+          Si llenas esto, se creará el primer lote de stock automáticamente.
+        </p>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Proveedor</mat-label>
+          <mat-select [(ngModel)]="formData.ID_Proveedor" name="proveedor">
+            <mat-option [value]="null">-- Sin asignar --</mat-option>
+            <mat-option *ngFor="let prov of proveedores" [value]="prov.ID_Proveedor">
+              {{ prov.Nombre }} ({{ prov.Ruc }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Costo Unitario</mat-label>
+            <input matInput type="number" [(ngModel)]="formData.Costo_Unitario" name="costo" min="0" step="0.01">
+            <span matPrefix>S/.&nbsp;</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-6">
+            <mat-label>Vencimiento</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="formData.Fecha_Vencimiento" name="vencimiento" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <button *ngIf="formData.Fecha_Vencimiento" matSuffix mat-icon-button type="button" (click)="clearFecha()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Cancelar</button>
+    <button mat-flat-button color="primary" (click)="saveInsumo()" 
+            [disabled]="!form.valid || guardando">
+      <mat-icon *ngIf="!guardando">save</mat-icon>
+      <mat-spinner *ngIf="guardando" diameter="20" class="me-2"></mat-spinner>
+      {{ formData.ID_Insumo ? 'Actualizar' : 'Guardar' }}
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,7 +1,10 @@
 <div class="products-container">
-  <!-- Header con título y botón -->
+  <!-- Header -->
   <div class="products-header">
-    <h1 class="page-title">Lista de Combos</h1>
+    <div>
+      <h1 class="page-title">Gestión de Combos</h1>
+      <p class="subtitle">Administra tus ofertas y promociones</p>
+    </div>
     <button mat-flat-button color="primary" (click)="crearCombo()" class="add-button">
       <mat-icon>add</mat-icon>
       Nuevo Combo
@@ -9,217 +12,127 @@
   </div>
 
   <!-- Filtros -->
-  <div class="filters-section">
+  <div class="filters-section mat-elevation-z1">
     <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
       <input
         type="text"
         [(ngModel)]="terminoBusqueda"
-        (keyup.enter)="aplicarFiltros()"
-        placeholder="Buscar combos..."
+        (keyup)="aplicarFiltros()"
+        placeholder="Buscar por nombre o descripción..."
         class="search-input"
       >
-      <button mat-icon-button color="primary" (click)="aplicarFiltros()" class="search-button">
-        <mat-icon>search</mat-icon>
-      </button>
-      <button *ngIf="terminoBusqueda || filtroEstado !== 'todos'" mat-icon-button color="warn" (click)="limpiarBusqueda()" class="clear-button">
-        <mat-icon>clear</mat-icon>
+      <button *ngIf="terminoBusqueda" mat-icon-button (click)="limpiarBusqueda()" class="clear-btn">
+        <mat-icon>close</mat-icon>
       </button>
     </div>
 
     <div class="filter-chips">
-      <mat-chip-set>
-        <mat-chip 
-          [color]="filtroEstado === 'todos' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'todos'; aplicarFiltros()"
-          highlighted>
+      <mat-chip-listbox>
+        <mat-chip-option 
+          [selected]="filtroEstado === 'todos'" 
+          (click)="filtroEstado = 'todos'; aplicarFiltros()">
           Todos
-        </mat-chip>
-        <mat-chip 
-          [color]="filtroEstado === 'A' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'A'; aplicarFiltros()"
-          highlighted>
+        </mat-chip-option>
+        <mat-chip-option 
+          color="primary" 
+          [selected]="filtroEstado === 'A'" 
+          (click)="filtroEstado = 'A'; aplicarFiltros()">
           Activos
-        </mat-chip>
-        <mat-chip 
-          [color]="filtroEstado === 'I' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'I'; aplicarFiltros()"
-          highlighted>
+        </mat-chip-option>
+        <mat-chip-option 
+          color="warn" 
+          [selected]="filtroEstado === 'I'" 
+          (click)="filtroEstado = 'I'; aplicarFiltros()">
           Inactivos
-        </mat-chip>
-      </mat-chip-set>
+        </mat-chip-option>
+      </mat-chip-listbox>
     </div>
   </div>
 
   <!-- Loading -->
   <div *ngIf="cargando" class="spinner-container">
-    <mat-spinner diameter="40"></mat-spinner>
+    <mat-spinner diameter="50"></mat-spinner>
     <p>Cargando combos...</p>
   </div>
 
-  <!-- Stats bar -->
-  <div *ngIf="!cargando" class="stats-bar">
-    <mat-chip-set>
-      <mat-chip color="primary" highlighted>
-        <mat-icon>inventory_2</mat-icon>
-        Total: {{ combos.length }} combos
-      </mat-chip>
-      <mat-chip color="accent" highlighted>
-        <mat-icon>visibility</mat-icon>
-        Mostrando: {{ paginatedCombos.length }} combos
-      </mat-chip>
-    </mat-chip-set>
-  </div>
-
-  <!-- Grid de Cards -->
-  <div *ngIf="!cargando && combos.length > 0" class="products-grid">
-    <mat-card *ngFor="let combo of paginatedCombos" class="product-card">
-      
-      <!-- Header con imagen y estado -->
-      <div class="card-header">
-        <div class="image-container">
-          <img 
-            [src]="getComboImage(combo.ID_Combo)" 
-            [alt]="combo.Nombre"
-            class="product-image"
-            (error)="onImageError($event)"
-          >
-          <div class="image-overlay">
-            <mat-chip [color]="getEstadoColor(combo.Estado)" class="status-chip">
-              {{ getEstadoText(combo.Estado) }}
-            </mat-chip>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contenido principal -->
-      <mat-card-content class="card-content">
-        
-        <!-- Información básica -->
-        <div class="product-basic-info">
-          <h3 class="product-name" [matTooltip]="combo.Nombre" matTooltipPosition="above">
-            {{ combo.Nombre }}
-          </h3>
-          <p class="product-id">ID: {{ combo.ID_Combo }}</p>
-        </div>
-
-        <!-- Descripción -->
-        <div class="product-description">
-          <p class="description-text" [matTooltip]="combo.Descripcion || 'Sin descripción'" matTooltipPosition="above">
-            {{ truncateText(combo.Descripcion || 'Sin descripción', 60) }}
-          </p>
-        </div>
-
-        <!-- Precio -->
-        <div class="pricing-section" 
-             [matTooltip]="getPrecioInfo(combo)" 
-             matTooltipPosition="above">
-          <div class="price-info">
-            <mat-icon class="price-icon">attach_money</mat-icon>
-            <span class="price-text">S/ {{ combo.Precio.toFixed(2) }}</span>
-          </div>
-        </div>
-
-        <!-- Productos incluidos -->
-        <div class="products-section" 
-             [matTooltip]="getProductosInfo(combo)" 
-             matTooltipPosition="above">
-          <div class="products-info">
-            <mat-icon class="products-icon">fastfood</mat-icon>
-            <span class="products-text">
-              {{ getCantidadProductos(combo) }} producto{{ getCantidadProductos(combo) !== 1 ? 's' : '' }}
-            </span>
-          </div>
-        </div>
-
-      </mat-card-content>
-
-      <!-- Acciones -->
-      <mat-card-actions class="card-actions">
-        <!-- Botón para activar/desactivar -->
-        <button 
-          *ngIf="combo.Estado === 'I'"
-          mat-stroked-button 
-          color="primary" 
-          (click)="activarCombo(combo)" 
-          class="action-button"
-          matTooltip="Activar combo"
-        >
-          <mat-icon>check_circle</mat-icon>
-          Activar
-        </button>
-        
-        <button 
-          *ngIf="combo.Estado === 'A'"
-          mat-stroked-button 
-          color="warn" 
-          (click)="desactivarCombo(combo)" 
-          class="action-button"
-          matTooltip="Desactivar combo"
-        >
-          <mat-icon>cancel</mat-icon>
-          Desactivar
-        </button>
-
-        <!-- Botón de editar -->
-        <button 
-          mat-flat-button 
-          color="primary" 
-          (click)="editarCombo(combo)" 
-          class="action-button"
-          matTooltip="Editar combo"
-        >
-          <mat-icon>edit</mat-icon>
-          Editar
-        </button>
-        
-        <!-- Botón de eliminar -->
-        <button 
-          mat-stroked-button 
-          color="warn" 
-          (click)="eliminarCombo(combo)" 
-          class="action-button"
-          matTooltip="Eliminar combo"
-        >
-          <mat-icon>delete</mat-icon>
-          Eliminar
-        </button>
-      </mat-card-actions>
-
-    </mat-card>
-  </div>
-
-  <!-- Paginación -->
-  <div *ngIf="!cargando && combos.length > 0" class="pagination-container">
-    <mat-paginator 
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="pageSizeOptions"
-      [pageIndex]="currentPage"
-      (page)="onPageChange($event)"
-      showFirstLastButtons
-      class="custom-paginator">
-    </mat-paginator>
-  </div>
-
-  <!-- Sin resultados -->
-  <div *ngIf="!cargando && combos.length === 0" class="no-data">
-    <mat-icon class="no-data-icon">inventory_2</mat-icon>
-    <h3>No hay combos registrados</h3>
-    <p>Comienza agregando tu primer combo al sistema</p>
-    <button mat-flat-button color="primary" (click)="crearCombo()">
-      <mat-icon>add</mat-icon>
-      Agregar primer combo
-    </button>
-  </div>
-
-  <!-- Error State -->
+  <!-- Error -->
   <div *ngIf="error && !cargando" class="error-state">
-    <mat-icon class="error-icon">warning</mat-icon>
-    <h3>Error al cargar combos</h3>
-    <p>{{ error }}</p>
-    <button mat-flat-button color="primary" (click)="cargarCombos()">
-      <mat-icon>refresh</mat-icon>
-      Reintentar
-    </button>
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3>{{ error }}</h3>
+    <button mat-stroked-button color="primary" (click)="cargarCombos()">Reintentar</button>
+  </div>
+
+  <!-- Grid de Combos -->
+  <div *ngIf="!cargando && !error" class="content-wrapper">
+    
+    <!-- Sin resultados -->
+    <div *ngIf="paginatedCombos.length === 0" class="no-data">
+      <mat-icon class="no-data-icon">fastfood</mat-icon>
+      <h3>No se encontraron combos</h3>
+      <p *ngIf="terminoBusqueda">Intenta con otros términos de búsqueda</p>
+      <p *ngIf="!terminoBusqueda">¡Crea tu primer combo para empezar a vender!</p>
+    </div>
+
+    <div class="products-grid">
+      <mat-card *ngFor="let combo of paginatedCombos" class="product-card">
+        
+        <!-- Imagen y Estado -->
+        <div class="card-image-header">
+          <img [src]="getComboImage(combo)" [alt]="combo.Nombre" (error)="onImageError($event)">
+          <div class="status-badge" [class.active]="combo.Estado === 'A'">
+            {{ getEstadoText(combo.Estado) }}
+          </div>
+          <div class="price-badge">
+            S/ {{ combo.Precio | number:'1.2-2' }}
+          </div>
+        </div>
+
+        <mat-card-content class="card-content">
+          <div class="title-section">
+            <h3 class="combo-title" [matTooltip]="combo.Nombre">{{ combo.Nombre }}</h3>
+            <span class="id-text">#{{ combo.ID_Combo }}</span>
+          </div>
+          
+          <p class="description" [matTooltip]="combo.Descripcion || ''">
+            {{ combo.Descripcion || 'Sin descripción' }}
+          </p>
+
+          <div class="details-section">
+            <div class="detail-item" [matTooltip]="getProductosInfo(combo)" matTooltipClass="multiline-tooltip">
+              <mat-icon>restaurant</mat-icon>
+              <span>{{ combo.detalles?.length || 0 }} Productos</span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions class="card-actions">
+          <button mat-icon-button 
+                  [color]="combo.Estado === 'A' ? 'warn' : 'accent'" 
+                  (click)="toggleEstadoCombo(combo)" 
+                  [matTooltip]="combo.Estado === 'A' ? 'Desactivar' : 'Activar'">
+            <mat-icon>{{ combo.Estado === 'A' ? 'block' : 'check_circle' }}</mat-icon>
+          </button>
+          
+          <button mat-icon-button color="primary" (click)="editarCombo(combo)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          
+          <button mat-icon-button color="warn" (click)="eliminarCombo(combo)" matTooltip="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- Paginador -->
+    <mat-paginator [length]="totalItems"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="pageSizeOptions"
+                   (page)="onPageChange($event)"
+                   [hidden]="totalItems === 0"
+                   showFirstLastButtons
+                   class="custom-paginator">
+    </mat-paginator>
   </div>
 </div>
