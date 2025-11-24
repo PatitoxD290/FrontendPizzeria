@@ -52,7 +52,7 @@ export class VentaPedidoComponent implements OnInit {
 
   // 🔹 Paso 1: Método de pago
   selectedMetodoPago: number = this.TIPO_PAGO.EFECTIVO;
-  recibe: string = ''; // String para manejar input manual
+  recibe: string = '';
   vuelto: number = 0;
 
   // 🔹 Paso 2: Tipo de comprobante
@@ -80,9 +80,7 @@ export class VentaPedidoComponent implements OnInit {
     private clienteService: ClienteService
   ) {}
 
-  ngOnInit(): void {
-    // Si el total es 0, podría ser una cortesía, pero asumimos pago normal
-  }
+  ngOnInit(): void {}
 
   // ============================================================
   // 1️⃣ LÓGICA DE PAGO (CALCULADORA)
@@ -98,16 +96,21 @@ export class VentaPedidoComponent implements OnInit {
   }
 
   addNumber(num: string) {
-    if (this.recibe === '0') this.recibe = num;
-    else this.recibe += num;
+    if (this.recibe === '0' || this.recibe === '') {
+      this.recibe = num;
+    } else {
+      this.recibe += num;
+    }
     this.calcularVuelto();
   }
 
   deleteLast() {
-    if (this.recibe.length > 0) {
+    if (this.recibe.length > 1) {
       this.recibe = this.recibe.slice(0, -1);
-      this.calcularVuelto();
+    } else {
+      this.recibe = '';
     }
+    this.calcularVuelto();
   }
 
   clearRecibe() {
@@ -131,11 +134,22 @@ export class VentaPedidoComponent implements OnInit {
       const recibeNum = parseFloat(this.recibe) || 0;
       
       if (!this.recibe) {
-        Swal.fire('Monto requerido', 'Ingrese el monto recibido.', 'warning');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Monto requerido',
+          text: 'Por favor ingrese el monto recibido.',
+          confirmButtonColor: '#d33'
+        });
         return false;
       }
+      
       if (recibeNum < this.data.total) {
-        Swal.fire('Monto insuficiente', `Faltan S/ ${(this.data.total - recibeNum).toFixed(2)}`, 'error');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Monto insuficiente',
+          text: `El monto recibido es menor al total a pagar. Faltan S/ ${(this.data.total - recibeNum).toFixed(2)}`,
+          confirmButtonColor: '#d33'
+        });
         return false;
       }
     } else {
@@ -166,7 +180,7 @@ export class VentaPedidoComponent implements OnInit {
       // Boleta o Factura -> Pedir Documento
       this.pasoActual = 'documento';
       this.tipoDocumento = (tipoId === this.TIPO_VENTA.FACTURA) ? 'RUC' : 'DNI';
-      this.numeroDocumento = ''; // Limpiar anterior
+      this.numeroDocumento = '';
     }
   }
 
@@ -182,13 +196,33 @@ export class VentaPedidoComponent implements OnInit {
     const doc = this.numeroDocumento.trim();
     
     if (!doc) {
-      Swal.fire('Requerido', `Ingrese el ${this.tipoDocumento} del cliente.`, 'warning');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Documento requerido',
+        text: `Para ${this.getTipoComprobanteText()} debe ingresar ${this.tipoDocumento}.`,
+        confirmButtonColor: '#d33'
+      });
+      return false;
+    }
+
+    if (!/^\d+$/.test(doc)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Documento inválido',
+        text: 'Solo se permiten números.',
+        confirmButtonColor: '#d33'
+      });
       return false;
     }
 
     const largoRequerido = this.tipoDocumento === 'DNI' ? 8 : 11;
     if (doc.length !== largoRequerido) {
-      Swal.fire('Inválido', `El ${this.tipoDocumento} debe tener ${largoRequerido} dígitos.`, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Longitud incorrecta',
+        text: `${this.tipoDocumento} debe tener ${largoRequerido} dígitos.`,
+        confirmButtonColor: '#d33'
+      });
       return false;
     }
 
@@ -200,7 +234,6 @@ export class VentaPedidoComponent implements OnInit {
 
     this.cargando = true;
 
-    // Buscar cliente en API (Backend crea si no existe)
     this.clienteService.buscarClientePorDocumento(this.numeroDocumento).subscribe({
       next: (res) => {
         this.cargando = false;
@@ -208,13 +241,31 @@ export class VentaPedidoComponent implements OnInit {
           this.clienteData = res.cliente;
           this.registrarVentaCompleta(res.cliente.ID_Cliente);
         } else {
-          Swal.fire('Error', 'No se pudo obtener el ID del cliente.', 'error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID del cliente. Intente nuevamente.',
+            confirmButtonColor: '#d33'
+          });
         }
       },
       error: (err) => {
         this.cargando = false;
-        console.error(err);
-        Swal.fire('Error', 'No se pudo validar el documento. Intente nuevamente.', 'error');
+        console.error('Error al buscar/crear cliente:', err);
+        
+        let mensajeError = 'Error al procesar el documento';
+        if (err.error?.error) {
+          mensajeError = err.error.error;
+        } else if (err.status === 404) {
+          mensajeError = 'Documento no encontrado en registros públicos';
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: mensajeError,
+          confirmButtonColor: '#d33'
+        });
       }
     });
   }
@@ -226,10 +277,10 @@ export class VentaPedidoComponent implements OnInit {
   private registrarVentaCompleta(idCliente: number) {
     this.cargando = true;
 
-    // 1. Preparar Detalles para el Backend (DTO Limpio)
+    // 1. Preparar Detalles para el Backend
     const detallesDTO = this.data.detalles.map(d => ({
-      ID_Producto_T: d.ID_Producto_T || null, // Ojo: Asegurar que el modelo PedidoDetalle tenga esto
-      ID_Combo: d.ID_Combo || null,           // O ID_Combo si es combo
+      ID_Producto_T: d.ID_Producto_T || null,
+      ID_Combo: d.ID_Combo || null,
       Cantidad: d.Cantidad,
       PrecioTotal: d.PrecioTotal
     }));
@@ -238,7 +289,7 @@ export class VentaPedidoComponent implements OnInit {
     const pedidoDTO: PedidoCreacionDTO = {
       ID_Cliente: idCliente,
       ID_Usuario: this.data.idUsuario,
-      Notas: `Venta ${this.data.codigoPedido}`, // Puedes agregar más info aquí
+      Notas: this.generarNotas(),
       SubTotal: this.data.total,
       detalles: detallesDTO
     };
@@ -262,67 +313,122 @@ export class VentaPedidoComponent implements OnInit {
           next: (resVenta) => {
             this.cargando = false;
             
-            // Éxito: Generar PDF y cerrar
+            // 🔹 Generar comprobante PDF
             this.generarComprobantePDF(resVenta.ID_Venta, idPedidoCreado);
             
-            // Feedback
-            this.mostrarExito(resVenta.Puntos_Ganados); // Puntos vienen del backend
+            // 🔹 Mostrar mensaje de éxito
+            this.mostrarMensajeExito(resVenta.Puntos_Ganados, idPedidoCreado, resVenta.ID_Venta);
             
-            // Cerrar modal retornando true
+            // 🔹 Cerrar modal indicando éxito
             this.dialogRef.close({ registrado: true });
           },
           error: (err) => {
             this.cargando = false;
-            console.error('Error creando venta:', err);
-            Swal.fire('Error', 'El pedido se creó pero falló el registro de venta.', 'error');
+            console.error('Error al crear venta:', err);
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Error en venta', 
+              text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
+            });
           }
         });
       },
       error: (err) => {
         this.cargando = false;
-        console.error('Error creando pedido:', err);
-        Swal.fire('Error', 'No se pudo crear el pedido.', 'error');
+        console.error('Error al crear pedido:', err);
+        Swal.fire({ 
+          icon: 'error', 
+          title: 'Error', 
+          text: 'Ocurrió un problema al crear el pedido.' 
+        });
       }
     });
   }
 
-  private mostrarExito(puntos: number) {
-    let msg = 'Venta registrada correctamente.';
-    if (puntos > 0) {
-      msg += `<br><strong>¡Cliente ganó ${puntos} puntos! 🎉</strong>`;
+  private generarNotas(): string {
+    const metodoPagoTexto = this.getMetodoPagoText();
+    let textoNotas = `Pedido ${this.data.codigoPedido} - ${metodoPagoTexto} - Caja`;
+    if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO && parseFloat(this.recibe) > 0) {
+      textoNotas += ` - Recibe: S/${this.recibe} - Vuelto: S/${this.vuelto.toFixed(2)}`;
     }
-    
+    return textoNotas;
+  }
+
+  private mostrarMensajeExito(puntos: number, idPedido: number, idVenta: number) {
+    let mensaje = `
+      <div style="text-align: left;">
+        <strong>${this.getTipoComprobanteText()} generada exitosamente</strong><br>
+        • Pedido: <strong>${this.data.codigoPedido}</strong><br>
+        • ID Pedido: <strong>${idPedido}</strong><br>
+        • ID Venta: <strong>${idVenta}</strong><br>
+        • Total: <strong>S/ ${this.data.total.toFixed(2)}</strong>
+    `;
+
+    if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO && parseFloat(this.recibe) > 0) {
+      mensaje += `<br>• Recibido: <strong>S/ ${parseFloat(this.recibe).toFixed(2)}</strong>`;
+      mensaje += `<br>• Vuelto: <strong>S/ ${this.vuelto.toFixed(2)}</strong>`;
+    }
+
+    if (puntos > 0) {
+      mensaje += `<br>• <strong>¡Cliente ganó ${puntos} puntos! 🎉</strong>`;
+    }
+
+    mensaje += `</div>`;
+
     Swal.fire({
       icon: 'success',
-      title: '¡Listo!',
-      html: msg,
-      timer: 3000,
-      showConfirmButton: false
+      title: 'Venta Registrada',
+      html: mensaje,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#28a745'
     });
   }
 
   // ============================================================
-  // 📄 GENERACIÓN DE PDF (Simplificada, usa la lógica de VentaService)
+  // 📄 GENERACIÓN DE PDF
   // ============================================================
-  // Nota: Idealmente deberías llamar a VentaService.generarPDFVenta(venta), 
-  // pero aquí no tenemos el objeto Venta completo aún.
-  // Reutilizamos la lógica visual local para inmediatez.
 
   private generarComprobantePDF(idVenta: number, idPedido: number) {
-    // Aquí puedes implementar la misma lógica de PDF que hicimos en VentaListComponent
-    // O simplemente llamar a un endpoint que descargue el PDF.
-    // Por ahora, dejaré el esqueleto para que no falle.
     console.log(`Generando PDF para Venta #${idVenta}, Pedido #${idPedido}`);
-    // ... (Tu lógica de jsPDF aquí si deseas impresión inmediata) ...
+    
+    // Aquí puedes implementar la lógica de PDF del primer componente
+    // Por ahora solo log
   }
 
-  // Navegación
+  // ============================================================
+  // 🔧 MÉTODOS HELPER (CAMBIADOS A PÚBLICOS PARA EL TEMPLATE)
+  // ============================================================
+
+  getMetodoPagoText(): string {
+    switch(this.selectedMetodoPago) {
+      case this.TIPO_PAGO.EFECTIVO: return 'Efectivo';
+      case this.TIPO_PAGO.TARJETA: return 'Tarjeta';
+      case this.TIPO_PAGO.BILLETERA: return 'Billetera Digital';
+      default: return 'Efectivo';
+    }
+  }
+
+  getTipoComprobanteText(): string {
+    switch(this.selectedTipoComprobante) {
+      case this.TIPO_VENTA.BOLETA: return 'Boleta';
+      case this.TIPO_VENTA.FACTURA: return 'Factura';
+      case this.TIPO_VENTA.NOTA: return 'Nota de Venta';
+      default: return 'Comprobante';
+    }
+  }
+
+  // ============================================================
+  // 🧭 NAVEGACIÓN
+  // ============================================================
+
   volverAComprobante() {
     this.pasoActual = 'comprobante';
+    this.numeroDocumento = '';
   }
 
   volverAPago() {
     this.pasoActual = 'pago';
+    this.selectedTipoComprobante = null;
   }
 
   cerrar() {

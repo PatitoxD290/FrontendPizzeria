@@ -3,11 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Angular Material
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Servicios y Modelos
@@ -24,10 +22,8 @@ import Swal from 'sweetalert2';
   imports: [
     CommonModule,
     FormsModule,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatTooltipModule
   ],
   templateUrl: './detalle-pedido.component.html',
@@ -36,7 +32,6 @@ import Swal from 'sweetalert2';
 export class DetallePedidoComponent implements OnInit {
   
   detalles: PedidoDetalle[] = [];
-  displayedColumns = ['producto', 'cantidad', 'precio', 'subtotal', 'acciones'];
   codigoPedido: string = '';
 
   constructor(
@@ -56,12 +51,10 @@ export class DetallePedidoComponent implements OnInit {
 
   // 🔄 Getters Visuales
   getNombreItem(detalle: PedidoDetalle): string {
-    // El modelo ya trae Nombre_Producto o Nombre_Combo
     return detalle.Nombre_Producto || detalle.Nombre_Combo || 'Item sin nombre';
   }
 
   getDetalleItem(detalle: PedidoDetalle): string {
-    // Mostrar descripción o categoría
     return detalle.Descripcion || detalle.Tamano_Nombre || '';
   }
 
@@ -148,7 +141,7 @@ export class DetallePedidoComponent implements OnInit {
 
   private abrirModalPago(idUsuario: number) {
     const dialogRef = this.dialog.open(VentaPedidoComponent, {
-      width: '900px', // Más ancho para que quepa el selector de cliente y resumen
+      width: '900px',
       maxWidth: '95vw',
       disableClose: true,
       data: { 
@@ -161,12 +154,8 @@ export class DetallePedidoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.registrado) {
-        // Venta exitosa -> Limpiar todo
         this.ordenService.limpiar();
         this.generarCodigoPedido();
-        
-        // El feedback de éxito lo da el componente de VentaPedido o aquí
-        // Swal.fire(...) ya se suele manejar en el modal de pago al finalizar
       }
     });
   }

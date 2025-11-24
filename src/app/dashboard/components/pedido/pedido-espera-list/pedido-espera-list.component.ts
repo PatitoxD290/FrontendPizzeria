@@ -50,7 +50,7 @@ interface PedidoEnEspera extends Pedido {
 export class PedidoEsperaListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // Propiedades para paginación
+  // Propiedades para paginación - Manteniendo la configuración del primer diseño
   pageSize = 6;
   pageIndex = 0;
   pageSizeOptions = [6, 12, 18];
@@ -74,20 +74,20 @@ export class PedidoEsperaListComponent implements OnInit {
     this.cargarPedidosEnEspera();
   }
 
-  // Getter para obtener los pedidos paginados
+  // Getter para obtener los pedidos paginados - Manteniendo la lógica del primer diseño
   get pedidosPaginados() {
     const startIndex = this.pageIndex * this.pageSize;
     return this.pedidos.slice(startIndex, startIndex + this.pageSize);
   }
 
-  // Manejar cambio de página
+  // Manejar cambio de página - Manteniendo la lógica del primer diseño
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 🔄 Carga Principal
+  // 🔄 Carga Principal - Manteniendo la lógica optimizada del segundo componente
   cargarPedidosEnEspera(): void {
     this.isLoading = true;
     this.error = '';
@@ -124,7 +124,7 @@ export class PedidoEsperaListComponent implements OnInit {
     });
   }
 
-  // 🛠️ Helpers de Fecha
+  // 🛠️ Helpers de Fecha - Manteniendo la lógica optimizada
   private crearFechaCompleta(fecha: string, hora: string): Date {
     try {
       if (hora && hora.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
@@ -138,9 +138,8 @@ export class PedidoEsperaListComponent implements OnInit {
     }
   }
 
-  // 📦 Lógica de Enriquecimiento (Hydration)
+  // 📦 Lógica de Enriquecimiento (Hydration) - Manteniendo la lógica optimizada
   private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<PedidoEnEspera[]> {
-    // Usamos Promise.all para procesar pedidos en paralelo (mejora rendimiento)
     const promesas = pedidos.map(async (pedido) => {
       const pedidoCompleto: PedidoEnEspera = { ...pedido };
 
@@ -174,7 +173,6 @@ export class PedidoEsperaListComponent implements OnInit {
   }
 
   private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
-    // Procesar detalles en paralelo
     return Promise.all(detalles.map(async (detalle) => {
       let productoInfo: Producto | undefined;
       let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
@@ -203,8 +201,6 @@ export class PedidoEsperaListComponent implements OnInit {
 
   private async obtenerProductoPorTamano(idProductoTamano: number): Promise<Producto | undefined> {
     try {
-      // Nota: Esto podría optimizarse cargando todos los productos una sola vez al inicio
-      // pero mantenemos tu lógica de buscar bajo demanda por seguridad.
       const productos = await firstValueFrom(this.productoService.getProductos());
       
       for (const p of productos || []) {
@@ -217,7 +213,7 @@ export class PedidoEsperaListComponent implements OnInit {
     }
   }
 
-  // 🚀 Acciones (Cambio de Estado)
+  // 🚀 Acciones (Cambio de Estado) - Manteniendo la lógica optimizada
   cambiarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C') {
     const accion = nuevoEstado === 'E' ? 'entregar' : 'cancelar';
     const colorBtn = nuevoEstado === 'E' ? '#2e7d32' : '#d32f2f';
@@ -264,10 +260,9 @@ export class PedidoEsperaListComponent implements OnInit {
     });
   }
 
-  // 🛠️ Visual Helpers
+  // 🛠️ Visual Helpers - Manteniendo todas las funciones del segundo componente
   getNombreCliente(pedido: PedidoEnEspera): string {
     if (pedido.cliente) return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido || ''}`;
-    // Fallback al campo visual que viene del backend si existe
     return pedido.Cliente_Nombre || 'Cliente General';
   }
 
@@ -282,7 +277,7 @@ export class PedidoEsperaListComponent implements OnInit {
     } catch { return hora; }
   }
 
-  // Calcular tiempo transcurrido
+  // Calcular tiempo transcurrido - Manteniendo la función del segundo componente
   getTiempoEspera(fecha: string, hora: string): string {
     const fechaPedido = this.crearFechaCompleta(fecha, hora);
     const diff = Date.now() - fechaPedido.getTime();
@@ -297,5 +292,34 @@ export class PedidoEsperaListComponent implements OnInit {
     const fechaPedido = this.crearFechaCompleta(fecha, hora);
     const diff = Date.now() - fechaPedido.getTime();
     return diff > 30 * 60000; // > 30 min es crítico
+  }
+
+  // 🔹 FUNCIONES ADICIONALES DEL PRIMER DISEÑO (para mantener compatibilidad)
+  getEstadoColor(estado: string): string {
+    switch (estado) {
+      case 'P': return 'primary';
+      case 'D': return 'accent';
+      case 'E': return 'primary';
+      case 'C': return 'warn';
+      default: return 'primary';
+    }
+  }
+
+  getEstadoTexto(estado: string): string {
+    switch (estado) {
+      case 'P': return 'Pendiente';
+      case 'D': return 'En preparación';
+      case 'E': return 'Entregado';
+      case 'C': return 'Cancelado';
+      default: return estado;
+    }
+  }
+
+  // Función de refrescar del primer diseño
+  refrescar(): void {
+    this.cargarPedidosEnEspera();
+    this.snackBar.open('Lista actualizada', 'Cerrar', {
+      duration: 2000
+    });
   }
 }

@@ -16,13 +16,13 @@ export class IniciarComponent implements OnInit, OnDestroy {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // 🔒 Bloquear scroll para experiencia "Kiosko" (Pantalla completa fija)
+    // 🔹 Oculta el scroll del body cuando entras a esta pantalla
     document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden'; // asegura en html también
   }
 
   ngOnDestroy(): void {
-    // 🔓 Restaurar scroll al salir
+    // 🔹 Restaura el scroll cuando sales de esta pantalla
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
   }

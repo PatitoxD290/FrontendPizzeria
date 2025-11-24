@@ -1,151 +1,178 @@
 <!-- PASO 1: MÉTODO DE PAGO -->
 <div *ngIf="pasoActual === 'pago'" class="step-container">
-  <h2 mat-dialog-title class="text-center">Cobrar S/ {{ data.total | number:'1.2-2' }}</h2>
+  <h2 mat-dialog-title class="text-center">Registrar Pago</h2>
 
   <mat-dialog-content>
+    <!-- Total a Pagar -->
+    <div class="total-display">
+      <span class="total-label">Total a Pagar</span>
+      <span class="total-amount">S/ {{ data.total | number:'1.2-2' }}</span>
+    </div>
+
     <!-- Selección de Método -->
-    <div class="payment-methods">
-      <mat-button-toggle-group [(ngModel)]="selectedMetodoPago" name="metodo" aria-label="Método de Pago" class="w-100">
-        <mat-button-toggle [value]="TIPO_PAGO.EFECTIVO" class="flex-1">
-          <mat-icon>payments</mat-icon> Efectivo
+    <div class="metodos-wrapper">
+      <mat-button-toggle-group [(ngModel)]="selectedMetodoPago" class="metodo-toggle-group">
+        <mat-button-toggle [value]="TIPO_PAGO.EFECTIVO" class="metodo-toggle">
+          <mat-icon>payments</mat-icon>
+          <span>Efectivo</span>
         </mat-button-toggle>
-        <mat-button-toggle [value]="TIPO_PAGO.BILLETERA" class="flex-1">
-          <mat-icon>qr_code</mat-icon> Yape/Plin
+        <mat-button-toggle [value]="TIPO_PAGO.BILLETERA" class="metodo-toggle">
+          <mat-icon>qr_code</mat-icon>
+          <span>Billetera</span>
         </mat-button-toggle>
-        <mat-button-toggle [value]="TIPO_PAGO.TARJETA" class="flex-1">
-          <mat-icon>credit_card</mat-icon> Tarjeta
+        <mat-button-toggle [value]="TIPO_PAGO.TARJETA" class="metodo-toggle">
+          <mat-icon>credit_card</mat-icon>
+          <span>Tarjeta</span>
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
 
-    <!-- PAGO CON EFECTIVO (Calculadora) -->
-    <div *ngIf="selectedMetodoPago === TIPO_PAGO.EFECTIVO" class="cash-section mt-3">
-      
-      <div class="display-montos">
-        <mat-form-field appearance="outline" class="w-100 input-grande">
-          <mat-label>Recibido</mat-label>
-          <input matInput type="number" [(ngModel)]="recibe" (input)="onRecibeChange()" placeholder="0.00" #inputRecibe>
+    <!-- EFECTIVO: Calculadora -->
+    <div *ngIf="selectedMetodoPago === TIPO_PAGO.EFECTIVO" class="efectivo-section">
+      <div class="montos-container">
+        <mat-form-field appearance="fill" class="monto-field">
+          <mat-label>Monto Recibido</mat-label>
+          <input matInput type="text" [(ngModel)]="recibe" (input)="onRecibeChange()" placeholder="0.00">
           <span matPrefix>S/&nbsp;</span>
-          <button mat-icon-button matSuffix (click)="clearRecibe()" *ngIf="recibe">
-            <mat-icon>backspace</mat-icon>
-          </button>
         </mat-form-field>
 
-        <div class="vuelto-box" [class.positivo]="vuelto >= 0" [class.negativo]="vuelto < 0">
-          <span class="label">Vuelto:</span>
-          <span class="amount">S/ {{ vuelto | number:'1.2-2' }}</span>
+        <div class="vuelto-display" [class.has-vuelto]="vuelto > 0">
+          <span class="vuelto-label">Vuelto:</span>
+          <span class="vuelto-amount">S/ {{ vuelto | number:'1.2-2' }}</span>
         </div>
       </div>
 
       <!-- Teclado Numérico -->
-      <div class="numpad">
-        <button mat-stroked-button (click)="addNumber('1')">1</button>
-        <button mat-stroked-button (click)="addNumber('2')">2</button>
-        <button mat-stroked-button (click)="addNumber('3')">3</button>
+      <div class="teclado-numerico">
+        <button mat-stroked-button class="tecla" (click)="addNumber('7')">7</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('8')">8</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('9')">9</button>
         
-        <button mat-stroked-button (click)="addNumber('4')">4</button>
-        <button mat-stroked-button (click)="addNumber('5')">5</button>
-        <button mat-stroked-button (click)="addNumber('6')">6</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('4')">4</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('5')">5</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('6')">6</button>
         
-        <button mat-stroked-button (click)="addNumber('7')">7</button>
-        <button mat-stroked-button (click)="addNumber('8')">8</button>
-        <button mat-stroked-button (click)="addNumber('9')">9</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('1')">1</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('2')">2</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('3')">3</button>
         
-        <button mat-stroked-button (click)="addDecimal()">.</button>
-        <button mat-stroked-button (click)="addNumber('0')">0</button>
-        <button mat-stroked-button (click)="deleteLast()"><mat-icon>backspace</mat-icon></button>
+        <button mat-stroked-button class="tecla" (click)="addDecimal()">.</button>
+        <button mat-stroked-button class="tecla" (click)="addNumber('0')">0</button>
+        <button mat-stroked-button class="tecla borrar" (click)="deleteLast()">
+          <mat-icon>backspace</mat-icon>
+        </button>
       </div>
-      
-      <button mat-button color="primary" class="w-100 mt-2" (click)="setMontoExacto()">Monto Exacto</button>
+
+      <div class="acciones-rapidas">
+        <button mat-button color="primary" (click)="setMontoExacto()">Monto Exacto</button>
+        <button mat-button color="warn" (click)="clearRecibe()">Limpiar</button>
+      </div>
     </div>
 
-    <!-- OTROS MÉTODOS -->
-    <div *ngIf="selectedMetodoPago !== TIPO_PAGO.EFECTIVO" class="info-payment">
-      <mat-icon class="large-icon" *ngIf="selectedMetodoPago === TIPO_PAGO.BILLETERA">qr_code_2</mat-icon>
-      <mat-icon class="large-icon" *ngIf="selectedMetodoPago === TIPO_PAGO.TARJETA">point_of_sale</mat-icon>
-      <p>Solicita el pago por el monto exacto.</p>
-      <h3>S/ {{ data.total | number:'1.2-2' }}</h3>
+    <!-- BILLETERA DIGITAL -->
+    <div *ngIf="selectedMetodoPago === TIPO_PAGO.BILLETERA" class="info-pago">
+      <mat-icon class="icono-grande">qr_code_2</mat-icon>
+      <h3>Billetera Digital</h3>
+      <p>Pago por Yape o Plin. Confirme una vez recibido.</p>
+      <div class="monto-exacto">Monto exacto: <strong>S/ {{ data.total | number:'1.2-2' }}</strong></div>
     </div>
 
+    <!-- TARJETA -->
+    <div *ngIf="selectedMetodoPago === TIPO_PAGO.TARJETA" class="info-pago">
+      <mat-icon class="icono-grande">point_of_sale</mat-icon>
+      <h3>Tarjeta</h3>
+      <p>Pago con tarjeta (POS Visa/Mastercard).</p>
+      <div class="monto-exacto">Monto exacto: <strong>S/ {{ data.total | number:'1.2-2' }}</strong></div>
+    </div>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-button color="warn" (click)="dialogRef.close()">Cancelar</button>
-    <button mat-flat-button color="primary" (click)="confirmarPago()" class="btn-large">
-      COBRAR <mat-icon>arrow_forward</mat-icon>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button color="warn" (click)="cerrar()">Cancelar</button>
+    <button mat-flat-button color="primary" (click)="confirmarPago()" class="btn-continuar">
+      Continuar <mat-icon>arrow_forward</mat-icon>
     </button>
   </mat-dialog-actions>
 </div>
 
-<!-- PASO 2: COMPROBANTE -->
+<!-- PASO 2: TIPO DE COMPROBANTE -->
 <div *ngIf="pasoActual === 'comprobante'" class="step-container">
-  <h2 mat-dialog-title>Tipo de Comprobante</h2>
-  
+  <h2 mat-dialog-title>Seleccionar Comprobante</h2>
+
   <mat-dialog-content>
-    <div class="comprobante-options">
-      <button mat-raised-button class="comp-btn" (click)="seleccionarComprobante(TIPO_VENTA.BOLETA)">
+    <div class="comprobantes-wrapper">
+      <button mat-raised-button class="comprobante-btn" (click)="seleccionarComprobante(TIPO_VENTA.BOLETA)">
         <mat-icon>receipt</mat-icon>
-        <span>BOLETA</span>
-        <small>DNI Obligatorio</small>
+        <span>Boleta Electrónica</span>
+        <small>Requiere DNI del cliente</small>
       </button>
 
-      <button mat-raised-button class="comp-btn" (click)="seleccionarComprobante(TIPO_VENTA.FACTURA)">
+      <button mat-raised-button class="comprobante-btn" (click)="seleccionarComprobante(TIPO_VENTA.FACTURA)">
         <mat-icon>description</mat-icon>
-        <span>FACTURA</span>
-        <small>RUC Obligatorio</small>
+        <span>Factura Electrónica</span>
+        <small>Requiere RUC del cliente</small>
       </button>
 
-      <button mat-raised-button class="comp-btn nota" (click)="seleccionarComprobante(TIPO_VENTA.NOTA)">
+      <button mat-raised-button class="comprobante-btn nota-btn" (click)="seleccionarComprobante(TIPO_VENTA.NOTA)">
         <mat-icon>note</mat-icon>
-        <span>NOTA DE VENTA</span>
-        <small>Sin documento</small>
+        <span>Nota de Venta</span>
+        <small>Sin documento - Cliente varios</small>
       </button>
     </div>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="volverAPago()">Atrás</button>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="volverAPago()">Volver</button>
   </mat-dialog-actions>
 </div>
 
-<!-- PASO 3: DOCUMENTO CLIENTE -->
+<!-- PASO 3: DOCUMENTO DEL CLIENTE -->
 <div *ngIf="pasoActual === 'documento'" class="step-container">
-  <h2 mat-dialog-title>Datos del Cliente</h2>
+  <h2 mat-dialog-title>Documento del Cliente</h2>
 
   <mat-dialog-content>
-    <div class="doc-container">
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Tipo Documento</mat-label>
-        <mat-select [(ngModel)]="tipoDocumento" disabled>
+    <div class="documento-container">
+      <mat-form-field appearance="outline" class="tipo-doc-field">
+        <mat-label>Tipo de documento</mat-label>
+        <mat-select [(ngModel)]="tipoDocumento" [disabled]="true">
           <mat-option value="DNI">DNI</mat-option>
           <mat-option value="RUC">RUC</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-100 input-grande">
+      <mat-form-field appearance="outline" class="numero-doc-field">
         <mat-label>Número de {{ tipoDocumento }}</mat-label>
-        <input matInput 
-               [(ngModel)]="numeroDocumento" 
-               (input)="soloNumeros($event)" 
-               [maxlength]="tipoDocumento === 'DNI' ? 8 : 11"
-               placeholder="Ingrese número"
-               autocomplete="off"
-               autofocus>
+        <input
+          matInput
+          [(ngModel)]="numeroDocumento"
+          [maxlength]="tipoDocumento === 'DNI' ? 8 : 11"
+          autocomplete="off"
+          inputmode="numeric"
+          (input)="soloNumeros($event)"
+          [disabled]="cargando"
+          placeholder="Ingrese el número"
+        />
         <mat-icon matSuffix>badge</mat-icon>
         <mat-hint align="end">{{ numeroDocumento.length }} / {{ tipoDocumento === 'DNI' ? 8 : 11 }}</mat-hint>
       </mat-form-field>
 
-      <div *ngIf="cargando" class="loading-overlay">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Validando documento...</p>
+      <div class="info-comprobante">
+        <mat-icon>info</mat-icon>
+        <span>Generando {{ getTipoComprobanteText() }} para {{ tipoDocumento }}</span>
+      </div>
+
+      <!-- Indicador de carga -->
+      <div *ngIf="cargando" class="loading-container">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Buscando y registrando cliente...</span>
       </div>
     </div>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="volverAComprobante()" [disabled]="cargando">Atrás</button>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="volverAComprobante()" [disabled]="cargando">Volver</button>
     <button mat-flat-button color="primary" (click)="confirmarDocumento()" [disabled]="cargando || !numeroDocumento">
-      CONFIRMAR VENTA
+      <span *ngIf="!cargando">Generar {{ getTipoComprobanteText() }}</span>
+      <span *ngIf="cargando">Procesando...</span>
     </button>
   </mat-dialog-actions>
 </div>

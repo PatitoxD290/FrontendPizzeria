@@ -1,7 +1,7 @@
 .venta-card {
   padding: 20px;
   margin: 20px auto;
-  max-width: 1400px; /* 🔹 Aumentado para nuevas columnas */
+  max-width: 1400px;
   background: #fafafa;
   border-radius: 12px;
 }
@@ -15,6 +15,13 @@
   gap: 8px;
 }
 
+.titulo .subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
 .filtros {
   display: flex;
   flex-wrap: wrap;
@@ -23,12 +30,25 @@
   margin-bottom: 20px;
 }
 
+.search-field {
+  min-width: 250px;
+}
+
+.date-field {
+  min-width: 180px;
+}
+
 .spacer {
   flex: 1;
 }
 
+.export-btn {
+  margin-left: auto;
+}
+
 .tabla-container {
   overflow-x: auto;
+  border-radius: 8px;
 }
 
 table {
@@ -36,14 +56,16 @@ table {
   border-radius: 8px;
 }
 
-/* 🔹 NUEVO: Estilos para resaltar montos */
-.monto-recibido {
-  color: #2e7d32;
-  font-weight: 500;
+/* Estilos para la tabla */
+.hover-row:hover {
+  background-color: #f5f5f5;
 }
 
-.vuelto {
-  color: #ed6c02;
+.text-secondary {
+  color: #666;
+}
+
+.fw-medium {
   font-weight: 500;
 }
 
@@ -51,29 +73,43 @@ table {
   font-weight: bold;
 }
 
-.sin-datos {
-  text-align: center;
-  color: #777;
-  padding: 20px;
+.text-success {
+  color: #2e7d32;
 }
 
-/* 🔹 NUEVO: Estilos para la columna de acciones */
+.text-muted {
+  color: #757575;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+/* Estilos para la columna de acciones */
 .acciones-cell {
   text-align: center;
 }
 
-/* 🔹 NUEVO: Estilo para el botón PDF individual */
 .pdf-button {
   margin: 0 4px;
 }
 
-/* Ajustar el ancho de la columna acciones */
 .mat-column-acciones {
-  width: 80px;
+  width: 100px;
   text-align: center;
 }
 
-/* 🔹 NUEVO: Responsive para muchas columnas */
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+/* Responsive */
 @media (max-width: 1200px) {
   .venta-card {
     margin: 10px;
@@ -85,7 +121,29 @@ table {
     align-items: stretch;
   }
   
+  .search-field,
+  .date-field {
+    min-width: 100%;
+  }
+  
   .spacer {
     display: none;
+  }
+  
+  .export-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .titulo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .titulo .subtitle {
+    margin-left: 0;
   }
 }

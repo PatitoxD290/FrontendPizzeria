@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,9 +8,8 @@ import { TamanoService } from '../../../../core/services/tamano.service';
 import { TamanoFormComponent } from '../tamano-form/tamano-form.component';
 
 // Angular Material
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -29,7 +28,6 @@ import Swal from 'sweetalert2';
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
@@ -41,14 +39,20 @@ import Swal from 'sweetalert2';
   templateUrl: './tamano-list.component.html',
   styleUrls: ['./tamano-list.component.css']
 })
-export class TamanoListComponent implements OnInit, AfterViewInit {
+export class TamanoListComponent implements OnInit {
+  tamanos: Tamano[] = [];
+  paginatedTamanos: Tamano[] = [];
   
-  displayedColumns: string[] = ['id', 'nombre', 'acciones'];
-  dataSource = new MatTableDataSource<Tamano>([]);
+  // Configuración de paginación
+  pageSize = 5;
+  pageSizeOptions = [5, 10, 25, 50];
+  currentPage = 0;
+  totalItems = 0;
+
   loading = false;
+  filterValue = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private tamanoService: TamanoService, 
@@ -59,16 +63,12 @@ export class TamanoListComponent implements OnInit, AfterViewInit {
     this.loadTamanos();
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
   loadTamanos() {
     this.loading = true;
     this.tamanoService.getTamanos().subscribe({
       next: (res) => {
-        this.dataSource.data = res;
+        this.tamanos = res.sort((a, b) => b.ID_Tamano - a.ID_Tamano);
+        this.applyFilter(); // Aplicar filtro si existe
         this.loading = false;
       },
       error: (err) => {
@@ -79,18 +79,50 @@ export class TamanoListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+applyFilter() {
+  let filteredData = this.tamanos;
+  
+  if (this.filterValue) {
+    const filterValueLower = this.filterValue.trim().toLowerCase();
+    filteredData = this.tamanos.filter(tamano => 
+      tamano.Tamano.toLowerCase().includes(filterValueLower) ||
+      tamano.ID_Tamano.toString().includes(this.filterValue) // ← CORREGIDO: agregar 'this.'
+    );
+  }
+  
+  this.totalItems = filteredData.length;
+  this.updatePaginatedData(filteredData);
+  
+  // Resetear a la primera página al filtrar
+  if (this.paginator) {
+    this.paginator.firstPage();
+    this.currentPage = 0;
+  }
+}
+
+  onFilterChange(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.filterValue = filterValue;
+    this.applyFilter();
+  }
+
+  updatePaginatedData(data: Tamano[] = this.tamanos) {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedTamanos = data.slice(startIndex, endIndex);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePaginatedData();
   }
 
   openForm(tamano?: Tamano) {
     const dialogRef = this.dialog.open(TamanoFormComponent, {
-      width: '450px',
+      width: '400px',
       disableClose: true,
       data: tamano || null
     });
@@ -98,29 +130,35 @@ export class TamanoListComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loadTamanos();
+        // Resetear a la primera página después de agregar/editar
+        if (this.paginator) {
+          this.paginator.firstPage();
+        }
       }
     });
   }
 
   deleteTamano(tamano: Tamano) {
     Swal.fire({
-      title: '¿Eliminar tamaño?',
-      text: `Se eliminará el tamaño "${tamano.Tamano}".`,
+      title: '¿Estás seguro?',
+      text: `Vas a eliminar el tamaño "${tamano.Tamano}"`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
         this.tamanoService.deleteTamano(tamano.ID_Tamano).subscribe({
           next: () => {
             Swal.fire({
               title: '¡Eliminado!',
-              text: 'El tamaño ha sido eliminado correctamente.',
+              text: `El tamaño "${tamano.Tamano}" ha sido eliminado correctamente.`,
               icon: 'success',
               timer: 2000,
+              timerProgressBar: true,
               showConfirmButton: false
             });
             this.loadTamanos();
@@ -128,18 +166,63 @@ export class TamanoListComponent implements OnInit, AfterViewInit {
           error: (error) => {
             console.error('Error al eliminar tamaño:', error);
             
-            // Manejo específico para FK constraint (Error 400/409/500 según backend)
-            if (error.status === 400 || error.status === 409) {
-               Swal.fire({
+            // Verificar si es error de productos asociados
+            if (error.status === 400 && error.error?.error) {
+              const errorMessage = error.error.error;
+              
+              if (errorMessage.includes('productos asociados') || errorMessage.includes('siendo utilizado')) {
+                Swal.fire({
+                  title: 'No se puede eliminar',
+                  html: `
+                    <div style="text-align: left;">
+                      <p><strong>El tamaño "${tamano.Tamano}" no puede ser eliminado porque tiene productos asociados.</strong></p>
+                      <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        Este tamaño está siendo utilizado por productos en el sistema. Para eliminarlo, primero debes:
+                      </p>
+                      <ul style="text-align: left; margin: 10px 0; padding-left: 20px; font-size: 14px; color: #666;">
+                        <li>Eliminar los productos que usan este tamaño</li>
+                        <li>O cambiar el tamaño de los productos asociados</li>
+                      </ul>
+                    </div>
+                  `,
+                  icon: 'warning',
+                  confirmButtonText: 'Entendido',
+                  confirmButtonColor: '#3085d6',
+                  width: 500
+                });
+              } else {
+                // Otro error 400
+                Swal.fire('Error', errorMessage, 'error');
+              }
+            } else if (error.status === 409) {
+              // Error de conflicto (FK constraint)
+              Swal.fire({
                 title: 'No se puede eliminar',
                 html: `
-                  <p>El tamaño <strong>"${tamano.Tamano}"</strong> está siendo utilizado por productos activos.</p>
-                  <small>Desactiva o elimina los productos asociados primero.</small>
+                  <div style="text-align: left;">
+                    <p><strong>El tamaño "${tamano.Tamano}" no puede ser eliminado porque tiene productos asociados.</strong></p>
+                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                      Este tamaño está siendo utilizado por productos en el sistema. Para eliminarlo, primero debes:
+                    </p>
+                    <ul style="text-align: left; margin: 10px 0; padding-left: 20px; font-size: 14px; color: #666;">
+                      <li>Eliminar los productos que usan este tamaño</li>
+                      <li>O cambiar el tamaño de los productos asociados</li>
+                    </ul>
+                  </div>
                 `,
-                icon: 'warning'
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6',
+                width: 500
               });
             } else {
-              Swal.fire('Error', 'Ocurrió un error inesperado al eliminar.', 'error');
+              // Error genérico del servidor
+              Swal.fire({
+                title: 'Error del servidor',
+                text: 'Ocurrió un error inesperado. Por favor, intente nuevamente.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+              });
             }
           }
         });

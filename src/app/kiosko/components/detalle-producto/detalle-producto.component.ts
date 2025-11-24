@@ -54,10 +54,10 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   imagen: string = '';
   precioBase: number = 0;
 
-  private baseUrl = 'http://localhost:3000'; // Ajusta tu puerto si es necesario
+  private baseUrl = 'http://localhost:3000';
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any, // Puede ser Producto o Combo
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<DetalleProductoComponent>,
     private carritoService: CarritoService,
     public complementoService: ComplementoService,
@@ -66,7 +66,11 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.modalStateService.abrirModal();
+    // ✅ USAR setTimeout PARA EL PRÓXIMO CICLO
+    setTimeout(() => {
+      this.modalStateService.abrirModal();
+    });
+    
     this.complementoService.limpiarComplementosTemporales();
     this.inicializarDatos();
     this.verificarEstadoComplementos();
@@ -87,18 +91,12 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
       this.nombre = combo.Nombre;
       this.descripcion = combo.Descripcion;
       this.precioBase = Number(combo.Precio);
-      
-      // ✅ CORRECCIÓN: Usar lógica segura para extraer nombre de imagen
       this.imagen = this.construirUrlImagen(combo.imagenes);
-      
-      this.esBebida = false; 
-
+      this.esBebida = false;
     } else {
       const producto = this.data as Producto;
       this.nombre = producto.Nombre;
       this.descripcion = producto.Descripcion;
-      
-      // ✅ CORRECCIÓN: Usar lógica segura para extraer nombre de imagen
       this.imagen = this.construirUrlImagen(producto.imagenes);
 
       this.tamanosDisponibles = producto.tamanos?.filter(t => t.Estado === 'A') || [];
@@ -114,7 +112,6 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   // 🖼️ Helper para construir URL de imagen limpia
   private construirUrlImagen(imagenes?: string[]): string {
     if (imagenes && imagenes.length > 0) {
-      // Extraer solo el nombre del archivo (ej: producto_1_1.jpg) eliminando rutas como 'uploads/' o '\'
       const filename = imagenes[0].split(/[/\\]/).pop();
       return `${this.baseUrl}/imagenesCata/${filename}`;
     }
@@ -126,7 +123,7 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
     this.precioBase = Number(tamano.Precio);
   }
 
-  incrementar() {
+  incrementarCantidad(): void {
     if (!this.esCombo) {
       const stock = (this.data as Producto).Cantidad_Disponible;
       if (this.cantidad >= stock) return;
@@ -134,32 +131,54 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
     this.cantidad++;
   }
 
-  decrementar() {
+  decrementarCantidad(): void {
     if (this.cantidad > 1) this.cantidad--;
   }
 
-  abrirComplementos() {
+  abrirComplementos(): void {
     const dialogRef = this.dialog.open(ComplementoProductoComponent, {
       width: '800px',
-      maxWidth: '95vw',
-      height: 'auto',
+      maxWidth: '90vw',
       maxHeight: '90vh',
-      disableClose: false,
-      data: { 
-        titulo: this.esCombo ? 'Elige tus bebidas' : 'Agregar complementos'
+      data: {
+        esCombo: this.esCombo
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result && result.complementosSeleccionados) {
         this.verificarEstadoComplementos();
       }
     });
   }
 
-  verificarEstadoComplementos() {
+  verificarEstadoComplementos(): void {
     this.tieneComplementos = this.complementoService.tieneComplementos();
     this.cantidadComplementos = this.complementoService.obtenerCantidadComplementos();
+  }
+
+  // 🔹 NUEVO: Determinar si se pueden agregar complementos
+  get puedeAgregarComplementos(): boolean {
+    if (this.esCombo) {
+      return true;
+    } else {
+      return !this.esBebida;
+    }
+  }
+
+  // 🔹 NUEVO: Obtener el texto del tipo de producto
+  get tipoProducto(): string {
+    return this.esCombo ? 'Combo' : 'Producto';
+  }
+
+  // 🔹 NUEVO: Obtener precio unitario
+  get precioUnitario(): number {
+    return this.precioBase;
+  }
+
+  // 🔹 NUEVO: Obtener precio total
+  get precioTotal(): number {
+    return this.precioUnitario * this.cantidad;
   }
 
   // 🛒 Agregar al Carrito
@@ -169,16 +188,12 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
     // 1. Construir ítem principal
     const itemPrincipal: DatosPedido = {
       id: Date.now(),
-      
-      // Usar undefined en lugar de null para opcionales
       idProductoT: this.esCombo ? undefined : (this.tamanoSeleccionado?.ID_Producto_T || undefined),
       idCombo: this.esCombo ? this.data.ID_Combo : undefined,
-      
       nombre: this.nombre,
       cantidad: this.cantidad,
       precioUnitario: this.precioBase,
       precioTotal: this.precioBase * this.cantidad,
-      
       tamano: this.esCombo ? 'Combo' : (this.tamanoSeleccionado?.nombre_tamano || 'Estándar'),
       esCombo: this.esCombo,
       descripcion: this.descripcion
@@ -195,13 +210,11 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
         const itemComplemento: DatosPedido = {
           id: Date.now() + Math.random(),
           idProductoT: comp.ID_Producto_T,
-          idCombo: undefined, 
-          
+          idCombo: undefined,
           nombre: `+ ${comp.Nombre}`,
           cantidad: comp.Cantidad * this.cantidad,
           precioUnitario: comp.Precio,
           precioTotal: (comp.Precio * comp.Cantidad) * this.cantidad,
-          
           tamano: 'Complemento',
           esCombo: false,
           descripcion: `Acompañamiento para ${this.nombre}`
@@ -227,10 +240,11 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/imgs/no-image.png';
+    event.target.src = '/assets/imgs/logo-aita/logo.png';
   }
 
-  cerrar() {
+  cerrar(): void {
+    this.complementoService.limpiarComplementosTemporales();
     this.dialogRef.close();
   }
 }

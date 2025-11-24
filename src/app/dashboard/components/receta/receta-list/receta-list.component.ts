@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Modelos y Servicios
@@ -28,6 +28,7 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [
     CommonModule,
+    NgIf,
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
@@ -65,6 +66,16 @@ export class RecetaListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    // Filtro personalizado para buscar en nombre y descripción
+    this.dataSource.filterPredicate = (data: Receta, filter: string) => {
+      const searchStr = filter.toLowerCase();
+      const nombre = data.Nombre?.toLowerCase() || '';
+      const descripcion = data.Descripcion?.toLowerCase() || '';
+      
+      return nombre.includes(searchStr) || 
+             descripcion.includes(searchStr);
+    };
   }
 
   // 📥 Cargar Recetas
@@ -95,6 +106,15 @@ export class RecetaListComponent implements OnInit, AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  // 🧹 Limpiar filtros
+  limpiarFiltros() {
+    const input = document.querySelector('.search-input-compact') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+    this.dataSource.filter = '';
   }
 
   // 🗑️ Eliminar
@@ -174,5 +194,14 @@ export class RecetaListComponent implements OnInit, AfterViewInit {
       width: '600px',
       data: { recetaId: receta.ID_Receta }
     });
+  }
+
+  // 🔧 Helper para información adicional de la receta
+  getRecetaInfo(receta: Receta): string {
+    // Usar propiedades existentes del modelo Receta
+    if (receta.Tiempo_Preparacion) {
+      return `Tiempo: ${receta.Tiempo_Preparacion}`;
+    }
+    return 'Receta básica';
   }
 }

@@ -63,8 +63,8 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
   
   // Filtros
   searchTerm: string = '';
-  fechaInicio: Date | null = null;
-  fechaFin: Date | null = null;
+  fechaInicio?: Date;
+  fechaFin?: Date;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -145,8 +145,8 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
 
   limpiarFiltros() {
     this.searchTerm = '';
-    this.fechaInicio = null;
-    this.fechaFin = null;
+    this.fechaInicio = undefined;
+    this.fechaFin = undefined;
     this.applyFilters();
   }
 
@@ -225,5 +225,57 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
         Swal.fire('Error', 'No se pudieron obtener los puntos', 'error');
       }
     });
+  }
+
+  // ✅ Métodos para la paginación personalizada
+  getStartIndex(): number {
+    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
+  }
+
+  getEndIndex(): number {
+    if (!this.paginator) return 0;
+    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+    const endIndex = startIndex + this.paginator.pageSize;
+    return Math.min(endIndex, this.dataSource.filteredData.length);
+  }
+
+  getCurrentPage(): number {
+    return this.paginator ? this.paginator.pageIndex + 1 : 1;
+  }
+
+  getTotalPages(): number {
+    return this.paginator ? this.paginator.getNumberOfPages() : 1;
+  }
+
+  getPageSize(): number {
+    return this.paginator ? this.paginator.pageSize : 5;
+  }
+
+  hasPreviousPage(): boolean {
+    return this.paginator ? this.paginator.hasPreviousPage() : false;
+  }
+
+  hasNextPage(): boolean {
+    return this.paginator ? this.paginator.hasNextPage() : false;
+  }
+
+  previousPage(): void {
+    if (this.paginator) {
+      this.paginator.previousPage();
+    }
+  }
+
+  nextPage(): void {
+    if (this.paginator) {
+      this.paginator.nextPage();
+    }
+  }
+
+  onPageSizeChange(event: any) {
+    const newSize = parseInt(event.target.value);
+    if (this.paginator) {
+      this.paginator.pageSize = newSize;
+      this.paginator.pageIndex = 0;
+    }
   }
 }

@@ -1,3 +1,4 @@
+/* Estilos del primer componente */
 .spinner-container {
   display: flex;
   justify-content: center;
@@ -16,7 +17,6 @@
 }
 
 .detalle-texto mat-card,
-.detalle-card,
 .total-card {
   background-color: #fafafa;
   margin: 10px 0;
@@ -26,11 +26,118 @@
 }
 
 .detalle-texto p,
-.detalle-card p {
+.total-card p {
   margin: 4px 0;
   font-size: 14px;
 }
 
 mat-dialog-actions button {
   min-width: 100px;
+}
+
+.error-text {
+  text-align: center;
+  padding: 20px;
+}
+
+.error-text mat-card {
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+}
+
+.text-gray-500 {
+  color: #666;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Estilos del segundo componente (mantenidos) */
+.items-list {
+  margin: 15px 0;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item-row:last-child {
+  border-bottom: none;
+}
+
+.item-qty {
+  font-weight: 600;
+  color: #333;
+  min-width: 40px;
+  font-size: 16px;
+}
+
+.item-desc {
+  flex: 1;
+  margin: 0 15px;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.combo-badge {
+  background-color: #ff9800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.item-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.item-price {
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.text-muted {
+  color: #666 !important;
+}
+
+.small {
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .dialog-content {
+    min-width: unset;
+    max-width: 90vw;
+  }
+  
+  .item-row {
+    padding: 10px 0;
+  }
+  
+  .item-desc {
+    margin: 0 10px;
+  }
+  
+  .item-name {
+    font-size: 14px;
+  }
+  
+  .item-price {
+    font-size: 13px;
+  }
 }

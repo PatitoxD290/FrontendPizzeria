@@ -45,7 +45,6 @@ export class VerDetallePedidoComponent implements OnInit {
   }
 
   private cargarDetalles(): void {
-    // Usamos getPedidoById para traer cabecera (notas) y detalles
     this.pedidoService.getPedidoById(this.data.pedido_id).subscribe({
       next: (res) => {
         this.detalles = res.detalles || [];
@@ -60,10 +59,9 @@ export class VerDetallePedidoComponent implements OnInit {
     });
   }
 
-  // 🛠️ Helpers Visuales
+  // 🛠️ Helpers Visuales (mantenidos del segundo componente)
   
   getItemName(d: PedidoDetalle): string {
-    // Prioridad: Nombre Combo -> Nombre Producto -> Fallback
     return d.Nombre_Combo || d.Nombre_Producto || 'Item desconocido';
   }
 

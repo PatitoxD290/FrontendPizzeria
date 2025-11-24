@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'; // 1. Importar ChangeDetectorRef
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { Router, NavigationEnd } from '@angular/router'; // Importar NavigationEnd para filtrar eventos
+import { Router, NavigationEnd } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -22,7 +22,7 @@ import { DatosPedido } from '../../../core/models/pedido.model';
 export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   
   esPaginaCarrito = false;
-  esPaginaPagoVariable = false; // 2. Convertir a variable
+  esPaginaPagoVariable = false;
   modalAbierto = false;
   private modalSubscription!: Subscription;
   private routerSubscription!: Subscription;
@@ -32,7 +32,7 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     public router: Router,
     private location: Location,
     private modalStateService: ModalStateService,
-    private cd: ChangeDetectorRef // 3. Inyectar ChangeDetectorRef
+    private cdr: ChangeDetectorRef // ✅ Cambiado a cdr para coincidir con el diseño
   ) {}
 
   ngOnInit() {
@@ -43,16 +43,16 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     this.modalSubscription = this.modalStateService.modalAbierto$.subscribe(
       (abierto) => {
         this.modalAbierto = abierto;
-        this.cd.detectChanges(); // 4. Forzar detección de cambios
+        this.cdr.detectChanges(); // ✅ Forzar detección de cambios
       }
     );
 
-    // Detectar cambios de ruta (Filtrado solo por NavigationEnd para evitar ejecuciones múltiples)
+    // Detectar cambios de ruta
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.checkRoute();
-        this.cd.detectChanges(); // 4. Forzar detección de cambios
+        this.cdr.detectChanges(); // ✅ Forzar detección de cambios
       });
   }
 
@@ -77,7 +77,12 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   }
 
   toggleCarrito() {
-    if (this.modalAbierto || this.esPaginaPago) return;
+    // ✅ No hacer nada si hay modales abiertos o está en página de pago
+    if (this.modalAbierto || this.esPaginaPago) {
+      console.log('Botón bloqueado - Modal abierto:', this.modalAbierto);
+      return;
+    }
+    
     this.router.navigate(['/kiosko/carrito']);
   }
 
@@ -102,6 +107,7 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
 
   confirmarPedido() {
     if (this.carritoService.obtenerProductos().length === 0) {
+      alert('⚠️ El carrito está vacío.');
       return;
     }
     this.router.navigate(['/kiosko/pago']);

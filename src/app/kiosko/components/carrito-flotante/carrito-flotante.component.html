@@ -1,40 +1,31 @@
-<!-- BOTÓN FLOTANTE (Solo visible en Menú, no en Carrito ni Pago) -->
+<!-- BOTÓN FLOTANTE DEL CARRITO - SOLO SE MUESTRA EN MENU -->
 <button mat-fab color="primary" class="boton-carrito" (click)="toggleCarrito()" 
         *ngIf="!esPaginaPago && !esPaginaCarrito"
         [class.boton-bloqueado]="modalAbierto"
         [disabled]="modalAbierto">
   <mat-icon class="icono-carrito">shopping_bag</mat-icon>
   <span class="texto-carrito">Ver Pedido</span>
-  
-  <!-- Badge de cantidad -->
   <span class="badge-icon" *ngIf="cantidadItemsDistintos > 0">
     {{ cantidadItemsDistintos }}
   </span>
 </button>
 
-
-<!-- VISTA COMPLETA DEL CARRITO (Ruta /carrito) -->
+<!-- CONTENIDO DE PÁGINA COMPLETA - SOLO CUANDO ES RUTA /carrito -->
 <div *ngIf="esPaginaCarrito" class="pagina-carrito-completa">
-  
-  <!-- Encabezado -->
+  <!-- ENCABEZADO DE PÁGINA -->
   <div class="encabezado-pagina">
     <button mat-button (click)="volver()" class="btn-volver">
       <mat-icon>arrow_back</mat-icon>
       <span class="texto-volver">Volver al Menú</span>
     </button>
-    <h2 class="titulo-pagina">Tu Pedido</h2>
-    <div style="width: 100px;"></div> <!-- Espaciador -->
   </div>
 
-  <!-- Contenido -->
+  <!-- CONTENIDO PRINCIPAL -->
   <div class="contenido-pagina">
-    
     <!-- LISTA DE PRODUCTOS -->
     <div class="lista-productos-pagina" *ngIf="productos.length > 0; else vacio">
-      
       <!-- Iteramos sobre los productos del servicio -->
       <div *ngFor="let item of productos; let i = index" class="item-carrito-pagina">
-        
         <!-- Icono placeholder (o imagen si el modelo la tuviera) -->
         <div class="imagen-placeholder">
           <mat-icon *ngIf="item.esCombo">fastfood</mat-icon>
@@ -44,7 +35,7 @@
         <div class="info-pagina">
           <div class="info-header">
             <p class="nombre-pagina">{{ item.nombre }}</p>
-            <!-- Badge Combo -->
+            <!-- 🔹 MOSTRAR TIPO DE PRODUCTO -->
             <span *ngIf="item.esCombo" class="badge-combo-pagina">COMBO</span>
           </div>
           
@@ -53,12 +44,12 @@
           
           <!-- Tamaño -->
           <p class="tamano-pagina" *ngIf="item.tamano && !item.esCombo">
-            <b>Tamaño:</b> {{ item.tamano }}
+            <b>Tamaño:</b> {{ item.tamano | uppercase }}
           </p>
           
           <!-- Precio Unitario -->
           <p class="precio-pagina">
-            S/ {{ item.precioUnitario | number:'1.2-2' }} c/u
+            S/. {{ item.precioUnitario | number:'1.2-2' }} c/u
           </p>
           
           <div class="controles-pagina">
@@ -73,51 +64,49 @@
               </button>
             </div>
 
-            <!-- Subtotal -->
-            <div class="subtotal-container">
-              <span class="label-subtotal">Subtotal:</span>
-              <span class="monto-subtotal">S/ {{ item.precioTotal | number:'1.2-2' }}</span>
-            </div>
-
             <!-- Eliminar -->
             <button mat-icon-button color="warn" class="btn-eliminar-pagina" (click)="eliminarProducto(i)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
+          
+          <!-- Subtotal -->
+          <p class="subtotal-pagina">
+            <strong>Subtotal: S/. {{ item.precioTotal | number:'1.2-2' }}</strong>
+          </p>
         </div>
       </div>
-
     </div>
 
     <!-- CARRITO VACÍO -->
     <ng-template #vacio>
       <div class="carrito-vacio-pagina">
-        <mat-icon class="icono-vacio">shopping_cart_off</mat-icon>
+        <mat-icon class="icono-vacio">shopping_bag</mat-icon>
         <h2>Tu pedido está vacío</h2>
-        <p>Agrega deliciosos productos desde el menú</p>
+        <p>Agrega productos desde el menú</p>
+        <!-- En la sección de carrito vacío -->
         <button mat-flat-button color="primary" (click)="volver()" class="btn-volver-menu">
-          <mat-icon>restaurant_menu</mat-icon>
-          Ir al Menú
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Menú
         </button>
       </div>
     </ng-template>
 
-    <!-- RESUMEN Y BOTONES -->
+    <!-- RESUMEN Y BOTONES - SOLO SI HAY PRODUCTOS -->
     <div *ngIf="productos.length > 0" class="resumen-pagina">
       <div class="total-pagina">
-        <span class="total-texto">Total a Pagar:</span>
-        <span class="total-monto">S/ {{ total | number:'1.2-2' }}</span>
+        <span class="total-texto">Total del Pedido:</span>
+        <span class="total-monto">S/. {{ total.toFixed(2) }}</span>
       </div>
       
       <div class="botones-pagina">
         <button mat-stroked-button color="warn" (click)="vaciarCarrito()" class="btn-vaciar">
-          <mat-icon>delete_sweep</mat-icon> Vaciar
+          Vaciar Carrito
         </button>
         <button mat-flat-button color="primary" (click)="confirmarPedido()" class="btn-confirmar">
-          Confirmar Pedido <mat-icon>arrow_forward</mat-icon>
+          Confirmar Pedido
         </button>
       </div>
     </div>
-
   </div>
 </div>

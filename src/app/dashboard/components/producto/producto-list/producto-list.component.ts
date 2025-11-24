@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 
 // Core
 import { Producto } from '../../../../core/models/producto.model';
@@ -43,7 +44,8 @@ import Swal from 'sweetalert2';
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatTableModule
   ],
   templateUrl: './producto-list.component.html',
   styleUrls: ['./producto-list.component.css'],
@@ -58,7 +60,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   // UI
   loading = false;
   error = '';
-  baseUrl = 'http://localhost:3000'; // Base de tu backend
+  baseUrl = 'http://localhost:3000';
 
   // Paginación
   pageSize = 8;
@@ -89,9 +91,13 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // 📥 Carga inicial de datos
+  // ============================================================
+  // 📥 CARGA DE DATOS
+  // ============================================================
+
   loadData() {
     this.loading = true;
+    this.error = '';
     
     forkJoin({
       productos: this.productoService.getProductos(),
@@ -115,11 +121,15 @@ export class ProductoListComponent implements OnInit, OnDestroy {
         console.error('Error cargando datos:', err);
         this.error = 'No se pudieron cargar los productos.';
         this.loading = false;
+        this.showError('Error', 'No se pudieron cargar los productos.');
       }
     });
   }
 
-  // 🔍 Filtros y Paginación
+  // ============================================================
+  // 🔍 FILTROS Y PAGINACIÓN
+  // ============================================================
+
   aplicarFiltros() {
     let resultado = [...this.productos];
 
@@ -139,6 +149,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
 
     this.totalItems = resultado.length;
     
+    // Resetear a primera página si es necesario
     if (this.paginator && this.currentPage * this.pageSize >= this.totalItems) {
       this.currentPage = 0;
       this.paginator.firstPage();
@@ -162,74 +173,189 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 🖼️ Helpers Visuales (LÓGICA DE IMAGEN SOLICITADA)
+  // ============================================================
+  // 🖼️ HELPERS VISUALES
+  // ============================================================
+
   getProductoImage(producto: Producto): string {
-    // Verificamos si el backend nos devolvió el nombre del archivo (ej: /uploads/producto_1_1.jpg)
+    // Verificamos si el backend nos devolvió el nombre del archivo
     if (producto.imagenes && producto.imagenes.length > 0) {
-      // Extraemos solo el nombre del archivo (producto_1_1.jpg) para ignorar la carpeta /uploads/ del backend
       const filename = producto.imagenes[0].split('/').pop();
-      
-      // Construimos la ruta correcta: localhost:3000/imagenesCata/producto_1_1.jpg
       return `${this.baseUrl}/imagenesCata/${filename}`;
     }
-    return 'assets/imgs/logo.png'; // Fallback si no hay imagen
+    return 'assets/imgs/logo-aita/logo.png';
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/imgs/logo.png';
+    event.target.src = 'assets/imgs/logo-aita/logo.png';
   }
 
   getNombreCategoria(id: number, categorias: CategoriaProducto[]): string {
     return categorias.find(c => c.ID_Categoria_P === id)?.Nombre || 'Sin Categoría';
   }
 
-  getStockClass(stock: number): string {
-    if (stock === 0) return 'stock-agotado';
-    if (stock <= 10) return 'stock-bajo';
-    return 'stock-ok';
+  // 🔹 Métodos para estado del producto
+  getEstadoColor(estado: string): string {
+    return estado === 'A' ? 'success' : 'warn';
   }
 
-  // 🛠️ Acciones CRUD
+  getEstadoText(estado: string): string {
+    return estado === 'A' ? 'Activo' : 'Inactivo';
+  }
+
+  // 🔹 Métodos para stock
+  getStockColor(cantidad: number): string {
+    if (cantidad === 0) return 'warn';
+    if (cantidad <= 10) return 'accent';
+    return 'primary';
+  }
+
+  getStockText(cantidad: number): string {
+    if (cantidad === 0) return 'Agotado';
+    if (cantidad <= 10) return 'Bajo stock';
+    return 'En stock';
+  }
+
+  // 🔹 Método para truncar texto
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return 'Sin descripción';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  }
+
+  // 🔹 Obtener información de precios y tamaños
+  getPrecioTamanoInfo(producto: Producto): { texto: string, tooltip: string } {
+    const tamanos = producto.tamanos || [];
+    const cantidadTamanos = tamanos.length;
+    
+    if (cantidadTamanos === 0) {
+      return {
+        texto: 'Sin precios',
+        tooltip: 'No hay tamaños configurados para este producto'
+      };
+    }
+
+    const precios = tamanos.map(t => t.Precio);
+    const precioMin = Math.min(...precios);
+    const precioMax = Math.max(...precios);
+    
+    let precioTexto = '';
+    if (precioMin === precioMax) {
+      precioTexto = `S/ ${precioMin.toFixed(2)}`;
+    } else {
+      precioTexto = `S/ ${precioMin.toFixed(2)} - S/ ${precioMax.toFixed(2)}`;
+    }
+
+    const tamanosTexto = `${cantidadTamanos} tamaño${cantidadTamanos !== 1 ? 's' : ''}`;
+    const texto = `${precioTexto} • ${tamanosTexto}`;
+    const tooltip = this.getTamanosConPrecios(producto);
+    
+    return { texto, tooltip };
+  }
+
+  // 🔹 Obtener lista de tamaños con precios para tooltip
+  getTamanosConPrecios(producto: Producto): string {
+    const tamanos = producto.tamanos || [];
+    if (tamanos.length === 0) return 'Sin tamaños disponibles';
+    
+    return tamanos
+      .map(t => `${t.nombre_tamano || 'Tamaño'}: S/ ${t.Precio.toFixed(2)}`)
+      .join('\n');
+  }
+
+  // 🔹 Obtener cantidad de tamaños
+  getCantidadTamanos(producto: Producto): number {
+    return producto.tamanos?.length || 0;
+  }
+
+  // ============================================================
+  // 🛠️ ACCIONES CRUD
+  // ============================================================
+
   openProductoForm(producto?: Producto) {
     const dialogRef = this.dialog.open(ProductoFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
+      height: 'auto',
+      autoFocus: false,
       disableClose: true,
-      data: { producto }
+      data: { 
+        producto,
+        categorias: this.categorias
+      }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadData();
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result) {
+          this.loadData();
+          this.resetToFirstPage();
+        }
+      });
   }
 
   deleteProducto(producto: Producto) {
     Swal.fire({
       title: '¿Eliminar producto?',
-      text: `Se eliminará "${producto.Nombre}".`,
+      html: `¿Estás seguro de eliminar <strong>"${producto.Nombre}"</strong>?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.productoService.deleteProducto(producto.ID_Producto).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'Producto eliminado correctamente', 'success');
-            this.loadData();
-          },
-          error: (err) => {
-            console.error(err);
-            if (err.status === 409) {
-              Swal.fire('No se puede eliminar', 'El producto está en uso en combos o ventas.', 'error');
-            } else {
-              Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+        this.productoService.deleteProducto(producto.ID_Producto)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.showSuccess('Producto eliminado', 'El producto fue eliminado correctamente.');
+              this.loadData();
+              this.resetToFirstPage();
+            },
+            error: (err) => {
+              console.error(err);
+              if (err.status === 409) {
+                this.showError('No se puede eliminar', 'El producto está en uso en combos o ventas.');
+              } else {
+                this.showError('Error', 'No se pudo eliminar el producto.');
+              }
             }
-          }
-        });
+          });
       }
+    });
+  }
+
+  // ============================================================
+  // 🔧 MÉTODOS AUXILIARES
+  // ============================================================
+
+  private resetToFirstPage() {
+    this.currentPage = 0;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    this.aplicarFiltros();
+  }
+
+  private showSuccess(title: string, text: string) {
+    Swal.fire({ 
+      icon: 'success', 
+      title, 
+      text, 
+      timer: 2000, 
+      showConfirmButton: false 
+    });
+  }
+
+  private showError(title: string, text: string) {
+    Swal.fire({ 
+      icon: 'error', 
+      title, 
+      text, 
+      confirmButtonColor: '#d33' 
     });
   }
 }
