@@ -121,14 +121,6 @@
             </td>
             <td class="table-cell acciones-column">
               <div class="acciones-container">
-                <!-- 🌟 Botón Puntos -->
-                <button class="action-btn puntos-btn" 
-                        (click)="verPuntos(c)" 
-                        [disabled]="c.ID_Cliente === 1"
-                        title="Ver Puntos">
-                  <span class="material-icons">star</span>
-                </button>
-
                 <!-- ✏️ Botón Editar -->
                 <button class="action-btn edit-btn" 
                         (click)="openClienteForm(c)" 
@@ -136,13 +128,7 @@
                   <span class="material-icons">edit</span>
                 </button>
 
-                <!-- 🗑️ Botón Eliminar -->
-                <button class="action-btn delete-btn" 
-                        (click)="deleteCliente(c)" 
-                        [disabled]="c.ID_Cliente === 1"
-                        title="Eliminar cliente">
-                  <span class="material-icons">delete</span>
-                </button>
+              
               </div>
             </td>
           </tr>

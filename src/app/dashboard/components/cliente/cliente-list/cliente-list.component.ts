@@ -163,36 +163,7 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // 🗑️ Eliminar
-  deleteCliente(cliente: Cliente) {
-    Swal.fire({
-      title: '¿Eliminar cliente?',
-      text: `Se eliminará a "${cliente.Nombre} ${cliente.Apellido || ''}"`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.clienteService.deleteCliente(cliente.ID_Cliente).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'Cliente eliminado correctamente', 'success');
-            this.loadClientes();
-          },
-          error: (err) => {
-            console.error(err);
-            if (err.status === 400 || err.status === 409) {
-              Swal.fire('No se puede eliminar', 'El cliente tiene ventas asociadas.', 'warning');
-            } else {
-              Swal.fire('Error', 'Ocurrió un problema al eliminar', 'error');
-            }
-          }
-        });
-      }
-    });
-  }
+ 
 
   // 🌟 Ver Puntos
   verPuntos(cliente: Cliente) {
