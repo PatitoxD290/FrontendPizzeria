@@ -1,44 +1,181 @@
-mat-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding-top: 5px;
-  min-height: 200px;
+/* Estructura general */
+.step-container {
+  min-width: 450px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.dialog-actions {
+  padding: 16px 0;
+  margin-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* PASO 1: PAGO */
+.total-display {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  color: white;
+}
+
+.total-label {
+  display: block;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.total-amount {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .metodos-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin: 20px 0;
 }
 
-.metodos-wrapper .mat-button-toggle-group {
-  background: #f3f3f3;
-  border-radius: 6px;
+.metodo-toggle-group {
+  background: #f5f5f5;
+  border-radius: 12px;
   padding: 4px;
+  border: 1px solid #e0e0e0;
 }
 
-.mat-button-toggle {
-  font-size: 13px;
-  text-transform: uppercase;
-  padding: 6px 14px;
+.metodo-toggle {
+  padding: 12px 16px;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-mat-form-field {
-  width: 100%;
+.metodo-toggle mat-icon {
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
 }
 
-.info-box {
-  margin-top: 8px;
-  background: #f8f8f8;
-  padding: 12px;
-  border-left: 4px solid #3f51b5;
-  border-radius: 4px;
-  font-size: 14px;
+.metodo-toggle span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Sección Efectivo */
+.efectivo-section {
+  margin-top: 20px;
+}
+
+.montos-container {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.monto-field {
+  flex: 2;
+}
+
+.vuelto-display {
+  flex: 1;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  text-align: center;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.vuelto-display.has-vuelto {
+  background: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.vuelto-label {
+  font-size: 12px;
+  opacity: 0.8;
+  display: block;
+}
+
+.vuelto-amount {
+  font-size: 18px;
+  font-weight: bold;
+  display: block;
+}
+
+/* Teclado Numérico */
+.teclado-numerico {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tecla {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.tecla.borrar {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.acciones-rapidas {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Info Pago (Billetera/Tarjeta) */
+.info-pago {
+  text-align: center;
+  padding: 30px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.icono-grande {
+  font-size: 48px !important;
+  height: 48px !important;
+  width: 48px !important;
+  color: #3f51b5;
+  margin-bottom: 16px;
+}
+
+.info-pago h3 {
+  margin: 0 0 8px 0;
   color: #333;
 }
 
-/* 🔹 ESTILOS PARA COMPROBANTES */
+.info-pago p {
+  margin: 0 0 16px 0;
+  color: #666;
+}
+
+.monto-exacto {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+/* PASO 2: COMPROBANTES */
 .comprobantes-wrapper {
   display: flex;
   flex-direction: column;
@@ -50,35 +187,43 @@ mat-form-field {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 24px 20px;
   height: auto;
-  min-height: 100px;
+  min-height: 120px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.comprobante-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .comprobante-btn mat-icon {
-  font-size: 32px;
-  height: 32px;
-  width: 32px;
-  margin-bottom: 8px;
+  font-size: 36px;
+  height: 36px;
+  width: 36px;
+  margin-bottom: 12px;
 }
 
 .comprobante-btn span {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .comprobante-btn small {
   font-size: 12px;
   color: #666;
+  text-align: center;
 }
 
 .nota-btn {
   background-color: #e3f2fd;
-  border: 2px solid #2196f3;
+  border-color: #2196f3;
 }
 
-/* 🔹 ESTILOS PARA DOCUMENTO */
+/* PASO 3: DOCUMENTO */
 .documento-container {
   display: flex;
   flex-direction: column;
@@ -94,9 +239,9 @@ mat-form-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  padding: 12px 16px;
   background-color: #e8f5e8;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #c8e6c9;
   color: #2e7d32;
 }
@@ -105,13 +250,13 @@ mat-form-field {
   color: #2e7d32;
 }
 
-/* 🔹 ESTILOS PARA CARGA */
+/* Loading */
 .loading-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 16px;
+  padding: 20px;
   background-color: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
@@ -120,4 +265,33 @@ mat-form-field {
 .loading-container span {
   color: #6c757d;
   font-size: 14px;
+}
+
+/* Botones */
+.btn-continuar {
+  min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .step-container {
+    min-width: auto;
+  }
+  
+  .montos-container {
+    flex-direction: column;
+  }
+  
+  .teclado-numerico {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .metodo-toggle-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .metodo-toggle {
+    min-width: auto;
+  }
 }

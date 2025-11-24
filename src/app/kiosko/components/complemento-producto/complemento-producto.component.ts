@@ -8,12 +8,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ProductoService } from '../../../core/services/producto.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
-import { ComplementoService,ComplementoUI } from '../../../core/services/complemento.service';
+import { ComplementoService, ComplementoUI } from '../../../core/services/complemento.service';
 import { Producto } from '../../../core/models/producto.model';
 import { CategoriaProducto } from '../../../core/models/categoria.model';
 import { ModalStateService } from '../../../core/services/modal-state.service';
 
-// Interfaz para aplanar la estructura Producto -> Tamaños
+// 🔹 INTERFAZ: Representa cada producto_tamano como elemento individual
 interface ProductoTamanoCompleto {
   ID_Producto_T: number;
   ID_Producto: number;
@@ -22,7 +22,7 @@ interface ProductoTamanoCompleto {
   Estado: 'A' | 'I';
   nombre_tamano: string;
   
-  // Datos del padre
+  // Datos del producto padre
   Nombre: string;
   Descripcion: string;
   ID_Categoria_P: number;
@@ -46,10 +46,11 @@ interface ProductoTamanoCompleto {
 })
 export class ComplementoProductoComponent implements OnInit, OnDestroy {
   
+  // 🔹 CAMBIO: Ahora almacenamos productos_tamano individuales
   productosTamanoBebidas: ProductoTamanoCompleto[] = [];
   cargando: boolean = true;
   categoriasBebidas: number[] = [];
-  private baseUrl = 'http://localhost:3000'; // Ajusta a tu backend
+  private baseUrl = 'http://localhost:3000';
 
   constructor(
     private productoService: ProductoService,
@@ -72,7 +73,6 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
   private cargarCategoriasBebidas(): void {
     this.categoriaService.getCategoriasProducto().subscribe({
       next: (categorias: CategoriaProducto[]) => {
-        // Filtramos categorías que parezcan bebidas (puedes ajustar esta lógica o usar IDs fijos)
         const categoriasBebidas = categorias.filter(categoria => 
           categoria.Nombre.toLowerCase().includes('bebida') || 
           categoria.Nombre.toLowerCase().includes('refresco') ||
@@ -84,83 +84,95 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al cargar categorías:', err);
-        // Intentamos cargar productos de todos modos, quizás falle el filtro pero mostrará algo
         this.cargarProductosTamanoBebidas();
       }
     });
   }
 
-  private cargarProductosTamanoBebidas(): void {
-    this.productoService.getProductos().subscribe({
-      next: (productos: Producto[]) => {
-        const productosTamanoActivos: ProductoTamanoCompleto[] = [];
+  // 🔹 CAMBIO COMPLETO: Cargar productos_tamano individuales
+private cargarProductosTamanoBebidas(): void {
+  this.productoService.getProductos().subscribe({
+    next: (productos: Producto[]) => {
+      const productosTamanoActivos: ProductoTamanoCompleto[] = [];
 
-        for (const item of productos) {
-          // 1. Filtro: Es bebida Y está activo
-          const esBebida = this.categoriasBebidas.includes(item.ID_Categoria_P);
-          const estaActivo = item.Estado === 'A';
+      for (const item of productos) {
+        // Verificar si es bebida y está activo
+        const esBebida = this.categoriasBebidas.includes(item.ID_Categoria_P);
+        const estaActivo = item.Estado === 'A';
+        
+        if (esBebida && estaActivo && item.tamanos) {
+          // 🔹 CORREGIDO: Usar la misma lógica que menu.component
+          let imagenUrl = 'assets/imgs/logo.png';
           
-          if (esBebida && estaActivo && item.tamanos) {
-            
-            // 2. Obtener imagen (usando la propiedad imagenes del backend)
-            let imagenUrl = 'assets/imgs/logo.png';
-            if (item.imagenes && item.imagenes.length > 0) {
-                imagenUrl = `${this.baseUrl}${item.imagenes[0]}`;
-            }
+          // Intentar construir URL de imagen similar a menu.component
+          const urlBase = `http://localhost:3000/imagenesCata/producto_${item.ID_Producto}_1`;
+          // Verificar extensiones como en menu.component
+          const extensiones = ['png', 'jpg', 'jpeg'];
+          
+          // Usar imagen del item si existe y es válida
+          if (item.imagenes && item.imagenes.length > 0) {
+            const filename = item.imagenes[0].split(/[/\\]/).pop();
+            imagenUrl = `${this.baseUrl}/imagenesCata/${filename}`;
+          } else {
+            // Si no hay imagen en el array, usar la lógica de verificación
+            imagenUrl = urlBase + '.png'; // Asumir PNG por defecto
+          }
 
-            // 3. Aplanar tamaños (Crear un item por cada tamaño disponible)
-            for (const tamano of item.tamanos) {
-              if (tamano.Estado === 'A') {
-                productosTamanoActivos.push({
-                  // Datos específicos del tamaño
-                  ID_Producto_T: tamano.ID_Producto_T,
-                  ID_Producto: item.ID_Producto,
-                  ID_Tamano: tamano.ID_Tamano,
-                  Precio: tamano.Precio,
-                  Estado: tamano.Estado,
-                  nombre_tamano: tamano.nombre_tamano || 'Estándar',
-                  
-                  // Datos del producto padre
-                  Nombre: item.Nombre,
-                  Descripcion: item.Descripcion,
-                  ID_Categoria_P: item.ID_Categoria_P,
-                  nombre_categoria: item.nombre_categoria || '',
-                  imagen: imagenUrl
-                });
-              }
+          // Crear un elemento por cada tamaño activo
+          for (const tamano of item.tamanos) {
+            if (tamano.Estado === 'A') {
+              productosTamanoActivos.push({
+                // Datos del producto_tamano
+                ID_Producto_T: tamano.ID_Producto_T,
+                ID_Producto: item.ID_Producto,
+                ID_Tamano: tamano.ID_Tamano,
+                Precio: tamano.Precio,
+                Estado: tamano.Estado,
+                nombre_tamano: tamano.nombre_tamano || 'Estándar',
+                
+                // Datos del producto padre
+                Nombre: item.Nombre,
+                Descripcion: item.Descripcion,
+                ID_Categoria_P: item.ID_Categoria_P,
+                nombre_categoria: item.nombre_categoria || '',
+                imagen: imagenUrl
+              });
             }
           }
         }
+      }
 
-        this.productosTamanoBebidas = productosTamanoActivos;
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar productos:', err);
-        this.cargando = false;
-      },
-    });
-  }
+      this.productosTamanoBebidas = productosTamanoActivos;
+      this.cargando = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar productos-tamaño:', err);
+      this.cargando = false;
+      this.productosTamanoBebidas = [];
+    },
+  });
+}
 
-  // Selección / Deselección
-  toggleProductoTamano(item: ProductoTamanoCompleto): void {
+  // 🔹 CAMBIO: Seleccionar producto_tamano individual
+  toggleProductoTamano(productoTamano: ProductoTamanoCompleto): void {
     // Preparar objeto compatible con ComplementoUI
     const complemento: ComplementoUI = {
-      ID_Producto_T: item.ID_Producto_T,
-      Nombre: `${item.Nombre} (${item.nombre_tamano})`, // Formato visual: "Coca Cola (Personal)"
-      Precio: item.Precio,
+      ID_Producto_T: productoTamano.ID_Producto_T,
+      Nombre: `${productoTamano.Nombre} (${productoTamano.nombre_tamano})`,
+      Precio: productoTamano.Precio,
       Cantidad: 1
     };
 
-    if (this.complementoService.estaSeleccionado(item.ID_Producto_T)) {
-      this.complementoService.eliminarComplementoTemporal(item.ID_Producto_T);
+    if (this.complementoService.estaSeleccionado(productoTamano.ID_Producto_T)) {
+      this.complementoService.eliminarComplementoTemporal(productoTamano.ID_Producto_T);
     } else {
       this.complementoService.agregarComplementoTemporal(complemento);
     }
   }
 
-  estaSeleccionado(item: ProductoTamanoCompleto): boolean {
-    return this.complementoService.estaSeleccionado(item.ID_Producto_T);
+  // 🔹 CAMBIO: Verificar si un producto_tamano está seleccionado
+  estaSeleccionado(productoTamano: ProductoTamanoCompleto): boolean {
+    return this.complementoService.estaSeleccionado(productoTamano.ID_Producto_T);
   }
 
   finalizarSeleccion(): void {
@@ -173,8 +185,7 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
   cerrar(): void {
     this.dialogRef.close();
   }
-  
-  // Fallback de imagen
+
   onImageError(event: any) {
     event.target.src = 'assets/imgs/logo.png';
   }

@@ -15,6 +15,7 @@
     </div>
   </div>
 
+<<<<<<< HEAD
   <!-- 🏷️ Categorías (Scroll Horizontal) -->
   <div class="categories-scroll">
     <mat-chip-listbox class="mat-mdc-chip-set-stacked">
@@ -32,6 +33,32 @@
         {{ cat.Nombre }}
       </mat-chip-option>
     </mat-chip-listbox>
+=======
+  <!-- 🏷️ Categorías - CORREGIDO: Tipos consistentes -->
+  <div class="categorias-container">
+    <!-- Botón Todos -->
+    <button mat-raised-button 
+            [color]="isCategoriaSeleccionada(null) ? 'primary' : ''" 
+            (click)="filtrarPorCategoria(null)">
+      Todos
+    </button>
+
+    <!-- Botón Combos -->
+    <button mat-raised-button 
+            [color]="isCategoriaSeleccionada(CATEGORIA_COMBOS) ? 'primary' : ''" 
+            class="combo-category-btn"
+            (click)="filtrarPorCategoria(CATEGORIA_COMBOS)">
+      Combos
+    </button>
+
+    <!-- Categorías normales de productos -->
+    <button *ngFor="let cat of categorias" 
+            mat-raised-button 
+            [color]="isCategoriaSeleccionada(cat.ID_Categoria_P) ? 'primary' : ''" 
+            (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
+      {{ cat.Nombre }}
+    </button>
+>>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3
   </div>
 
   <!-- 🌀 Loading -->
@@ -39,59 +66,97 @@
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
-  <!-- 📦 Grid de Productos -->
+  <!-- 📦 Grid de Productos y Combos -->
   <div *ngIf="!loading" class="products-grid" id="menu-grid">
     
     <mat-card 
-      *ngFor="let producto of paginatedProductos" 
+      *ngFor="let item of paginatedItems" 
       class="product-card" 
-      (click)="seleccionarProducto(producto)"
-      [class.disabled]="producto.Cantidad_Disponible === 0">
+      [class.combo-card]="item.esCombo"
+      [class.disabled]="!item.disponible"
+      (click)="abrirModalCantidad(item)">
       
       <div class="card-image">
-        <img [src]="getProductoImage(producto)" [alt]="producto.Nombre" (error)="onImageError($event)">
-        <div class="stock-badge" *ngIf="producto.Cantidad_Disponible > 0 && producto.Cantidad_Disponible <= 5">
-          ¡Quedan {{producto.Cantidad_Disponible}}!
+        <img [src]="getProductoImage(item)" [alt]="item.nombre" (error)="onImageError($event)">
+        
+        <!-- Badge para combos -->
+        <div class="combo-badge" *ngIf="item.esCombo">COMBO</div>
+        
+        <!-- Badge de stock bajo -->
+        <div class="stock-badge" *ngIf="item.disponible && item.cantidadDisponible > 0 && item.cantidadDisponible <= 5 && !item.esCombo">
+          ¡Quedan {{item.cantidadDisponible}}!
         </div>
-        <div class="agotado-overlay" *ngIf="producto.Cantidad_Disponible === 0">
+        
+        <!-- Overlay para agotado -->
+        <div class="agotado-overlay" *ngIf="!item.disponible">
           <span>AGOTADO</span>
         </div>
       </div>
 
       <mat-card-content class="card-content">
-        <h3 class="product-title">{{ producto.Nombre }}</h3>
-        <p class="product-category">{{ producto.nombre_categoria }}</p>
+        <h3 class="product-title">
+          {{ item.nombre }}
+        </h3>
+        
+        <p class="product-category">{{ item.categoria }}</p>
+        
+        <p class="product-desc" *ngIf="item.descripcion">
+          {{ item.descripcion }}
+        </p>
+
+        <!-- Información de tamaños para productos -->
+        <div class="size-info" *ngIf="!item.esCombo">
+          <small>{{ item.tamanosDisponibles }}</small>
+        </div>
+
+        <!-- Información de combo -->
+        <div class="combo-info" *ngIf="item.esCombo" [matTooltip]="getInfoCombo(item)">
+          <small><strong>Incluye:</strong> {{ getProductosCombo(item) }}</small>
+        </div>
         
         <div class="product-footer">
-          <span class="price-tag">{{ getPrecioDisplay(producto) }}</span>
-          <span class="size-tag">{{ getInfoTamanos(producto) }}</span>
+          <span class="price-tag" [class.combo-price]="item.esCombo">
+            <span *ngIf="item.esCombo" class="combo-text">Precio especial: </span>
+            <span *ngIf="!item.esCombo && tieneMultiplesTamanos(item)" class="price-from">Desde: </span>
+            S/ {{ item.precio | number:'1.2-2' }}
+          </span>
         </div>
       </mat-card-content>
 
-      <div class="card-action-overlay">
-        <button mat-mini-fab color="accent">
+      <!-- Botón de acción -->
+      <div class="card-action-overlay" *ngIf="item.disponible">
+        <button mat-mini-fab [color]="item.esCombo ? 'accent' : 'primary'">
           <mat-icon>add</mat-icon>
         </button>
       </div>
     </mat-card>
 
     <!-- Empty State -->
-    <div *ngIf="paginatedProductos.length === 0" class="no-results">
+    <div *ngIf="paginatedItems.length === 0" class="no-results">
       <mat-icon>search_off</mat-icon>
       <p>No encontramos productos con esa búsqueda.</p>
-      <button mat-button color="primary" (click)="filtrarPorCategoria(null); terminoBusqueda=''">Ver todo el menú</button>
+      <button mat-button color="primary" (click)="filtrarPorCategoria(null); terminoBusqueda=''">
+        Ver todo el menú
+      </button>
     </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3
   </div>
 
   <!-- 📄 Paginación -->
   <mat-paginator 
-    [length]="productosFiltrados.length"
+    [length]="menuItemsFiltrados.length"
     [pageSize]="pageSize"
     [pageSizeOptions]="pageSizeOptions"
     (page)="onPageChange($event)"
-    [hidden]="productosFiltrados.length === 0"
+    [hidden]="menuItemsFiltrados.length === 0"
     class="custom-paginator">
   </mat-paginator>
+<<<<<<< HEAD
 
 </div>
+=======
+</div>
+>>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3

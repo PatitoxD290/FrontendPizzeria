@@ -57,6 +57,10 @@ h1 {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-custom:hover {
@@ -122,5 +126,19 @@ h1 {
   .decor {
     width: 40px;
     height: 40px;
+  }
+  
+  .logo-pizzeria {
+    width: 200px;
+    height: 200px;
+    transform: scale(1.2);
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .subtitulo {
+    font-size: 24px;
   }
 }

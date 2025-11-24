@@ -285,26 +285,6 @@
   font-weight: 500;
 }
 
-/* Date Section ultra compacto */
-.date-section {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 4px;
-}
-
-.date-icon {
-  font-size: 11px;
-  width: 11px;
-  height: 11px;
-  color: #999;
-}
-
-.date-text {
-  font-size: 0.65rem;
-  color: #999;
-}
-
 /* Card Actions - Botones ultra compactos */
 .card-actions {
   padding: 0 8px 8px;

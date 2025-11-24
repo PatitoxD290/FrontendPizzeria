@@ -9,14 +9,14 @@
   color: white;
 }
 
-/* Contenedor principal */
+/* Contenedor principal - Del primer diseño */
 .pedidos-container {
   padding: 8px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Header más compacto */
+/* Header más compacto - Del primer diseño */
 .header {
   display: flex;
   justify-content: space-between;
@@ -46,7 +46,7 @@
   height: 16px;
 }
 
-/* Contenido de pedidos */
+/* Contenido de pedidos - Del primer diseño */
 .pedidos-content {
   min-height: 300px;
 }
@@ -57,7 +57,7 @@
   gap: 12px;
 }
 
-/* Grid de pedidos - Cards ultra pequeños */
+/* Grid de pedidos - Cards ultra pequeños - Del primer diseño */
 .pedidos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -65,7 +65,7 @@
   padding: 0 4px;
 }
 
-/* Card individual - Ultra reducido */
+/* Card individual - Ultra reducido - Del primer diseño */
 .pedido-card {
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -81,7 +81,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-/* Header de la card - Ultra compacto */
+/* Header de la card - Ultra compacto - Del primer diseño */
 .pedido-header {
   padding: 8px 12px 6px;
   position: relative;
@@ -104,10 +104,15 @@
   line-height: 1.1;
 }
 
+/* Estado chip mejorado - Combinando ambos diseños */
 .estado-chip {
   position: absolute;
   top: 6px;
   right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
 }
 
 .estado-chip mat-chip {
@@ -117,14 +122,39 @@
   padding: 0 6px;
 }
 
-/* Contenido de la card - Ultra compacto */
+/* Time badge del segundo diseño */
+.time-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.time-badge.critical {
+  background: #ffebee;
+  color: #d32f2f;
+  border-color: #ffcdd2;
+}
+
+.time-badge mat-icon {
+  font-size: 10px;
+  width: 10px;
+  height: 10px;
+}
+
+/* Contenido de la card - Ultra compacto - Del primer diseño */
 .pedido-content {
   padding: 0 12px 6px;
   max-height: 200px;
   overflow-y: auto;
 }
 
-/* Información del cliente - Compacto */
+/* Información del cliente - Compacto - Del primer diseño */
 .cliente-info {
   display: flex;
   align-items: center;
@@ -146,7 +176,7 @@
   font-size: 12px;
 }
 
-/* Notas - Compacto */
+/* Notas - Compacto - Del primer diseño */
 .notas-container {
   display: flex;
   align-items: flex-start;
@@ -177,7 +207,7 @@
   overflow: hidden;
 }
 
-/* Lista de productos - Ultra compacta */
+/* Lista de productos - Ultra compacta - Del primer diseño */
 .productos-list {
   margin-bottom: 8px;
 }
@@ -235,7 +265,7 @@
   margin-left: 4px;
 }
 
-/* Total - Compacto */
+/* Total - Compacto - Del primer diseño */
 .total-container {
   display: flex;
   justify-content: space-between;
@@ -260,27 +290,31 @@
   font-size: 13px;
 }
 
-/* Acciones - Ultra compactas */
+/* Acciones - Combinando ambos diseños */
 .pedido-actions {
   padding: 6px 12px 8px;
   margin: 0;
   background: #fafafa;
   border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.pedido-actions button {
-  margin-left: 4px;
+.pedido-actions .btn-entregar {
   font-size: 11px;
   height: 24px;
   line-height: 24px;
   min-width: auto;
-  padding: 0 6px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.pedido-actions .mat-button,
-.pedido-actions .mat-raised-button {
-  min-width: auto;
-  padding: 0 6px;
+.pedido-actions .mat-icon-button {
+  width: 24px;
+  height: 24px;
   line-height: 24px;
 }
 
@@ -288,10 +322,9 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
-  margin-right: 3px;
 }
 
-/* Paginación compacta */
+/* Paginación compacta - Del primer diseño */
 mat-paginator {
   border-radius: 6px;
   background-color: transparent;
@@ -308,7 +341,7 @@ mat-paginator .mat-paginator-range-label {
   margin: 0 8px;
 }
 
-/* Sin pedidos - Compacto */
+/* Sin pedidos - Compacto - Del primer diseño */
 .no-pedidos {
   display: flex;
   flex-direction: column;
@@ -340,7 +373,7 @@ mat-paginator .mat-paginator-range-label {
   font-size: 0.8rem;
 }
 
-/* Loading - Compacto */
+/* Loading - Compacto - Del primer diseño */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -356,7 +389,7 @@ mat-paginator .mat-paginator-range-label {
   font-size: 0.8rem;
 }
 
-/* Error - Compacto */
+/* Error - Compacto - Del primer diseño */
 .error-container {
   display: flex;
   flex-direction: column;
@@ -379,7 +412,7 @@ mat-paginator .mat-paginator-range-label {
   font-size: 0.8rem;
 }
 
-/* Scrollbar personalizado para el contenido */
+/* Scrollbar personalizado para el contenido - Del primer diseño */
 .pedido-content::-webkit-scrollbar {
   width: 4px;
 }
@@ -398,7 +431,7 @@ mat-paginator .mat-paginator-range-label {
   background: #a8a8a8;
 }
 
-/* Responsive para móviles */
+/* Responsive para móviles - Del primer diseño */
 @media (max-width: 768px) {
   .pedidos-container {
     padding: 6px;
@@ -442,7 +475,7 @@ mat-paginator .mat-paginator-range-label {
   }
 }
 
-/* Grid más denso para pantallas grandes */
+/* Grid más denso para pantallas grandes - Del primer diseño */
 @media (min-width: 1200px) {
   .pedidos-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

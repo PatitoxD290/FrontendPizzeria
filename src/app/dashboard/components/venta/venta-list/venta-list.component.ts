@@ -53,6 +53,9 @@ import Swal from 'sweetalert2';
 })
 export class VentaListComponent implements OnInit, AfterViewInit {
 
+  // ================================================================
+  // 📊 PROPIEDADES DE LA TABLA Y DATOS
+  // ================================================================
   displayedColumns: string[] = [
     'ID_Venta', 
     'Cliente', 
@@ -66,12 +69,16 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<Venta>([]);
   loading = false;
 
-  // Filtros
+  // ================================================================
+  // 🔍 FILTROS
+  // ================================================================
   filtroTexto: string = '';
   fechaInicio: Date | null = null;
   fechaFin: Date | null = null;
   
-  // Control PDF
+  // ================================================================
+  // 📄 CONTROL PDF
+  // ================================================================
   cargandoPDF: number | null = null; 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -82,6 +89,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     private pedidoService: PedidoService 
   ) {}
 
+  // ================================================================
+  // 🅰️ NG LIFECYCLE
+  // ================================================================
   ngOnInit(): void {
     this.cargarVentas();
   }
@@ -92,6 +102,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     this.configurarFiltro();
   }
 
+  // ================================================================
+  // 📥 MÉTODOS DE CARGA DE DATOS
+  // ================================================================
   cargarVentas(): void {
     this.loading = true;
     this.ventaService.getVentas().subscribe({
@@ -106,13 +119,14 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // 🔍 Configuración del Filtro Personalizado
+  // ================================================================
+  // 🔍 MÉTODOS DE FILTRADO
+  // ================================================================
   configurarFiltro() {
     this.dataSource.filterPredicate = (v: Venta, filter: string) => {
-      // 1. Filtro de Texto (CORREGIDO)
+      // 1. Filtro de Texto
       const txt = this.filtroTexto.toLowerCase();
       
-      // Usamos (valor || '') para asegurar que sea string y evitar errores de undefined
       const coincideTexto =
         (v.Cliente_Nombre || '').toLowerCase().includes(txt) ||
         v.ID_Venta.toString().includes(txt) ||
@@ -142,8 +156,6 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   aplicarFiltros(): void {
-    // Disparamos el filtro actualizando la propiedad filter con un valor dummy
-    // o usando la lógica que ya configuramos
     this.dataSource.filter = 'trigger'; 
     
     if (this.dataSource.paginator) {
@@ -156,15 +168,14 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     this.fechaInicio = null;
     this.fechaFin = null;
     this.dataSource.filter = '';
-    this.cargarVentas(); // Recargar fresco
+    this.cargarVentas();
   }
 
-  // 🎨 Helpers Visuales
-  
-  // Detectar ID de Tipo de Pago para mostrar texto (Fallback si el nombre no viene)
+  // ================================================================
+  // 🎨 HELPERS VISUALES
+  // ================================================================
   getMetodoPagoLabel(venta: Venta): string {
     if (venta.Metodo_Pago_Nombre) return venta.Metodo_Pago_Nombre;
-    // Fallback a IDs quemados si el backend falla
     switch (venta.ID_Tipo_Pago) {
       case 1: return 'Efectivo';
       case 2: return 'Billetera Digital';
@@ -178,18 +189,14 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   // ================================================================
-  // 📄 GENERACIÓN DE PDF
+  // 📄 GENERACIÓN DE PDF - MÉTODO PRINCIPAL
   // ================================================================
-  
   async generarPDFVenta(venta: Venta): Promise<void> {
     this.cargandoPDF = venta.ID_Venta;
     
     try {
-      // Obtener detalles frescos
       const detallesPedido = await this.obtenerDetallesPedido(venta.ID_Pedido);
       
-      // Decidir tipo de documento según ID_Tipo_Venta
-      // 1: Boleta, 2: Factura, 3: Nota
       switch (venta.ID_Tipo_Venta) {
         case 1: // Boleta
           this.generarBoletaPDF(venta, detallesPedido);
@@ -208,6 +215,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // ================================================================
+  // 🔧 MÉTODOS AUXILIARES PDF
+  // ================================================================
   private obtenerDetallesPedido(idPedido: number): Promise<PedidoDetalle[]> {
     return new Promise((resolve) => {
       this.pedidoService.getPedidoDetalles(idPedido).subscribe({
@@ -217,13 +227,191 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // 🧾 Lógica PDF (Boleta)
+  // ================================================================
+// 📊 EXPORTACIÓN DE REPORTE PDF COMPLETO
+// ================================================================
+exportarPDF(): void {
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const ventas = this.dataSource.filteredData;
+  const fechaGeneracion = new Date().toLocaleString('es-PE');
+  
+  // Título y cabecera
+  this.agregarCabeceraPDF(doc, ventas.length);
+  
+  // Tabla de datos
+  this.agregarTablaPDF(doc, ventas);
+  
+  // Totales y pie de página
+  this.agregarTotalesPDF(doc, ventas);
+  
+  // Guardar PDF
+  doc.save(`Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+// ================================================================
+// 🧾 MÉTODOS AUXILIARES PARA REPORTE COMPLETO
+// ================================================================
+private agregarCabeceraPDF(doc: jsPDF, totalVentas: number): void {
+  // Fondo decorativo
+  doc.setFillColor(63, 81, 181);
+  doc.rect(0, 0, 297, 30, 'F');
+  
+  // Logo o ícono
+  doc.setFontSize(20);
+  doc.setTextColor(255, 255, 255);
+  doc.text('💰', 15, 18);
+  
+  // Título principal
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('REPORTE DE VENTAS', 25, 18);
+  
+  // Información de la empresa
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Sistema de Gestión Comercial', 200, 12);
+  doc.text('Tel: (01) 123-4567', 200, 17);
+  doc.text('Email: info@empresa.com', 200, 22);
+  
+  // Fecha de generación
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
+  
+  // Período del reporte
+  let periodo = 'Todos los registros';
+  if (this.fechaInicio && this.fechaFin) {
+    periodo = `Del ${this.formatearFechaParaPDF(this.fechaInicio)} al ${this.formatearFechaParaPDF(this.fechaFin)}`;
+  } else if (this.fechaInicio) {
+    periodo = `Desde ${this.formatearFechaParaPDF(this.fechaInicio)}`;
+  } else if (this.fechaFin) {
+    periodo = `Hasta ${this.formatearFechaParaPDF(this.fechaFin)}`;
+  }
+  
+  doc.text(`Período: ${periodo}`, 15, 45);
+  doc.text(`Total de ventas: ${totalVentas}`, 200, 40);
+}
+
+private agregarTablaPDF(doc: jsPDF, ventas: Venta[]): void {
+  const headers = [
+    ['ID', 'CLIENTE', 'TIPO', 'MÉTODO PAGO', 'MONTO RECIBIDO', 'VUELTO', 'IGV', 'TOTAL', 'FECHA REGISTRO']
+  ];
+
+  const data = ventas.map(venta => [
+    venta.ID_Venta.toString(),
+    venta.Cliente_Nombre || 'Cliente General',
+    this.getTipoVentaLabel(venta),
+    this.getMetodoPagoLabel(venta),
+    `S/${(venta.Monto_Recibido || 0).toFixed(2)}`,
+    venta.ID_Tipo_Pago === 1 && venta.Vuelto ? `S/${venta.Vuelto.toFixed(2)}` : '-',
+    `S/${venta.IGV?.toFixed(2) || '0.00'}`,
+    `S/${venta.Total.toFixed(2)}`,
+    this.formatearFechaParaPDF(venta.Fecha_Registro)
+  ]);
+
+  autoTable(doc, {
+    head: headers,
+    body: data,
+    startY: 50,
+    theme: 'grid',
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [200, 200, 200],
+      lineWidth: 0.1
+    },
+    headStyles: {
+      fillColor: [41, 128, 185],
+      textColor: 255,
+      fontStyle: 'bold',
+      fontSize: 9
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
+    },
+    columnStyles: {
+      0: { cellWidth: 15, halign: 'center' }, // ID
+      1: { cellWidth: 40 }, // Cliente
+      2: { cellWidth: 25, halign: 'center' }, // Tipo
+      3: { cellWidth: 30, halign: 'center' }, // Método Pago
+      4: { cellWidth: 25, halign: 'right' }, // Monto Recibido
+      5: { cellWidth: 20, halign: 'right' }, // Vuelto
+      6: { cellWidth: 20, halign: 'right' }, // IGV
+      7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Total
+      8: { cellWidth: 30, halign: 'center' } // Fecha
+    },
+    margin: { left: 10, right: 10 }
+  });
+}
+
+private agregarTotalesPDF(doc: jsPDF, ventas: Venta[]): void {
+  const finalY = (doc as any).lastAutoTable?.finalY || 100;
+  
+  // Calcular totales
+  const totalIGV = ventas.reduce((sum, venta) => sum + (venta.IGV || 0), 0);
+  const totalVentas = ventas.reduce((sum, venta) => sum + venta.Total, 0);
+  const totalEfectivo = ventas
+    .filter(v => v.ID_Tipo_Pago === 1)
+    .reduce((sum, venta) => sum + venta.Total, 0);
+  const totalTarjeta = ventas
+    .filter(v => v.ID_Tipo_Pago === 3)
+    .reduce((sum, venta) => sum + venta.Total, 0);
+  const totalDigital = ventas
+    .filter(v => v.ID_Tipo_Pago === 2)
+    .reduce((sum, venta) => sum + venta.Total, 0);
+
+  // Fondo para totales
+  doc.setFillColor(240, 240, 240);
+  doc.rect(10, finalY + 5, 277, 30, 'F');
+
+  // Totales principales
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  
+  doc.text('RESUMEN DE VENTAS', 15, finalY + 15);
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total IGV: S/${totalIGV.toFixed(2)}`, 15, finalY + 22);
+  doc.text(`Total Ventas: S/${totalVentas.toFixed(2)}`, 15, finalY + 28);
+
+  // Métodos de pago
+  doc.text('POR MÉTODO DE PAGO:', 120, finalY + 15);
+  doc.text(`Efectivo: S/${totalEfectivo.toFixed(2)}`, 120, finalY + 22);
+  doc.text(`Tarjeta: S/${totalTarjeta.toFixed(2)}`, 120, finalY + 28);
+  doc.text(`Digital: S/${totalDigital.toFixed(2)}`, 200, finalY + 22);
+
+  // Pie de página
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
+  doc.text('Página 1 de 1', 260, 190);
+}
+
+private formatearFechaParaPDF(fecha: string | Date): string {
+  const fechaObj = new Date(fecha);
+  return fechaObj.toLocaleDateString('es-PE', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+}
+
+  // ================================================================
+  // 🧾 MÉTODOS DE GENERACIÓN DE PDF ESPECÍFICOS
+  // ================================================================
   private generarBoletaPDF(venta: Venta, detalles: PedidoDetalle[]): void {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 297] });
     const pageWidth = 80;
     let y = 10;
 
-    // Encabezado
+    // ENCABEZADO
     doc.setFontSize(10).setFont('helvetica', 'bold');
     doc.text('BOLETA DE VENTA ELECTRÓNICA', pageWidth / 2, y, { align: 'center' });
     y += 5;
@@ -235,16 +423,16 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     doc.text('RUC: 10713414561', pageWidth / 2, y, { align: 'center' });
     y += 6;
 
-    // Info Venta
+    // INFORMACIÓN DE VENTA
     doc.text(`Serie: B001-${venta.ID_Venta.toString().padStart(6, '0')}`, 5, y); y += 4;
     doc.text(`Fecha: ${new Date(venta.Fecha_Registro).toLocaleString()}`, 5, y); y += 4;
     doc.text(`Cliente: ${venta.Cliente_Nombre || 'Público General'}`, 5, y); y += 4;
     doc.text(`Pago: ${this.getMetodoPagoLabel(venta)}`, 5, y); y += 6;
 
-    // Línea
+    // LÍNEA SEPARADORA
     doc.line(5, y, pageWidth - 5, y); y += 4;
 
-    // Detalles
+    // DETALLES DE PRODUCTOS
     doc.setFontSize(7).setFont('helvetica', 'bold');
     doc.text('Cant.', 5, y); 
     doc.text('Descripción', 15, y); 
@@ -254,10 +442,8 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     doc.setFont('helvetica', 'normal');
     detalles.forEach(d => {
       const nombre = d.Nombre_Producto || d.Nombre_Combo || 'Item';
-      // Nombre del producto/combo + tamaño si existe
       const desc = d.Tamano_Nombre ? `${nombre} (${d.Tamano_Nombre})` : nombre;
       
-      // Dividir texto si es muy largo
       const splitTitle = doc.splitTextToSize(desc, 55);
       
       doc.text(d.Cantidad.toString(), 5, y);
@@ -270,31 +456,31 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     y += 2;
     doc.line(5, y, pageWidth - 5, y); y += 5;
 
-    // Totales
+    // TOTALES
     doc.setFontSize(9).setFont('helvetica', 'bold');
     doc.text(`TOTAL: S/ ${Number(venta.Total).toFixed(2)}`, 75, y, { align: 'right' });
     y += 5;
     
-    // Vuelto (si aplica)
-    if (venta.ID_Tipo_Pago === 1 && venta.Monto_Recibido > 0) { // 1=Efectivo
+    // VUELTO (si aplica)
+    if (venta.ID_Tipo_Pago === 1 && venta.Monto_Recibido > 0) {
       doc.setFontSize(7).setFont('helvetica', 'normal');
       doc.text(`Recibido: S/ ${Number(venta.Monto_Recibido).toFixed(2)}`, 75, y, { align: 'right' }); y += 4;
       doc.text(`Vuelto: S/ ${Number(venta.Vuelto).toFixed(2)}`, 75, y, { align: 'right' }); y += 6;
     }
 
-    // Pie
+    // PIE DE PÁGINA
     doc.setFontSize(7);
     doc.text('¡Gracias por su preferencia!', pageWidth / 2, y + 5, { align: 'center' });
 
-    window.open(doc.output('bloburl'), '_blank');
+    this.abrirPDFEnNuevaVentana(doc, `Boleta_${venta.ID_Venta}.pdf`);
   }
 
-  // 🧾 Lógica PDF (Factura) - Similar a boleta pero con RUC
   private generarFacturaPDF(venta: Venta, detalles: PedidoDetalle[]): void {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 297] });
     const pageWidth = 80;
     let y = 10;
 
+    // ENCABEZADO
     doc.setFontSize(10).setFont('helvetica', 'bold');
     doc.text('FACTURA ELECTRÓNICA', pageWidth / 2, y, { align: 'center' });
     y += 5;
@@ -302,35 +488,59 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     doc.text('AITA PIZZA S.A.C.', pageWidth / 2, y, { align: 'center' });
     y += 10;
 
-    // Info Factura
+    // INFORMACIÓN DE FACTURA
     doc.setFont('helvetica', 'normal');
     doc.text(`Serie: F001-${venta.ID_Venta.toString().padStart(6, '0')}`, 5, y); y += 4;
     doc.text(`RUC Cliente: 20... (Simulado)`, 5, y); y += 4; 
     doc.text(`Razón Social: ${venta.Cliente_Nombre}`, 5, y); y += 6;
 
-    // ... (Resto igual a boleta: Detalles y Totales)
-    // Reutilizamos lógica de detalles por brevedad
+    // LÍNEA SEPARADORA
     doc.line(5, y, pageWidth - 5, y); y += 4;
-    
+
+    // DETALLES DE PRODUCTOS
+    doc.setFontSize(7).setFont('helvetica', 'bold');
+    doc.text('Cant.', 5, y); 
+    doc.text('Descripción', 15, y); 
+    doc.text('Total', 75, y, { align: 'right' });
+    y += 4;
+
+    doc.setFont('helvetica', 'normal');
     detalles.forEach(d => {
-        const nombre = d.Nombre_Producto || d.Nombre_Combo || 'Item';
-        const desc = d.Tamano_Nombre ? `${nombre} (${d.Tamano_Nombre})` : nombre;
-        const split = doc.splitTextToSize(desc, 55);
-        doc.text(d.Cantidad.toString(), 5, y);
-        doc.text(split, 15, y);
-        doc.text(Number(d.PrecioTotal).toFixed(2), 75, y, { align: 'right' });
-        y += (split.length * 3) + 2;
+      const nombre = d.Nombre_Producto || d.Nombre_Combo || 'Item';
+      const desc = d.Tamano_Nombre ? `${nombre} (${d.Tamano_Nombre})` : nombre;
+      const split = doc.splitTextToSize(desc, 55);
+      
+      doc.text(d.Cantidad.toString(), 5, y);
+      doc.text(split, 15, y);
+      doc.text(Number(d.PrecioTotal).toFixed(2), 75, y, { align: 'right' });
+      y += (split.length * 3) + 2;
     });
 
+    // LÍNEA SEPARADORA ANTES DE TOTAL
+    y += 2;
     doc.line(5, y, pageWidth - 5, y); y += 5;
+
+    // TOTAL
     doc.setFont('helvetica', 'bold');
     doc.text(`TOTAL: S/ ${Number(venta.Total).toFixed(2)}`, 75, y, { align: 'right' });
 
-    window.open(doc.output('bloburl'), '_blank');
+    this.abrirPDFEnNuevaVentana(doc, `Factura_${venta.ID_Venta}.pdf`);
   }
 
-  // Fallback
   private generarComprobanteGeneralPDF(venta: Venta, detalles: PedidoDetalle[]) {
     this.generarBoletaPDF(venta, detalles);
+  }
+
+  // ================================================================
+  // 🔧 MÉTODOS UTILITARIOS
+  // ================================================================
+  private abrirPDFEnNuevaVentana(doc: jsPDF, nombreArchivo: string): void {
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, '_blank');
+    
+    setTimeout(() => {
+      URL.revokeObjectURL(pdfUrl);
+    }, 1000);
   }
 }

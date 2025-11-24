@@ -49,8 +49,8 @@ export class UsuarioListComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = [
     'ID_Usuario',
-    'Perfil',
     'Correo',
+    'Perfil',
     'Roll',
     'Estado',
     'Fecha_Registro',
@@ -217,7 +217,7 @@ export class UsuarioListComponent implements OnInit, AfterViewInit {
   }
 
   getRolClass(rol: string): string {
-    return rol === 'A' ? 'rol-admin' : 'rol-empleado';
+    return rol === 'A' ? 'rol-administrador' : 'rol-empleado';
   }
 
   getEstadoClass(estado: string): string {
@@ -237,5 +237,9 @@ export class UsuarioListComponent implements OnInit, AfterViewInit {
   canDelete(usuario: Usuario): boolean {
     // Solo permitir borrar si está inactivo (regla de negocio sugerida)
     return usuario.Estado === 'I';
+  }
+
+  canChangePassword(usuario: Usuario): boolean {
+    return usuario.Estado === 'A';
   }
 }

@@ -15,7 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 // Modelos y Servicios
 import { Insumo } from '../../../../core/models/insumo.model';
-import { CategoriaInsumo } from '../../../../core/models/insumo.model'; // O categoria.model según donde lo hayas puesto
+import { CategoriaInsumo } from '../../../../core/models/insumo.model';
 import { InsumoService } from '../../../../core/services/insumo.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 
@@ -47,19 +47,8 @@ import Swal from 'sweetalert2';
 })
 export class InsumoListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns: string[] = [
-    'ID_Insumo',
-    'Nombre',
-    'Unidad_Med',
-    'Categoria',
-    'Stock_Min',
-    'Stock_Max',
-    'Estado',
-    'acciones'
-  ];
-
   dataSource = new MatTableDataSource<Insumo>([]);
-  categorias: any[] = []; // Ajustar tipo si tienes CategoriaInsumos importado
+  categorias: any[] = [];
   loading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -94,11 +83,9 @@ export class InsumoListComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.insumoService.getInsumos().subscribe({
       next: (data) => {
-        // Asignamos los datos al dataSource de Material
         this.dataSource.data = data;
         this.loading = false;
         
-        // Reiniciar paginador si existe
         if (this.paginator) {
           this.paginator.firstPage();
         }
@@ -121,6 +108,15 @@ export class InsumoListComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // 🧹 Limpiar filtros
+  limpiarFiltros() {
+    const input = document.querySelector('.search-input-compact') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+    this.dataSource.filter = '';
+  }
+
   // 📝 Abrir Formulario (Crear/Editar)
   openInsumoForm(insumo?: Insumo) {
     const dialogRef = this.dialog.open(InsumoFormComponent, {
@@ -131,7 +127,7 @@ export class InsumoListComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        this.loadInsumos(); // Recargar si hubo cambios
+        this.loadInsumos();
       }
     });
   }
@@ -173,11 +169,15 @@ export class InsumoListComponent implements OnInit, AfterViewInit {
   }
 
   getEstadoClass(estado: string): string {
-    // D = Disponible, A = Agotado (Backend logic)
     return estado === 'D' ? 'estado-disponible' : 'estado-agotado';
   }
 
   getEstadoLabel(estado: string): string {
     return estado === 'D' ? 'Disponible' : 'Agotado';
+  }
+
+  // Propiedad computada para filteredData
+  get filteredData(): Insumo[] {
+    return this.dataSource.filteredData;
   }
 }

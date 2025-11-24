@@ -17,6 +17,9 @@
   margin-left: auto;
   margin-right: auto;
   background-color: #f8f9fa;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 /* 🔹 Título del producto - Reducir espacio */
@@ -69,14 +72,14 @@
 }
 
 .tamano-btn:hover {
-  border-color: #3498db;
+  border-color: #e51d1d;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
 }
 
 .tamano-btn.selected {
-  background: #3498db;
-  border-color: #3498db;
+  background: #e51d1d;
+  border-color: #dae1e6;
   color: white;
 }
 
@@ -200,6 +203,10 @@
   background-color: #e51d1d;
   color: #fff;
   border-color: #e51d1d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .btn-agregar:hover {
@@ -207,6 +214,14 @@
   border-color: #c01818;
   transform: translateY(-1px);
   box-shadow: 0 1px 5px rgba(229, 29, 29, 0.3);
+}
+
+.btn-agregar:disabled {
+  background-color: #cccccc;
+  border-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ✨ Animación click */
@@ -224,14 +239,14 @@
 .btn-complementos {
   width: 100%;
   padding: 10px;
-  background: #3498db;
+  background: #e51d1d;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  border: 2px solid #3498db;
+  border: 2px solid #e51d1d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,8 +254,8 @@
 }
 
 .btn-complementos:hover {
-  background: #2980b9;
-  border-color: #2980b9;
+  background: #e51d1d;
+  border-color: #e51d1d;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
 }
@@ -283,26 +298,19 @@
 
 /* 🔹 NUEVO: Estilo cuando hay complementos seleccionados */
 .btn-complementos:has(.btn-complementos-count) {
-  background: #2c80b4;
-  border-color: #2c80b4;
+  background: #e51d1d;
+  border-color: #e51d1d;
 }
 
 .btn-complementos:hover:has(.btn-complementos-count) {
-  background: #2473a3;
-  border-color: #2473a3;
+  background: #e51d1d;
+  border-color: #e51d1d;
 }
 
 .btn-complementos mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-}
-
-.btn-agregar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
 }
 
 /* Responsive para complementos */
@@ -392,11 +400,4 @@
     max-width: 280px;
     height: 180px;
   }
-}
-
-/* 🔹 NUEVO: Prevenir pixelación en imágenes pequeñas */
-.detalle-imagen {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
 }

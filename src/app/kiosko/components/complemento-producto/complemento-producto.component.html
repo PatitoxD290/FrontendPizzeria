@@ -1,72 +1,72 @@
 <div class="complemento-container">
   <!-- ENCABEZADO -->
   <div class="complemento-header">
-    <div class="header-title">
-      <h2>Bebidas y Complementos</h2>
-      <p class="subtitle">Selecciona las bebidas para este combo</p>
-    </div>
+    <h2>Bebidas Disponibles</h2>
     <button mat-icon-button (click)="cerrar()" class="btn-cerrar">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- ✅ INDICADOR DE SELECCIÓN -->
-  <div *ngIf="complementoService.obtenerCantidadComplementos() > 0" class="seleccion-indicador mat-elevation-z2">
+  <!-- ✅ INDICADOR DE SELECCIÓN MÚLTIPLE -->
+  <div *ngIf="complementoService.obtenerCantidadComplementos() > 0" class="seleccion-indicador">
     <mat-icon>check_circle</mat-icon>
-    <span>{{ complementoService.obtenerCantidadComplementos() }} producto(s) seleccionado(s)</span>
+    <span>{{ complementoService.obtenerCantidadComplementos() }} complemento(s) seleccionado(s)</span>
   </div>
 
   <!-- 🌀 LOADING -->
-  <div *ngIf="cargando" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Cargando bebidas...</p>
+  <div *ngIf="cargando" class="estado-container">
+    <div class="cargando">
+      <p>Cargando bebidas...</p>
+    </div>
   </div>
 
-  <!-- 📦 GRID DE PRODUCTOS -->
-  <div class="productos-tamano-grid" *ngIf="!cargando && productosTamanoBebidas.length > 0">
+  <!-- 🔹 CAMBIO: LISTA DE PRODUCTOS_TAMANO INDIVIDUALES -->
+  <div class="productos-tamano-grid" *ngIf="!cargando && productosTamanoBebidas.length > 0; else estado">
     <div 
-      *ngFor="let item of productosTamanoBebidas" 
-      class="producto-tamano-card mat-elevation-z1"
-      [class.seleccionada]="estaSeleccionado(item)"
-      (click)="toggleProductoTamano(item)">
+      *ngFor="let productoTamano of productosTamanoBebidas" 
+      class="producto-tamano-card"
+      [class.seleccionada]="estaSeleccionado(productoTamano)"
+      (click)="toggleProductoTamano(productoTamano)">
       
       <div class="producto-tamano-imagen-container">
-        <img [src]="item.imagen" 
+        <img [src]="productoTamano.imagen" 
              (error)="onImageError($event)" 
-             [alt]="item.Nombre" 
+             [alt]="productoTamano.Nombre" 
              class="producto-tamano-imagen" />
         
-        <!-- Overlay de Selección -->
-        <div class="seleccion-overlay" *ngIf="estaSeleccionado(item)">
+        <!-- ✅ INDICADOR VISUAL DE SELECCIÓN -->
+        <div *ngIf="estaSeleccionado(productoTamano)" class="seleccion-overlay">
           <mat-icon>check</mat-icon>
         </div>
       </div>
       
       <div class="producto-tamano-info">
-        <h4 class="producto-tamano-nombre">{{ item.Nombre }}</h4>
-        <p class="producto-tamano-categoria">{{ item.nombre_categoria }}</p>
+        <h4 class="producto-tamano-nombre">{{ productoTamano.Nombre }}</h4>
+        <p class="producto-tamano-categoria">{{ productoTamano.nombre_categoria }}</p>
         
+        <!-- 🔹 INFORMACIÓN DEL TAMAÑO Y PRECIO -->
         <div class="producto-tamano-meta">
-          <span class="badge-tamano">{{ item.nombre_tamano }}</span>
-          <span class="badge-precio">S/. {{ item.Precio | number:'1.2-2' }}</span>
+          <span class="producto-tamano-tamano">{{ productoTamano.nombre_tamano }}</span>
+          <span class="producto-tamano-precio">S/. {{ productoTamano.Precio | number:'1.2-2' }}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ESTADO VACÍO -->
-  <div *ngIf="!cargando && productosTamanoBebidas.length === 0" class="empty-state">
-    <mat-icon>no_drinks</mat-icon>
-    <p>No hay bebidas disponibles en este momento.</p>
-  </div>
+  <!-- ESTADOS: VACÍO -->
+  <ng-template #estado>
+    <div class="estado-container" *ngIf="!cargando && productosTamanoBebidas.length === 0">
+      <div class="sin-bebidas">
+        <p>No hay bebidas disponibles</p>
+      </div>
+    </div>
+  </ng-template>
 
-  <!-- ✅ BOTÓN FINALIZAR -->
-  <div class="complemento-footer">
-    <button mat-raised-button color="primary" class="btn-finalizar" 
-            (click)="finalizarSeleccion()" 
-            [disabled]="complementoService.obtenerCantidadComplementos() === 0">
+  <!-- ✅ BOTÓN PARA FINALIZAR SELECCIÓN -->
+  <div class="complemento-acciones" *ngIf="complementoService.obtenerCantidadComplementos() > 0">
+    <button class="btn-finalizar" (click)="finalizarSeleccion()">
       <mat-icon>check</mat-icon>
-      Confirmar Selección
+      Confirmar {{ complementoService.obtenerCantidadComplementos() }} Complemento(s)
     </button>
   </div>
 </div>

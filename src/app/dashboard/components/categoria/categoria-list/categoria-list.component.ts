@@ -8,9 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTooltipModule } from '@angular/material/tooltip'; // Importante para matTooltip
+import { MatTooltipModule } from '@angular/material/tooltip';
 import Swal from 'sweetalert2';
-import { forkJoin } from 'rxjs'; // Para cargar datos en paralelo
+import { forkJoin } from 'rxjs';
+import { Output, EventEmitter } from '@angular/core';
 
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { CategoriaProducto, CategoriaInsumos } from '../../../../core/models/categoria.model';
@@ -39,28 +40,31 @@ export class CategoriaListComponent implements OnInit {
   categoriasProductos: CategoriaProducto[] = [];
   categoriasInsumos: CategoriaInsumos[] = [];
   
-  // Datos paginados para la vista
+  // Datos paginados
   paginatedProductos: CategoriaProducto[] = [];
   paginatedInsumos: CategoriaInsumos[] = [];
   
   loading = false;
-  selectedTab = 0; // 0 = Productos, 1 = Insumos
+  selectedTab = 0; // 0 para productos, 1 para insumos
 
   // Configuración de paginación
   pageSize = 5;
   pageSizeOptions = [5, 10, 25, 50];
-  
   currentPageProductos = 0;
-  totalProductos = 0;
-
   currentPageInsumos = 0;
+  totalProductos = 0;
   totalInsumos = 0;
+
+  categoriaActiva: number | null = 0;
 
   @ViewChild('paginatorProductos') paginatorProductos!: MatPaginator;
   @ViewChild('paginatorInsumos') paginatorInsumos!: MatPaginator;
 
-  // Definición de columnas
-  columnas: string[] = ['id', 'nombre', 'acciones'];
+  // Columnas para las tablas (sin descripción)
+  columnasProductos: string[] = ['id', 'nombre', 'acciones'];
+  columnasInsumos: string[] = ['id', 'nombre', 'acciones'];
+
+  @Output() categoriaSeleccionada = new EventEmitter<number>();
 
   constructor(
     private categoriaService: CategoriaService,
@@ -68,11 +72,11 @@ export class CategoriaListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadAllData();
+    this.loadCategorias();
   }
 
-  // 🔄 Carga simultánea de datos
-  loadAllData() {
+  // 🔁 Cargar todas las categorías usando forkJoin
+  loadCategorias() {
     this.loading = true;
     
     forkJoin({
@@ -80,12 +84,12 @@ export class CategoriaListComponent implements OnInit {
       insumos: this.categoriaService.getCategoriasInsumos()
     }).subscribe({
       next: (result) => {
-        // Productos
+        // Categorías de productos
         this.categoriasProductos = result.productos;
         this.totalProductos = result.productos.length;
         this.updatePaginatedProductos();
 
-        // Insumos
+        // Categorías de insumos
         this.categoriasInsumos = result.insumos;
         this.totalInsumos = result.insumos.length;
         this.updatePaginatedInsumos();
@@ -100,84 +104,99 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  // Recargar solo la lista activa (útil después de crear/editar)
-  reloadCurrentTab() {
-    this.loadAllData(); // Por simplicidad recargamos todo, pero podrías optimizar
-  }
-
-  // =========================================
-  // 📄 Lógica de Paginación
-  // =========================================
-
+  // Actualizar datos paginados para productos
   updatePaginatedProductos() {
     const startIndex = this.currentPageProductos * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedProductos = this.categoriasProductos.slice(startIndex, endIndex);
   }
 
+  // Actualizar datos paginados para insumos
   updatePaginatedInsumos() {
     const startIndex = this.currentPageInsumos * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedInsumos = this.categoriasInsumos.slice(startIndex, endIndex);
   }
 
+  // Manejar cambio de página en productos
   onPageChangeProductos(event: PageEvent) {
     this.currentPageProductos = event.pageIndex;
     this.pageSize = event.pageSize;
     this.updatePaginatedProductos();
   }
 
+  // Manejar cambio de página en insumos
   onPageChangeInsumos(event: PageEvent) {
     this.currentPageInsumos = event.pageIndex;
     this.pageSize = event.pageSize;
     this.updatePaginatedInsumos();
   }
 
-  onTabChange(index: number) {
-    this.selectedTab = index;
-  }
-
-  // =========================================
-  // 🗑️ Eliminar Categoría
-  // =========================================
-
+  // 🗑️ Eliminar categoría (Versión mejorada con manejo de errores)
   deleteCategoria(categoria: CategoriaProducto | CategoriaInsumos, tipo: 'producto' | 'insumo') {
-    const id = this.getId(categoria, tipo);
-    const nombre = categoria.Nombre;
-
     Swal.fire({
-      title: `¿Eliminar "${nombre}"?`,
-      text: 'Esta acción no se puede deshacer.',
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esto',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
     }).then((result) => {
       if (result.isConfirmed) {
-        
-        // Seleccionar el observable correcto
+        const id = this.getIdCategoria(categoria, tipo);
+        const nombreCategoria = this.getNombreCategoria(categoria);
+
         const deleteObs = tipo === 'producto'
           ? this.categoriaService.deleteCategoriaProducto(id)
           : this.categoriaService.deleteCategoriaInsumo(id);
 
         deleteObs.subscribe({
           next: () => {
-            Swal.fire('Eliminado', 'La categoría ha sido eliminada.', 'success');
-            this.loadAllData();
+            Swal.fire({
+              title: '¡Eliminada!',
+              text: `La categoría "${nombreCategoria}" ha sido eliminada.`,
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.loadCategorias();
           },
-          error: (err) => {
-            console.error(err);
-            // Manejo específico de error de FK (Backend devuelve 400 o 409)
-            if (err.status === 400 || err.status === 409) {
-              Swal.fire({
-                icon: 'error',
-                title: 'No se puede eliminar',
-                text: `La categoría "${nombre}" está siendo usada por productos o insumos activos.`
-              });
+          error: (error) => {
+            console.error('Error al eliminar categoría:', error);
+            
+            // Verificar si es error de integridad referencial
+            if (error.status === 400 || error.status === 409) {
+              const errorMessage = error.error?.error || 'Hay elementos asociados a esta categoría';
+              
+              // Mostrar mensaje específico para productos/insumos asociados
+              if (errorMessage.includes('productos asociados') || errorMessage.includes('insumos asociados') || error.status === 409) {
+                Swal.fire({
+                  title: 'No se puede eliminar',
+                  html: `
+                    <div style="text-align: left;">
+                      <p><strong>La categoría "${nombreCategoria}" no puede ser eliminada porque tiene ${tipo === 'producto' ? 'productos' : 'insumos'} asociados.</strong></p>
+                      <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        ${tipo === 'producto' 
+                          ? 'Debes eliminar o reassignar los productos asociados antes de eliminar esta categoría.' 
+                          : 'Debes eliminar o reassignar los insumos asociados antes de eliminar esta categoría.'
+                        }
+                      </p>
+                    </div>
+                  `,
+                  icon: 'warning',
+                  confirmButtonText: 'Entendido',
+                  confirmButtonColor: '#3085d6',
+                  width: 500
+                });
+              } else {
+                // Otro error 400/409
+                Swal.fire('Error', errorMessage, 'error');
+              }
             } else {
-              Swal.fire('Error', 'Ocurrió un problema al eliminar.', 'error');
+              // Error genérico
+              Swal.fire('Error', 'No se pudo eliminar la categoría', 'error');
             }
           }
         });
@@ -185,40 +204,50 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  // =========================================
-  // 📝 Abrir Formulario (Modal)
-  // =========================================
-
+  // 📝 Abrir modal para crear/editar
   openCategoriaForm(categoria?: CategoriaProducto | CategoriaInsumos, tipoOverride?: 'producto' | 'insumo') {
-    // Determinar el tipo: si viene forzado, o según el tab actual
     const tipo = tipoOverride || (this.selectedTab === 0 ? 'producto' : 'insumo');
-
+    
     const dialogRef = this.dialog.open(CategoriaFormComponent, {
-      width: '500px',
-      disableClose: true, // Evita cerrar clickeando afuera por accidente
+      width: '600px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: true,
       data: { 
-        categoria: categoria ? { ...categoria } : null, // Clonar para no mutar la tabla
-        tipo 
+        categoria: categoria ? { ...categoria } : null,
+        tipo
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        // Si retornó true, hubo cambios -> recargar
-        this.loadAllData();
+      if (result) {
+        this.loadCategorias();
       }
     });
   }
 
-  // =========================================
-  // 🔧 Helpers de UI
-  // =========================================
+  // Método para emitir la categoría seleccionada
+  seleccionarCategoria(categoria: CategoriaProducto | CategoriaInsumos) {
+    const id = this.getIdCategoria(categoria, this.selectedTab === 0 ? 'producto' : 'insumo');
+    this.categoriaActiva = id;
+    this.categoriaSeleccionada.emit(id);
+  }
 
-  // Obtener ID de forma segura según el tipo
-  getId(item: CategoriaProducto | CategoriaInsumos, tipo: 'producto' | 'insumo'): number {
+  // Cambiar entre tabs
+  onTabChange(index: number) {
+    this.selectedTab = index;
+  }
+
+  // Obtener ID de categoría según tipo
+  getIdCategoria(categoria: CategoriaProducto | CategoriaInsumos, tipo: 'producto' | 'insumo'): number {
     if (tipo === 'producto') {
-      return (item as CategoriaProducto).ID_Categoria_P;
+      return (categoria as CategoriaProducto).ID_Categoria_P;
     }
-    return (item as CategoriaInsumos).ID_Categoria_I;
+    return (categoria as CategoriaInsumos).ID_Categoria_I;
+  }
+
+  // Obtener nombre de categoría
+  getNombreCategoria(categoria: CategoriaProducto | CategoriaInsumos): string {
+    return categoria.Nombre || '';
   }
 }

@@ -299,7 +299,7 @@
 }
 
 .table-header:nth-child(6), .table-cell:nth-child(6) { 
-  width: 10%; 
+  width: 15%; 
   padding-left: 14px;
   padding-right: 18px;
 }
@@ -391,11 +391,16 @@
   font-weight: 500;
 }
 
+.text-muted {
+  color: #9ca3af !important;
+  font-style: italic;
+}
+
 /* ACCIONES ELEGANTES */
 .acciones-container {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .action-btn {
@@ -411,6 +416,26 @@
   font-size: 16px;
 }
 
+.puntos-btn {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+.puntos-btn:hover:not([disabled]) {
+  background: #ff9800;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.puntos-btn:disabled {
+  background: #f5f5f5;
+  color: #bdbdbd;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .edit-btn {
   background: #e3f2fd;
   color: #1976d2;
@@ -421,6 +446,26 @@
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.delete-btn {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.delete-btn:hover:not([disabled]) {
+  background: #f44336;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.delete-btn:disabled {
+  background: #f5f5f5;
+  color: #bdbdbd;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Spinner elegante */
@@ -570,163 +615,4 @@
 .page-size-select:focus {
   outline: none;
   border-color: #d11616;
-  box-shadow: 0 0 0 3px rgba(209, 22, 22, 0.12);
-}
-
-/* ==================================================
-   🎨 RESPONSIVE ELEGANTE
-================================================== */
-@media (max-width: 1200px) {
-  .table-header,
-  .table-cell {
-    font-size: 0.9rem;
-    padding: 15px 12px;
-  }
-  
-  .table-row {
-    height: 58px;
-  }
-  
-  .header-content .material-icons {
-    font-size: 15px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .table-header,
-  .table-cell {
-    font-size: 0.85rem;
-    padding: 13px 10px;
-  }
-  
-  .table-row {
-    height: 55px;
-  }
-  
-  .card-header {
-    padding: 20px 24px;
-  }
-  
-  .filtros-container {
-    padding: 18px 24px;
-  }
-}
-
-@media (max-width: 768px) {
-  .cliente-container {
-    padding: 16px;
-  }
-  
-  .card-header {
-    padding: 18px 24px 16px;
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
-  }
-  
-  .card-header h2 {
-    font-size: 1.6rem;
-    text-align: center;
-  }
-  
-  .filtros-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-    padding: 16px 20px;
-  }
-  
-  .filtros-izquierda,
-  .filtros-derecha {
-    width: 100%;
-  }
-  
-  .search-field {
-    min-width: auto;
-    max-width: none;
-  }
-  
-  .filtros-derecha {
-    flex-wrap: wrap;
-  }
-  
-  .fecha-selector {
-    min-width: auto;
-    flex: 1;
-  }
-  
-  /* Ocultar columnas en móviles */
-  .table-header:nth-child(4), /* TELÉFONO */
-  .table-cell:nth-child(4) {
-    display: none;
-  }
-  
-  /* Reajustar anchos para móviles */
-  .table-header:nth-child(1), .table-cell:nth-child(1) { 
-    width: 10%; 
-    padding-left: 14px;
-  }
-  .table-header:nth-child(2), .table-cell:nth-child(2) { 
-    width: 35%; 
-  }
-  .table-header:nth-child(3), .table-cell:nth-child(3) { 
-    width: 20%; 
-  }
-  .table-header:nth-child(5), .table-cell:nth-child(5) { 
-    width: 15%; 
-  }
-  .table-header:nth-child(6), .table-cell:nth-child(6) { 
-    width: 10%; 
-  }
-  
-  .table-cell {
-    padding: 12px 10px;
-    font-size: 0.85rem;
-  }
-  
-  .table-row {
-    height: 52px;
-  }
-  
-  .pagination-container {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-    gap: 14px;
-    padding: 16px 20px;
-  }
-  
-  .pagination-controls {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .cliente-container {
-    padding: 12px;
-  }
-  
-  .card-header {
-    padding: 16px 20px 14px;
-  }
-  
-  .card-header h2 {
-    font-size: 1.4rem;
-  }
-  
-  .no-data {
-    padding: 45px 20px;
-  }
-  
-  .no-data h3 {
-    font-size: 1.2rem;
-  }
-  
-  .table-row {
-    height: 48px;
-  }
-  
-  .fecha-selector {
-    min-width: 120px;
-  }
-}
+  box-shadow: 0 0 0 3px rgba(209

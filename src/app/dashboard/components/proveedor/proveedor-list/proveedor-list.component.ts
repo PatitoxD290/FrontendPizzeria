@@ -21,7 +21,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 
-
 // SweetAlert2
 import Swal from 'sweetalert2';
 
@@ -48,18 +47,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./proveedor-list.component.css']
 })
 export class ProveedorListComponent implements OnInit, AfterViewInit {
-
-  // Columnas coincidentes con el modelo
-  displayedColumns: string[] = [
-    'ID_Proveedor', 
-    'Nombre', 
-    'Ruc', 
-    'Telefono', 
-    'Persona_Contacto', 
-    'Estado', 
-    'Fecha_Registro', 
-    'acciones'
-  ];
 
   dataSource = new MatTableDataSource<Proveedor>([]);
   loading = false;
@@ -110,6 +97,15 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  // 🧹 Limpiar filtros
+  limpiarFiltros() {
+    const input = document.querySelector('.search-input-compact') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+    this.dataSource.filter = '';
   }
 
   // 🗑️ Eliminar
@@ -196,5 +192,10 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
 
   getEstadoLabel(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
+  }
+
+  // Propiedad computada para filteredData
+  get filteredData(): Proveedor[] {
+    return this.dataSource.filteredData;
   }
 }

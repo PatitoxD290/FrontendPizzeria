@@ -35,6 +35,32 @@
   height: 16px;
 }
 
+/* Filtros Container */
+.filters-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.search-field {
+  flex: 2;
+  min-width: 200px;
+}
+
+.category-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+.clear-filters-btn {
+  margin-top: 8px;
+}
+
 /* Loading más compacto */
 .spinner-container {
   display: flex;
@@ -97,7 +123,7 @@
 /* Card Header with Image - Imagen ultra pequeña */
 .card-header {
   position: relative;
-  height: 90px; /* Reducido de 120px */
+  height: 90px;
   overflow: hidden;
 }
 
@@ -240,26 +266,17 @@
   cursor: help;
 }
 
-.price-info, .sizes-info {
+.price-info {
   display: flex;
   align-items: center;
   gap: 3px;
-  margin-bottom: 1px;
 }
 
-.price-info:last-child, .sizes-info:last-child {
-  margin-bottom: 0;
-}
-
-.price-icon, .sizes-icon {
+.price-icon {
   font-size: 12px;
   width: 12px;
   height: 12px;
   color: #28a745;
-}
-
-.sizes-icon {
-  color: #6c757d;
 }
 
 .price-text {
@@ -268,30 +285,55 @@
   color: #28a745;
 }
 
-.sizes-text {
+/* Sizes List - Scrollable */
+.sizes-list {
+  max-height: 80px;
+  overflow-y: auto;
+  margin-bottom: 6px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.size-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
   font-size: 0.7rem;
-  color: #6c757d;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.size-item:last-child {
+  border-bottom: none;
+}
+
+.size-name {
+  color: #555;
   font-weight: 500;
 }
 
-/* Date Section ultra compacto */
-.date-section {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 4px;
+.size-price {
+  color: #28a745;
+  font-weight: 600;
 }
 
-.date-icon {
-  font-size: 11px;
-  width: 11px;
-  height: 11px;
-  color: #999;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
 
-.date-text {
-  font-size: 0.65rem;
-  color: #999;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* Card Actions - Botones ultra compactos */
@@ -323,35 +365,7 @@
   height: 16px;
 }
 
-/* Ajustes específicos para botones de icono */
-.mat-icon-button[color="primary"] {
-  color: #1976d2;
-}
-
-.mat-icon-button[color="warn"] {
-  color: #d32f2f;
-}
-
-/* Para pantallas muy pequeñas, hacer los botones aún más compactos */
-@media (max-width: 480px) {
-  .card-actions {
-    padding: 0 6px 6px;
-    gap: 3px;
-  }
-  
-  .action-button {
-    width: 26px;
-    height: 26px;
-  }
-  
-  .action-button mat-icon {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
-  }
-}
-
-/* Pagination - Manteniendo Angular Material actual */
+/* Pagination */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -366,46 +380,6 @@
   padding: 6px 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid #e0e0e0;
-}
-
-/* Mejorar la apariencia de los botones del paginador */
-.custom-paginator .mat-paginator-page-size,
-.custom-paginator .mat-paginator-range-actions {
-  margin: 0 6px;
-}
-
-.custom-paginator .mat-paginator-page-size-label {
-  font-size: 0.7rem;
-  color: #666;
-}
-
-.custom-paginator .mat-select-value {
-  font-size: 0.7rem;
-}
-
-.custom-paginator .mat-paginator-range-label {
-  font-size: 0.7rem;
-  color: #666;
-  margin: 0 8px;
-}
-
-/* Botones de navegación más compactos */
-.custom-paginator .mat-paginator-navigation-previous,
-.custom-paginator .mat-paginator-navigation-next {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-}
-
-.custom-paginator .mat-icon-button {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-}
-
-.custom-paginator .mat-paginator-icon {
-  width: 16px;
-  height: 16px;
 }
 
 /* No Data más compacto */
@@ -469,6 +443,15 @@
     text-align: center;
   }
   
+  .filters-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .search-field, .category-field {
+    width: 100%;
+  }
+  
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 8px;
@@ -491,21 +474,6 @@
   .custom-paginator {
     width: 100%;
     padding: 4px;
-  }
-  
-  .custom-paginator .mat-paginator-container {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  
-  .custom-paginator .mat-paginator-page-size {
-    order: 2;
-    margin-top: 6px;
-  }
-  
-  .custom-paginator .mat-paginator-range-actions {
-    order: 1;
   }
 }
 
@@ -535,19 +503,6 @@
   .custom-paginator {
     font-size: 0.65rem;
     padding: 4px;
-  }
-  
-  .custom-paginator .mat-paginator-range-label {
-    font-size: 0.65rem;
-    margin: 0 6px;
-  }
-  
-  .custom-paginator .mat-paginator-page-size-label {
-    font-size: 0.65rem;
-  }
-  
-  .custom-paginator .mat-select-value {
-    font-size: 0.65rem;
   }
 }
 

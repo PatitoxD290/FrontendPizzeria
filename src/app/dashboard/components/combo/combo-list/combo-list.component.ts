@@ -58,7 +58,7 @@ export class ComboListComponent implements OnInit, OnDestroy {
   terminoBusqueda: string = '';
 
   private destroy$ = new Subject<void>();
-  private baseUrl = 'http://localhost:3000'; // URL base para imágenes
+  private baseUrl = 'http://localhost:3000';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -82,7 +82,7 @@ export class ComboListComponent implements OnInit, OnDestroy {
     this.combosService.getCombos().subscribe({
       next: (combos) => {
         this.combos = combos;
-        this.aplicarFiltros(); // Aplica filtros y paginación inicial
+        this.aplicarFiltros();
         this.cargando = false;
       },
       error: (error) => {
@@ -93,21 +93,17 @@ export class ComboListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🖼️ Obtener imagen segura (Lógica corregida /imagenesCata/)
+  // 🖼️ Obtener imagen segura
   getComboImage(combo: Combo): string {
     if (combo.imagenes && combo.imagenes.length > 0) {
-      // 1. Extraemos solo el nombre del archivo (ej: combo_1_1.jpg)
-      //    Esto limpia cualquier ruta relativa previa como 'uploads/' o '\'
       const filename = combo.imagenes[0].split(/[/\\]/).pop();
-      
-      // 2. Construimos la URL pública correcta
       return `${this.baseUrl}/imagenesCata/${filename}`;
     }
-    return 'assets/imgs/no-image.png'; // Fallback
+    return 'assets/imgs/logo-aita/logo.png';
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/imgs/no-image.png';
+    event.target.src = 'assets/imgs/logo-aita/logo.png';
   }
 
   // 🔍 Filtros y Búsqueda
@@ -130,13 +126,11 @@ export class ComboListComponent implements OnInit, OnDestroy {
 
     this.totalItems = resultado.length;
     
-    // Resetear paginador si es necesario
     if (this.paginator && this.currentPage * this.pageSize >= this.totalItems) {
       this.currentPage = 0;
       this.paginator.firstPage();
     }
 
-    // 3. Paginar resultados filtrados
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedCombos = resultado.slice(startIndex, endIndex);
@@ -152,7 +146,7 @@ export class ComboListComponent implements OnInit, OnDestroy {
   onPageChange(event: PageEvent) {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.aplicarFiltros(); // Recalcular slice
+    this.aplicarFiltros();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -231,10 +225,8 @@ export class ComboListComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
         this.combosService.toggleEstadoCombo(combo.ID_Combo, combo.Estado).subscribe({
           next: (res) => {
-            // Actualizar localmente para feedback inmediato
             combo.Estado = res.Estado || nuevoEstado;
             
-            // Si el backend dice que se quedó inactivo (por falta de stock), avisar
             if (nuevoEstado === 'A' && combo.Estado === 'I') {
               Swal.fire('Atención', 'El combo no se pudo activar porque faltan ingredientes en el stock.', 'warning');
             } else {
@@ -252,19 +244,33 @@ export class ComboListComponent implements OnInit, OnDestroy {
   // =========================================
 
   getEstadoColor(estado: string): string {
-    return estado === 'A' ? 'primary' : 'warn'; // Material colors
+    return estado === 'A' ? 'success' : 'warn';
   }
 
   getEstadoText(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
   }
 
+  getPrecioInfo(combo: Combo): string {
+    return `Precio del combo: S/ ${combo.Precio.toFixed(2)}`;
+  }
+
   getProductosInfo(combo: Combo): string {
-    if (!combo.detalles || combo.detalles.length === 0) return 'Sin productos';
+    if (!combo.detalles || combo.detalles.length === 0) return 'No hay productos en este combo';
     
     return combo.detalles
-      .map(d => `• ${d.Producto_Nombre} (${d.Tamano_Nombre}) x${d.Cantidad}`)
+      .map(d => `${d.Producto_Nombre}${d.Tamano_Nombre ? ` (${d.Tamano_Nombre})` : ''} x${d.Cantidad}`)
       .join('\n');
+  }
+
+  getCantidadProductos(combo: Combo): number {
+    return combo.detalles?.length || 0;
+  }
+
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return 'Sin descripción';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   }
 
   private showSuccess(title: string, text: string) {
@@ -272,6 +278,6 @@ export class ComboListComponent implements OnInit, OnDestroy {
   }
 
   private showError(title: string, text: string) {
-    Swal.fire({ icon: 'error', title, text });
+    Swal.fire({ icon: 'error', title, text, confirmButtonColor: '#d33' });
   }
 }

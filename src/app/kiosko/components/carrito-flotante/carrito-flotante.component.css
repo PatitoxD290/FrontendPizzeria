@@ -71,26 +71,29 @@
 .encabezado-pagina {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 16px 0;
   margin-bottom: 24px;
   border-bottom: 2px solid #e0e0e0;
 }
 
 .btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #e51d1d;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
 }
 
-.titulo-pagina {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: #2c3e50;
-  text-align: center;
+.btn-volver:hover {
+  background-color: rgba(229, 29, 29, 0.1);
 }
 
-.espacio-vacio {
-  width: 40px;
+.texto-volver {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .contenido-pagina {
@@ -122,12 +125,22 @@
   border-bottom: none;
 }
 
-.imagen-item {
+.imagen-placeholder {
   width: 80px;
   height: 80px;
-  object-fit: cover;
+  background: #f8f9fa;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.imagen-placeholder mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #7f8c8d;
 }
 
 .info-pagina {
@@ -137,11 +150,29 @@
   gap: 8px;
 }
 
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .nombre-pagina {
   font-weight: 700;
   font-size: 16px;
   color: #2c3e50;
   margin: 0;
+}
+
+/* 🔹 BADGE PARA COMBOS */
+.badge-combo-pagina {
+  background: #be1b1c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .descripcion-pagina {
@@ -222,35 +253,6 @@
 
 .btn-volver-menu {
   padding: 0 24px;
-}
-
-/* ENCABEZADO MODIFICADO */
-.encabezado-pagina {
-  display: flex;
-  align-items: center;
-  padding: 16px 0;
-  margin-bottom: 24px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.btn-volver {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #e51d1d;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.btn-volver:hover {
-  background-color: rgba(229, 29, 29, 0.1);
-}
-
-.texto-volver {
-  font-size: 16px;
-  font-weight: 600;
 }
 
 /* RESUMEN EN PÁGINA */
@@ -341,7 +343,7 @@
     text-align: center;
   }
   
-  .imagen-item {
+  .imagen-placeholder {
     align-self: center;
   }
   
@@ -352,10 +354,6 @@
   
   .botones-pagina {
     flex-direction: column;
-  }
-  
-  .titulo-pagina {
-    font-size: 20px;
   }
 }
 
@@ -373,5 +371,14 @@
   
   .icono-carrito {
     font-size: 24px;
+  }
+  
+  .info-header {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .subtotal-pagina {
+    text-align: center;
   }
 }

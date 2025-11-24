@@ -15,13 +15,39 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // Servicios y Modelos
 import { ProductoService } from '../../../../core/services/producto.service';
 import { CategoriaService } from '../../../../core/services/categoria.service';
+import { CombosService } from '../../../../core/services/combos.service';
 import { OrdenService } from '../../../../core/services/orden.service';
-import { Producto } from '../../../../core/models/producto.model';
+import { Producto, ProductoTamano } from '../../../../core/models/producto.model';
 import { CategoriaProducto } from '../../../../core/models/categoria.model';
+import { Combo, ComboDetalle } from '../../../../core/models/combo.model';
 import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { TamanoService } from '../../../../core/services/tamano.service';
 
 // Componentes
 import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.component';
+import { InfoTamanoComponent } from '../info-tamano/info-tamano.component';
+
+// Interface para items unificados del menú
+interface MenuItem {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  categoria: string;
+  esCombo: boolean;
+  disponible: boolean;
+  cantidadDisponible: number;
+  // Para productos
+  producto?: Producto;
+  // Para combos
+  combo?: Combo;
+  // Para mostrar tamaños disponibles
+  tamanosDisponibles?: string;
+  // Para mantener compatibilidad con funciones existentes
+  tipo: 'producto' | 'combo';
+  datos: Producto | Combo;
+  detallesCombo?: ComboDetalle[];
+}
 
 @Component({
   selector: 'app-menu-pedido',
@@ -43,16 +69,23 @@ import { CantidadPedidoComponent } from '../cantidad-pedido/cantidad-pedido.comp
 export class MenuPedidoComponent implements OnInit {
   
   // Datos
-  productos: Producto[] = []; // Todos los productos cargados
-  productosFiltrados: Producto[] = []; // Productos después de aplicar filtros
-  paginatedProductos: Producto[] = []; // Productos en la página actual
+  productos: Producto[] = [];
+  combos: Combo[] = [];
   categorias: CategoriaProducto[] = [];
+  
+  // Items unificados para mostrar
+  menuItems: MenuItem[] = [];
+  menuItemsFiltrados: MenuItem[] = [];
+  paginatedItems: MenuItem[] = [];
   
   // Estados UI
   loading = true;
-  categoriaSeleccionada: number | null = null; // null = Todas
+  categoriaSeleccionada: number | string | null = null;
   terminoBusqueda: string = '';
-  baseUrl = 'http://localhost:3000'; // Ajustar según tu backend
+  baseUrl = 'http://localhost:3000';
+
+  // Constantes - CORREGIDO: usar number para consistencia
+  readonly CATEGORIA_COMBOS = -1; // Cambiado de 'combos' a -1
 
   // Paginación
   pageSize = 8;
@@ -64,7 +97,9 @@ export class MenuPedidoComponent implements OnInit {
   constructor(
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
+    private combosService: CombosService,
     private ordenService: OrdenService,
+    private tamanoService: TamanoService,
     private dialog: MatDialog
   ) {}
 
@@ -80,7 +115,7 @@ export class MenuPedidoComponent implements OnInit {
     this.categoriaService.getCategoriasProducto().subscribe({
       next: (cats) => {
         this.categorias = cats;
-        this.cargarProductos();
+        this.cargarProductosYCombos();
       },
       error: (err) => {
         console.error('Error cargando categorías:', err);
@@ -89,24 +124,29 @@ export class MenuPedidoComponent implements OnInit {
     });
   }
 
-  cargarProductos() {
+  cargarProductosYCombos() {
+    // Cargar productos
     this.productoService.getProductos().subscribe({
-      next: (data) => {
-        // Filtrar solo productos activos y con tamaños activos
-        this.productos = data.filter(p => 
+      next: (productos) => {
+        this.productos = productos.filter(p => 
           p.Estado === 'A' && 
           p.tamanos && 
           p.tamanos.some(t => t.Estado === 'A')
         );
 
-        // Enriquecer con nombre de categoría (opcional, ya que filtramos por ID)
-        this.productos.forEach(p => {
-          p.nombre_categoria = this.obtenerNombreCategoria(p.ID_Categoria_P);
+        // Cargar combos
+        this.combosService.getCombos().subscribe({
+          next: (combos) => {
+            this.combos = combos.filter(c => c.Estado === 'A');
+            this.procesarItemsMenu();
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Error cargando combos:', err);
+            this.procesarItemsMenu();
+            this.loading = false;
+          }
         });
-
-        // Inicializar vista
-        this.aplicarFiltros();
-        this.loading = false;
       },
       error: (err) => {
         console.error('Error cargando productos:', err);
@@ -115,10 +155,60 @@ export class MenuPedidoComponent implements OnInit {
     });
   }
 
-  // 🔍 Filtros
+  procesarItemsMenu() {
+    this.menuItems = [];
+
+    // Procesar productos
+    this.productos.forEach(producto => {
+      const precioMin = this.obtenerPrecioMinimo(producto);
+      
+      this.menuItems.push({
+        id: producto.ID_Producto,
+        nombre: producto.Nombre,
+        descripcion: producto.Descripcion || '',
+        precio: precioMin,
+        categoria: this.obtenerNombreCategoria(producto.ID_Categoria_P),
+        esCombo: false,
+        disponible: producto.Cantidad_Disponible > 0,
+        cantidadDisponible: producto.Cantidad_Disponible,
+        producto: producto,
+        tamanosDisponibles: this.getTamanosDisponibles(producto),
+        tipo: 'producto',
+        datos: producto
+      });
+    });
+
+    // Procesar combos
+    this.combos.forEach(combo => {
+      const comboConDetalles = combo as any;
+      
+      this.menuItems.push({
+        id: combo.ID_Combo,
+        nombre: combo.Nombre,
+        descripcion: combo.Descripcion || '',
+        precio: combo.Precio,
+        categoria: 'Combos',
+        esCombo: true,
+        disponible: true,
+        cantidadDisponible: 100,
+        combo: combo,
+        tipo: 'combo',
+        datos: combo,
+        detallesCombo: comboConDetalles.detalles || []
+      });
+    });
+
+    this.aplicarFiltros();
+  }
+
+  // 🔍 Filtros - CORREGIDO: Tipos consistentes
+  isCategoriaSeleccionada(categoriaId: number | null): boolean {
+    return this.categoriaSeleccionada === categoriaId;
+  }
+
   filtrarPorCategoria(id: number | null): void {
     this.categoriaSeleccionada = id;
-    this.currentPage = 0; // Resetear página al cambiar filtro
+    this.currentPage = 0;
     if (this.paginator) this.paginator.firstPage();
     this.aplicarFiltros();
   }
@@ -130,24 +220,31 @@ export class MenuPedidoComponent implements OnInit {
   }
 
   private aplicarFiltros(): void {
-    let resultado = [...this.productos];
+    let resultado = [...this.menuItems];
 
-    // 1. Filtro por Categoría
+    // 1. Filtro por Categoría - CORREGIDO: Comparación de tipos consistentes
     if (this.categoriaSeleccionada !== null) {
-      resultado = resultado.filter(p => p.ID_Categoria_P === this.categoriaSeleccionada);
+      if (this.categoriaSeleccionada === this.CATEGORIA_COMBOS) {
+        resultado = resultado.filter(item => item.esCombo);
+      } else {
+        resultado = resultado.filter(item => 
+          !item.esCombo && 
+          item.producto?.ID_Categoria_P === this.categoriaSeleccionada
+        );
+      }
     }
 
     // 2. Filtro por Texto
     if (this.terminoBusqueda.trim()) {
       const term = this.terminoBusqueda.toLowerCase();
-      resultado = resultado.filter(p => 
-        p.Nombre.toLowerCase().includes(term) ||
-        p.nombre_categoria?.toLowerCase().includes(term) ||
-        p.Descripcion?.toLowerCase().includes(term)
+      resultado = resultado.filter(item => 
+        item.nombre.toLowerCase().includes(term) ||
+        item.descripcion.toLowerCase().includes(term) ||
+        item.categoria.toLowerCase().includes(term)
       );
     }
 
-    this.productosFiltrados = resultado;
+    this.menuItemsFiltrados = resultado;
     this.actualizarPaginacion();
   }
 
@@ -155,84 +252,129 @@ export class MenuPedidoComponent implements OnInit {
   actualizarPaginacion(): void {
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.paginatedProductos = this.productosFiltrados.slice(startIndex, endIndex);
+    this.paginatedItems = this.menuItemsFiltrados.slice(startIndex, endIndex);
   }
 
   onPageChange(event: PageEvent): void {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
     this.actualizarPaginacion();
-    
-    // Scroll suave al inicio del grid
-    const grid = document.getElementById('menu-grid');
-    if(grid) grid.scrollIntoView({ behavior: 'smooth' });
   }
 
   // 🛒 Acción Principal: Abrir Modal
-  seleccionarProducto(producto: Producto) {
-    // Si no tiene stock, no hacer nada (o mostrar alerta)
-    if (producto.Cantidad_Disponible <= 0) return;
+  abrirModalCantidad(item: MenuItem) {
+    if (!item.disponible) return;
 
     const dialogRef = this.dialog.open(CantidadPedidoComponent, {
       width: '450px',
       maxWidth: '95vw',
-      data: { producto }, // Pasamos el producto completo
-      panelClass: 'custom-dialog-container'
+      data: { 
+        producto: item.producto,
+        combo: item.combo,
+        esCombo: item.esCombo,
+        detallesCombo: item.detallesCombo
+      },
+      panelClass: 'custom-dialog-container',
+      disableClose: false,
+      autoFocus: false
     });
 
     dialogRef.afterClosed().subscribe((result: PedidoDetalle | undefined) => {
       if (result) {
-        // El modal devuelve un objeto listo para el carrito
         this.ordenService.agregarProducto(result);
       }
     });
   }
 
-  // 🖼️ Helpers Visuales
+  // 🖼️ Helpers
   obtenerNombreCategoria(id: number): string {
     const cat = this.categorias.find(c => c.ID_Categoria_P === id);
     return cat ? cat.Nombre : 'General';
   }
 
-  // ✅ CORREGIDO: Lógica de imagen con URL correcta
-  getProductoImage(producto: Producto): string {
-    if (producto.imagenes && producto.imagenes.length > 0) {
-      // Extraer solo el nombre del archivo (ej: producto_1_1.jpg) eliminando rutas relativas
-      const filename = producto.imagenes[0].split(/[/\\]/).pop();
-      // Construir la URL absoluta a la carpeta pública
-      return `${this.baseUrl}/imagenesCata/${filename}`;
-    }
-    return 'assets/imgs/no-image.png';
+  obtenerCategoriaId(item: MenuItem): number | null {
+    return item.producto?.ID_Categoria_P || null;
   }
 
-  onImageError(event: any) {
-    event.target.src = 'assets/imgs/no-image.png';
-  }
-
-  // Precios
-  getPrecioDisplay(producto: Producto): string {
-    if (!producto.tamanos || producto.tamanos.length === 0) return 'S/ 0.00';
+  obtenerPrecioMinimo(producto: Producto): number {
+    if (!producto.tamanos || producto.tamanos.length === 0) return 0;
     
     const precios = producto.tamanos
       .filter(t => t.Estado === 'A')
       .map(t => Number(t.Precio));
     
-    if (precios.length === 0) return 'S/ 0.00';
-
-    const min = Math.min(...precios);
-    const max = Math.max(...precios);
-
-    if (precios.length > 1 && min !== max) {
-      return `Desde S/ ${min.toFixed(2)}`;
-    }
-    return `S/ ${min.toFixed(2)}`;
+    return precios.length > 0 ? Math.min(...precios) : 0;
   }
 
-  // Información de Tamaños
-  getInfoTamanos(producto: Producto): string {
+  getTamanosDisponibles(producto: Producto): string {
     const count = producto.tamanos?.filter(t => t.Estado === 'A').length || 0;
-    if (count > 1) return `${count} opciones`;
-    if (count === 1) return 'Tamaño único';
-    return 'Sin opciones';
+    return count > 1 ? `${count} tamaños` : '1 tamaño';
+  }
+
+  tieneMultiplesTamanos(item: MenuItem): boolean {
+    return !item.esCombo && (item.producto?.tamanos?.filter(t => t.Estado === 'A').length || 0) > 1;
+  }
+
+  // 🔹 FUNCIONES MANTENIDAS DEL COMPONENTE ORIGINAL
+  getPrecioMinimoProducto(producto: Producto): number {
+    return this.obtenerPrecioMinimo(producto);
+  }
+
+  getTamanosDisponiblesCount(item: MenuItem): number {
+    if (item.tipo === 'producto') {
+      const producto = item.datos as Producto;
+      return producto.tamanos ? producto.tamanos.filter(t => t.Estado === 'A').length : 0;
+    }
+    return 0;
+  }
+
+  getCategoria(item: MenuItem): string {
+    return item.categoria;
+  }
+
+  getCantidadDisponible(item: MenuItem): number {
+    return item.cantidadDisponible;
+  }
+
+  getInfoCombo(item: MenuItem): string {
+    if (!item.detallesCombo) return '';
+    return item.detallesCombo
+      .map(d => `${d.Producto_Nombre} (${d.Tamano_Nombre}) x${d.Cantidad}`)
+      .join('\n');
+  }
+
+  getProductosCombo(item: MenuItem): string {
+    if (!item.detallesCombo || item.detallesCombo.length === 0) {
+      return 'Ver descripción';
+    }
+    const items = item.detallesCombo.slice(0, 3).map(d => d.Producto_Nombre);
+    if (item.detallesCombo.length > 3) {
+      items.push(`+${item.detallesCombo.length - 3} más`);
+    }
+    return items.join(', ');
+  }
+
+  getCategoriaTexto(categoriaId: number | null): string {
+    if (categoriaId === null) return 'Todos';
+    if (categoriaId === this.CATEGORIA_COMBOS) return 'Combos';
+    
+    const categoria = this.categorias.find(c => c.ID_Categoria_P === categoriaId);
+    return categoria ? categoria.Nombre : 'Sin categoría';
+  }
+
+  // Imágenes
+  getProductoImage(item: MenuItem): string {
+    if (item.esCombo && item.combo?.imagenes && item.combo.imagenes.length > 0) {
+      const filename = item.combo.imagenes[0].split(/[/\\]/).pop();
+      return `${this.baseUrl}/imagenesCata/${filename}`;
+    } else if (!item.esCombo && item.producto?.imagenes && item.producto.imagenes.length > 0) {
+      const filename = item.producto.imagenes[0].split(/[/\\]/).pop();
+      return `${this.baseUrl}/imagenesCata/${filename}`;
+    }
+    return 'assets/imgs/logo-aita/logo.png';
+  }
+
+  onImageError(event: any) {
+    event.target.src = 'assets/imgs/logo-aita/logo.png';
   }
 }

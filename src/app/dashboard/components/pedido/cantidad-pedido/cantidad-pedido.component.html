@@ -1,8 +1,7 @@
 <div class="modal-container">
-  
   <!-- Header -->
   <div class="modal-header">
-    <h2 class="modal-title">Agregar al Pedido</h2>
+    <h2 class="modal-title">Seleccionar {{ esCombo ? 'combo' : 'producto' }}</h2>
     <button mat-icon-button class="close-button" (click)="cancelar()">
       <mat-icon>close</mat-icon>
     </button>
@@ -11,49 +10,42 @@
   <!-- Información del producto/combo -->
   <div class="producto-info">
     <h3 class="producto-nombre">{{ nombreDisplay }}</h3>
-    
-    <div class="producto-meta">
-      <span class="categoria-badge">{{ categoriaDisplay }}</span>
-      <span class="stock-text" [class.text-warn]="maxCantidad === 0">
-        {{ disponibleTexto }}
-      </span>
+    <div class="producto-detalles">
+      <span class="categoria">{{ categoriaDisplay }}</span>
+      <span *ngIf="esCombo" class="combo-indicator">• COMBO</span>
     </div>
-    
     <p class="producto-descripcion" *ngIf="descripcionDisplay">
       {{ descripcionDisplay }}
     </p>
-
-    <!-- 🔹 NUEVO: Mostrar productos incluidos en el combo -->
+    
+    <!-- 🔹 Mostrar productos incluidos en el combo -->
     <div *ngIf="esCombo" class="combo-detalles" [matTooltip]="getInfoCombo()">
       <strong>Incluye:</strong> {{ getProductosCombo() }}
     </div>
   </div>
 
-  <!-- 🔹 SELECTOR DE TAMAÑOS (Solo visible si NO es combo y hay tamaños) -->
+  <!-- SELECTOR DE TAMAÑOS SOLO PARA PRODUCTOS -->
   <div class="tamanos-container" *ngIf="!esCombo && tamanosDisponibles.length > 0">
-    <label class="section-label">Selecciona un tamaño:</label>
+    <label class="tamanos-label">Selecciona un tamaño:</label>
     
-    <div class="tamanos-grid">
+    <div class="tamanos-buttons"
+         [class.single-tamano]="tamanosDisponibles.length === 1"
+         [class.multiple-tamanos]="tamanosDisponibles.length > 3">
       <button 
         *ngFor="let tamano of tamanosDisponibles" 
-        type="button"
-        class="tamano-card"
+        mat-raised-button
+        class="tamano-btn"
         [class.selected]="tamanoSeleccionado?.ID_Producto_T === tamano.ID_Producto_T"
         (click)="seleccionarTamano(tamano)">
-        
-        <div class="tamano-content">
-          <span class="tamano-name">{{ tamano.nombre_tamano || 'Único' }}</span>
-          <span class="tamano-price">S/ {{ tamano.Precio | number:'1.2-2' }}</span>
-        </div>
-        
-        <div class="check-icon" *ngIf="tamanoSeleccionado?.ID_Producto_T === tamano.ID_Producto_T">
-          <mat-icon>check_circle</mat-icon>
+        <div class="tamano-btn-content">
+          <span class="tamano-nombre">{{ tamano.nombre_tamano || 'Tamaño único' }}</span>
+          <span class="tamano-precio">S/ {{ tamano.Precio | number:'1.2-2' }}</span>
         </div>
       </button>
     </div>
   </div>
 
-  <!-- 🔹 NUEVO: PRECIO COMBO (Solo si es combo) -->
+  <!-- INFORMACIÓN DE PRECIO PARA COMBOS -->
   <div class="precio-combo-container" *ngIf="esCombo">
     <div class="precio-info">
       <span class="precio-label">Precio del combo:</span>
@@ -62,52 +54,66 @@
   </div>
 
   <!-- Control de cantidad -->
-  <div class="cantidad-section">
-    <label class="section-label">Cantidad:</label>
+  <div class="cantidad-container" *ngIf="esCombo || tamanoSeleccionado">
+    <div class="cantidad-header">
+      <label class="cantidad-label">Cantidad:</label>
+      <span class="disponible-text">{{ disponibleTexto }}</span>
+    </div>
     
-    <div class="cantidad-wrapper">
-      <button mat-mini-fab color="basic" class="qty-btn" 
-              (click)="reducirCantidad()" [disabled]="cantidad <= 1">
+    <div class="cantidad-controls">
+      <button mat-icon-button 
+              class="cantidad-btn" 
+              (click)="reducirCantidad()"
+              [disabled]="cantidad <= 1">
         <mat-icon>remove</mat-icon>
       </button>
       
-      <input type="number" 
-             class="qty-input" 
-             [value]="cantidad" 
-             (input)="validarEntrada($event)"
-             (blur)="onCantidadChange($event)">
+      <mat-form-field appearance="outline" class="cantidad-input">
+        <input matInput
+               type="text"
+               [value]="cantidad"
+               (input)="validarEntrada($event)"
+               (blur)="onCantidadChange($event)"
+               maxlength="3"
+               class="text-center">
+      </mat-form-field>
       
-      <button mat-mini-fab color="basic" class="qty-btn" 
-              (click)="aumentarCantidad()" [disabled]="cantidad >= maxCantidad">
+      <button mat-icon-button 
+              class="cantidad-btn" 
+              (click)="aumentarCantidad()"
+              [disabled]="cantidad >= maxCantidad">
         <mat-icon>add</mat-icon>
       </button>
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <!-- Totales -->
-  <div class="total-section">
-    <div class="desglose">
-      <span>{{ cantidad }} x S/ {{ precioUnitario | number:'1.2-2' }}</span>
+  <!-- Precio total -->
+  <div class="total-container" *ngIf="esCombo || tamanoSeleccionado">
+    <div class="total-line"></div>
+    <div class="total-info">
+      <span class="total-label">Total a pagar:</span>
+      <span class="total-precio">S/ {{ precioTotal | number:'1.2-2' }}</span>
     </div>
-    <div class="total-row">
-      <span class="total-label">Total a pagar</span>
-      <span class="total-amount">S/ {{ precioTotal | number:'1.2-2' }}</span>
+    <div class="desglose-precio" *ngIf="esCombo || tamanoSeleccionado">
+      <small>{{ cantidad }} × S/ {{ precioUnitario | number:'1.2-2' }} = S/ {{ precioTotal | number:'1.2-2' }}</small>
     </div>
   </div>
 
   <!-- Botones de acción -->
   <div class="action-buttons">
-    <button mat-stroked-button (click)="cancelar()" class="btn-cancel">
+    <button mat-button 
+            class="cancel-btn" 
+            (click)="cancelar()">
       Cancelar
     </button>
     
-    <button mat-flat-button color="primary" class="btn-add" 
-            (click)="agregarAlPedido()" 
-            [disabled]="(!esCombo && !tamanoSeleccionado) || cantidad <= 0">
-      <mat-icon>shopping_cart</mat-icon>
-      Agregar al Pedido
+    <button mat-raised-button 
+            color="primary" 
+            class="add-btn"
+            (click)="agregarAlPedido()"
+            [disabled]="!esCombo && !tamanoSeleccionado">
+      <mat-icon>shopping_bag</mat-icon>
+      Agregar (S/ {{ precioTotal | number:'1.2-2' }})
     </button>
   </div>
 </div>
