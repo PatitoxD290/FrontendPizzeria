@@ -15,7 +15,6 @@
     </div>
   </div>
 
-<<<<<<< HEAD
   <!-- 🏷️ Categorías (Scroll Horizontal) -->
   <div class="categories-scroll">
     <mat-chip-listbox class="mat-mdc-chip-set-stacked">
@@ -33,32 +32,6 @@
         {{ cat.Nombre }}
       </mat-chip-option>
     </mat-chip-listbox>
-=======
-  <!-- 🏷️ Categorías - CORREGIDO: Tipos consistentes -->
-  <div class="categorias-container">
-    <!-- Botón Todos -->
-    <button mat-raised-button 
-            [color]="isCategoriaSeleccionada(null) ? 'primary' : ''" 
-            (click)="filtrarPorCategoria(null)">
-      Todos
-    </button>
-
-    <!-- Botón Combos -->
-    <button mat-raised-button 
-            [color]="isCategoriaSeleccionada(CATEGORIA_COMBOS) ? 'primary' : ''" 
-            class="combo-category-btn"
-            (click)="filtrarPorCategoria(CATEGORIA_COMBOS)">
-      Combos
-    </button>
-
-    <!-- Categorías normales de productos -->
-    <button *ngFor="let cat of categorias" 
-            mat-raised-button 
-            [color]="isCategoriaSeleccionada(cat.ID_Categoria_P) ? 'primary' : ''" 
-            (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
-      {{ cat.Nombre }}
-    </button>
->>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3
   </div>
 
   <!-- 🌀 Loading -->
@@ -139,10 +112,6 @@
         Ver todo el menú
       </button>
     </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3
   </div>
 
   <!-- 📄 Paginación -->
@@ -154,9 +123,5 @@
     [hidden]="menuItemsFiltrados.length === 0"
     class="custom-paginator">
   </mat-paginator>
-<<<<<<< HEAD
 
 </div>
-=======
-</div>
->>>>>>> 4aa0131a999e4bb894dfe0925d358e0d54276fa3
