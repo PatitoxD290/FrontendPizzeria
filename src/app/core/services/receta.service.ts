@@ -15,9 +15,9 @@ export interface RecetaCompletaResponse {
 })
 export class RecetaService {
   // Ajusta la URL base para apuntar al recurso recetas
-  private apiUrl = 'http://localhost:3000/api/v2/recetas'; 
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/recetas'; 
   // URL auxiliar para detalles sueltos (si el backend lo separó)
-  private apiUrlDetalles = 'http://localhost:3000/api/v2/detalle-receta';
+  private apiUrlDetalles = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/detalle-receta';
 
   constructor(private http: HttpClient) {}
 

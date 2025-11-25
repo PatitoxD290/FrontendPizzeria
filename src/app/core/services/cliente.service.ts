@@ -7,7 +7,7 @@ import { Cliente, ClienteDTO, ClientePuntos } from '../../core/models/cliente.mo
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrl = 'http://localhost:3000/api/v2/clientes';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/clientes';
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +56,6 @@ export class ClienteService {
 
   // 🌟 Obtener puntos de fidelidad (NUEVO)
   getPuntosCliente(id: number): Observable<ClientePuntos> {
-    return this.http.get<ClientePuntos>(`${this.apiUrl}/${id}/puntos`);
+    return this.http.get<ClientePuntos>(`${this.apiUrl}/puntos/${id}`);
   }
 }

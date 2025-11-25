@@ -8,7 +8,7 @@ import { Proveedor, ProveedorDTO } from '../../core/models/proveedor.model';
   providedIn: 'root'
 })
 export class ProveedorService {
-  private apiUrl = 'http://localhost:3000/api/v2/proveedores';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/proveedores';
 
   constructor(private http: HttpClient) {}
 

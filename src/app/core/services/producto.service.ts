@@ -9,7 +9,7 @@ import { Producto, ProductoCreacionDTO } from '../../core/models/producto.model'
 })
 export class ProductoService {
   // Ajusta el puerto si tu backend corre en otro (ej: 4000)
-  private apiUrl = 'http://localhost:3000/api/v2/productos'; 
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/productos'; 
 
   constructor(private http: HttpClient) {}
 

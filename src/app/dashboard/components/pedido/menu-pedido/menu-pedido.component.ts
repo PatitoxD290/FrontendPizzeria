@@ -82,7 +82,7 @@ export class MenuPedidoComponent implements OnInit {
   loading = true;
   categoriaSeleccionada: number | string | null = null;
   terminoBusqueda: string = '';
-  baseUrl = 'http://localhost:3000';
+  baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
 
   // Constantes - CORREGIDO: usar number para consistencia
   readonly CATEGORIA_COMBOS = -1; // Cambiado de 'combos' a -1

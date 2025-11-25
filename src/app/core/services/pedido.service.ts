@@ -34,7 +34,7 @@ export interface PedidosPorEstadoResponse {
 })
 export class PedidoService {
 
-  private apiUrl = 'http://localhost:3000/api/v2/pedidos';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/pedidos';
 
   constructor(private http: HttpClient) {}
 

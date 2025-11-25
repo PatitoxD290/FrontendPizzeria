@@ -6,7 +6,7 @@ import { tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:3000/api/v2';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2';
 
   // 🔹 Signals para manejar token y usuario
   token = signal<string | null>(localStorage.getItem('token'));

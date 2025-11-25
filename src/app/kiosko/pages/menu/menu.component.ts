@@ -198,7 +198,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       const precioMaximo = Math.max(...precios);
 
       const imagen = await this.verificarImagenProducto(
-        `http://localhost:3000/imagenesCata/producto_${producto.ID_Producto ?? 0}_1`
+        `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/producto_${producto.ID_Producto ?? 0}_1`
       );
       const nombreCategoria = this.CATEGORY_MAP[producto.ID_Categoria_P] || 'Sin categoría';
 
@@ -244,7 +244,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         ID_Categoria_P: 999,
         nombre_categoria: 'Combos',
         imagen: await this.verificarImagenProducto(
-          `http://localhost:3000/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
+          `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/combo_${item.ID_Combo ?? 0}_1`
         ),
         tamanos: [],
         esCombo: true,

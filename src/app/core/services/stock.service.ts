@@ -16,9 +16,9 @@ import {
 })
 export class StockService {
   // Endpoints base
-  private apiUrlStock = 'http://localhost:3000/api/v2/stock';
-  private apiUrlMovimientos = 'http://localhost:3000/api/v2/stock/movimientos';
-  private apiUrlAlertas = 'http://localhost:3000/api/v2/stock/alertas'; 
+  private apiUrlStock = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/stock';
+  private apiUrlMovimientos = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/stock/movimientos';
+  private apiUrlAlertas = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/stock/alertas'; 
 
   constructor(private http: HttpClient) {}
 
