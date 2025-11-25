@@ -36,20 +36,23 @@
         <!-- Cards de pedidos - Aplicando estructura compacta del primer diseño -->
         <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card">
           <mat-card-header class="pedido-header">
-            <mat-card-title class="pedido-title">
-              Pedido #{{ pedido.ID_Pedido }}
-            </mat-card-title>
+            <mat-card-title class="pedido-title"> Pedido #{{ pedido.ID_Pedido }} </mat-card-title>
             <mat-card-subtitle class="pedido-subtitle">
-              {{ getHoraFormateada(pedido.Hora_Pedido) }} • {{ pedido.Fecha_Registro | date:'dd/MM/yyyy' }}
+              {{ getHoraFormateada(pedido.Hora_Pedido) }} •
+              {{ pedido.Fecha_Registro | date : 'dd/MM/yyyy' }}
             </mat-card-subtitle>
-            
+
             <!-- Chip de estado y tiempo - Combinando ambos diseños -->
             <div class="estado-chip">
               <mat-chip [color]="getEstadoColor(pedido.Estado_P)" selected>
                 {{ getEstadoTexto(pedido.Estado_P) }}
               </mat-chip>
-              <div class="time-badge" [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)">
-                <mat-icon>timer</mat-icon> {{ getTiempoEspera(pedido.Fecha_Registro, pedido.Hora_Pedido) }}
+              <div
+                class="time-badge"
+                [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)"
+              >
+                <mat-icon>timer</mat-icon>
+                {{ getTiempoEspera(pedido.Fecha_Registro, pedido.Hora_Pedido) }}
               </div>
             </div>
           </mat-card-header>
@@ -70,44 +73,89 @@
             <!-- Lista de productos - Combinando ambos diseños -->
             <div class="productos-list">
               <h4>Productos:</h4>
-              <div *ngFor="let detalle of pedido.detallesCompletos" class="producto-item">
-                <div class="producto-info">
-                  <span class="producto-nombre">
-                    {{ detalle.nombreItem || detalle.productoInfo?.Nombre || detalle.comboInfo?.Nombre || detalle.Nombre_Producto || detalle.Nombre_Combo || 'Producto' }}
-                  </span>
-                  <span class="producto-tamano">
-                    {{ detalle.tamanoInfo }} x{{ detalle.Cantidad }}
+
+              <!-- Iterar sobre cada detalle del pedido -->
+              <div *ngFor="let detalle of pedido.detallesCompletos" class="producto-item-wrapper">
+                <!-- ÍTEM PRINCIPAL (Producto o Combo) -->
+                <div class="producto-item">
+                  <div class="producto-info">
+                    <span class="producto-nombre">
+                      {{
+                        detalle.nombreItem ||
+                          detalle.productoInfo?.Nombre ||
+                          detalle.comboInfo?.Nombre ||
+                          detalle.Nombre_Producto ||
+                          detalle.Nombre_Combo ||
+                          'Producto'
+                      }}
+                    </span>
+                    <span class="producto-tamano">
+                      {{ detalle.tamanoInfo }} x{{ detalle.Cantidad }}
+                    </span>
+                  </div>
+                  <span class="producto-precio">
+                    S/ {{ detalle.precioTotal || detalle.PrecioTotal | number : '1.2-2' }}
                   </span>
                 </div>
-                <span class="producto-precio">
-                  S/ {{ (detalle.precioTotal || detalle.PrecioTotal) | number:'1.2-2' }}
-                </span>
+
+                <!-- 🔵 DETALLES DEL COMBO (SI EXISTE) -->
+                <div
+                  *ngIf="
+                    detalle.ID_Combo && detalle.comboDetalles && detalle.comboDetalles.length > 0
+                  "
+                  class="combo-detalles"
+                >
+                  <div class="combo-header">
+                    <mat-icon class="combo-icon">restaurant_menu</mat-icon>
+                    <span class="combo-label">Incluye:</span>
+                  </div>
+
+                  <!-- Lista de productos que conforman el combo -->
+                  <div class="combo-items">
+                    <div *ngFor="let item of detalle.comboDetalles" class="combo-item">
+                      <mat-icon class="item-bullet">fiber_manual_record</mat-icon>
+                      <span class="item-nombre">{{ item.nombreProducto }}</span>
+                      <span class="item-detalle">({{ item.tamano }}) x{{ item.cantidad }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- Total - Del primer diseño -->
             <div class="total-container">
               <span class="total-label">Total:</span>
-              <span class="total-precio">S/ {{ pedido.SubTotal | number:'1.2-2' }}</span>
+              <span class="total-precio">S/ {{ pedido.SubTotal | number : '1.2-2' }}</span>
             </div>
           </mat-card-content>
 
           <mat-card-actions align="end" class="pedido-actions">
             <!-- Botones de acción - Combinando ambos diseños -->
-            <button mat-icon-button color="warn" 
-                    (click)="cambiarEstado(pedido, 'C')"
-                    [disabled]="processingId === pedido.ID_Pedido"
-                    matTooltip="Cancelar">
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="cambiarEstado(pedido, 'C')"
+              [disabled]="processingId === pedido.ID_Pedido"
+              matTooltip="Cancelar"
+            >
               <mat-icon>block</mat-icon>
             </button>
 
-            <button mat-flat-button color="primary" class="btn-entregar"
-                    (click)="cambiarEstado(pedido, 'E')"
-                    [disabled]="processingId === pedido.ID_Pedido">
+            <button
+              mat-flat-button
+              color="primary"
+              class="btn-entregar"
+              (click)="cambiarEstado(pedido, 'E')"
+              [disabled]="processingId === pedido.ID_Pedido"
+            >
               <ng-container *ngIf="processingId !== pedido.ID_Pedido">
                 <mat-icon>check_circle</mat-icon> LISTO
               </ng-container>
-              <mat-spinner *ngIf="processingId === pedido.ID_Pedido" diameter="20" color="accent"></mat-spinner>
+              <mat-spinner
+                *ngIf="processingId === pedido.ID_Pedido"
+                diameter="20"
+                color="accent"
+              ></mat-spinner>
             </button>
           </mat-card-actions>
         </mat-card>
@@ -120,7 +168,8 @@
         [pageIndex]="pageIndex"
         [pageSizeOptions]="pageSizeOptions"
         (page)="onPageChange($event)"
-        aria-label="Seleccionar página">
+        aria-label="Seleccionar página"
+      >
       </mat-paginator>
     </div>
   </div>

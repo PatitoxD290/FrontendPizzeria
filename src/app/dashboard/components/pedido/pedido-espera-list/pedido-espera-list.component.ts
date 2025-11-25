@@ -17,7 +17,7 @@ import Swal from 'sweetalert2';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { ProductoService } from '../../../../core/services/producto.service';
-import { CombosService } from '../../../../core/services/combos.service'; // 🔴 AGREGAR ESTE
+import { CombosService } from '../../../../core/services/combos.service';
 import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model';
 import { Cliente } from '../../../../core/models/cliente.model';
 import { Producto } from '../../../../core/models/producto.model';
@@ -27,11 +27,12 @@ interface PedidoEnEspera extends Pedido {
   cliente?: Cliente;
   detallesCompletos?: (PedidoDetalle & {
     productoInfo?: Producto;
-    comboInfo?: any; 
+    comboInfo?: any;
+    comboDetalles?: any[]; // 🔴 Detalles expandidos del combo
     tamanoInfo?: string;
-    nombreItem?: string; 
-    precioUnitario?: number; 
-    precioTotal?: number; 
+    nombreItem?: string;
+    precioUnitario?: number;
+    precioTotal?: number;
   })[];
 }
 
@@ -55,45 +56,38 @@ interface PedidoEnEspera extends Pedido {
 export class PedidoEsperaListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // Propiedades para paginación - Manteniendo la configuración del primer diseño
   pageSize = 6;
   pageIndex = 0;
   pageSizeOptions = [6, 12, 18];
 
-  // Datos
   pedidos: PedidoEnEspera[] = [];
-  
-  // Estados UI
   isLoading: boolean = true;
   error: string = '';
   processingId: number | null = null;
 
-constructor(
-  private pedidoService: PedidoService,
-  private clienteService: ClienteService,
-  private productoService: ProductoService,
-  private comboService: CombosService,
-  private snackBar: MatSnackBar
-) {}
+  constructor(
+    private pedidoService: PedidoService,
+    private clienteService: ClienteService,
+    private productoService: ProductoService,
+    private comboService: CombosService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.cargarPedidosEnEspera();
   }
 
-  // Getter para obtener los pedidos paginados - Manteniendo la lógica del primer diseño
   get pedidosPaginados() {
     const startIndex = this.pageIndex * this.pageSize;
     return this.pedidos.slice(startIndex, startIndex + this.pageSize);
   }
 
-  // Manejar cambio de página - Manteniendo la lógica del primer diseño
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 🔄 Carga Principal - Manteniendo la lógica optimizada del segundo componente
   cargarPedidosEnEspera(): void {
     this.isLoading = true;
     this.error = '';
@@ -101,21 +95,16 @@ constructor(
     this.pedidoService.getPedidos().subscribe({
       next: async (pedidos) => {
         try {
-          // 1. FILTRAR: Solo pedidos pendientes 'P'
           const pedidosFiltrados = pedidos.filter(p => p.Estado_P === 'P');
-
-          // 2. ORDENAR: Por fecha y hora (más recientes primero)
           const pedidosOrdenados = pedidosFiltrados.sort((a, b) => {
             const fechaA = this.crearFechaCompleta(a.Fecha_Registro, a.Hora_Pedido);
             const fechaB = this.crearFechaCompleta(b.Fecha_Registro, b.Hora_Pedido);
             return fechaB.getTime() - fechaA.getTime();
           });
 
-          // 3. ENRIQUECER: Cargar info extra (Cliente, Productos, Tamaños)
           this.pedidos = await this.cargarInformacionCompleta(pedidosOrdenados);
-          
           this.isLoading = false;
-          this.pageIndex = 0; // Resetear paginación
+          this.pageIndex = 0;
         } catch (error) {
           this.error = 'Error al procesar la información de los pedidos';
           this.isLoading = false;
@@ -130,7 +119,6 @@ constructor(
     });
   }
 
-  // 🛠️ Helpers de Fecha - Manteniendo la lógica optimizada
   private crearFechaCompleta(fecha: string, hora: string): Date {
     try {
       if (hora && hora.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
@@ -144,13 +132,11 @@ constructor(
     }
   }
 
-  // 📦 Lógica de Enriquecimiento (Hydration) - Manteniendo la lógica optimizada
   private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<PedidoEnEspera[]> {
     const promesas = pedidos.map(async (pedido) => {
       const pedidoCompleto: PedidoEnEspera = { ...pedido };
 
       try {
-        // A. Cargar Cliente
         if (pedido.ID_Cliente && pedido.ID_Cliente !== 1) {
           try {
             pedidoCompleto.cliente = await firstValueFrom(this.clienteService.getClienteById(pedido.ID_Cliente));
@@ -159,7 +145,6 @@ constructor(
           }
         }
 
-        // B. Cargar Detalles
         try {
           const detalles = await firstValueFrom(this.pedidoService.getPedidoDetalles(pedido.ID_Pedido));
           if (detalles) {
@@ -178,75 +163,78 @@ constructor(
     return Promise.all(promesas);
   }
 
-private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
-  return Promise.all(detalles.map(async (detalle) => {
-    let productoInfo: Producto | undefined;
-    let comboInfo: any = undefined;
-    let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
-    let precioUnitario = 0;
-    let nombreItem = '';
+  private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
+    return Promise.all(detalles.map(async (detalle) => {
+      let productoInfo: Producto | undefined;
+      let comboInfo: any = undefined;
+      let comboDetalles: any[] = [];
+      let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
+      let precioUnitario = 0;
+      let nombreItem = '';
 
-    try {
-      // 🔵 CASO 1: Es un COMBO
-      if (detalle.ID_Combo) {
-        try {
-          // Obtener información del combo desde el servicio
-          comboInfo = await firstValueFrom(this.comboService.getComboById(detalle.ID_Combo));
-          nombreItem = comboInfo.Nombre || detalle.Nombre_Combo || 'Combo';
-          precioUnitario = comboInfo.Precio || 0;
-          tamanoInfo = '(Combo)';
-        } catch {
-          // Si falla, usar datos del detalle
-          nombreItem = detalle.Nombre_Combo || 'Combo';
-          // Calcular precio desde el total si es posible
-          if (detalle.Cantidad > 0) {
-            precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+      try {
+        // 🔵 CASO 1: Es un COMBO
+        if (detalle.ID_Combo) {
+          try {
+            comboInfo = await firstValueFrom(this.comboService.getComboById(detalle.ID_Combo));
+            nombreItem = comboInfo.Nombre || detalle.Nombre_Combo || 'Combo';
+            precioUnitario = comboInfo.Precio || 0;
+            tamanoInfo = '(Combo)';
+            
+            // 🟢 EXPANDIR DETALLES DEL COMBO
+            if (comboInfo.detalles && Array.isArray(comboInfo.detalles)) {
+              comboDetalles = comboInfo.detalles.map((cd: any) => ({
+                nombreProducto: cd.Producto_Nombre || 'Producto',
+                tamano: cd.Tamano_Nombre || 'Normal',
+                cantidad: cd.Cantidad || 1,
+                idProductoT: cd.ID_Producto_T
+              }));
+            }
+          } catch (err) {
+            console.warn('Error obteniendo info del combo:', err);
+            nombreItem = detalle.Nombre_Combo || 'Combo';
+            if (detalle.Cantidad > 0) {
+              precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+            }
+          }
+        } 
+        // 🔵 CASO 2: Es un PRODUCTO normal
+        else if (detalle.ID_Producto_T) {
+          productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
+          nombreItem = productoInfo?.Nombre || detalle.Nombre_Producto || 'Producto';
+          
+          if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
+            tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
+          }
+
+          if (productoInfo?.tamanos?.[0]?.Precio) {
+            precioUnitario = productoInfo.tamanos[0].Precio;
           }
         }
-      } 
-      // 🔵 CASO 2: Es un PRODUCTO normal
-      else if (detalle.ID_Producto_T) {
-        productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
-        
-        nombreItem = productoInfo?.Nombre || detalle.Nombre_Producto || 'Producto';
-        
-        // Si no vino el nombre del tamaño en el detalle, lo sacamos del producto
-        if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
-          tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
-        }
-
-        // Calcular precio unitario desde el producto
-        if (productoInfo?.tamanos?.[0]?.Precio) {
-          precioUnitario = productoInfo.tamanos[0].Precio;
-        }
+      } catch (err) {
+        console.warn('Error obteniendo info del item:', err);
       }
-    } catch (err) {
-      console.warn('Error obteniendo info del item:', err);
-    }
 
-    // 🟢 SI NO ENCONTRAMOS PRECIO UNITARIO, CALCULARLO DESDE EL TOTAL
-    if (!precioUnitario && detalle.Cantidad > 0) {
-      precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-    }
+      if (!precioUnitario && detalle.Cantidad > 0) {
+        precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+      }
 
-    return {
-      ...detalle,
-      productoInfo,
-      comboInfo,
-      tamanoInfo,
-      nombreItem,
-      precioUnitario: precioUnitario || 0,
-      // 🟢 Asegurar que precioTotal tenga valor (en minúscula para HTML)
-      precioTotal: detalle.PrecioTotal || (precioUnitario * detalle.Cantidad) || 0
-    };
-  }));
-}
-
+      return {
+        ...detalle,
+        productoInfo,
+        comboInfo,
+        comboDetalles,
+        tamanoInfo,
+        nombreItem,
+        precioUnitario: precioUnitario || 0,
+        precioTotal: detalle.PrecioTotal || (precioUnitario * detalle.Cantidad) || 0
+      };
+    }));
+  }
 
   private async obtenerProductoPorTamano(idProductoTamano: number): Promise<Producto | undefined> {
     try {
       const productos = await firstValueFrom(this.productoService.getProductos());
-      
       for (const p of productos || []) {
         const tamano = p.tamanos?.find(t => t.ID_Producto_T === idProductoTamano);
         if (tamano) return { ...p, tamanos: [tamano] };
@@ -257,7 +245,6 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
     }
   }
 
-  // 🚀 Acciones (Cambio de Estado) - Manteniendo la lógica optimizada
   cambiarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C') {
     const accion = nuevoEstado === 'E' ? 'entregar' : 'cancelar';
     const colorBtn = nuevoEstado === 'E' ? '#2e7d32' : '#d32f2f';
@@ -287,9 +274,7 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
         const msg = estado === 'E' ? 'Pedido entregado.' : 'Pedido cancelado.';
         Swal.fire({ icon: 'success', title: 'Listo', text: msg, timer: 1500, showConfirmButton: false });
         
-        // Remover localmente
         this.pedidos = this.pedidos.filter(p => p.ID_Pedido !== id);
-        // Ajustar paginación si la página quedó vacía
         if (this.pedidosPaginados.length === 0 && this.pageIndex > 0) {
           this.pageIndex--;
         }
@@ -304,7 +289,6 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
     });
   }
 
-  // 🛠️ Visual Helpers - Manteniendo todas las funciones del segundo componente
   getNombreCliente(pedido: PedidoEnEspera): string {
     if (pedido.cliente) return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido || ''}`;
     return pedido.Cliente_Nombre || 'Cliente General';
@@ -321,7 +305,6 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
     } catch { return hora; }
   }
 
-  // Calcular tiempo transcurrido - Manteniendo la función del segundo componente
   getTiempoEspera(fecha: string, hora: string): string {
     const fechaPedido = this.crearFechaCompleta(fecha, hora);
     const diff = Date.now() - fechaPedido.getTime();
@@ -335,10 +318,9 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
   esTiempoCritico(fecha: string, hora: string): boolean {
     const fechaPedido = this.crearFechaCompleta(fecha, hora);
     const diff = Date.now() - fechaPedido.getTime();
-    return diff > 30 * 60000; // > 30 min es crítico
+    return diff > 30 * 60000;
   }
 
-  // 🔹 FUNCIONES ADICIONALES DEL PRIMER DISEÑO (para mantener compatibilidad)
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'P': return 'primary';
@@ -359,7 +341,6 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
     }
   }
 
-  // Función de refrescar del primer diseño
   refrescar(): void {
     this.cargarPedidosEnEspera();
     this.snackBar.open('Lista actualizada', 'Cerrar', {
