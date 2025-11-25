@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 
 // Angular Material
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +25,24 @@ import { Cliente } from '../../../core/models/cliente.model';
 // Utils
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable'; 
+
+// ===========================================
+// ENUMS Y CONSTANTES (Globales para el módulo)
+// ===========================================
+
+// Definición de pasos para mejorar legibilidad
+enum PasoPago {
+  PAGO = 'pago',
+  COMPROBANTE = 'comprobante',
+  DOCUMENTO = 'documento',
+  FINAL = 'final'
+}
+
+const TIPO_PAGO_CONST = { EFECTIVO: 1, BILLETERA: 2, TARJETA: 3 };
+const TIPO_VENTA_CONST = { BOLETA: 1, FACTURA: 2, NOTA: 3 };
+const ORIGEN_VENTA_CONST = { KIOSKO: 3 }; 
+const ID_USUARIO_SISTEMA = 1; // ID 1 para Kiosko/Sistema
 
 @Component({
   selector: 'app-pago',
@@ -41,26 +57,27 @@ import autoTable from 'jspdf-autotable';
     MatProgressSpinnerModule,
     DecimalPipe
   ],
-  templateUrl: './pago.component.html',
+  templateUrl: './pago.component.html', // Usando archivo externo
   styleUrls: ['./pago.component.css']
 })
 export class PagoComponent implements OnInit {
 
-  // 🔹 Constantes de IDs (BD)
-  readonly TIPO_PAGO = { EFECTIVO: 1, BILLETERA: 2, TARJETA: 3 };
-  readonly TIPO_VENTA = { BOLETA: 1, FACTURA: 2, NOTA: 3 };
-  readonly ORIGEN_VENTA = { KIOSKO: 3 }; // Asumiendo ID 3 para Kiosko
-
+  // 🔹 Constantes y Enum expuestos al Template
+  readonly TIPO_PAGO = TIPO_PAGO_CONST;
+  readonly TIPO_VENTA = TIPO_VENTA_CONST;
+  readonly ORIGEN_VENTA = ORIGEN_VENTA_CONST;
+  readonly Pasos = PasoPago; // Exponemos el Enum para el HTML
+  
   // Estado del flujo
   total = 0;
   
-  // Paso 1: Método de Pago
+  // Paso 1: Pago
   selectedMetodoPago: number | null = null;
   montoRecibido: number = 0;
   vuelto: number = 0;
   
   // Paso 2: Comprobante
-  pasoActual: 'pago' | 'comprobante' | 'documento' | 'final' = 'pago';
+  pasoActual: PasoPago = PasoPago.PAGO;
   selectedTipoComprobante: number | null = null;
 
   // Paso 3: Documento
@@ -68,7 +85,7 @@ export class PagoComponent implements OnInit {
   numeroDocumento: string = '';
   
   // Control UI
-  recibeString: string = ''; // Para el teclado numérico
+  recibeString: string = ''; 
   procesando = false;
   codigoPedidoGenerado: string = '';
   clienteData: Cliente | null = null;
@@ -76,6 +93,8 @@ export class PagoComponent implements OnInit {
   // Verificación Código (Simulado)
   solicitandoCodigo = false;
   codigoVerificacion = '';
+  
+  private idUsuarioKiosko: number = ID_USUARIO_SISTEMA;
 
   constructor(
     private carritoService: CarritoService,
@@ -104,12 +123,10 @@ export class PagoComponent implements OnInit {
       this.recibeString = '';
       this.montoRecibido = 0;
       this.vuelto = 0;
-      // Se mantiene en la vista para ingresar monto
     } else {
-      // Tarjeta/Billetera: Simulamos flujo de verificación
       this.montoRecibido = this.total;
       this.vuelto = 0;
-      this.solicitandoCodigo = true; // Activa modal de código simulado
+      this.solicitandoCodigo = true;
     }
   }
 
@@ -146,17 +163,16 @@ export class PagoComponent implements OnInit {
       Swal.fire('Monto insuficiente', `Faltan S/ ${(this.total - this.montoRecibido).toFixed(2)}`, 'warning');
       return;
     }
-    this.pasoActual = 'comprobante';
+    this.pasoActual = PasoPago.COMPROBANTE;
   }
 
   // Lógica de Verificación (Tarjeta/Yape)
   verificarCodigoSimulado() {
-    // Simulamos espera
     this.procesando = true;
     setTimeout(() => {
       this.procesando = false;
       this.solicitandoCodigo = false;
-      this.pasoActual = 'comprobante';
+      this.pasoActual = PasoPago.COMPROBANTE;
     }, 1500);
   }
 
@@ -173,13 +189,11 @@ export class PagoComponent implements OnInit {
     this.selectedTipoComprobante = idTipo;
 
     if (idTipo === this.TIPO_VENTA.NOTA) {
-      // Sin documento -> Cliente Varios (ID 1) directo
-      this.procesarVentaFinal(1);
+      this.procesarVentaFinal(1); 
     } else {
-      // Boleta/Factura -> Pedir documento
       this.tipoDocumento = (idTipo === this.TIPO_VENTA.FACTURA) ? 'RUC' : 'DNI';
       this.numeroDocumento = '';
-      this.pasoActual = 'documento';
+      this.pasoActual = PasoPago.DOCUMENTO;
     }
   }
 
@@ -217,7 +231,7 @@ export class PagoComponent implements OnInit {
     // Buscar/Crear Cliente
     this.clienteService.buscarClientePorDocumento(this.numeroDocumento).subscribe({
       next: (res) => {
-        const cliente = res.cliente || res;
+        const cliente = res.cliente || res; 
         this.clienteData = cliente;
         this.procesarVentaFinal(cliente.ID_Cliente);
       },
@@ -236,55 +250,44 @@ export class PagoComponent implements OnInit {
   private procesarVentaFinal(idCliente: number) {
     this.procesando = true;
 
-    // 1. Obtener items del carrito
     const itemsCarrito = this.carritoService.obtenerProductos();
-    
-    // 2. Generar código único visual
     this.generarCodigoPedido();
 
-    // 3. Mapear detalles (usando DTO)
     const detallesDTO: PedidoDetalleDTO[] = itemsCarrito.map(i => ({
       ID_Producto_T: i.idProductoT || undefined,
       ID_Combo: i.idCombo || undefined,
       Cantidad: i.cantidad,
-      PrecioTotal: i.precioTotal
+      PrecioTotal: i.precioTotal 
     }));
 
-    // 4. Pedido DTO - ✅ CORREGIDO: ID_Usuario = 1 (Usuario Sistema)
     const pedidoDTO: PedidoCreacionDTO = {
       ID_Cliente: idCliente,
-      ID_Usuario: 1, // Usamos 1 para indicar Kiosko/Sistema, ya que el backend espera un número
+      ID_Usuario: this.idUsuarioKiosko,
       Notas: `Kiosko - ${this.codigoPedidoGenerado}`,
       SubTotal: this.total,
       Estado_P: 'P',
       detalles: detallesDTO
     };
 
-    // 5. Crear Pedido
     this.pedidoService.createPedido(pedidoDTO).subscribe({
       next: (resPedido) => {
         const idPedido = resPedido.ID_Pedido;
 
-        // 6. Venta DTO - ✅ CORREGIDO: Eliminado IGV_Porcentaje
         const ventaDTO: VentaCreacionDTO = {
           ID_Pedido: idPedido,
           ID_Tipo_Venta: this.selectedTipoComprobante!,
           ID_Tipo_Pago: this.selectedMetodoPago!,
           ID_Origen_Venta: this.ORIGEN_VENTA.KIOSKO,
           Monto_Recibido: this.montoRecibido
-          // IGV_Porcentaje eliminado, el backend lo calcula
         };
 
-        // 7. Crear Venta
         this.ventaService.createVenta(ventaDTO).subscribe({
           next: (resVenta) => {
             this.procesando = false;
-            this.pasoActual = 'final';
+            this.pasoActual = PasoPago.FINAL;
             
-            // Generar PDF
             this.generarPDF(idPedido, resVenta.ID_Venta);
             
-            // Limpiar carrito
             this.carritoService.vaciarCarrito();
           },
           error: (err) => {
@@ -335,7 +338,6 @@ export class PagoComponent implements OnInit {
     doc.text(`Fecha: ${fecha}`, 5, y); y += 4;
     doc.text(`Pedido: ${this.codigoPedidoGenerado}`, 5, y); y += 6;
     
-    // Cliente
     if (this.clienteData) {
       doc.text(`Cliente: ${this.clienteData.Nombre}`, 5, y); y += 4;
       doc.text(`Doc: ${this.numeroDocumento}`, 5, y); y += 6;
@@ -353,14 +355,13 @@ export class PagoComponent implements OnInit {
     doc.setFontSize(12);
     doc.text(`TURNO: ${this.codigoPedidoGenerado}`, 40, y, { align: 'center' });
     
-    // Abrir
     window.open(doc.output('bloburl'), '_blank');
   }
 
-  // Navegación interna
+  // Navegación interna (usando el Enum)
   volverAPago() {
     if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO) {
-      this.selectedMetodoPago = null; // Volver a selección
+      this.selectedMetodoPago = null; 
     } else {
       this.selectedMetodoPago = null;
       this.solicitandoCodigo = false;
@@ -368,7 +369,7 @@ export class PagoComponent implements OnInit {
   }
 
   volverAComprobante() {
-    this.pasoActual = 'comprobante';
+    this.pasoActual = PasoPago.COMPROBANTE;
     this.numeroDocumento = '';
   }
 }
