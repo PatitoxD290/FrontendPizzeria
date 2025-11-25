@@ -9,7 +9,7 @@ import { Usuario, UsuarioDTO } from '../../core/models/usuario.model';
 })
 export class UsuarioService {
 
-  private apiUrl = 'http://localhost:3000/api/v2/usuarios';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/usuarios';
 
   constructor(private http: HttpClient) {}
 

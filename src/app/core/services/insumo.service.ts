@@ -12,7 +12,7 @@ import {
 })
 export class InsumoService {
   // Asegúrate de que coincida con tu backend (normalmente minúsculas)
-  private apiUrl = 'http://localhost:3000/api/v2/insumos';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/insumos';
 
   constructor(private http: HttpClient) {}
 

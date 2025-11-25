@@ -7,7 +7,7 @@ import { Combo, ComboCreacionDTO } from '../../core/models/combo.model'; // тЪая
   providedIn: 'root'
 })
 export class CombosService {
-  private apiUrl = 'http://localhost:3000/api/v2/combos';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/combos';
 
   constructor(private http: HttpClient) {}
 

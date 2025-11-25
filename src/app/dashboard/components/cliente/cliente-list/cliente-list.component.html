@@ -119,8 +119,11 @@
             <td class="table-cell date-column">
               <span class="date-text">{{ c.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
             </td>
+
+            <!-- ACCIONES -->
             <td class="table-cell acciones-column">
               <div class="acciones-container">
+
                 <!-- ✏️ Botón Editar -->
                 <button class="action-btn edit-btn" 
                         (click)="openClienteForm(c)" 
@@ -128,7 +131,13 @@
                   <span class="material-icons">edit</span>
                 </button>
 
-              
+              <!-- ⭐ Botón Ver Puntos -->
+<button class="action-btn puntos-btn"
+        (click)="verPuntos(c)"
+        title="Ver puntos del cliente">
+  <span class="material-icons">stars</span>
+</button>
+
               </div>
             </td>
           </tr>

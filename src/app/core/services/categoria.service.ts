@@ -13,7 +13,7 @@ import {
 })
 export class CategoriaService {
   // Asegúrate de que este puerto coincida con tu backend
-  private apiUrlBase = 'http://localhost:3000/api/v2/categorias';
+  private apiUrlBase = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/categorias';
 
   constructor(private http: HttpClient) {}
 

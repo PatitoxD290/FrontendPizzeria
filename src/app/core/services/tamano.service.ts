@@ -9,7 +9,7 @@ import { Tamano, TamanoDTO } from '../../core/models/tamano.model';
 })
 export class TamanoService {
 
-  private apiUrl = 'http://localhost:3000/api/v2/tamanos';
+  private apiUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app/api/v2/tamanos';
 
   constructor(private http: HttpClient) {}
 
