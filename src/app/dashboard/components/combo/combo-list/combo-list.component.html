@@ -18,12 +18,8 @@
         placeholder="Buscar combos..."
         class="search-input"
       >
-      <button mat-icon-button color="primary" (click)="aplicarFiltros()" class="search-button">
-        <mat-icon>search</mat-icon>
-      </button>
-      <button *ngIf="terminoBusqueda || filtroEstado !== 'todos'" mat-icon-button color="warn" (click)="limpiarBusqueda()" class="clear-button">
-        <mat-icon>clear</mat-icon>
-      </button>
+      
+      
     </div>
 
     <div class="filter-chips">
@@ -99,7 +95,6 @@
           <h3 class="product-name" [matTooltip]="combo.Nombre" matTooltipPosition="above">
             {{ combo.Nombre }}
           </h3>
-          <p class="product-id">ID: {{ combo.ID_Combo }}</p>
         </div>
 
         <!-- Descripción -->

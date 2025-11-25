@@ -7,39 +7,45 @@
       Nuevo Producto
     </button>
   </div>
-
-  <!-- Filtros -->
-  <div class="filters-container">
-    <!-- Buscador -->
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Buscar producto</mat-label>
-      <input matInput 
-             [(ngModel)]="terminoBusqueda" 
-             (keyup)="aplicarFiltros()" 
-             placeholder="Nombre, descripción...">
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
-    
-    <!-- Selector Categoría -->
-    <mat-form-field appearance="outline" class="category-field">
-      <mat-label>Categoría</mat-label>
-      <mat-select [(ngModel)]="filtroCategoria" (selectionChange)="aplicarFiltros()">
-        <mat-option [value]="0">Todas las categorías</mat-option>
-        <mat-option *ngFor="let c of categorias" [value]="c.ID_Categoria_P">
-          {{ c.Nombre }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <button mat-icon-button color="warn" 
-            *ngIf="terminoBusqueda || filtroCategoria !== 0" 
-            (click)="limpiarFiltros()" 
-            matTooltip="Limpiar filtros"
-            class="clear-filters-btn">
-      <mat-icon>filter_alt_off</mat-icon>
-    </button>
+<!-- Filtros con CSS puro -->
+<div class="filters-container">
+  <!-- Buscador CSS puro -->
+  <div class="search-field">
+    <input 
+      type="text" 
+      class="search-input"
+      [(ngModel)]="terminoBusqueda" 
+      (keyup)="aplicarFiltros()" 
+      placeholder="Buscar producto..."
+    >
+    <mat-icon class="search-icon">search</mat-icon>
+  </div>
+  
+  <!-- Selector Categoría CSS puro - CORREGIDO -->
+  <div class="category-field">
+    <select 
+      class="category-select"
+      [(ngModel)]="filtroCategoria" 
+      (change)="onCategoriaChange($event)"
+    >
+      <option [value]="0">Todas las categorías</option>
+      <option *ngFor="let c of categorias" [value]="c.ID_Categoria_P">
+        {{ c.Nombre }}
+      </option>
+    </select>
   </div>
 
+  <button 
+    *ngIf="terminoBusqueda || filtroCategoria !== 0" 
+    (click)="limpiarFiltros()" 
+    class="clear-filters-btn"
+    title="Limpiar filtros"
+  >
+    <mat-icon>filter_alt_off</mat-icon>
+  </button>
+</div>
+    
+  
   <!-- Stats bar -->
   <div *ngIf="!loading" class="stats-bar">
     <mat-chip-set>
@@ -93,7 +99,6 @@
           <h3 class="product-name" [matTooltip]="producto.Nombre" matTooltipPosition="above">
             {{ producto.Nombre }}
           </h3>
-          <p class="product-id">ID: {{ producto.ID_Producto }}</p>
         </div>
 
         <!-- Descripción -->

@@ -51,6 +51,9 @@ import Swal from 'sweetalert2';
   styleUrls: ['./producto-list.component.css'],
 })
 export class ProductoListComponent implements OnInit, OnDestroy {
+cambiarEstadoProducto(_t69: Producto,$event: PointerEvent) {
+throw new Error('Method not implemented.');
+}
   
   // Datos
   productos: Producto[] = [];
@@ -68,9 +71,9 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   currentPage = 0;
   totalItems = 0;
 
-  // Filtros
+  // Filtros - IMPORTANTE: Cambiar a string inicialmente
   terminoBusqueda = '';
-  filtroCategoria = 0;
+  filtroCategoria: any = 0; // Cambiado a 'any' para manejar string/number
 
   private destroy$ = new Subject<void>();
 
@@ -114,8 +117,15 @@ export class ProductoListComponent implements OnInit, OnDestroy {
           nombre_categoria: this.getNombreCategoria(p.ID_Categoria_P, data.categorias)
         }));
 
+        this.totalItems = this.productos.length;
         this.aplicarFiltros();
         this.loading = false;
+        
+        console.log('Datos cargados:', {
+          productos: this.productos.length,
+          categorias: this.categorias.length,
+          primeraCategoria: this.categorias[0]
+        });
       },
       error: (err) => {
         console.error('Error cargando datos:', err);
@@ -127,46 +137,94 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // 🔍 FILTROS Y PAGINACIÓN
+  // 🔍 FILTROS Y PAGINACIÓN - CORREGIDOS
   // ============================================================
 
+  // NUEVO MÉTODO para manejar cambio de categoría
+  onCategoriaChange(event: any) {
+    console.log('Evento change categoría:', event);
+    console.log('Valor seleccionado:', event.target.value);
+    console.log('Tipo del valor:', typeof event.target.value);
+    
+    // Convertir a número
+    this.filtroCategoria = Number(event.target.value);
+    console.log('filtroCategoria después de convertir:', this.filtroCategoria);
+    
+    this.aplicarFiltros();
+  }
+
   aplicarFiltros() {
+    console.log('=== APLICANDO FILTROS ===');
+    console.log('terminoBusqueda:', this.terminoBusqueda);
+    console.log('filtroCategoria:', this.filtroCategoria, 'tipo:', typeof this.filtroCategoria);
+    console.log('Productos totales:', this.productos.length);
+
     let resultado = [...this.productos];
 
     // Filtro por texto
-    if (this.terminoBusqueda.trim()) {
-      const term = this.terminoBusqueda.toLowerCase();
+    if (this.terminoBusqueda && this.terminoBusqueda.trim()) {
+      const term = this.terminoBusqueda.toLowerCase().trim();
       resultado = resultado.filter(p => 
         p.Nombre.toLowerCase().includes(term) || 
-        (p.Descripcion && p.Descripcion.toLowerCase().includes(term))
+        (p.Descripcion && p.Descripcion.toLowerCase().includes(term)) ||
+        (p.nombre_categoria && p.nombre_categoria.toLowerCase().includes(term))
       );
     }
 
-    // Filtro por categoría
-    if (this.filtroCategoria > 0) {
-      resultado = resultado.filter(p => p.ID_Categoria_P === this.filtroCategoria);
+    // Filtro por categoría - CORREGIDO
+    if (this.filtroCategoria && this.filtroCategoria !== 0) {
+      const categoriaId = Number(this.filtroCategoria);
+      console.log('Filtrando por categoría ID:', categoriaId);
+      console.log('Productos antes de filtrar por categoría:', resultado.length);
+      
+      resultado = resultado.filter(p => {
+        const coincide = p.ID_Categoria_P === categoriaId;
+        console.log(`Producto ${p.Nombre} - Categoría: ${p.ID_Categoria_P}, Coincide: ${coincide}`);
+        return coincide;
+      });
+      
+      console.log('Productos después de filtrar por categoría:', resultado.length);
     }
 
     this.totalItems = resultado.length;
+    console.log('Total items después de filtros:', this.totalItems);
     
     // Resetear a primera página si es necesario
-    if (this.paginator && this.currentPage * this.pageSize >= this.totalItems) {
+    if (this.currentPage * this.pageSize >= this.totalItems && this.totalItems > 0) {
       this.currentPage = 0;
-      this.paginator.firstPage();
+      if (this.paginator) {
+        this.paginator.firstPage();
+      }
     }
 
+    // Aplicar paginación
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedProductos = resultado.slice(startIndex, endIndex);
+
+    console.log('Resultado final:', {
+      totalFiltrados: this.totalItems,
+      mostrando: this.paginatedProductos.length,
+      paginaActual: this.currentPage
+    });
+    console.log('=== FIN FILTROS ===');
   }
 
   limpiarFiltros() {
+    console.log('Limpiando filtros...');
     this.terminoBusqueda = '';
     this.filtroCategoria = 0;
+    this.currentPage = 0;
+    
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    
     this.aplicarFiltros();
   }
 
   onPageChange(event: PageEvent) {
+    console.log('Cambio de página:', event);
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
     this.aplicarFiltros();
@@ -178,8 +236,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   // ============================================================
 
   getProductoImage(producto: Producto): string {
-    // Verificamos si el backend nos devolvió el nombre del archivo
-    if (producto.imagenes && producto.imagenes.length > 0) {
+    if (producto.imagenes && producto.imagenes.length > 0 && producto.imagenes[0]) {
       const filename = producto.imagenes[0].split('/').pop();
       return `${this.baseUrl}/imagenesCata/${filename}`;
     }
@@ -191,7 +248,8 @@ export class ProductoListComponent implements OnInit, OnDestroy {
   }
 
   getNombreCategoria(id: number, categorias: CategoriaProducto[]): string {
-    return categorias.find(c => c.ID_Categoria_P === id)?.Nombre || 'Sin Categoría';
+    const categoria = categorias.find(c => c.ID_Categoria_P === id);
+    return categoria?.Nombre || 'Sin Categoría';
   }
 
   // 🔹 Métodos para estado del producto
@@ -235,7 +293,7 @@ export class ProductoListComponent implements OnInit, OnDestroy {
       };
     }
 
-    const precios = tamanos.map(t => t.Precio);
+    const precios = tamanos.map(t => t.Precio || 0);
     const precioMin = Math.min(...precios);
     const precioMax = Math.max(...precios);
     
@@ -259,13 +317,8 @@ export class ProductoListComponent implements OnInit, OnDestroy {
     if (tamanos.length === 0) return 'Sin tamaños disponibles';
     
     return tamanos
-      .map(t => `${t.nombre_tamano || 'Tamaño'}: S/ ${t.Precio.toFixed(2)}`)
+      .map(t => `${t.nombre_tamano || 'Tamaño'}: S/ ${(t.Precio || 0).toFixed(2)}`)
       .join('\n');
-  }
-
-  // 🔹 Obtener cantidad de tamaños
-  getCantidadTamanos(producto: Producto): number {
-    return producto.tamanos?.length || 0;
   }
 
   // ============================================================
@@ -357,5 +410,19 @@ export class ProductoListComponent implements OnInit, OnDestroy {
       text, 
       confirmButtonColor: '#d33' 
     });
+  }
+
+  // ============================================================
+  // 🎯 MÉTODO PARA VERIFICAR DATOS
+  // ============================================================
+
+  verificarDatos() {
+    console.log('=== VERIFICACIÓN DE DATOS ===');
+    console.log('Categorías disponibles:', this.categorias);
+    console.log('Productos con sus categorías:');
+    this.productos.forEach(p => {
+      console.log(`- ${p.Nombre}: ID_Categoria_P=${p.ID_Categoria_P}, nombre_categoria=${p.nombre_categoria}`);
+    });
+    console.log('=============================');
   }
 }

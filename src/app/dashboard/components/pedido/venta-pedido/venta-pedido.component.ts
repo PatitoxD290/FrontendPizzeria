@@ -204,7 +204,7 @@ private calcularMontos(): void {
 
     if (tipoId === this.TIPO_VENTA.NOTA) {
       // Nota de Venta -> Cliente "Varios" (ID 1) directo
-      this.registrarVentaCompleta(1);
+      this.procesarVentaFinal(1);
     } else {
       // Boleta o Factura -> Pedir Documento
       this.pasoActual = 'documento';
@@ -265,48 +265,26 @@ private calcularMontos(): void {
 
     this.clienteService.buscarClientePorDocumento(this.numeroDocumento).subscribe({
       next: (res) => {
-        this.cargando = false;
-        if (res.cliente && res.cliente.ID_Cliente) {
-          this.clienteData = res.cliente;
-          this.registrarVentaCompleta(res.cliente.ID_Cliente);
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo obtener el ID del cliente. Intente nuevamente.',
-            confirmButtonColor: '#d33'
-          });
-        }
+        const cliente = res.cliente || res;
+        this.clienteData = cliente;
+        this.procesarVentaFinal(cliente.ID_Cliente);
       },
       error: (err) => {
+        console.error(err);
         this.cargando = false;
-        console.error('Error al buscar/crear cliente:', err);
-        
-        let mensajeError = 'Error al procesar el documento';
-        if (err.error?.error) {
-          mensajeError = err.error.error;
-        } else if (err.status === 404) {
-          mensajeError = 'Documento no encontrado en registros públicos';
-        }
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: mensajeError,
-          confirmButtonColor: '#d33'
-        });
-      }
+        Swal.fire('Error', 'No se pudo validar el documento. Intente nuevamente.', 'error');
+      },
     });
   }
 
   // ============================================================
-  // 🚀 PROCESO FINAL: CREAR PEDIDO Y VENTA - CORREGIDO
+  // 🚀 PROCESO FINAL: CREAR PEDIDO Y VENTA - ACTUALIZADO SEGÚN PAGO.COMPONENT
   // ============================================================
 
-private registrarVentaCompleta(idCliente: number) {
+private procesarVentaFinal(idCliente: number) {
   this.cargando = true;
 
-  // 🔹 1. PREPARAR DETALLES EN EL FORMATO QUE ESPERA EL BACKEND
+  // 🔹 1. PREPARAR DETALLES EN EL FORMATO CORRECTO (COMO PAGO.COMPONENT)
   const detallesDTO: PedidoDetalleDTO[] = this.data.detalles.map(d => {
     const precioUnitario = (d.PrecioTotal / d.Cantidad) || 0;
     
@@ -318,84 +296,77 @@ private registrarVentaCompleta(idCliente: number) {
       tipo: d.Tipo
     });
 
+    // 🔴 ACTUALIZADO: Formato idéntico a pago.component
     return {
       ID_Producto_T: d.ID_Producto_T || null,
       ID_Combo: d.ID_Combo || null,
       Cantidad: d.Cantidad,
-      Precio: precioUnitario,
       PrecioTotal: d.PrecioTotal,
-      Complementos: []
+      Complementos: [], // 🟢 AGREGADO: Array vacío por defecto
+      Precio: precioUnitario // 🟢 AGREGADO: El backend espera este campo para calcular
     };
   });
 
-  // 🔹 2. CREAR OBJETO PEDIDO CON TODOS LOS CAMPOS REQUERIDOS
-  const pedidoData: PedidoCreacionDTO = {
+  // 🔹 2. CREAR PEDIDO CON FORMATO CORRECTO (COMO PAGO.COMPONENT)
+  const pedidoDTO: PedidoCreacionDTO = {
     ID_Cliente: idCliente,
     ID_Usuario: this.data.idUsuario,
     Hora_Pedido: new Date().toLocaleTimeString('es-PE', { 
-      hour: '2-digit', minute: '2-digit' 
-    }),
-    Estado_P: 'P',
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    }), // 🟢 AGREGADO: El backend lo espera
+    Estado_P: 'P', // Pendiente
     Notas: this.generarNotas(),
     SubTotal: this.subTotalCalculado,
-    detalles: detallesDTO
+    detalles: detallesDTO,
   };
 
-  console.log('📤 FINAL - Enviando Pedido al backend:', pedidoData);
+  console.log('📤 Enviando pedido:', pedidoDTO);
 
   // 🔹 3. LLAMAR AL SERVICIO DE PEDIDOS
-  this.pedidoService.createPedido(pedidoData).subscribe({
-    next: (resPedido) => {
-      const idPedidoCreado = resPedido.ID_Pedido;
-      
-      console.log('✅ Pedido creado:', {
-        idPedido: idPedidoCreado,
-        subtotal: resPedido.SubTotal
-      });
+  this.pedidoService.createPedido(pedidoDTO).subscribe({
+    next: (resPedido: any) => {
+      const idPedido = resPedido.ID_Pedido;
 
-      // 🔹 4. CREAR OBJETO VENTA DTO
+      // 🔹 4. CREAR VENTA SEGÚN EL MODELO CORRECTO (COMO PAGO.COMPONENT)
       const ventaDTO: VentaCreacionDTO = {
-        ID_Pedido: idPedidoCreado,
+        ID_Pedido: idPedido,
         ID_Tipo_Venta: this.selectedTipoComprobante!,
         ID_Tipo_Pago: this.selectedMetodoPago,
         ID_Origen_Venta: this.ORIGEN_VENTA.MOSTRADOR,
-        Monto_Recibido: parseFloat(this.recibe) || this.totalCalculado
+        Monto_Recibido: parseFloat(this.recibe) || this.totalCalculado,
       };
 
-      console.log('📤 Enviando Venta DTO:', ventaDTO);
+      console.log('📤 Enviando venta:', ventaDTO);
 
       // 🔹 5. LLAMAR AL SERVICIO DE VENTAS
       this.ventaService.createVenta(ventaDTO).subscribe({
-        next: (resVenta) => {
+        next: (resVenta: any) => {
           this.cargando = false;
           
-          console.log('✅ Venta creada:', {
-            idVenta: resVenta.ID_Venta,
-            total: resVenta.Total,
-            puntos: resVenta.Puntos_Ganados
-          });
+          console.log('✅ Venta creada:', resVenta);
+          
+          const idVenta = resVenta.ID_Venta;
+          const puntos = resVenta.Puntos_Ganados || 0;
           
           // 🔹 GENERAR COMPROBANTE PDF
-          this.generarComprobantePDF(resVenta.ID_Venta, idPedidoCreado);
+          this.generarComprobantePDF(idVenta, idPedido);
           
           // 🔹 MOSTRAR MENSAJE DE ÉXITO
-          this.mostrarMensajeExito(resVenta.Puntos_Ganados, idPedidoCreado, resVenta.ID_Venta);
+          this.mostrarMensajeExito(puntos, idPedido, idVenta);
           
           // 🔹 CERRAR MODAL INDICANDO ÉXITO
           this.dialogRef.close({ 
             registrado: true,
-            idPedido: idPedidoCreado,
-            idVenta: resVenta.ID_Venta
+            idPedido: idPedido,
+            idVenta: idVenta
           });
         },
         error: (err) => {
           this.cargando = false;
           console.error('❌ Error al crear venta:', err);
-          Swal.fire({ 
-            icon: 'error', 
-            title: 'Error en venta', 
-            text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
-          });
+          Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
         }
       });
     },
@@ -408,12 +379,7 @@ private registrarVentaCompleta(idCliente: number) {
         mensajeError = err.error.error;
       }
       
-      Swal.fire({ 
-        icon: 'error', 
-        title: 'Error', 
-        text: mensajeError,
-        confirmButtonText: 'Entendido'
-      });
+      Swal.fire('Error', mensajeError, 'error');
     }
   });
 }
