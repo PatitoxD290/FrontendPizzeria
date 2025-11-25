@@ -11,8 +11,6 @@
         <p class="stat-value" *ngIf="!loadingCards">{{ formatCurrency(ventasTotales) }}</p>
         <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
-          <span class="trend-indicator trend-up">{{ tendenciaVentasTotales }}</span>
-          <span class="trend-text">vs mes anterior</span>
         </div>
       </div>
     </div>
@@ -27,8 +25,7 @@
         <p class="stat-value" *ngIf="!loadingCards">{{ pedidosHoy }}</p>
         <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
-          <span class="trend-indicator trend-up">{{ tendenciaPedidosHoy }}</span>
-          <span class="trend-text">vs ayer</span>
+      
         </div>
       </div>
     </div>
@@ -43,8 +40,7 @@
         <p class="stat-value" *ngIf="!loadingCards">{{ formatCurrency(ventasHoy) }}</p>
         <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
-          <span class="trend-indicator trend-up">{{ tendenciaVentasHoy }}</span>
-          <span class="trend-text">vs ayer</span>
+         
         </div>
       </div>
     </div>
@@ -59,8 +55,7 @@
         <p class="stat-value" *ngIf="!loadingCards">{{ totalClientes }}</p>
         <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
-          <span class="trend-indicator trend-up">{{ tendenciaClientes }}</span>
-          <span class="trend-text">+84 nuevos</span>
+         
         </div>
       </div>
     </div>

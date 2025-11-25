@@ -42,113 +42,134 @@
       <p>Cargando recetas...</p>
     </div>
 
+    <!-- Tabla CON MAT-TABLE para paginación correcta -->
     <div class="table-container" *ngIf="!loading">
-      <table class="custom-table">
-        <thead>
-          <tr>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">tag</span>
-                <span>ID</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">restaurant</span>
-                <span>NOMBRE</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">description</span>
-                <span>DESCRIPCIÓN</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">schedule</span>
-                <span>TIEMPO</span>
-              </div>
-            </th>
-            <th class="table-header acciones-column">
-              <div class="header-content">
-                <span class="material-icons">settings</span>
-                <span>ACCIONES</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let receta of dataSource.filteredData" class="table-row">
-            <td class="table-cell id-cell">
-              <span class="id-badge">#{{ receta.ID_Receta }}</span>
-            </td>
-            <td class="table-cell">
-              <div class="empresa-info">
-                <span class="name-text">{{ receta.Nombre }}</span>
-                <!-- CORRECCIÓN: Usar propiedades existentes del modelo Receta -->
-                <span class="email-text">{{ getRecetaInfo(receta) }}</span>
-              </div>
-            </td>
-            <td class="table-cell">
-              <div class="descripcion-info">
-                <span class="descripcion-text">{{ receta.Descripcion || 'Sin descripción' }}</span>
-              </div>
-            </td>
-            <td class="table-cell">
-              <div class="tiempo-info">
-                <span class="material-icons small-icon">schedule</span>
-                <span class="tiempo-text">{{ receta.Tiempo_Preparacion || '--:--:--' }}</span>
-              </div>
-            </td>
-            <td class="table-cell acciones-column">
-              <div class="acciones-container">
-                <!-- Ver Detalles -->
-                <button 
-                  class="action-btn view-btn" 
-                  (click)="viewRecetaDetails(receta)"
-                  matTooltip="Ver Ingredientes">
-                  <span class="material-icons">visibility</span>
-                </button>
+      <mat-table [dataSource]="dataSource" class="custom-table">
+        
+        <!-- Columna ID -->
+        <ng-container matColumnDef="ID_Receta">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">tag</span>
+              <span>ID</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let receta" class="table-cell id-cell">
+            <span class="id-badge">#{{ receta.ID_Receta }}</span>
+          </mat-cell>
+        </ng-container>
 
-                <!-- Editar -->
-                <button 
-                  class="action-btn edit-btn" 
-                  (click)="openRecetaForm(receta)"
-                  matTooltip="Editar">
-                  <span class="material-icons">edit</span>
-                </button>
+        <!-- Columna Nombre -->
+        <ng-container matColumnDef="Nombre">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">restaurant</span>
+              <span>NOMBRE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let receta" class="table-cell">
+            <div class="empresa-info">
+              <span class="name-text">{{ receta.Nombre }}</span>
+              <span class="email-text">{{ getRecetaInfo(receta) }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
 
-                <!-- Eliminar -->
-                <button 
-                  class="action-btn delete-btn" 
-                  (click)="deleteReceta(receta)"
-                  matTooltip="Eliminar">
-                  <span class="material-icons">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <!-- Mensaje cuando no hay datos -->
-      <div *ngIf="dataSource.filteredData.length === 0" class="no-data">
-        <span *ngIf="input.value" class="material-icons no-data-icon">search_off</span>
-        <span *ngIf="!input.value" class="material-icons no-data-icon">restaurant</span>
-        <h3>No se encontraron recetas</h3>
-        <p *ngIf="input.value">No hay recetas que coincidan con "{{input.value}}"</p>
-        <p *ngIf="!input.value">No hay recetas registradas en el sistema</p>
-      </div>
+        <!-- Columna Descripción -->
+        <ng-container matColumnDef="Descripcion">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">description</span>
+              <span>DESCRIPCIÓN</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let receta" class="table-cell">
+            <div class="descripcion-info">
+              <span class="descripcion-text">{{ receta.Descripcion || 'Sin descripción' }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Tiempo -->
+        <ng-container matColumnDef="Tiempo_Preparacion">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">schedule</span>
+              <span>TIEMPO</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let receta" class="table-cell">
+            <div class="tiempo-info">
+              <span class="material-icons small-icon">schedule</span>
+              <span class="tiempo-text">{{ receta.Tiempo_Preparacion || '--:--:--' }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna acciones -->
+        <ng-container matColumnDef="acciones">
+          <mat-header-cell *matHeaderCellDef class="table-header acciones-column">
+            <div class="header-content">
+              <span class="material-icons">settings</span>
+              <span>ACCIONES</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let receta" class="table-cell acciones-column">
+            <div class="acciones-container">
+              <!-- Ver Detalles -->
+              <button 
+                class="action-btn view-btn" 
+                (click)="viewRecetaDetails(receta)"
+                matTooltip="Ver Ingredientes">
+                <span class="material-icons">visibility</span>
+              </button>
+
+              <!-- Editar -->
+              <button 
+                class="action-btn edit-btn" 
+                (click)="openRecetaForm(receta)"
+                matTooltip="Editar">
+                <span class="material-icons">edit</span>
+              </button>
+
+              <!-- Eliminar -->
+              <button 
+                class="action-btn delete-btn" 
+                (click)="deleteReceta(receta)"
+                matTooltip="Eliminar">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Header row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        
+        <!-- Data row -->
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+
+        <!-- No Data Row -->
+        <tr *matNoDataRow class="no-data">
+          <td colspan="5" class="text-center py-4">
+            <span *ngIf="input.value" class="material-icons no-data-icon">search_off</span>
+            <span *ngIf="!input.value" class="material-icons no-data-icon">restaurant</span>
+            <h3>No se encontraron recetas</h3>
+            <p *ngIf="input.value">No hay recetas que coincidan con "{{input.value}}"</p>
+            <p *ngIf="!input.value">No hay recetas registradas en el sistema</p>
+          </td>
+        </tr>
+      </mat-table>
     </div>
 
     <!-- Paginación de Angular Material -->
     <mat-paginator 
+      [length]="getTotalFiltrado()"
       [pageSize]="5" 
       [pageSizeOptions]="[5, 10, 20]"
       showFirstLastButtons
       aria-label="Seleccionar página de recetas"
-      *ngIf="dataSource.filteredData.length > 0">
+      (page)="onPageChange($event)">
     </mat-paginator>
   </div>
 </div>

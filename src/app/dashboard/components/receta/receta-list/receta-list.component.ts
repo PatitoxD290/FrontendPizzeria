@@ -204,4 +204,16 @@ export class RecetaListComponent implements OnInit, AfterViewInit {
     }
     return 'Receta básica';
   }
+
+  // ================================================================
+  // 📄 MÉTODOS PARA PAGINACIÓN
+  // ================================================================
+  getTotalFiltrado(): number {
+    return this.dataSource.filteredData.length;
+  }
+
+  onPageChange(event: any): void {
+    // Manejar cambios de página si es necesario
+    console.log('Cambio de página:', event);
+  }
 }

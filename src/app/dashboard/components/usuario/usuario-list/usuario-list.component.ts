@@ -113,6 +113,15 @@ export class UsuarioListComponent implements OnInit, AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  // 🧹 Limpiar filtros
+  limpiarFiltros() {
+    this.dataSource.filter = '';
   }
 
   // 📝 Abrir formularios
@@ -226,6 +235,18 @@ export class UsuarioListComponent implements OnInit, AfterViewInit {
 
   getEstadoLabel(estado: string): string {
     return estado === 'A' ? 'Activo' : 'Inactivo';
+  }
+
+  // ================================================================
+  // 📄 MÉTODOS PARA PAGINACIÓN
+  // ================================================================
+  getTotalFiltrado(): number {
+    return this.dataSource.filteredData.length;
+  }
+
+  onPageChange(event: any): void {
+    // Manejar cambios de página si es necesario
+    console.log('Cambio de página:', event);
   }
 
   // Permisos de UI (opcional, depende de tu lógica de negocio)

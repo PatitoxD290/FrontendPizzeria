@@ -63,13 +63,14 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   clientesMap: Map<number, string> = new Map();
   loading = false;
 
+  // Filtros
   searchTerm: string = '';
   fechaInicio: Date | null = null;
   fechaFin: Date | null = null;
+  selectedPeriodo: string = 'todos';
 
-  // Variables para actualización automática
   private refreshSubscription!: Subscription;
-  private readonly REFRESH_INTERVAL = 30000; // 30 segundos
+  private readonly REFRESH_INTERVAL = 30000;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -95,9 +96,9 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.setupFilterPredicate();
   }
 
-  // 🔄 Iniciar actualización automática
   startAutoRefresh(): void {
     this.refreshSubscription = interval(this.REFRESH_INTERVAL)
       .pipe(
@@ -114,14 +115,12 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  // ⏹️ Detener actualización automática
   stopAutoRefresh(): void {
     if (this.refreshSubscription) {
       this.refreshSubscription.unsubscribe();
     }
   }
 
-  // 🔄 Método para refrescar manualmente
   refrescarManual(): void {
     this.loadPedidos();
     this.snackBar.open('Lista actualizada', 'Cerrar', {
@@ -137,7 +136,6 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // ✅ Cargar pedidos - SOLO MOSTRAR PrecioTotal del backend
   loadPedidos(): void {
     this.loading = true;
     this.pedidoService.getPedidos().subscribe({
@@ -153,18 +151,15 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // 🔄 Procesar datos de pedidos - SIN CÁLCULOS
   private processPedidosData(pedidos: Pedido[]): void {
-    // Ordenar por ID descendente (más recientes primero)
     pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
     
-    // Mantener el paginador actual si existe
     const currentPaginator = this.dataSource.paginator;
     const currentFilter = this.dataSource.filter;
     
-    // Asignar directamente los pedidos del backend
     this.dataSource.data = pedidos;
     
+    // Restaurar paginador después de actualizar datos
     if (currentPaginator) {
       this.dataSource.paginator = currentPaginator;
     }
@@ -176,39 +171,101 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.setupFilterPredicate();
   }
 
-  // ✅ Configurar filtro personalizado
   private setupFilterPredicate(): void {
     this.dataSource.filterPredicate = (pedido: Pedido, filter: string) => {
-      const term = filter.trim().toLowerCase();
+      const searchData = JSON.parse(filter);
+      const searchTerm = searchData.term.toLowerCase();
+      const fechaInicio = searchData.fechaInicio;
+      const fechaFin = searchData.fechaFin;
 
+      // Filtro por texto
       const clienteNombre = this.getNombreCliente(pedido.ID_Cliente).toLowerCase();
       const nota = pedido.Notas?.toLowerCase() || '';
-      const fecha = this.formatFechaHora(pedido.Fecha_Registro, pedido.Hora_Pedido).toLowerCase();
+      const idPedido = pedido.ID_Pedido.toString().toLowerCase();
+      
+      const coincideTexto = searchTerm === '' || 
+        clienteNombre.includes(searchTerm) ||
+        nota.includes(searchTerm) ||
+        idPedido.includes(searchTerm);
 
-      const coincideTexto =
-        clienteNombre.includes(term) ||
-        nota.includes(term) ||
-        fecha.includes(term);
-
-      // ✅ Filtro por rango de fecha
+      // Filtro por fecha
       let coincideFecha = true;
-      if (this.fechaInicio && this.fechaFin && pedido.Fecha_Registro) {
+      if (fechaInicio && fechaFin && pedido.Fecha_Registro) {
         const fechaPedido = new Date(pedido.Fecha_Registro);
-        coincideFecha = fechaPedido >= this.fechaInicio && fechaPedido <= this.fechaFin;
+        fechaPedido.setHours(0, 0, 0, 0);
+        
+        const inicio = new Date(fechaInicio);
+        inicio.setHours(0, 0, 0, 0);
+        
+        const fin = new Date(fechaFin);
+        fin.setHours(23, 59, 59, 999);
+        
+        coincideFecha = fechaPedido >= inicio && fechaPedido <= fin;
       }
 
       return coincideTexto && coincideFecha;
     };
   }
 
-  // ✅ Filtro en tiempo real
-  applyFilter() {
-    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  applyFilter(): void {
+    const filterValue = {
+      term: this.searchTerm.trim().toLowerCase(),
+      fechaInicio: this.fechaInicio,
+      fechaFin: this.fechaFin
+    };
+    
+    this.dataSource.filter = JSON.stringify(filterValue);
+    
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
-  applyDateFilter() {
-    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+  onPeriodoChange(): void {
+    const hoy = new Date();
+    
+    switch (this.selectedPeriodo) {
+      case 'hoy':
+        this.fechaInicio = new Date();
+        this.fechaFin = new Date();
+        break;
+        
+      case 'semana':
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+        this.fechaInicio = inicioSemana;
+        this.fechaFin = new Date();
+        break;
+        
+      case 'mes':
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        this.fechaInicio = inicioMes;
+        this.fechaFin = new Date();
+        break;
+        
+      case 'mes_anterior':
+        const primerDiaMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+        const ultimoDiaMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0);
+        this.fechaInicio = primerDiaMesAnterior;
+        this.fechaFin = ultimoDiaMesAnterior;
+        break;
+        
+      case 'todos':
+      default:
+        this.fechaInicio = null;
+        this.fechaFin = null;
+        break;
+    }
+    
+    this.applyFilter();
+  }
+
+  limpiarFiltros(): void {
+    this.searchTerm = '';
+    this.fechaInicio = null;
+    this.fechaFin = null;
+    this.selectedPeriodo = 'todos';
+    this.applyFilter();
   }
 
   loadClientes(): void {
@@ -247,7 +304,10 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.moneda.format(valor || 0);
   }
 
-  // ✅ CORREGIDO: Estados según tu especificación
+  getPrecioTotal(pedido: Pedido): number {
+    return pedido.SubTotal;
+  }
+
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'P': return 'Pendiente';
@@ -258,7 +318,18 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // 🆕 EXPORTAR PDF (sin cambios)
+  // ================================================================
+  // 📄 MÉTODOS PARA PAGINACIÓN
+  // ================================================================
+  getTotalFiltrado(): number {
+    return this.dataSource.filteredData.length;
+  }
+
+  onPageChange(event: any): void {
+    // Manejar cambios de página si es necesario
+    console.log('Cambio de página:', event);
+  }
+
   exportarPDF(): void {
     if (this.dataSource.filteredData.length === 0) {
       Swal.fire('Información', 'No hay datos para generar el reporte PDF', 'info');
@@ -273,16 +344,10 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const pedidos = this.dataSource.filteredData;
     
-    // Título y cabecera
     this.agregarCabeceraPDF(doc, pedidos.length);
-    
-    // Tabla de datos
     this.agregarTablaPDF(doc, pedidos);
-    
-    // Totales y pie de página
     this.agregarTotalesPDF(doc, pedidos);
     
-    // Guardar PDF
     doc.save(`Reporte_Pedidos_${new Date().toISOString().slice(0, 10)}.pdf`);
     
     this.snackBar.open('Reporte PDF generado correctamente', 'Cerrar', {
@@ -292,33 +357,27 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private agregarCabeceraPDF(doc: jsPDF, totalPedidos: number): void {
-    // Fondo decorativo
-    doc.setFillColor(46, 125, 50); // Verde para pedidos
+    doc.setFillColor(46, 125, 50);
     doc.rect(0, 0, 297, 30, 'F');
     
-    // Logo o ícono
     doc.setFontSize(20);
     doc.setTextColor(255, 255, 255);
     doc.text('📦', 15, 18);
     
-    // Título principal
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('REPORTE DE PEDIDOS', 25, 18);
     
-    // Información de la empresa
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('Sistema de Gestión Comercial', 200, 12);
     doc.text('Tel: (01) 123-4567', 200, 17);
     doc.text('Email: info@empresa.com', 200, 22);
     
-    // Fecha de generación
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
     
-    // Período del reporte
     let periodo = 'Todos los registros';
     if (this.fechaInicio && this.fechaFin) {
       periodo = `Del ${this.formatDateForPDF(this.fechaInicio)} al ${this.formatDateForPDF(this.fechaFin)}`;
@@ -341,7 +400,7 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
       pedido.ID_Pedido.toString(),
       this.getNombreCliente(pedido.ID_Cliente),
       pedido.Notas?.substring(0, 40) + (pedido.Notas && pedido.Notas.length > 40 ? '...' : '') || 'Sin notas',
-      `S/${(pedido.PrecioTotal || 0).toFixed(2)}`,
+      `S/${(this.getPrecioTotal(pedido) || 0).toFixed(2)}`,
       this.getEstadoTexto(pedido.Estado_P),
       this.formatFechaHoraPDF(pedido.Fecha_Registro, pedido.Hora_Pedido)
     ]);
@@ -358,7 +417,7 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
         lineWidth: 0.1
       },
       headStyles: {
-        fillColor: [56, 142, 60], // Verde más oscuro
+        fillColor: [56, 142, 60],
         textColor: 255,
         fontStyle: 'bold',
         fontSize: 9
@@ -367,33 +426,31 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
         fillColor: [245, 245, 245]
       },
       columnStyles: {
-        0: { cellWidth: 15, halign: 'center' }, // ID
-        1: { cellWidth: 40 }, // Cliente
-        2: { cellWidth: 50 }, // Notas
-        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Precio Total
-        4: { cellWidth: 25, halign: 'center' }, // Estado
-        5: { cellWidth: 45, halign: 'center' } // Fecha/Hora
+        0: { cellWidth: 15, halign: 'center' },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
+        4: { cellWidth: 25, halign: 'center' },
+        5: { cellWidth: 45, halign: 'center' }
       },
       margin: { left: 10, right: 10 },
       didDrawCell: (data) => {
-        // Colorear estados
         if (data.section === 'body' && data.column.index === 4) {
           const estado = data.cell.raw as string;
           const ctx = doc as any;
           
           if (estado === 'Pendiente') {
-            ctx.setTextColor(255, 152, 0); // Naranja
+            ctx.setTextColor(255, 152, 0);
           } else if (estado === 'Entregado') {
-            ctx.setTextColor(56, 142, 60); // Verde
+            ctx.setTextColor(56, 142, 60);
           } else if (estado === 'No entregado') {
-            ctx.setTextColor(244, 67, 54); // Rojo
+            ctx.setTextColor(244, 67, 54);
           } else if (estado === 'No disponible') {
-            ctx.setTextColor(158, 158, 158); // Gris
+            ctx.setTextColor(158, 158, 158);
           }
         }
       },
       willDrawCell: (data) => {
-        // Restaurar color negro para otras celdas
         if (data.section === 'body' && data.column.index !== 4) {
           const ctx = doc as any;
           ctx.setTextColor(0, 0, 0);
@@ -405,25 +462,20 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   private agregarTotalesPDF(doc: jsPDF, pedidos: Pedido[]): void {
     const finalY = (doc as any).lastAutoTable.finalY || 100;
     
-    // Calcular totales
     const totalPedidos = pedidos.length;
-    const totalValor = pedidos.reduce((sum, pedido) => sum + (pedido.PrecioTotal || 0), 0);
+    const totalValor = pedidos.reduce((sum, pedido) => sum + this.getPrecioTotal(pedido), 0);
     
     const pedidosPendientes = pedidos.filter(p => p.Estado_P === 'P').length;
     const pedidosEntregados = pedidos.filter(p => p.Estado_P === 'E').length;
     const pedidosNoEntregados = pedidos.filter(p => p.Estado_P === 'C').length;
 
-    // Fondo para totales
     doc.setFillColor(240, 240, 240);
     doc.rect(10, finalY + 5, 277, 35, 'F');
 
-    // Restaurar color negro
     doc.setTextColor(0, 0, 0);
 
-    // Totales principales
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    
     doc.text('RESUMEN DE PEDIDOS', 15, finalY + 15);
     
     doc.setFontSize(10);
@@ -431,13 +483,11 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     doc.text(`Total Pedidos: ${totalPedidos}`, 15, finalY + 22);
     doc.text(`Valor Total: S/${totalValor.toFixed(2)}`, 15, finalY + 28);
 
-    // Estados de pedidos
     doc.text('POR ESTADO:', 120, finalY + 15);
     doc.text(`Pendientes: ${pedidosPendientes}`, 120, finalY + 22);
     doc.text(`Entregados: ${pedidosEntregados}`, 120, finalY + 28);
     doc.text(`No Entregados: ${pedidosNoEntregados}`, 200, finalY + 22);
 
-    // Pie de página
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);

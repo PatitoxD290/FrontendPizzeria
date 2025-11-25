@@ -24,11 +24,12 @@ import { Producto } from '../../../../core/models/producto.model';
 
 // 🔹 Interfaz extendida localmente para la vista
 interface PedidoEnEspera extends Pedido {
+  PrecioTotal: number; // ✅ Cambiado de any a number
   cliente?: Cliente;
   detallesCompletos?: (PedidoDetalle & {
     productoInfo?: Producto;
     comboInfo?: any;
-    comboDetalles?: any[]; // 🔴 Detalles expandidos del combo
+    comboDetalles?: any[];
     tamanoInfo?: string;
     nombreItem?: string;
     precioUnitario?: number;
@@ -100,14 +101,12 @@ export class PedidoEsperaListComponent implements OnInit {
           const pedidosFiltrados = pedidos.filter((p) => p.Estado_P === 'P');
           console.log('🔄 PEDIDOS FILTRADOS (PENDIENTES):', pedidosFiltrados);
 
-          // Verificar SubTotal y PrecioTotal en cada pedido
+          // Verificar SubTotal en cada pedido
           pedidosFiltrados.forEach((pedido, index) => {
             console.log(`📊 Pedido ${index + 1} - ID: ${pedido.ID_Pedido}:`, {
               SubTotal: pedido.SubTotal,
-              PrecioTotal: pedido.PrecioTotal,
               Estado: pedido.Estado_P,
               TieneSubTotal: !!pedido.SubTotal,
-              TienePrecioTotal: !!pedido.PrecioTotal,
             });
           });
 
@@ -119,7 +118,6 @@ export class PedidoEsperaListComponent implements OnInit {
 
           this.pedidos = await this.cargarInformacionCompleta(pedidosOrdenados);
 
-          // Verificar los pedidos finales procesados
           console.log('✅ PEDIDOS FINALES PROCESADOS:', this.pedidos);
           this.pedidos.forEach((pedido) => {
             console.log(`🎯 Pedido #${pedido.ID_Pedido}:`, {
@@ -161,9 +159,11 @@ export class PedidoEsperaListComponent implements OnInit {
   private calcularTotalesPedido(pedido: PedidoEnEspera): void {
     console.log(`🔢 CALCULANDO TOTALES PARA PEDIDO #${pedido.ID_Pedido}`);
 
-    // Si el SubTotal viene del backend, úsalo, sino calcula desde detalles
+    // ✅ CALCULAR PrecioTotal a partir del SubTotal
+    // En tu modelo, PrecioTotal = SubTotal (sin impuestos/descuentos adicionales)
     if (pedido.SubTotal && pedido.SubTotal > 0) {
       console.log(`✅ SubTotal desde BD: ${pedido.SubTotal}`);
+      pedido.PrecioTotal = pedido.SubTotal; // ✅ PrecioTotal es igual a SubTotal
     } else {
       // Calcular SubTotal sumando todos los detalles
       const subTotalCalculado =
@@ -174,19 +174,19 @@ export class PedidoEsperaListComponent implements OnInit {
         }, 0) || 0;
 
       pedido.SubTotal = subTotalCalculado;
+      pedido.PrecioTotal = subTotalCalculado; // ✅ PrecioTotal es igual a SubTotal
       console.log(`🧮 SubTotal calculado: ${subTotalCalculado}`);
     }
-
-    // PrecioTotal es igual a SubTotal (a menos que tengas descuentos/impuestos)
-    pedido.PrecioTotal = pedido.SubTotal;
 
     console.log(`💰 TOTAL FINAL: ${pedido.PrecioTotal}`);
   }
 
-  // Y modifica el método cargarInformacionCompleta:
   private async cargarInformacionCompleta(pedidos: Pedido[]): Promise<PedidoEnEspera[]> {
     const promesas = pedidos.map(async (pedido) => {
-      const pedidoCompleto: PedidoEnEspera = { ...pedido };
+      const pedidoCompleto: PedidoEnEspera = {
+        ...pedido,
+        PrecioTotal: 0 // ✅ Inicializar en 0
+      };
 
       try {
         if (pedido.ID_Cliente && pedido.ID_Cliente !== 1) {
@@ -205,8 +205,6 @@ export class PedidoEsperaListComponent implements OnInit {
           );
           if (detalles) {
             pedidoCompleto.detallesCompletos = await this.enriquecerDetalles(detalles);
-
-            // 🔥 CALCULAR TOTALES DESPUÉS DE TENER LOS DETALLES
             this.calcularTotalesPedido(pedidoCompleto);
           }
         } catch {
@@ -222,99 +220,86 @@ export class PedidoEsperaListComponent implements OnInit {
     return Promise.all(promesas);
   }
 
-  verificarDatosPedido(pedido: PedidoEnEspera): void {
-    console.log(`🔍 VERIFICANDO PEDIDO #${pedido.ID_Pedido}:`, {
-      SubTotal: pedido.SubTotal,
-      PrecioTotal: pedido.PrecioTotal,
-      TipoSubTotal: typeof pedido.SubTotal,
-      TipoPrecioTotal: typeof pedido.PrecioTotal,
-      EsSubTotalCero: pedido.SubTotal === 0,
-      EsPrecioTotalCero: pedido.PrecioTotal === 0,
-      EsSubTotalNull: pedido.SubTotal === null,
-      EsPrecioTotalNull: pedido.PrecioTotal === null,
-      EsSubTotalUndefined: pedido.SubTotal === undefined,
-      EsPrecioTotalUndefined: pedido.PrecioTotal === undefined,
-    });
+  // ✅ CORREGIR el método getNombreCliente para aceptar PedidoEnEspera
+  getNombreCliente(pedido: PedidoEnEspera): string {
+    if (pedido.cliente) return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido || ''}`;
+    return pedido.Cliente_Nombre || 'Cliente General';
   }
 
-private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
-  return Promise.all(detalles.map(async (detalle) => {
-    let productoInfo: Producto | undefined;
-    let comboInfo: any = undefined;
-    let comboDetalles: any[] = [];
-    let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
-    let precioUnitario = 0;
-    let nombreItem = '';
+  // ... (el resto de los métodos se mantienen igual)
 
-    try {
-      // 🔵 CASO 1: Es un COMBO
-      if (detalle.ID_Combo) {
-        try {
-          comboInfo = await firstValueFrom(this.comboService.getComboById(detalle.ID_Combo));
-          nombreItem = comboInfo.Nombre || detalle.Nombre_Combo || 'Combo';
-          precioUnitario = comboInfo.Precio || 0;
-          tamanoInfo = '(Combo)';
-          
-          // 🟢 EXPANDIR DETALLES DEL COMBO
-          if (comboInfo.detalles && Array.isArray(comboInfo.detalles)) {
-            comboDetalles = comboInfo.detalles.map((cd: any) => ({
-              nombreProducto: cd.Producto_Nombre || 'Producto',
-              tamano: cd.Tamano_Nombre || 'Normal',
-              cantidad: cd.Cantidad || 1,
-              idProductoT: cd.ID_Producto_T
-            }));
+  private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
+    return Promise.all(detalles.map(async (detalle) => {
+      let productoInfo: Producto | undefined;
+      let comboInfo: any = undefined;
+      let comboDetalles: any[] = [];
+      let tamanoInfo = detalle.Tamano_Nombre || 'Tamaño único';
+      let precioUnitario = 0;
+      let nombreItem = '';
+
+      try {
+        if (detalle.ID_Combo) {
+          try {
+            comboInfo = await firstValueFrom(this.comboService.getComboById(detalle.ID_Combo));
+            nombreItem = comboInfo.Nombre || detalle.Nombre_Combo || 'Combo';
+            precioUnitario = comboInfo.Precio || 0;
+            tamanoInfo = '(Combo)';
+            
+            if (comboInfo.detalles && Array.isArray(comboInfo.detalles)) {
+              comboDetalles = comboInfo.detalles.map((cd: any) => ({
+                nombreProducto: cd.Producto_Nombre || 'Producto',
+                tamano: cd.Tamano_Nombre || 'Normal',
+                cantidad: cd.Cantidad || 1,
+                idProductoT: cd.ID_Producto_T
+              }));
+            }
+          } catch (err) {
+            console.warn('Error obteniendo info del combo:', err);
+            nombreItem = detalle.Nombre_Combo || 'Combo';
+            precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
           }
-        } catch (err) {
-          console.warn('Error obteniendo info del combo:', err);
-          nombreItem = detalle.Nombre_Combo || 'Combo';
-          precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-        }
-      } 
-      // 🔵 CASO 2: Es un PRODUCTO normal
-      else if (detalle.ID_Producto_T) {
-        productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
-        nombreItem = productoInfo?.Nombre || detalle.Nombre_Producto || 'Producto';
-        
-        if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
-          tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
-        }
+        } else if (detalle.ID_Producto_T) {
+          productoInfo = await this.obtenerProductoPorTamano(detalle.ID_Producto_T);
+          nombreItem = productoInfo?.Nombre || detalle.Nombre_Producto || 'Producto';
+          
+          if (!detalle.Tamano_Nombre && productoInfo?.tamanos?.[0]) {
+            tamanoInfo = productoInfo.tamanos[0].nombre_tamano || 'Tamaño único';
+          }
 
-        if (productoInfo?.tamanos?.[0]?.Precio) {
-          precioUnitario = productoInfo.tamanos[0].Precio;
+          if (productoInfo?.tamanos?.[0]?.Precio) {
+            precioUnitario = productoInfo.tamanos[0].Precio;
+          }
         }
+      } catch (err) {
+        console.warn('Error obteniendo info del item:', err);
       }
-    } catch (err) {
-      console.warn('Error obteniendo info del item:', err);
-    }
 
-    // 🔥 CORREGIR: Usar el precio del detalle si está disponible
-    if (!precioUnitario && detalle.Cantidad > 0) {
-      precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
-    }
+      if (!precioUnitario && detalle.Cantidad > 0) {
+        precioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+      }
 
-    // 🔥 CORREGIR: Asegurar que precioTotal tenga valor
-    const precioTotalCalculado = detalle.PrecioTotal || (precioUnitario * detalle.Cantidad) || 0;
+      const precioTotalCalculado = detalle.PrecioTotal || (precioUnitario * detalle.Cantidad) || 0;
 
-    console.log(`📊 Detalle procesado:`, {
-      nombre: nombreItem,
-      cantidad: detalle.Cantidad,
-      precioUnitario: precioUnitario,
-      precioTotal: precioTotalCalculado,
-      tipo: detalle.ID_Combo ? 'combo' : 'producto'
-    });
+      console.log(`📊 Detalle procesado:`, {
+        nombre: nombreItem,
+        cantidad: detalle.Cantidad,
+        precioUnitario: precioUnitario,
+        precioTotal: precioTotalCalculado,
+        tipo: detalle.ID_Combo ? 'combo' : 'producto'
+      });
 
-    return {
-      ...detalle,
-      productoInfo,
-      comboInfo,
-      comboDetalles,
-      tamanoInfo,
-      nombreItem,
-      precioUnitario: precioUnitario || 0,
-      precioTotal: precioTotalCalculado
-    };
-  }));
-}
+      return {
+        ...detalle,
+        productoInfo,
+        comboInfo,
+        comboDetalles,
+        tamanoInfo,
+        nombreItem,
+        precioUnitario: precioUnitario || 0,
+        precioTotal: precioTotalCalculado
+      };
+    }));
+  }
 
   private async obtenerProductoPorTamano(idProductoTamano: number): Promise<Producto | undefined> {
     try {
@@ -329,7 +314,7 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
     }
   }
 
-  cambiarEstado(pedido: Pedido, nuevoEstado: 'E' | 'C') {
+  cambiarEstado(pedido: PedidoEnEspera, nuevoEstado: 'E' | 'C') { // ✅ Cambiado a PedidoEnEspera
     const accion = nuevoEstado === 'E' ? 'entregar' : 'cancelar';
     const colorBtn = nuevoEstado === 'E' ? '#2e7d32' : '#d32f2f';
     const cliente = this.getNombreCliente(pedido);
@@ -377,11 +362,6 @@ private async enriquecerDetalles(detalles: PedidoDetalle[]): Promise<any[]> {
         this.processingId = null;
       },
     });
-  }
-
-  getNombreCliente(pedido: PedidoEnEspera): string {
-    if (pedido.cliente) return `${pedido.cliente.Nombre} ${pedido.cliente.Apellido || ''}`;
-    return pedido.Cliente_Nombre || 'Cliente General';
   }
 
   getHoraFormateada(hora: string): string {

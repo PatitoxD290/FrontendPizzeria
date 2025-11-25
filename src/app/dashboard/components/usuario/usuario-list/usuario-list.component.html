@@ -11,146 +11,195 @@
       </button>
     </div>
 
+    <!-- Filtro de búsqueda -->
+    <div class="filtros-container">
+      <div class="filtros-izquierda">
+        <div class="search-field-compact">
+          <div class="input-group-compact">
+            <span class="material-icons input-icon-compact">search</span>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, correo o rol..."
+              (keyup)="applyFilter($event)"
+              class="search-input-compact">
+            <button *ngIf="dataSource.filter" class="clear-search-btn-compact" (click)="limpiarFiltros()">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="loading" class="spinner-container">
       <div class="spinner"></div>
       <p>Cargando usuarios...</p>
     </div>
 
+    <!-- Tabla CON MAT-TABLE para paginación correcta -->
     <div class="table-container" *ngIf="!loading">
-      <table class="custom-table">
-        <thead>
-          <tr>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">tag</span>
-                <span>ID</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">email</span>
-                <span>CORREO / DNI</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">person</span>
-                <span>NOMBRE </span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">admin_panel_settings</span>
-                <span>ROL</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">toggle_on</span>
-                <span>ESTADO</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">event</span>
-                <span>FECHA REGISTRO</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">settings</span>
-                <span>ACCIONES</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let usuario of dataSource.filteredData" class="table-row">
-            <td class="table-cell id-cell">
-              <span class="id-badge">#{{ usuario.ID_Usuario }}</span>
-            </td>
-            <td class="table-cell">
-              <span class="email-text">{{ usuario.Correo }}</span>
-            </td>
-            <td class="table-cell">
-              <span class="name-text">{{ usuario.Perfil }}</span>
-            </td>
-            <td class="table-cell">
-              <!-- MANTENIENDO LA SOLUCIÓN SIMPLE DEL PRIMER COMPONENTE -->
-              <span class="rol-badge" 
-                    [class.empleado]="usuario.Roll === 'E'" 
-                    [class.administrador]="usuario.Roll === 'A'">
-                {{ usuario.Roll === 'A' ? 'Administrador' : 'Empleado' }}
-              </span>
-            </td>
-            <td class="table-cell">
-              <!-- MANTENIENDO LA SOLUCIÓN SIMPLE DEL PRIMER COMPONENTE -->
-              <span class="estado-badge" 
-                    [class.activo]="usuario.Estado === 'A'" 
-                    [class.inactivo]="usuario.Estado === 'I'">
-                {{ usuario.Estado === 'A' ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td class="table-cell">
-              <span class="date-text">{{ usuario.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</span>
-            </td>
-            <td class="table-cell acciones-cell">
-              <div class="acciones-container">
-                <!-- Editar usuario -->
-                <button class="action-btn"
-                        (click)="openEditar(usuario)"
-                        [disabled]="!canEdit(usuario)"
-                        [class.disabled]="!canEdit(usuario)"
-                        matTooltip="Editar usuario">
-                  <span class="material-icons">edit</span>
-                </button>
+      <mat-table [dataSource]="dataSource" class="custom-table">
+        
+        <!-- Columna ID -->
+        <ng-container matColumnDef="ID_Usuario">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">tag</span>
+              <span>ID</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell id-cell">
+            <span class="id-badge">#{{ usuario.ID_Usuario }}</span>
+          </mat-cell>
+        </ng-container>
 
-                <!-- Cambiar contraseña -->
-                <button class="action-btn"
-                        (click)="openChangePassword(usuario)"
-                        [disabled]="!canChangePassword(usuario)"
-                        [class.disabled]="!canChangePassword(usuario)"
-                        matTooltip="Cambiar contraseña">
-                  <span class="material-icons">vpn_key</span>
-                </button>
+        <!-- Columna Correo -->
+        <ng-container matColumnDef="Correo">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">email</span>
+              <span>CORREO / DNI</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell">
+            <span class="email-text">{{ usuario.Correo }}</span>
+          </mat-cell>
+        </ng-container>
 
-                <!-- Activar / Desactivar -->
-                <button class="action-btn toggle-btn"
-                        (click)="toggleEstado(usuario)"
-                        [matTooltip]="usuario.Estado === 'A' ? 'Desactivar usuario' : 'Activar usuario'">
-                  <span class="material-icons">
-                    {{ usuario.Estado === 'A' ? 'block' : 'check' }}
-                  </span>
-                </button>
+        <!-- Columna Perfil -->
+        <ng-container matColumnDef="Perfil">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">person</span>
+              <span>NOMBRE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell">
+            <span class="name-text">{{ usuario.Perfil }}</span>
+          </mat-cell>
+        </ng-container>
 
-                <!-- Eliminar -->
-                <button class="action-btn delete-btn"
-                        (click)="deleteUsuario(usuario)"
-                        [disabled]="!canDelete(usuario)"
-                        [class.disabled]="!canDelete(usuario)"
-                        matTooltip="Eliminar usuario">
-                  <span class="material-icons">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <!-- Mensaje cuando no hay datos -->
-      <div *ngIf="dataSource.filteredData.length === 0" class="no-data">
-        <span class="material-icons no-data-icon">group_off</span>
-        <h3>No se encontraron usuarios</h3>
-        <p *ngIf="dataSource.filter === ''">No hay usuarios registrados en el sistema</p>
-        <p *ngIf="dataSource.filter !== ''">No hay usuarios que coincidan con "{{dataSource.filter}}"</p>
-      </div>
+        <!-- Columna Rol -->
+        <ng-container matColumnDef="Roll">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">admin_panel_settings</span>
+              <span>ROL</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell">
+            <span class="rol-badge" 
+                  [class.empleado]="usuario.Roll === 'E'" 
+                  [class.administrador]="usuario.Roll === 'A'">
+              {{ usuario.Roll === 'A' ? 'Administrador' : 'Empleado' }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Estado -->
+        <ng-container matColumnDef="Estado">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">toggle_on</span>
+              <span>ESTADO</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell">
+            <span class="estado-badge" 
+                  [class.activo]="usuario.Estado === 'A'" 
+                  [class.inactivo]="usuario.Estado === 'I'">
+              {{ usuario.Estado === 'A' ? 'Activo' : 'Inactivo' }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Fecha Registro -->
+        <ng-container matColumnDef="Fecha_Registro">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">event</span>
+              <span>FECHA REGISTRO</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell">
+            <span class="date-text">{{ usuario.Fecha_Registro | date:'dd/MM/yyyy, hh:mm a' }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna acciones -->
+        <ng-container matColumnDef="acciones">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">settings</span>
+              <span>ACCIONES</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let usuario" class="table-cell acciones-cell">
+            <div class="acciones-container">
+              <!-- Editar usuario -->
+              <button class="action-btn"
+                      (click)="openEditar(usuario)"
+                      [disabled]="!canEdit(usuario)"
+                      [class.disabled]="!canEdit(usuario)"
+                      matTooltip="Editar usuario">
+                <span class="material-icons">edit</span>
+              </button>
+
+              <!-- Cambiar contraseña -->
+              <button class="action-btn"
+                      (click)="openChangePassword(usuario)"
+                      [disabled]="!canChangePassword(usuario)"
+                      [class.disabled]="!canChangePassword(usuario)"
+                      matTooltip="Cambiar contraseña">
+                <span class="material-icons">vpn_key</span>
+              </button>
+
+              <!-- Activar / Desactivar -->
+              <button class="action-btn toggle-btn"
+                      (click)="toggleEstado(usuario)"
+                      [matTooltip]="usuario.Estado === 'A' ? 'Desactivar usuario' : 'Activar usuario'">
+                <span class="material-icons">
+                  {{ usuario.Estado === 'A' ? 'block' : 'check' }}
+                </span>
+              </button>
+
+              <!-- Eliminar -->
+              <button class="action-btn delete-btn"
+                      (click)="deleteUsuario(usuario)"
+                      [disabled]="!canDelete(usuario)"
+                      [class.disabled]="!canDelete(usuario)"
+                      matTooltip="Eliminar usuario">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Header row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        
+        <!-- Data row -->
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+
+        <!-- No Data Row -->
+        <tr *matNoDataRow class="no-data">
+          <td colspan="7" class="text-center py-4">
+            <span class="material-icons no-data-icon">group_off</span>
+            <h3>No se encontraron usuarios</h3>
+            <p *ngIf="dataSource.filter === ''">No hay usuarios registrados en el sistema</p>
+            <p *ngIf="dataSource.filter !== ''">No hay usuarios que coincidan con "{{dataSource.filter}}"</p>
+          </td>
+        </tr>
+      </mat-table>
     </div>
 
-    <!-- Paginación Material - MANTENIENDO LA FUNCIONALIDAD DEL SEGUNDO COMPONENTE -->
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" 
-                   showFirstLastButtons 
-                   aria-label="Seleccionar página"
-                   *ngIf="dataSource.filteredData.length > 0">
+    <!-- Paginación de Angular Material -->
+    <mat-paginator 
+      [length]="getTotalFiltrado()"
+      [pageSize]="5"
+      [pageSizeOptions]="[5, 10, 20]" 
+      showFirstLastButtons 
+      aria-label="Seleccionar página de usuarios"
+      (page)="onPageChange($event)">
     </mat-paginator>
   </div>
 </div>

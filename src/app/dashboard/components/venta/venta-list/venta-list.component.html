@@ -56,124 +56,150 @@
       </div>
     </div>
 
-
     <!-- Loading -->
     <div *ngIf="loading" class="spinner-container">
       <div class="spinner"></div>
       <p>Cargando ventas...</p>
     </div>
 
-    <!-- Tabla -->
+    <!-- Tabla CON MAT-TABLE -->
     <div class="table-container" [hidden]="loading">
-      <table class="custom-table">
-        <thead>
-          <tr>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">tag</span>
-                <span>ID</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">person</span>
-                <span>CLIENTE</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">receipt</span>
-                <span>COMPROBANTE</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">payments</span>
-                <span>PAGO</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">attach_money</span>
-                <span>TOTAL</span>
-              </div>
-            </th>
-            <th class="table-header">
-              <div class="header-content">
-                <span class="material-icons">event</span>
-                <span>FECHA</span>
-              </div>
-            </th>
-            <th class="table-header acciones-column">
-              <div class="header-content">
-                <span class="material-icons">print</span>
-                <span>COMPROBANTE</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of dataSource.filteredData" class="table-row">
-            <td class="table-cell id-cell">
-              <span class="id-badge">#{{row.ID_Venta}}</span>
-            </td>
-            <td class="table-cell">
-              <div class="cliente-info">
-                <span class="name-text">{{ row.Cliente_Nombre || 'Cliente General' }}</span>
-                <span class="email-text">{{ row.Cliente_Email || 'Sin email' }}</span>
-              </div>
-            </td>
-            <td class="table-cell">
-              <span class="comprobante-badge" [class]="'comprobante-' + (row.ID_Tipo_Venta === 1 ? 'boleta' : row.ID_Tipo_Venta === 2 ? 'factura' : 'nota')">
-                {{ getTipoVentaLabel(row) }}
+      <!-- Usar mat-table en lugar de table normal -->
+      <mat-table [dataSource]="dataSource" class="custom-table">
+        
+        <!-- Columna ID -->
+        <ng-container matColumnDef="ID_Venta">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">tag</span>
+              <span>ID</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell id-cell">
+            <span class="id-badge">#{{row.ID_Venta}}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Cliente -->
+        <ng-container matColumnDef="Cliente">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">person</span>
+              <span>CLIENTE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell">
+            <div class="cliente-info">
+              <span class="name-text">{{ row.Cliente_Nombre || 'Cliente General' }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Tipo -->
+        <ng-container matColumnDef="Tipo">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">receipt</span>
+              <span>COMPROBANTE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell">
+            <span class="comprobante-badge" [class]="'comprobante-' + (row.ID_Tipo_Venta === 1 ? 'boleta' : row.ID_Tipo_Venta === 2 ? 'factura' : 'nota')">
+              {{ getTipoVentaLabel(row) }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Metodo -->
+        <ng-container matColumnDef="Metodo">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">payments</span>
+              <span>PAGO</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell">
+            <div class="metodo-pago-info">
+              <span class="material-icons small-icon">
+                {{ row.ID_Tipo_Pago === 1 ? 'payments' : row.ID_Tipo_Pago === 2 ? 'smartphone' : 'credit_card' }}
               </span>
-            </td>
-            <td class="table-cell">
-              <div class="metodo-pago-info">
-                <span class="material-icons small-icon">
-                  {{ row.ID_Tipo_Pago === 1 ? 'payments' : row.ID_Tipo_Pago === 2 ? 'smartphone' : 'credit_card' }}
-                </span>
-                <span class="metodo-text">{{ getMetodoPagoLabel(row) }}</span>
-              </div>
-            </td>
-            <td class="table-cell">
-              <span class="total-text">S/ {{ row.Total | number:'1.2-2' }}</span>
-            </td>
-            <td class="table-cell">
-              <span class="date-text">{{ row.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
-            </td>
-            <td class="table-cell acciones-column">
-              <div class="acciones-container">
-                <button 
-                  (click)="generarPDFVenta(row)" 
-                  [disabled]="cargandoPDF === row.ID_Venta"
-                  class="action-btn print-btn"
-                  title="Imprimir Comprobante"
-                >
-                  <span *ngIf="cargandoPDF !== row.ID_Venta" class="material-icons">print</span>
-                  <div *ngIf="cargandoPDF === row.ID_Venta" class="mini-spinner"></div>
-                </button>
-              </div>
-            </td>
-          </tr>
-          
-          <!-- No Data -->
-          <tr *ngIf="dataSource.filteredData.length === 0" class="no-data-row">
-            <td colspan="7" class="text-center py-4">
-              <div class="no-data-message">
-                <span class="material-icons no-data-icon">search_off</span>
-                <h3>No se encontraron ventas</h3>
-                <p *ngIf="filtroTexto || selectedPeriodo !== 'todos'">No hay ventas que coincidan con los filtros aplicados</p>
-                <p *ngIf="!filtroTexto && selectedPeriodo === 'todos'">No hay ventas registradas en el sistema</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <span class="metodo-text">{{ getMetodoPagoLabel(row) }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Total -->
+        <ng-container matColumnDef="Total">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">attach_money</span>
+              <span>TOTAL</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell">
+            <span class="total-text">S/ {{ row.Total | number:'1.2-2' }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Fecha -->
+        <ng-container matColumnDef="Fecha">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">event</span>
+              <span>FECHA</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell">
+            <span class="date-text">{{ row.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna acciones -->
+        <ng-container matColumnDef="acciones">
+          <mat-header-cell *matHeaderCellDef class="table-header acciones-column">
+            <div class="header-content">
+              <span class="material-icons">print</span>
+              <span>COMPROBANTE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="table-cell acciones-column">
+            <div class="acciones-container">
+              <button 
+                (click)="generarPDFVenta(row)" 
+                [disabled]="cargandoPDF === row.ID_Venta"
+                class="action-btn print-btn"
+                title="Imprimir Comprobante"
+              >
+                <span *ngIf="cargandoPDF !== row.ID_Venta" class="material-icons">print</span>
+                <div *ngIf="cargandoPDF === row.ID_Venta" class="mini-spinner"></div>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Header row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        
+        <!-- Data row -->
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+
+        <!-- No Data Row -->
+        <tr *matNoDataRow class="no-data-row">
+          <td colspan="7" class="text-center py-4">
+            <div class="no-data-message">
+              <span class="material-icons no-data-icon">search_off</span>
+              <h3>No se encontraron ventas</h3>
+              <p *ngIf="filtroTexto || selectedPeriodo !== 'todos'">No hay ventas que coincidan con los filtros aplicados</p>
+              <p *ngIf="!filtroTexto && selectedPeriodo === 'todos'">No hay ventas registradas en el sistema</p>
+            </div>
+          </td>
+        </tr>
+      </mat-table>
     </div>
 
     <!-- Paginación de Angular Material -->
     <mat-paginator 
+      [length]="getTotalFiltrado()"
       [pageSize]="5" 
       [pageSizeOptions]="[5, 10, 20, 50]"
       showFirstLastButtons

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Angular Material
@@ -96,8 +96,11 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    // Configurar paginación y ordenamiento
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    
+    // Configurar el filtro personalizado
     this.setupFilterPredicate();
   }
 
@@ -111,6 +114,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
         this.dataSource.data = data;
         this.loading = false;
         
+        // Configurar paginación después de cargar datos
         if (this.paginator) {
           this.paginator.firstPage();
         }
@@ -128,6 +132,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   // ================================================================
   setupFilterPredicate() {
     this.dataSource.filterPredicate = (venta: Venta, filter: string) => {
+      // El parámetro 'filter' es el valor que se establece en dataSource.filter
+      // En nuestro caso, usamos un trigger, pero los filtros reales están en las propiedades
+      
       // 1. Filtro de Texto
       const term = this.filtroTexto.trim().toLowerCase();
       const matchText = term === '' || 
@@ -161,7 +168,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     };
   }
 
-  // 🗓️ Métodos para filtros de fecha
+  // 🗓️ Métodos para filtros de fecha (se mantienen igual)
   private esMismoDia(fecha1: Date, fecha2: Date): boolean {
     return fecha1.getDate() === fecha2.getDate() &&
            fecha1.getMonth() === fecha2.getMonth() &&
@@ -198,8 +205,10 @@ export class VentaListComponent implements OnInit, AfterViewInit {
 
   // 🎛️ Aplicar Filtros
   aplicarFiltros(): void {
-    this.dataSource.filter = 'trigger'; 
+    // Usar un trigger único para forzar el re-filtrado
+    this.dataSource.filter = Math.random().toString();
     
+    // Ir a la primera página cuando se aplican filtros
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -233,6 +242,13 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   getTipoVentaLabel(venta: Venta): string {
     return venta.Tipo_Venta_Nombre || (venta.ID_Tipo_Venta === 1 ? 'BOLETA' : 
            venta.ID_Tipo_Venta === 2 ? 'FACTURA' : 'NOTA');
+  }
+
+  // ================================================================
+  // 🔧 MÉTODO PARA OBTENER DATOS VISIBLES (para el paginator length)
+  // ================================================================
+  getTotalFiltrado(): number {
+    return this.dataSource.filteredData.length;
   }
 
   // ================================================================

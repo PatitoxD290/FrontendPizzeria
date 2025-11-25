@@ -1,107 +1,213 @@
-<mat-card>
-  <div class="header">
-    <h2>Lista de Pedidos</h2>
-    <div class="header-buttons">
-      <button mat-raised-button color="primary" (click)="refrescarManual()" [disabled]="loading">
-        <mat-icon>refresh</mat-icon>
-        Actualizar
-      </button>
-      <button mat-raised-button color="accent" (click)="exportarPDF()" 
-              [disabled]="loading || dataSource.filteredData.length === 0"
-              matTooltip="Generar reporte PDF">
-        <mat-icon>picture_as_pdf</mat-icon>
-        Exportar PDF
-      </button>
+<div class="pedido-container">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Historial de Pedidos</h2>
+      <p class="card-subtitle">Consulta y gestiona todos los pedidos del sistema</p>
     </div>
-  </div>
 
-  <div class="filtros-container">
-    <!-- 🔍 Buscador general -->
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Buscar (nota, cliente o fecha)</mat-label>
-      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Ej. Juan, 12/10/2025, nota...">
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    <div class="filtros-container">
+      <!-- Grupo izquierdo - Solo el buscador -->
+      <div class="filtros-izquierda">
+        <!-- 🔍 BUSCADOR COMPACTO Y ELEGANTE -->
+        <div class="search-field-compact">
+          <div class="input-group-compact">
+            <span class="material-icons input-icon-compact">search</span>
+            <input
+              type="text"
+              placeholder="Buscar cliente, notas o ID..."
+              [(ngModel)]="searchTerm"
+              (input)="applyFilter()"
+              class="search-input-compact">
+            <button *ngIf="searchTerm" class="clear-search-btn-compact" (click)="limpiarFiltros()">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filtros-derecha">
+        <!-- 📅 Selector de Periodo mejorado -->
+        <div class="periodo-selector">
+          <label>Periodo</label>
+          <select 
+            class="periodo-select"
+            [(ngModel)]="selectedPeriodo" 
+            (change)="onPeriodoChange()">
+            <option value="todos">Todos los registros</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="mes_anterior">Mes anterior</option>
+          </select>
+        </div>
 
-    <!-- 📅 Filtro de fecha -->
-    <div class="date-filters">
-      <mat-form-field appearance="outline">
-        <mat-label>Desde</mat-label>
-        <input matInput [matDatepicker]="startPicker" [(ngModel)]="fechaInicio" (dateChange)="applyDateFilter()">
-        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Hasta</mat-label>
-        <input matInput [matDatepicker]="endPicker" [(ngModel)]="fechaFin" (dateChange)="applyDateFilter()">
-        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
-    </div>
-  </div>
-
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner></mat-spinner>
-    <p>Cargando pedidos...</p>
-  </div>
-
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">
-    <ng-container matColumnDef="ID_Pedido">
-      <th mat-header-cell *matHeaderCellDef>ID</th>
-      <td mat-cell *matCellDef="let pedido">{{ pedido.ID_Pedido }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="Notas">
-      <th mat-header-cell *matHeaderCellDef>Notas</th>
-      <td mat-cell *matCellDef="let pedido">{{ pedido.Notas }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="ID_Cliente">
-      <th mat-header-cell *matHeaderCellDef>Cliente</th>
-      <td mat-cell *matCellDef="let pedido">{{ getNombreCliente(pedido.ID_Cliente) }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="PrecioTotal">
-      <th mat-header-cell *matHeaderCellDef>Precio Total</th>
-      <td mat-cell *matCellDef="let pedido">{{ formatMoneda(pedido.PrecioTotal) }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="Estado_P">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let pedido">
-        <span [ngClass]="{
-          'estado-pendiente': pedido.Estado_P === 'P',
-          'estado-entregado': pedido.Estado_P === 'E',        
-          'estado-no-entregado': pedido.Estado_P === 'C',     
-          'estado-no-disponible': pedido.Estado_P === 'D'      
-        }">
-          {{ getEstadoTexto(pedido.Estado_P) }}
-        </span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="Fecha_Registro">
-      <th mat-header-cell *matHeaderCellDef>Fecha / Hora</th>
-      <td mat-cell *matCellDef="let pedido">
-        {{ formatFechaHora(pedido.Fecha_Registro, pedido.Hora_Pedido) }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef>Acciones</th>
-      <td mat-cell *matCellDef="let pedido">
-        <button mat-icon-button color="primary" 
-                (click)="viewDetallePedido(pedido.ID_Pedido)"
-                matTooltip="Ver detalle del pedido">
-          <mat-icon>visibility</mat-icon>
+        <!-- Botón Actualizar -->
+        <button (click)="refrescarManual()" [disabled]="loading" class="export-btn-text" title="Actualizar lista">
+          <span class="material-icons">refresh</span>
+          <span class="btn-text">Actualizar</span>
         </button>
-      </td>
-    </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+        <!-- Botón Exportar PDF -->
+        <button (click)="exportarPDF()" 
+                [disabled]="loading || dataSource.filteredData.length === 0"
+                class="export-btn-text" 
+                title="Generar reporte PDF">
+          <span class="material-icons">picture_as_pdf</span>
+          <span class="btn-text">Exportar PDF</span>
+        </button>
 
-  <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]"></mat-paginator>
-</mat-card>
+        <!-- Botón Limpiar compacto -->
+        <button class="clear-btn" (click)="limpiarFiltros()" title="Limpiar filtros">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="spinner-container">
+      <div class="spinner"></div>
+      <p>Cargando pedidos...</p>
+    </div>
+
+    <!-- Tabla CON MAT-TABLE para paginación correcta -->
+    <div class="table-container" [hidden]="loading">
+      <mat-table [dataSource]="dataSource" class="custom-table">
+        
+        <!-- Columna ID -->
+        <ng-container matColumnDef="ID_Pedido">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">tag</span>
+              <span>ID</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell id-cell">
+            <span class="id-badge">#{{pedido.ID_Pedido}}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Notas -->
+        <ng-container matColumnDef="Notas">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">notes</span>
+              <span>NOTAS</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell">
+            <div class="notas-info">
+              <span class="notas-text">{{ pedido.Notas || 'Sin notas' }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Cliente -->
+        <ng-container matColumnDef="ID_Cliente">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">person</span>
+              <span>CLIENTE</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell">
+            <div class="cliente-info">
+              <span class="name-text">{{ getNombreCliente(pedido.ID_Cliente) }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna PrecioTotal -->
+        <ng-container matColumnDef="PrecioTotal">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">attach_money</span>
+              <span>TOTAL</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell">
+            <span class="total-text">{{ formatMoneda(pedido.PrecioTotal) }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Estado -->
+        <ng-container matColumnDef="Estado_P">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">flag</span>
+              <span>ESTADO</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell">
+            <span class="estado-badge" [class]="'estado-' + (pedido.Estado_P ? pedido.Estado_P.toLowerCase() : 'desconocido')">
+              {{ getEstadoTexto(pedido.Estado_P) }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna Fecha -->
+        <ng-container matColumnDef="Fecha_Registro">
+          <mat-header-cell *matHeaderCellDef class="table-header">
+            <div class="header-content">
+              <span class="material-icons">event</span>
+              <span>FECHA/HORA</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell">
+            <span class="date-text">{{ formatFechaHora(pedido.Fecha_Registro, pedido.Hora_Pedido) }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Columna acciones -->
+        <ng-container matColumnDef="acciones">
+          <mat-header-cell *matHeaderCellDef class="table-header acciones-column">
+            <div class="header-content">
+              <span class="material-icons">visibility</span>
+              <span>ACCIONES</span>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let pedido" class="table-cell acciones-column">
+            <div class="acciones-container">
+              <button 
+                (click)="viewDetallePedido(pedido.ID_Pedido)"
+                class="action-btn view-btn"
+                title="Ver detalle del pedido"
+              >
+                <span class="material-icons">visibility</span>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Header row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        
+        <!-- Data row -->
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+
+        <!-- No Data Row -->
+        <tr *matNoDataRow class="no-data-row">
+          <td colspan="7" class="text-center py-4">
+            <div class="no-data-message">
+              <span class="material-icons no-data-icon">search_off</span>
+              <h3>No se encontraron pedidos</h3>
+              <p *ngIf="searchTerm || fechaInicio || fechaFin">No hay pedidos que coincidan con los filtros aplicados</p>
+              <p *ngIf="!searchTerm && !fechaInicio && !fechaFin">No hay pedidos registrados en el sistema</p>
+            </div>
+          </td>
+        </tr>
+      </mat-table>
+    </div>
+
+    <!-- Paginación de Angular Material -->
+    <mat-paginator 
+      [length]="getTotalFiltrado()"
+      [pageSize]="5" 
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+      aria-label="Seleccionar página de pedidos"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>
