@@ -9,9 +9,31 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { PedidoService } from '../../../../core/services/pedido.service';
-import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { PedidoDetalle, PedidoConDetalle } from '../../../../core/models/pedido.model';
 
-// 🟢 INTERFAZ EXTENDIDA LOCALMENTE
+// 🟢 INTERFAZ PARA LO QUE REALMENTE TRAE EL BACKEND
+interface PedidoDetalleBackend {
+  ID_Pedido_D: number;
+  ID_Pedido: number;
+  ID_Producto_T?: number | null;
+  ID_Combo?: number | null;
+  Cantidad: number;
+  PrecioTotal: number;
+  nombre_producto?: string;
+  nombre_tamano?: string;
+  nombre_combo?: string;
+  tipo: 'producto' | 'combo';
+  nombre?: string;
+}
+
+// 🟢 INTERFAZ PARA LA RESPUESTA COMPLETA DEL BACKEND
+interface PedidoResponse {
+  detalles: PedidoDetalleBackend[];
+  Notas: string;
+  [key: string]: any; // Para otras propiedades del pedido
+}
+
+// 🟢 INTERFAZ EXTENDIDA CON LOS CAMPOS NORMALIZADOS
 interface PedidoDetalleCompleto extends PedidoDetalle {
   precioUnitario?: number;
 }
@@ -51,13 +73,38 @@ export class VerDetallePedidoComponent implements OnInit {
 
   private cargarDetalles(): void {
     this.pedidoService.getPedidoById(this.data.pedido_id).subscribe({
-      next: (res) => {
-        // 🟢 ENRIQUECER DETALLES CON PRECIO UNITARIO
-        this.detalles = (res.detalles || []).map(detalle => ({
-          ...detalle,
-          precioUnitario: this.calcularPrecioUnitario(detalle)
-        }));
-        this.notas = res.Notas || '';
+      next: (res: any) => {
+        // 🟢 CASTEAR LA RESPUESTA Y NORMALIZAR LOS DETALLES
+        const response = res as PedidoResponse;
+        
+        if (response.detalles && Array.isArray(response.detalles)) {
+          this.detalles = response.detalles.map((detalle: PedidoDetalleBackend) => {
+            // 🟢 CREAR OBJETO NORMALIZADO QUE CUMPLA CON PedidoDetalle
+            const detalleNormalizado: PedidoDetalle = {
+              ID_Pedido_D: detalle.ID_Pedido_D,
+              ID_Pedido: detalle.ID_Pedido,
+              ID_Producto_T: detalle.ID_Producto_T,
+              ID_Combo: detalle.ID_Combo,
+              Cantidad: detalle.Cantidad,
+              PrecioTotal: detalle.PrecioTotal,
+              // 🟢 MAPEAR CAMPOS DEL BACKEND AL MODELO FRONTEND
+              Nombre_Producto: detalle.nombre_producto,
+              Nombre_Combo: detalle.nombre_combo,
+              Nombre_Item: detalle.nombre,
+              Tamano_Nombre: detalle.nombre_tamano,
+              Tipo: detalle.tipo
+            };
+
+            return {
+              ...detalleNormalizado,
+              precioUnitario: this.calcularPrecioUnitario(detalleNormalizado)
+            };
+          });
+        } else {
+          this.detalles = [];
+        }
+        
+        this.notas = response.Notas || '';
         this.loading = false;
       },
       error: (err) => {
