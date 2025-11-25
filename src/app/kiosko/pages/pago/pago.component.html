@@ -35,11 +35,19 @@
       ¿Cómo deseas pagar?
     </h2>
     
+    <!-- En la sección de resumen de pago, agrega esto: -->
     <div class="resumen-pago">
-      <p>Total a pagar:</p>
-      <h3>S/ {{ total | number:'1.2-2' }}</h3>
+      <div class="info-row">
+        <p>SubTotal:</p>
+        <h4>S/ {{ subtotal | number:'1.2-2' }}</h4>
+      </div>
+      <div class="info-row">
+        <p>Total a pagar:</p>
+        <h3>S/ {{ total | number:'1.2-2' }}</h3>
+      </div>
     </div>
 
+    
     <div class="contenedor-botones-horizontal">
       <button class="boton-opcion-horizontal" (click)="seleccionarMetodo(TIPO_PAGO.EFECTIVO)">
         <img src="assets/images/efectivo.png" alt="Efectivo">

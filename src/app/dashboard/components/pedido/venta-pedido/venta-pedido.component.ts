@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
 import { VentaService } from '../../../../core/services/venta.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
-import { PedidoDetalle, PedidoCreacionDTO, DatosPedido } from '../../../../core/models/pedido.model';
+import { PedidoDetalle, PedidoCreacionDTO, DatosPedido, PedidoDetalleDTO } from '../../../../core/models/pedido.model';
 import { VentaCreacionDTO } from '../../../../core/models/venta.model';
 import { Cliente } from '../../../../core/models/cliente.model';
 
@@ -306,15 +306,15 @@ private calcularMontos(): void {
 private registrarVentaCompleta(idCliente: number) {
   this.cargando = true;
 
-  // 🔹 1. PREPARAR DETALLES CON PRECIOTOTAL CORRECTO - VERIFICAR ESTO
-  const detallesDTO = this.data.detalles.map(d => {
-    // 🔹 VERIFICAR QUE PRECIOTOTAL ESTÉ CALCULADO CORRECTAMENTE
-    const precioTotal = d.PrecioTotal || 0;
+  // 🔹 1. PREPARAR DETALLES EN EL FORMATO QUE ESPERA EL BACKEND
+  const detallesDTO: PedidoDetalleDTO[] = this.data.detalles.map(d => {
+    const precioUnitario = (d.PrecioTotal / d.Cantidad) || 0;
     
     console.log('📦 Mapeando detalle para backend:', {
       nombre: d.Nombre_Item,
       cantidad: d.Cantidad,
-      precioTotal: precioTotal,
+      precioUnitario: precioUnitario,
+      precioTotal: d.PrecioTotal,
       tipo: d.Tipo
     });
 
@@ -322,101 +322,101 @@ private registrarVentaCompleta(idCliente: number) {
       ID_Producto_T: d.ID_Producto_T || null,
       ID_Combo: d.ID_Combo || null,
       Cantidad: d.Cantidad,
-      PrecioTotal: precioTotal, // 🔹 ESTE DEBE SER > 0
+      Precio: precioUnitario,
+      PrecioTotal: d.PrecioTotal,
       Complementos: []
     };
   });
 
-  // 🔹 2. CALCULAR SUBTOTAL NUEVAMENTE PARA VERIFICAR
-  const subTotalVerificado = detallesDTO.reduce((total, detalle) => {
-    return total + (detalle.PrecioTotal || 0);
-  }, 0);
-
-  console.log('🔢 Verificación final antes de enviar:', {
-    subtotalCalculado: this.subTotalCalculado,
-    subtotalVerificado: subTotalVerificado,
-    detallesDTO: detallesDTO
-  });
-
-  // 🔹 3. CREAR OBJETO PEDIDO DTO CON VALORES CORRECTOS
-  const pedidoDTO: PedidoCreacionDTO = {
+  // 🔹 2. CREAR OBJETO PEDIDO CON TODOS LOS CAMPOS REQUERIDOS
+  const pedidoData: PedidoCreacionDTO = {
     ID_Cliente: idCliente,
     ID_Usuario: this.data.idUsuario,
-    Notas: this.generarNotas(),
-    SubTotal: subTotalVerificado, // 🔹 USAR EL VALOR VERIFICADO
+    Hora_Pedido: new Date().toLocaleTimeString('es-PE', { 
+      hour: '2-digit', minute: '2-digit' 
+    }),
     Estado_P: 'P',
+    Notas: this.generarNotas(),
+    SubTotal: this.subTotalCalculado,
     detalles: detallesDTO
   };
 
-  console.log('📤 FINAL - Enviando Pedido DTO al backend:', pedidoDTO);
+  console.log('📤 FINAL - Enviando Pedido al backend:', pedidoData);
 
-    // 🔹 3. LLAMAR AL SERVICIO DE PEDIDOS
-    this.pedidoService.createPedido(pedidoDTO).subscribe({
-      next: (resPedido) => {
-        const idPedidoCreado = resPedido.ID_Pedido;
-        
-        console.log('✅ Pedido creado:', {
-          idPedido: idPedidoCreado,
-          subtotal: resPedido.SubTotal
-        });
+  // 🔹 3. LLAMAR AL SERVICIO DE PEDIDOS
+  this.pedidoService.createPedido(pedidoData).subscribe({
+    next: (resPedido) => {
+      const idPedidoCreado = resPedido.ID_Pedido;
+      
+      console.log('✅ Pedido creado:', {
+        idPedido: idPedidoCreado,
+        subtotal: resPedido.SubTotal
+      });
 
-        // 🔹 4. CREAR OBJETO VENTA DTO
-        const ventaDTO: VentaCreacionDTO = {
-          ID_Pedido: idPedidoCreado,
-          ID_Tipo_Venta: this.selectedTipoComprobante!,
-          ID_Tipo_Pago: this.selectedMetodoPago,
-          ID_Origen_Venta: this.ORIGEN_VENTA.MOSTRADOR,
-          Monto_Recibido: parseFloat(this.recibe) || this.totalCalculado // 🔹 USAR TOTAL CALCULADO
-        };
+      // 🔹 4. CREAR OBJETO VENTA DTO
+      const ventaDTO: VentaCreacionDTO = {
+        ID_Pedido: idPedidoCreado,
+        ID_Tipo_Venta: this.selectedTipoComprobante!,
+        ID_Tipo_Pago: this.selectedMetodoPago,
+        ID_Origen_Venta: this.ORIGEN_VENTA.MOSTRADOR,
+        Monto_Recibido: parseFloat(this.recibe) || this.totalCalculado
+      };
 
-        console.log('📤 Enviando Venta DTO:', ventaDTO);
+      console.log('📤 Enviando Venta DTO:', ventaDTO);
 
-        // 🔹 5. LLAMAR AL SERVICIO DE VENTAS
-        this.ventaService.createVenta(ventaDTO).subscribe({
-          next: (resVenta) => {
-            this.cargando = false;
-            
-            console.log('✅ Venta creada:', {
-              idVenta: resVenta.ID_Venta,
-              total: resVenta.Total,
-              puntos: resVenta.Puntos_Ganados
-            });
-            
-            // 🔹 GENERAR COMPROBANTE PDF
-            this.generarComprobantePDF(resVenta.ID_Venta, idPedidoCreado);
-            
-            // 🔹 MOSTRAR MENSAJE DE ÉXITO
-            this.mostrarMensajeExito(resVenta.Puntos_Ganados, idPedidoCreado, resVenta.ID_Venta);
-            
-            // 🔹 CERRAR MODAL INDICANDO ÉXITO
-            this.dialogRef.close({ 
-              registrado: true,
-              idPedido: idPedidoCreado,
-              idVenta: resVenta.ID_Venta
-            });
-          },
-          error: (err) => {
-            this.cargando = false;
-            console.error('❌ Error al crear venta:', err);
-            Swal.fire({ 
-              icon: 'error', 
-              title: 'Error en venta', 
-              text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
-            });
-          }
-        });
-      },
-      error: (err) => {
-        this.cargando = false;
-        console.error('❌ Error al crear pedido:', err);
-        Swal.fire({ 
-          icon: 'error', 
-          title: 'Error', 
-          text: 'Ocurrió un problema al crear el pedido.' 
-        });
+      // 🔹 5. LLAMAR AL SERVICIO DE VENTAS
+      this.ventaService.createVenta(ventaDTO).subscribe({
+        next: (resVenta) => {
+          this.cargando = false;
+          
+          console.log('✅ Venta creada:', {
+            idVenta: resVenta.ID_Venta,
+            total: resVenta.Total,
+            puntos: resVenta.Puntos_Ganados
+          });
+          
+          // 🔹 GENERAR COMPROBANTE PDF
+          this.generarComprobantePDF(resVenta.ID_Venta, idPedidoCreado);
+          
+          // 🔹 MOSTRAR MENSAJE DE ÉXITO
+          this.mostrarMensajeExito(resVenta.Puntos_Ganados, idPedidoCreado, resVenta.ID_Venta);
+          
+          // 🔹 CERRAR MODAL INDICANDO ÉXITO
+          this.dialogRef.close({ 
+            registrado: true,
+            idPedido: idPedidoCreado,
+            idVenta: resVenta.ID_Venta
+          });
+        },
+        error: (err) => {
+          this.cargando = false;
+          console.error('❌ Error al crear venta:', err);
+          Swal.fire({ 
+            icon: 'error', 
+            title: 'Error en venta', 
+            text: 'El pedido se creó pero hubo un problema al registrar la venta.' 
+          });
+        }
+      });
+    },
+    error: (err) => {
+      this.cargando = false;
+      console.error('❌ Error al crear pedido:', err);
+      
+      let mensajeError = 'Ocurrió un problema al crear el pedido.';
+      if (err.error?.error) {
+        mensajeError = err.error.error;
       }
-    });
-  }
+      
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'Error', 
+        text: mensajeError,
+        confirmButtonText: 'Entendido'
+      });
+    }
+  });
+}
 
   private generarNotas(): string {
     const metodoPagoTexto = this.getMetodoPagoText();

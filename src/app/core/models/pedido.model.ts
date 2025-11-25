@@ -47,7 +47,8 @@ export interface PedidoDetalle {
 export interface PedidoCreacionDTO {
   ID_Cliente: number;
   ID_Usuario: number | null;
-  Notas?: string; // Aunque el backend lo recalcula, lo mantenemos por consistencia del DTO, pero el backend lo sobrescribe.
+  Hora_Pedido?: string;
+  Notas?: string;
   SubTotal: number;
   Estado_P?: 'P' | 'E' | 'C';
   detalles: PedidoDetalleDTO[];
@@ -57,7 +58,8 @@ export interface PedidoDetalleDTO {
   ID_Producto_T?: number | null;
   ID_Combo?: number | null;
   Cantidad: number;
-  PrecioTotal: number; // 🟢 El backend lo recalcula, pero es útil como placeholder DTO.
+  PrecioTotal: number;
+  Precio?: number; 
   Complementos?: any[];
 }
 
