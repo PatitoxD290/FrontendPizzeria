@@ -266,16 +266,28 @@
 }
 
 /* Total - Compacto - Del primer diseño */
-.total-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Contenedor de totales */
+.totales-container {
   padding: 6px 0;
   margin-top: 4px;
   border-top: 1px solid #e8e8e8;
   background: #f9f9f9;
   margin: 4px -12px -6px;
   padding: 6px 12px;
+}
+
+/* Línea individual de total */
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.total-line:last-child {
+  border-top: 1px dashed #e0e0e0;
+  margin-top: 2px;
+  padding-top: 4px;
 }
 
 .total-label {
@@ -289,6 +301,19 @@
   color: #2e7d32;
   font-size: 13px;
 }
+
+.total-precio.no-data {
+  color: #f44336;
+  font-weight: normal;
+  font-style: italic;
+}
+
+/* Estilo para cuando no hay datos */
+.no-data {
+  color: #999 !important;
+  font-style: italic;
+}
+
 
 /* Acciones - Combinando ambos diseños */
 .pedido-actions {

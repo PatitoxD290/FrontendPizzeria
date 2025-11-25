@@ -52,6 +52,27 @@ import Swal from 'sweetalert2';
   styleUrls: ['./venta-list.component.css']
 })
 export class VentaListComponent implements OnInit, AfterViewInit {
+getMetodoPagoIcon(_t67: Venta) {
+throw new Error('Method not implemented.');
+}
+getTipoComprobanteClass(_t67: Venta) {
+throw new Error('Method not implemented.');
+}
+previousPage() {
+throw new Error('Method not implemented.');
+}
+getRolLabel(_t87: any) {
+throw new Error('Method not implemented.');
+}
+canDelete(_t60: Venta) {
+throw new Error('Method not implemented.');
+}
+deleteUsuario(_t60: Venta) {
+throw new Error('Method not implemented.');
+}
+openNuevo() {
+throw new Error('Method not implemented.');
+}
 
   // ================================================================
   // 📊 PROPIEDADES DE LA TABLA Y DATOS

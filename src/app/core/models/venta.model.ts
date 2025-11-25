@@ -2,6 +2,7 @@
 // VENTA (Para LEER datos desde el Backend)
 // ===========================================
 export interface Venta {
+  Cliente_Email: any;
   ID_Venta: number;
   ID_Pedido: number;
   

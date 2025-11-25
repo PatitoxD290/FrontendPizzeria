@@ -123,9 +123,36 @@
             </div>
 
             <!-- Total - Del primer diseño -->
-            <div class="total-container">
-              <span class="total-label">Total:</span>
-              <span class="total-precio">S/ {{ pedido.SubTotal | number : '1.2-2' }}</span>
+            <div class="totales-container">
+              <!-- SubTotal -->
+              <div class="total-line">
+                <span class="total-label">SubTotal:</span>
+                <span
+                  class="total-precio"
+                  [class.no-data]="!pedido.SubTotal || pedido.SubTotal === 0"
+                >
+                  {{
+                    pedido.SubTotal && pedido.SubTotal > 0
+                      ? 'S/ ' + (pedido.SubTotal | number : '1.2-2')
+                      : 'Calculando...'
+                  }}
+                </span>
+              </div>
+
+              <!-- PrecioTotal -->
+              <div class="total-line">
+                <span class="total-label">Total:</span>
+                <span
+                  class="total-precio"
+                  [class.no-data]="!pedido.PrecioTotal || pedido.PrecioTotal === 0"
+                >
+                  {{
+                    pedido.PrecioTotal && pedido.PrecioTotal > 0
+                      ? 'S/ ' + (pedido.PrecioTotal | number : '1.2-2')
+                      : 'S/ ' + (pedido.SubTotal || 0 | number : '1.2-2')
+                  }}
+                </span>
+              </div>
             </div>
           </mat-card-content>
 
