@@ -1,23 +1,15 @@
 <div class="dashboard-container">
-  
-  <!-- Encabezado -->
-  <div class="header-section">
-    <h1>Dashboard</h1>
-    <p class="date-text">{{ currentDate }}</p>
-  </div>
-
   <!-- Cards principales -->
   <div class="stats-cards">
-    
     <!-- Ventas Totales -->
     <div class="stat-card sales-card">
       <div class="icon-container sales">
-        <mat-icon>trending_up</mat-icon>
+        <span class="material-icons">trending_up</span>
       </div>
       <div class="card-content">
-        <h3>Ventas Mensuales</h3>
+        <h3>Ventas Totales</h3>
         <p class="stat-value" *ngIf="!loadingCards">{{ formatCurrency(ventasTotales) }}</p>
-        <mat-spinner diameter="20" *ngIf="loadingCards"></mat-spinner>
+        <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
           <span class="trend-indicator trend-up">{{ tendenciaVentasTotales }}</span>
           <span class="trend-text">vs mes anterior</span>
@@ -25,15 +17,15 @@
       </div>
     </div>
 
-    <!-- Pedidos Hoy -->
+    <!-- Pedidos Hoy - Card Roja -->
     <div class="stat-card orders-card">
       <div class="icon-container orders">
-        <mat-icon>shopping_bag</mat-icon>
+        <span class="material-icons">shopping_bag</span>
       </div>
       <div class="card-content">
         <h3>Pedidos Hoy</h3>
         <p class="stat-value" *ngIf="!loadingCards">{{ pedidosHoy }}</p>
-        <mat-spinner diameter="20" *ngIf="loadingCards"></mat-spinner>
+        <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
           <span class="trend-indicator trend-up">{{ tendenciaPedidosHoy }}</span>
           <span class="trend-text">vs ayer</span>
@@ -43,13 +35,13 @@
 
     <!-- Ventas de hoy -->
     <div class="stat-card product-card">
-      <div class="icon-container income">
-        <mat-icon>attach_money</mat-icon>
+      <div class="icon-container sales">
+        <span class="material-icons">shopping_cart</span>
       </div>
       <div class="card-content">
-        <h3>Ingresos de Hoy</h3>
+        <h3>Ventas de hoy</h3>
         <p class="stat-value" *ngIf="!loadingCards">{{ formatCurrency(ventasHoy) }}</p>
-        <mat-spinner diameter="20" *ngIf="loadingCards"></mat-spinner>
+        <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
           <span class="trend-indicator trend-up">{{ tendenciaVentasHoy }}</span>
           <span class="trend-text">vs ayer</span>
@@ -60,69 +52,107 @@
     <!-- Total Clientes -->
     <div class="stat-card clients-card">
       <div class="icon-container clients">
-        <mat-icon>group</mat-icon>
+        <span class="material-icons">people</span>
       </div>
       <div class="card-content">
         <h3>Total Clientes</h3>
         <p class="stat-value" *ngIf="!loadingCards">{{ totalClientes }}</p>
-        <mat-spinner diameter="20" *ngIf="loadingCards"></mat-spinner>
+        <p class="stat-value" *ngIf="loadingCards">Cargando...</p>
         <div class="trend-container">
           <span class="trend-indicator trend-up">{{ tendenciaClientes }}</span>
-          <span class="trend-text">este mes</span>
+          <span class="trend-text">+84 nuevos</span>
         </div>
       </div>
     </div>
-
   </div>
+</div>
 
-  <!-- Sección Gráfico -->
+<!-- Contenedor para gráfico y pizzas populares -->
+<div class="grafico-pizzas-container">
+  <!-- Gráfico de ventas semanales -->
   <div class="contenedor-grafico">
     <div class="header-grafico">
-      <h2>Resumen de Ventas</h2>
-      <!-- Referencia local #sel para pasar el valor string al TS -->
-      <select #sel (change)="cambiarPeriodoGrafico(sel.value)" class="periodo-select">
-        <option value="Esta Semana" [selected]="periodoGrafico === 'Esta Semana'">Esta Semana</option>
-        <option value="Semana Pasada" [selected]="periodoGrafico === 'Semana Pasada'">Semana Pasada</option>
-        <option value="Último Mes" [selected]="periodoGrafico === 'Último Mes'">Último Mes</option>
-      </select>
+      <h2>Ventas Semanales</h2>
+     <select #periodoSelect (change)="cambiarPeriodoGrafico(periodoSelect.value)">
+  <option>Esta Semana</option>
+  <option>Semana Pasada</option>
+  <option>Último Mes</option>
+</select>
     </div>
 
-    <div class="grafico-wrapper" *ngIf="!loadingChart">
-      <!-- Eje Y -->
+    <div class="grafico">
       <div class="eje-y">
         <span>{{ formatCurrency(maxVentaSemana) }}</span>
-        <span>{{ formatCurrency(maxVentaSemana * 0.75) }}</span>
-        <span>{{ formatCurrency(maxVentaSemana * 0.5) }}</span>
-        <span>{{ formatCurrency(maxVentaSemana * 0.25) }}</span>
+        <span>{{ formatCurrency(maxVentaSemana * 0.8) }}</span>
+        <span>{{ formatCurrency(maxVentaSemana * 0.6) }}</span>
+        <span>{{ formatCurrency(maxVentaSemana * 0.4) }}</span>
+        <span>{{ formatCurrency(maxVentaSemana * 0.2) }}</span>
         <span>S/ 0</span>
       </div>
 
-      <!-- Área de Barras -->
-      <div class="area-barras">
-        <!-- Líneas de referencia -->
+      <div class="lineas-referencia">
         <div class="linea-referencia" style="top: 0%"></div>
-        <div class="linea-referencia" style="top: 25%"></div>
-        <div class="linea-referencia" style="top: 50%"></div>
-        <div class="linea-referencia" style="top: 75%"></div>
-        <div class="linea-referencia" style="top: 100%"></div>
+        <div class="linea-referencia" style="top: 20%"></div>
+        <div class="linea-referencia" style="top: 40%"></div>
+        <div class="linea-referencia" style="top: 60%"></div>
+        <div class="linea-referencia" style="top: 80%"></div>
+      </div>
 
-        <!-- Barras -->
-        <div class="barra-grupo" *ngFor="let venta of ventasSemanales; let i = index">
-          <div class="barra" [style.height]="calcularAlturaBarra(venta)">
-            <span class="tooltip-valor">{{ getValorBarra(i) }}</span>
-          </div>
-          <span class="etiqueta-eje-x">
-            {{ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][i] }}
-          </span>
+      <div class="barras" *ngIf="!loadingChart">
+        <div class="barra" *ngFor="let venta of ventasSemanales; let i = index" 
+             [style.--valor]="calcularAlturaBarra(venta)">
+          <span class="valor">{{ getValorBarra(i) }}</span>
+        </div>
+      </div>
+
+      <!-- Estado de carga del gráfico -->
+      <div class="barras" *ngIf="loadingChart">
+        <div class="barra" *ngFor="let i of [0,1,2,3,4,5,6]" 
+             style="--valor: 30%; background: #ccc;">
+          <span class="valor">Cargando...</span>
         </div>
       </div>
     </div>
 
-    <!-- Loading Chart -->
-    <div *ngIf="loadingChart" class="loading-chart">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Cargando datos...</p>
+    <!-- Días debajo -->
+    <div class="dias">
+      <span>Lun</span>
+      <span>Mar</span>
+      <span>Mié</span>
+      <span>Jue</span>
+      <span>Vie</span>
+      <span>Sáb</span>
+      <span>Dom</span>
     </div>
   </div>
 
+  <!-- Card de Top Pizzas Más Pedidas -->
+  <div class="contenedor-populares">
+    <div class="header-populares">
+      <h2>Top Pizzas Más Pedidas</h2>
+      <span class="material-icons">local_pizza</span>
+    </div>
+    
+    <div class="lista-pizzas">
+      <div class="pizza-item" *ngFor="let pizza of topPizzas; let i = index">
+        <div class="pizza-ranking">
+          <span class="ranking-numero">{{ i + 1 }}</span>
+        </div>
+        <div class="pizza-info">
+          <h3 class="pizza-nombre">{{ pizza.nombre }}</h3>
+          <p class="pizza-pedidos">{{ pizza.pedidos }} pedidos</p>
+        </div>
+        <div class="pizza-tendencia" [class.tendencia-up]="pizza.tendencia > 0" 
+             [class.tendencia-down]="pizza.tendencia < 0">
+          <span class="material-icons" *ngIf="pizza.tendencia > 0">trending_up</span>
+          <span class="material-icons" *ngIf="pizza.tendencia < 0">trending_down</span>
+          <span>{{ pizza.tendencia > 0 ? '+' : '' }}{{ pizza.tendencia }}%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-populares">
+      <span class="actualizacion-texto">Actualizado hoy</span>
+    </div>
+  </div>
 </div>

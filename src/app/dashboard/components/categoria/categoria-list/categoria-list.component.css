@@ -1,138 +1,621 @@
+/* categoria-list.component.css - CON SCROLL Y TAMAÑO REDUCIDO */
 .toolbar {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  padding: 0;
 }
 
+/* Botón Nueva Categoría */
+.toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #d11616;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(209, 22, 22, 0.25);
+}
+
+.toolbar button:hover {
+  background: #a81212;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(209, 22, 22, 0.35);
+}
+
+.toolbar button mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Spinner */
 .spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: 150px;
 }
 
+/* CONTENEDOR PRINCIPAL - TAMAÑO REDUCIDO */
 .categorias-container {
-  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  border: 1px solid #e1e5e9;
+  max-height: 600px; /* ALTURA MÁXIMA REDUCIDA */
+  display: flex;
+  flex-direction: column;
 }
 
+/* Tabs */
+.mat-mdc-tab-group {
+  background: white;
+  border-radius: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-mdc-tab-header {
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  border-bottom: 1px solid #d1d9e6;
+  min-height: 48px;
+  flex-shrink: 0;
+}
+
+.mat-mdc-tab {
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.85rem;
+  min-height: 48px;
+  padding: 0 16px;
+}
+
+.mat-mdc-tab.mdc-tab--active {
+  color: #d11616;
+  font-weight: 700;
+}
+
+.mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-color: #d11616;
+}
+
+/* Contenido de los tabs CON SCROLL */
 .tab-content {
-  padding: 16px 0;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* IMPORTANTE PARA EL SCROLL */
 }
 
-/* Estilos para las tablas */
+/* CONTENEDOR DE TABLA CON SCROLL */
+.table-container {
+  flex: 1;
+  overflow-y: auto; /* SCROLL VERTICAL */
+  min-height: 200px; /* ALTURA MÍNIMA */
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Scroll personalizado */
+.table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Tabla */
 .categoria-table {
   width: 100%;
-  margin-bottom: 16px;
+  border-collapse: collapse;
+  background: white;
+  margin-bottom: 0; /* ELIMINAR MARGEN INFERIOR */
 }
 
-/* Columnas compactas */
+/* Headers de tabla */
+.mat-mdc-header-cell {
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef) !important;
+  color: #4a5568 !important;
+  font-weight: 700 !important;
+  padding: 12px 10px !important;
+  text-align: left;
+  border-bottom: 1px solid #d1d9e6 !important;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 44px !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Celdas */
+.mat-mdc-cell {
+  padding: 14px 8px !important;
+  font-size: 0.85rem !important;
+  color: #4a5568 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9 !important;
+  line-height: 1.4;
+}
+
+/* Filas */
+.mat-mdc-row {
+  height: 56px !important;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.mat-mdc-row:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Columnas específicas */
 .id-column {
-  width: 80px;
+  width: 60px;
   text-align: center;
   font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border-radius: 0;
+  padding: 14px 6px !important;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  font-size: 0.85rem;
+  height: auto;
+  line-height: 1.4;
+  vertical-align: middle;
 }
 
+/* Añadir # automáticamente a los IDs */
+.id-column::before {
+  content: "#";
+  color: #94a3b8;
+  font-weight: 400;
+  margin-right: 2px;
+  font-size: 0.85rem;
+}
+
+/* Nombre */
 .nombre-column {
-  min-width: 200px;
+  min-width: 180px;
   font-weight: 500;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  text-align: left;
+  padding-left: 20px !important;
+  padding-right: 8px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+  line-height: 1.4;
+  vertical-align: middle;
 }
 
 .acciones-column {
-  width: 120px;
+  width: 100px;
   text-align: center;
+  padding-left: 4px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
 }
 
 .acciones-header {
   text-align: center;
+  padding-left: 4px !important;
 }
 
-/* Estilos compactos para la tabla */
-.mat-mdc-header-cell, .mat-mdc-cell {
-  padding: 8px 12px !important;
+/* Headers ajustados */
+.mat-mdc-header-cell:nth-child(1) {
+  text-align: center !important;
+  padding-right: 8px !important;
 }
 
-.mat-mdc-row {
-  height: 48px !important;
+.mat-mdc-header-cell:nth-child(2) {
+  text-align: left !important;
+  padding-left: 20px !important;
+  padding-right: 8px !important;
 }
 
-.mat-mdc-header-row {
-  height: 40px !important;
-}
-
-/* Botones compactos */
+/* Botones de acciones */
 .acciones-column .mat-icon-button {
-  width: 36px;
-  height: 36px;
-  line-height: 36px;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  background: transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+.acciones-column .mat-icon-button:hover:not([disabled]) {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.acciones-column .mat-icon-button[color="primary"]:hover:not([disabled]) {
+  background: #d11616;
+  color: white;
+}
+
+.acciones-column .mat-icon-button[color="warn"]:hover:not([disabled]) {
+  background: #ef4444;
+  color: white;
 }
 
 .acciones-column .mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  vertical-align: middle;
 }
 
 /* Paginación */
 .categoria-paginator {
   background: transparent;
-  margin-top: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #eaeef2;
+  padding: 12px 0 0 0;
+  flex-shrink: 0;
+}
+
+.categoria-paginator .mat-mdc-paginator-container {
+  justify-content: space-between;
+  padding: 0;
+  min-height: 40px;
+}
+
+.categoria-paginator .mat-mdc-paginator-range-label {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.categoria-paginator .mat-mdc-paginator-page-size {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.categoria-paginator .mat-mdc-select-value {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.categoria-paginator .mat-mdc-paginator-navigation-previous,
+.categoria-paginator .mat-mdc-paginator-navigation-next {
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 32px;
+  height: 32px;
+}
+
+.categoria-paginator .mat-mdc-paginator-navigation-previous:hover:not([disabled]),
+.categoria-paginator .mat-mdc-paginator-navigation-next:hover:not([disabled]) {
+  border-color: #d11616;
+  color: #d11616;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(209, 22, 22, 0.2);
 }
 
 /* Mensaje cuando no hay datos */
 .no-data {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  border: 2px dashed #ddd;
-  border-radius: 8px;
-  margin: 20px 0;
+  padding: 40px 20px;
+  color: #64748b;
+  border: 2px dashed #e2e8f0;
+  border-radius: 10px;
+  margin: 16px 0;
+  background: #f8fafc;
+  flex-shrink: 0;
 }
 
 .no-data mat-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  margin-bottom: 16px;
-  color: #ccc;
+  margin-bottom: 12px;
+  color: #d1d5db;
 }
 
 .no-data p {
-  margin-bottom: 20px;
-  font-size: 16px;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #475569;
 }
 
-/* Estilos para los tabs */
-.mat-mdc-tab-group {
-  background: white;
-  border-radius: 8px;
+.no-data button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #d11616;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(209, 22, 22, 0.25);
+  margin: 0 auto;
+}
+
+.no-data button:hover {
+  background: #a81212;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(209, 22, 22, 0.35);
+}
+
+.no-data button mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: white;
+  margin-bottom: 0;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .categoria-table {
-    min-width: 400px;
+@media (max-width: 1200px) {
+  .categorias-container {
+    max-height: 550px;
   }
   
-  .toolbar {
-    align-items: stretch;
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    font-size: 0.8rem !important;
+    padding: 12px 8px !important;
   }
   
-  .toolbar button {
-    width: 100%;
+  .mat-mdc-row {
+    height: 52px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .categorias-container {
+    max-height: 500px;
+  }
+  
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    font-size: 0.75rem !important;
+    padding: 10px 6px !important;
+  }
+  
+  .mat-mdc-row {
+    height: 48px !important;
+  }
+  
+  .tab-content {
+    padding: 12px;
   }
   
   .id-column {
-    width: 60px;
+    padding: 10px 4px !important;
   }
   
   .nombre-column {
-    min-width: 150px;
+    padding-left: 16px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(1) {
+    padding-right: 6px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(2) {
+    padding-left: 16px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .categorias-container {
+    max-height: 450px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    margin-bottom: 16px;
+  }
+  
+  .toolbar button {
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+  
+  .table-container {
+    min-width: 350px;
+  }
+  
+  .id-column {
+    width: 50px;
+    font-size: 0.75rem;
+    padding: 10px 3px !important;
+  }
+  
+  .id-column::before {
+    font-size: 0.75rem;
+  }
+  
+  .nombre-column {
+    min-width: 140px;
+    font-size: 0.8rem;
+    padding-left: 12px !important;
+    padding-right: 8px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(1) {
+    padding-right: 4px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(2) {
+    padding-left: 12px !important;
   }
   
   .acciones-column {
-    width: 100px;
+    width: 80px;
+    padding-left: 2px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  
+  .acciones-column .mat-icon-button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    margin: 0 1px;
+  }
+  
+  .acciones-column .mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .tab-content {
+    padding: 8px;
+  }
+  
+  .no-data {
+    padding: 30px 16px;
+  }
+  
+  .no-data mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .no-data p {
+    font-size: 1rem;
+  }
+  
+  .categoria-paginator .mat-mdc-paginator-container {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .categorias-container {
+    max-height: 400px;
+  }
+  
+  .tab-content {
+    padding: 6px;
+  }
+  
+  .no-data {
+    padding: 24px 12px;
+  }
+  
+  .no-data mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .no-data p {
+    font-size: 0.9rem;
+  }
+  
+  .mat-mdc-row {
+    height: 46px !important;
+  }
+  
+  .id-column {
+    padding: 9px 2px !important;
+    font-size: 0.7rem;
+  }
+  
+  .id-column::before {
+    font-size: 0.7rem;
+  }
+  
+  .nombre-column {
+    padding-left: 8px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(1) {
+    padding-right: 2px !important;
+  }
+  
+  .mat-mdc-header-cell:nth-child(2) {
+    padding-left: 8px !important;
+  }
+}
+
+/* Animaciones */
+.categoria-table {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

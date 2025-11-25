@@ -154,35 +154,63 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // 🔄 Procesar datos de pedidos (reutilizable)
-  private processPedidosData(pedidos: Pedido[]): void {
-    pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
-    const pedidosConTotales: Pedido[] = [];
+private processPedidosData(pedidos: Pedido[]): void {
+  pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
+  const pedidosConTotales: Pedido[] = [];
 
-    const promises = pedidos.map(pedido =>
-      this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise()
-        .then((detalles: PedidoDetalle[] | undefined) => {
-          const listaDetalles = detalles ?? [];
-          const total = listaDetalles.reduce((acc, det) => acc + (det.PrecioTotal || 0), 0);
-          pedidosConTotales.push({ ...pedido, PrecioTotal: total });
-        })
-        .catch(() => pedidosConTotales.push({ ...pedido, PrecioTotal: 0 }))
-    );
+  const promises = pedidos.map(pedido =>
+    this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise()
+      .then((detalles: PedidoDetalle[] | undefined) => {
+        const listaDetalles = detalles ?? [];
+        
+        // 🟢 ESTRATEGIA DE CÁLCULO MEJORADA:
+        // 1. Priorizar SubTotal del pedido principal
+        // 2. Si no hay SubTotal, sumar PrecioTotal de detalles
+        // 3. Si no hay nada, usar 0
+        
+        let totalCalculado = 0;
+        
+        // Calcular total desde detalles si es necesario
+        if (!pedido.SubTotal || pedido.SubTotal === 0) {
+          totalCalculado = listaDetalles.reduce((acc, det) => {
+            return acc + (det.PrecioTotal || 0);
+          }, 0);
+        }
+        
+        // 🟢 DECISIÓN FINAL: Usar SubTotal si existe, sino el calculado
+        const precioFinal = pedido.SubTotal || totalCalculado;
 
-    Promise.all(promises).then(() => {
-      // Mantener el paginador actual si existe
-      const currentPaginator = this.dataSource.paginator;
-      const currentFilter = this.dataSource.filter;
-      
-      this.dataSource = new MatTableDataSource(pedidosConTotales);
-      this.dataSource.paginator = currentPaginator || this.paginator;
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = currentFilter;
-      
-      this.loadClientes();
-      this.setupFilterPredicate();
-    });
-  }
+        pedidosConTotales.push({ 
+          ...pedido, 
+          PrecioTotal: precioFinal,
+          SubTotal: pedido.SubTotal || precioFinal // Mantener consistencia
+        });
+      })
+      .catch(() => {
+        // 🟢 En caso de error, usar SubTotal o 0
+        pedidosConTotales.push({ 
+          ...pedido, 
+          PrecioTotal: pedido.SubTotal || 0 
+        });
+      })
+  );
 
+  Promise.all(promises).then(() => {
+    const currentPaginator = this.dataSource.paginator;
+    const currentFilter = this.dataSource.filter;
+    
+    this.dataSource = new MatTableDataSource(pedidosConTotales);
+    this.dataSource.paginator = currentPaginator || this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.filter = currentFilter;
+    
+    this.loadClientes();
+    this.setupFilterPredicate();
+  });
+}
+
+
+  
   // ✅ Configurar filtro personalizado
   private setupFilterPredicate(): void {
     this.dataSource.filterPredicate = (pedido: Pedido, filter: string) => {
@@ -250,9 +278,9 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  formatMoneda(valor: number): string {
-    return this.moneda.format(valor || 0);
-  }
+formatMoneda(valor: number | undefined): string {
+  return this.moneda.format(valor || 0);
+}
 
   // ✅ CORREGIDO: Estados según tu especificación
   getEstadoTexto(estado: string): string {

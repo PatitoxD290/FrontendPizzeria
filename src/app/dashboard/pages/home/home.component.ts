@@ -48,6 +48,7 @@ export class HomeComponent implements OnInit {
   tendenciaPedidosHoy: string = '+8.2%';
   tendenciaVentasHoy: string = '+12%';
   tendenciaClientes: string = '+5.7%';
+topPizzas: any;
 
   constructor(
     private pedidoService: PedidoService,

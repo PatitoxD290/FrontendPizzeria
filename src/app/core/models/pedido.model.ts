@@ -12,7 +12,7 @@ export interface Pedido {
 
   Notas: string;
   SubTotal: number;
-  Estado_P: 'P' | 'C' | 'E' | 'D'; // P=Pendiente, C=Cancelado, E=Entregado, D=En Proceso
+  Estado_P: 'P' | 'E' | 'C'; // REMOVER 'D'
   
   Fecha_Registro: string;
   Hora_Pedido: string;
@@ -60,14 +60,10 @@ export interface PedidoDetalle {
 // ===========================================
 export interface PedidoCreacionDTO {
   ID_Cliente: number;
-  ID_Usuario: number | null; // Permitimos null para Kiosko
+  ID_Usuario: number | null;
   Notas?: string;
   SubTotal: number;
-  
-  // 🔹 CORREGIDO: Agregado Estado_P
-  Estado_P?: 'P' | 'C' | 'E' | 'D'; 
-
-  // 🔹 CORREGIDO: Cambiado de Detalles a detalles (minúscula)
+  Estado_P?: 'P' | 'E' | 'C'; // AGREGAR
   detalles: PedidoDetalleDTO[];
 }
 
@@ -75,7 +71,8 @@ export interface PedidoDetalleDTO {
   ID_Producto_T?: number | null;
   ID_Combo?: number | null;
   Cantidad: number;
-  PrecioTotal: number; 
+  PrecioTotal: number;
+  Complementos?: any[]; // AGREGAR si usas complementos
 }
 
 // ===========================================
