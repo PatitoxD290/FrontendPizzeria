@@ -127,7 +127,8 @@
             </div>
           </mat-header-cell>
           <mat-cell *matCellDef="let pedido" class="table-cell">
-            <span class="total-text">{{ formatMoneda(pedido.PrecioTotal) }}</span>
+            <!-- Cambia pedido.PrecioTotal por getPrecioTotal(pedido) -->
+            <span class="total-text">{{ formatMoneda(getPrecioTotal(pedido)) }}</span>
           </mat-cell>
         </ng-container>
 

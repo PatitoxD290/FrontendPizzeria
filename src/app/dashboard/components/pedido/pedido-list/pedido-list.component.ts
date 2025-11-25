@@ -305,7 +305,8 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getPrecioTotal(pedido: Pedido): number {
-    return pedido.SubTotal;
+    // Usa SubTotal en lugar de PrecioTotal
+    return pedido.SubTotal || 0;
   }
 
   getEstadoTexto(estado: string): string {
@@ -400,7 +401,8 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
       pedido.ID_Pedido.toString(),
       this.getNombreCliente(pedido.ID_Cliente),
       pedido.Notas?.substring(0, 40) + (pedido.Notas && pedido.Notas.length > 40 ? '...' : '') || 'Sin notas',
-      `S/${(this.getPrecioTotal(pedido) || 0).toFixed(2)}`,
+      // Cambia this.getPrecioTotal(pedido) por pedido.SubTotal
+      `S/${(pedido.SubTotal || 0).toFixed(2)}`,
       this.getEstadoTexto(pedido.Estado_P),
       this.formatFechaHoraPDF(pedido.Fecha_Registro, pedido.Hora_Pedido)
     ]);
@@ -463,7 +465,7 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     const finalY = (doc as any).lastAutoTable.finalY || 100;
     
     const totalPedidos = pedidos.length;
-    const totalValor = pedidos.reduce((sum, pedido) => sum + this.getPrecioTotal(pedido), 0);
+    const totalValor = pedidos.reduce((sum, pedido) => sum + (pedido.SubTotal || 0), 0);
     
     const pedidosPendientes = pedidos.filter(p => p.Estado_P === 'P').length;
     const pedidosEntregados = pedidos.filter(p => p.Estado_P === 'E').length;
