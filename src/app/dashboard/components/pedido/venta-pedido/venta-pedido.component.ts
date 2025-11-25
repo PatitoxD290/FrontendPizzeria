@@ -307,7 +307,7 @@ export class VentaPedidoComponent implements OnInit {
           ID_Origen_Venta: this.ORIGEN_VENTA.MOSTRADOR,
           Monto_Recibido: parseFloat(this.recibe) || this.data.total
         };
-
+console.log('Venta DTO:', ventaDTO);
         // 5. Llamar al servicio de Ventas
         this.ventaService.createVenta(ventaDTO).subscribe({
           next: (resVenta) => {
