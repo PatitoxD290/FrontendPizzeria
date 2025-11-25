@@ -1,151 +1,101 @@
 <div class="pedidos-container">
-  <!-- Header - Aplicando diseño del primer componente -->
+  <!-- Header compacto -->
   <div class="header">
-    <h2>Pedidos en Espera</h2>
-    <button mat-raised-button color="primary" (click)="refrescar()" [disabled]="isLoading">
+    <div class="header-title">
+      <mat-icon class="header-icon">schedule</mat-icon>
+      <h2>Pedidos en Espera</h2>
+      <span class="pedidos-count" *ngIf="pedidos.length > 0">{{pedidos.length}}</span>
+    </div>
+    <button mat-raised-button color="primary" (click)="refrescar()" [disabled]="isLoading" class="refresh-btn">
       <mat-icon>refresh</mat-icon>
-      Actualizar
     </button>
   </div>
 
-  <!-- Loading - Aplicando diseño del primer componente -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Cargando pedidos...</p>
-  </div>
-
-  <!-- Error - Aplicando diseño del primer componente --> 
-  <div *ngIf="error && !isLoading" class="error-container">
-    <mat-icon color="warn">error</mat-icon>
-    <p>{{ error }}</p>
-    <button mat-button (click)="refrescar()">Reintentar</button>
-  </div>
-
-  <!-- Lista de pedidos - Combinando ambos diseños -->
+  <!-- Contenido principal -->
   <div *ngIf="!isLoading && !error" class="pedidos-content">
-    <!-- Mensaje si no hay pedidos - Del primer diseño -->
     <div *ngIf="pedidos.length === 0" class="no-pedidos">
-      <mat-icon>restaurant</mat-icon>
-      <h3>No hay pedidos en espera</h3>
-      <p>Todos los pedidos han sido atendidos</p>
+      <mat-icon class="empty-icon">inventory_2</mat-icon>
+      <p>No hay pedidos pendientes</p>
     </div>
 
-    <!-- Cards de pedidos paginados - Combinando ambos diseños -->
+    <!-- Grid de pedidos compacto -->
     <div *ngIf="pedidos.length > 0" class="pedidos-section">
       <div class="pedidos-grid">
-        <!-- Cards de pedidos - Aplicando estructura compacta del primer diseño -->
-        <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card">
+        <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card" 
+                 [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)">
+          
+          <!-- Header compacto -->
           <mat-card-header class="pedido-header">
-            <mat-card-title class="pedido-title"> Pedido #{{ pedido.ID_Pedido }} </mat-card-title>
-            <mat-card-subtitle class="pedido-subtitle">
-              {{ getHoraFormateada(pedido.Hora_Pedido) }} •
-              {{ pedido.Fecha_Registro | date : 'dd/MM/yyyy' }}
-            </mat-card-subtitle>
-
-            <!-- Chip de estado y tiempo - Combinando ambos diseños -->
-            <div class="estado-chip">
-              <mat-chip [color]="getEstadoColor(pedido.Estado_P)" selected>
-                {{ getEstadoTexto(pedido.Estado_P) }}
-              </mat-chip>
-              <div
-                class="time-badge"
-                [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)"
-              >
-                <mat-icon>timer</mat-icon>
-                {{ getTiempoEspera(pedido.Fecha_Registro, pedido.Hora_Pedido) }}
+            <div class="pedido-info">
+              <div class="pedido-title-section">
+                <h3 class="pedido-id">#{{ pedido.ID_Pedido }}</h3>
+                <div class="time-badge" [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ getTiempoEspera(pedido.Fecha_Registro, pedido.Hora_Pedido) }}</span>
+                </div>
+              </div>
+              <div class="pedido-meta">
+                <span>{{ getHoraFormateada(pedido.Hora_Pedido) }}</span>
+                <mat-chip [color]="getEstadoColor(pedido.Estado_P)" selected class="estado-chip">
+                  {{ getEstadoTexto(pedido.Estado_P) }}
+                </mat-chip>
               </div>
             </div>
           </mat-card-header>
 
+          <!-- Contenido compacto -->
           <mat-card-content class="pedido-content">
-            <!-- Información del cliente - Del primer diseño -->
+            <!-- Cliente -->
             <div class="cliente-info">
               <mat-icon>person</mat-icon>
               <span class="cliente-nombre">{{ getNombreCliente(pedido) }}</span>
             </div>
 
-            <!-- Notas del pedido - Del primer diseño -->
+            <!-- Notas compactas -->
             <div *ngIf="pedido.Notas" class="notas-container">
               <mat-icon>notes</mat-icon>
               <span class="notas-texto">{{ pedido.Notas }}</span>
             </div>
 
-            <!-- Lista de productos - Combinando ambos diseños -->
+            <!-- Productos compactos -->
             <div class="productos-list">
-              <h4>Productos:</h4>
-
-              <!-- Iterar sobre cada detalle del pedido -->
               <div *ngFor="let detalle of pedido.detallesCompletos" class="producto-item-wrapper">
-                <!-- ÍTEM PRINCIPAL (Producto o Combo) -->
                 <div class="producto-item">
-                  <div class="producto-info">
-                    <span class="producto-nombre">
-                      {{
-                        detalle.nombreItem ||
-                          detalle.productoInfo?.Nombre ||
-                          detalle.comboInfo?.Nombre ||
-                          detalle.Nombre_Producto ||
-                          detalle.Nombre_Combo ||
-                          'Producto'
-                      }}
-                    </span>
-                    <span class="producto-tamano">
-                      {{ detalle.tamanoInfo }} x{{ detalle.Cantidad }}
+                  <span class="producto-nombre">
+                    {{
+                      detalle.nombreItem ||
+                        detalle.productoInfo?.Nombre ||
+                        detalle.comboInfo?.Nombre ||
+                        detalle.Nombre_Producto ||
+                        detalle.Nombre_Combo ||
+                        'Producto'
+                    }}
+                  </span>
+                  <div class="producto-details">
+                    <span class="producto-tamano">{{ detalle.tamanoInfo }}</span>
+                    <span class="producto-cantidad">x{{ detalle.Cantidad }}</span>
+                    <span class="producto-precio">
+                      S/ {{ detalle.precioTotal || detalle.PrecioTotal | number : '1.2-2' }}
                     </span>
                   </div>
-                  <span class="producto-precio">
-                    S/ {{ detalle.precioTotal || detalle.PrecioTotal | number : '1.2-2' }}
-                  </span>
                 </div>
 
-                <!-- 🔵 DETALLES DEL COMBO (SI EXISTE) -->
-                <div
-                  *ngIf="
-                    detalle.ID_Combo && detalle.comboDetalles && detalle.comboDetalles.length > 0
-                  "
-                  class="combo-detalles"
-                >
-                  <div class="combo-header">
-                    <mat-icon class="combo-icon">restaurant_menu</mat-icon>
-                    <span class="combo-label">Incluye:</span>
-                  </div>
-
-                  <!-- Lista de productos que conforman el combo -->
-                  <div class="combo-items">
-                    <div *ngFor="let item of detalle.comboDetalles" class="combo-item">
-                      <mat-icon class="item-bullet">fiber_manual_record</mat-icon>
-                      <span class="item-nombre">{{ item.nombreProducto }}</span>
-                      <span class="item-detalle">({{ item.tamano }}) x{{ item.cantidad }}</span>
-                    </div>
+                <!-- Combo compacto -->
+                <div *ngIf="detalle.ID_Combo && detalle.comboDetalles && detalle.comboDetalles.length > 0" 
+                     class="combo-detalles">
+                  <div *ngFor="let item of detalle.comboDetalles" class="combo-item">
+                    <span class="item-nombre">• {{ item.nombreProducto }}</span>
+                    <span class="item-detalle">({{ item.tamano }} x{{ item.cantidad }})</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Total - Del primer diseño -->
-            <div class="totales-container">
-              <!-- SubTotal -->
+            <!-- Totales compactos -->
+            <div class="totales-section">
               <div class="total-line">
-                <span class="total-label">SubTotal:</span>
-                <span
-                  class="total-precio"
-                  [class.no-data]="!pedido.SubTotal || pedido.SubTotal === 0"
-                >
-                  {{
-                    pedido.SubTotal && pedido.SubTotal > 0
-                      ? 'S/ ' + (pedido.SubTotal | number : '1.2-2')
-                      : 'Calculando...'
-                  }}
-                </span>
-              </div>
-
-              <!-- PrecioTotal -->
-              <div class="total-line">
-                <span class="total-label">Total:</span>
-                <span
-                  class="total-precio"
-                  [class.no-data]="!pedido.PrecioTotal || pedido.PrecioTotal === 0"
-                >
+                <span>Total:</span>
+                <span class="total-precio" [class.no-data]="!pedido.PrecioTotal || pedido.PrecioTotal === 0">
                   {{
                     pedido.PrecioTotal && pedido.PrecioTotal > 0
                       ? 'S/ ' + (pedido.PrecioTotal | number : '1.2-2')
@@ -156,47 +106,35 @@
             </div>
           </mat-card-content>
 
-          <mat-card-actions align="end" class="pedido-actions">
-            <!-- Botones de acción - Combinando ambos diseños -->
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="cambiarEstado(pedido, 'C')"
-              [disabled]="processingId === pedido.ID_Pedido"
-              matTooltip="Cancelar"
-            >
-              <mat-icon>block</mat-icon>
+          <!-- Acciones compactas -->
+          <mat-card-actions class="pedido-actions">
+            <button mat-icon-button color="warn" 
+                    (click)="cambiarEstado(pedido, 'C')"
+                    [disabled]="processingId === pedido.ID_Pedido"
+                    class="btn-cancelar"
+                    matTooltip="Cancelar pedido">
+              <mat-icon>close</mat-icon>
             </button>
-
-            <button
-              mat-flat-button
-              color="primary"
-              class="btn-entregar"
-              (click)="cambiarEstado(pedido, 'E')"
-              [disabled]="processingId === pedido.ID_Pedido"
-            >
-              <ng-container *ngIf="processingId !== pedido.ID_Pedido">
-                <mat-icon>check_circle</mat-icon> LISTO
-              </ng-container>
-              <mat-spinner
-                *ngIf="processingId === pedido.ID_Pedido"
-                diameter="20"
-                color="accent"
-              ></mat-spinner>
+            <button mat-flat-button color="primary"
+                    (click)="cambiarEstado(pedido, 'E')"
+                    [disabled]="processingId === pedido.ID_Pedido"
+                    class="btn-entregar">
+              <mat-icon>check</mat-icon>
+              <span *ngIf="processingId !== pedido.ID_Pedido">Listo</span>
+              <mat-spinner *ngIf="processingId === pedido.ID_Pedido" diameter="16"></mat-spinner>
             </button>
           </mat-card-actions>
         </mat-card>
       </div>
 
-      <!-- Paginación - Del primer diseño -->
+      <!-- Paginación -->
       <mat-paginator
         [length]="pedidos.length"
         [pageSize]="pageSize"
         [pageIndex]="pageIndex"
         [pageSizeOptions]="pageSizeOptions"
         (page)="onPageChange($event)"
-        aria-label="Seleccionar página"
-      >
+        class="custom-paginator">
       </mat-paginator>
     </div>
   </div>
