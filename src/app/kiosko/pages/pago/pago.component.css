@@ -11,7 +11,7 @@
   overflow: hidden;
 }
 
-/* Contenedor del título con imagen */
+/* Contenedor del título con ícono */
 .pago-container h2 {
   display: flex;
   align-items: center;
@@ -24,12 +24,28 @@
   margin-bottom: 20px;
 }
 
-/* Imagen del icono */
-.pago-container .icono-btn {
+/* Íconos de Angular Material */
+.icono-titulo {
+  font-size: 40px;
   width: 40px;
   height: 40px;
-  object-fit: contain;
-  vertical-align: middle;
+  color: #e51d1d;
+}
+
+.icono-exito {
+  font-size: 85px;
+  width: 85px;
+  height: 85px;
+  color: #28a745;
+  margin-bottom: 15px;
+}
+
+.icono-verificacion {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: #e51d1d;
+  margin-bottom: 20px;
 }
 
 .resumen-pago {
@@ -48,24 +64,9 @@
 
 .resumen-pago h3 {
   font-size: 2rem;
-  color: #28a745;
+  color: #e51d1d;
   font-weight: bold;
   margin: 0;
-}
-
-.qr-img {
-  width: 200px;
-  height: 200px;
-  margin: 15px auto;
-  display: block;
-}
-
-.boleta-pregunta {
-  margin-top: 10px;
-}
-
-h2, h3, p {
-  margin: 10px 0;
 }
 
 /* CONTENEDOR PARA BOTONES HORIZONTALES */
@@ -74,318 +75,417 @@ h2, h3, p {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 15px auto;
   flex-wrap: wrap;
 }
 
-/* BOTONES HORIZONTALES PRINCIPALES - CORREGIDOS */
+/* BOTONES HORIZONTALES PRINCIPALES - COLORES ROJOS */
 .boton-opcion-horizontal {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   min-width: 160px;
   max-width: 180px;
   margin: 8px 0;
-  font-size: 13px;
-  padding: 12px 8px;
+  font-size: 14px;
+  padding: 15px 8px;
   text-align: center;
   white-space: normal;
-  border-radius: 10px;
+  border-radius: 12px;
   transition: all 0.3s ease;
   word-wrap: break-word;
   height: auto;
-  min-height: 60px;
+  min-height: 80px;
   line-height: 1.2;
-  background-color: #e2ecf4 !important;
+  color: white !important;
+  font-weight: 600;
+  border: 2px solid transparent;
 }
 
-/* Ajustar iconos en botones horizontales */
-.boton-opcion-horizontal img {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  flex-shrink: 0;
+.boton-opcion-horizontal mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
 }
 
-/* Texto dentro del botón - asegurar que quepa */
+.boton-billetera {
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
+  border-color: #c21818 !important;
+}
+
+.boton-tarjeta {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%) !important;
+  border-color: #b71c1c !important;
+}
+
+.boton-opcion-horizontal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.3);
+}
+
+.boton-billetera:hover {
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
+}
+
+.boton-tarjeta:hover {
+  background: linear-gradient(135deg, #b71c1c 0%, #9a1919 100%) !important;
+}
+
+/* Texto dentro del botón */
 .boton-opcion-horizontal span {
   display: inline-block;
   line-height: 1.2;
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
-  color: #263747;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-/* BOTONES VERTICALES (Yape, Plin) */
-.boton-opcion {
+/* BOTÓN VOLVER AL CARRITO - COLOR ROJO */
+.boton-volver-carrito {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  width: 80%;
-  margin: 8px auto;
+  width: 90%;
+  margin: 15px auto 5px auto;
   font-size: 16px;
-  padding: 10px 0;
-  text-align: center;
+  padding: 12px 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  border: 2px solid #c21818;
 }
 
-.boton-opcion img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  vertical-align: middle;
+.boton-volver-carrito:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.4);
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
 }
 
-.boton-opcion span {
-  display: inline-flex;
+.boton-volver-carrito mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* BOTONES VERTICALES (Comprobantes) */
+.boton-opcion {
+  display: flex;
   align-items: center;
   justify-content: center;
-  vertical-align: middle;
-  margin-left: 6px;
+  gap: 12px;
+  width: 90%;
+  margin: 8px auto;
+  font-size: 16px;
+  padding: 14px 0;
+  text-align: center;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: white !important;
+  border: 2px solid transparent;
 }
 
-/* Botón Volver */
+.boton-opcion mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+/* Botón Volver general */
 .boton-volver {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 80%;
-  margin: 12px auto;
+  margin: 20px auto 10px auto;
   font-size: 15px;
+  padding: 12px 20px;
+  border-radius: 10px;
   transition: all 0.3s ease;
-  word-wrap: break-word;  
-  line-height: 1.2;
-  background-color: #72c4ff;
-  white-space: normal;
-  flex: 1;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  border: 2px solid #c21818;
 }
 
-.boton-volver span{
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  flex-shrink: 0;
-  color: white;
+.boton-volver:hover {
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.3);
 }
 
-.icono-volver {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  vertical-align: middle;
-  margin-bottom: auto;
+.boton-volver mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
-
 
 /* ✅ Botón "Sí" */
 .btn-si {
-  background-color: #4CAF50 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
   color: white;
   font-weight: bold;
   border-radius: 20px;
-  padding: 8px 20px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 12px 25px;
+  transition: all 0.3s ease;
   margin: 0 5px;
+  border: none;
+  font-size: 16px;
+  border: 2px solid #c21818;
 }
 
-.btn-si:hover {
-  background-color: #43A047;
+.btn-si:hover:not([disabled]) {
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
   transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.4);
+}
+
+.btn-si[disabled] {
+  background: #cccccc !important;
+  border-color: #999 !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-si mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 /* ❌ Botón "No" */
 .btn-no {
-  background-color: #E53935 !important;
-  color: white;
-  font-weight: bold;
-  border-radius: 20px;
-  padding: 8px 20px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin: 0 5px;
-}
-
-.btn-no:hover {
-  background-color: #D32F2F;
-  transform: scale(1.05);
-}
-
-/* CONTENEDOR BOTONES SÍ/NO HORIZONTAL */
-.contenedor-si-no {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 15px 0;
-}
-
-/* ESTILOS PARA FORMULARIOS DE TARJETA */
-.campo {
-  width: 90%;
-  margin: 10px auto;
-}
-
-/* AJUSTES PARA SECCIONES ESPECÍFICAS */
-.opciones-principales {
-  margin-bottom: 10px;
-}
-
-.opciones-principales + div {
-  margin-top: 10px;
-}
-
-/* Asegurar que todo quepa sin scroll */
-.pago-container > div {
-  max-height: none;
-  overflow: visible;
-}
-
-/* ESTILOS PARA LA SECCIÓN "PAGA CON" */
-.paga-con {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin: 15px 0;
-  font-size: 1.2rem;
+  gap: 8px;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  color: white;
   font-weight: bold;
-  color: #333;
+  border-radius: 20px;
+  padding: 12px 25px;
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  border: none;
+  font-size: 16px;
+  border: 2px solid #5a6268;
 }
 
-.icono-billetera {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+.btn-no:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
-/* BOTÓN SIMULAR PAGO (SOLO PRUEBAS) */
-.simular-pago {
-  margin: 15px 0;
+.btn-no mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
-.boton-simular {
-  background-color: #4CAF50 !important;
-  color: white !important;
-  width: 80%;
-  margin: 0 auto;
-  font-size: 14px;
-}
-
-/* ESTILOS PARA PAGO EXITOSO */
-.pago-exitoso {
-  text-align: center;
+/* CONTENEDOR BOTONES DE ACCIÓN */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
   margin: 20px 0;
 }
 
-.icono-exito {
-  width: 85px;
-  height: 85px;
-  margin-bottom: 15px;
-}
-
-.icono-error{
-  width: 85px;
-  height: 85px;
-  margin-bottom: 15px;
-}
-
-/* CONTENEDOR BOLETA/FACTURA */
+/* ESTILOS PARA COMPROBANTES */
 .contenedor-boleta-factura {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 12px;
+  margin: 25px 0;
 }
 
 .btn-boleta {
-  background-color: #368bd1 !important;
-  color: white !important;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
+  border: 2px solid #c21818;
 }
 
 .btn-factura {
-  background-color: #034c69 !important;
-  color: white !important;
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%) !important;
+  border: 2px solid #b71c1c;
 }
 
 .btn-no-documento {
-  background-color: #243445 !important;
-  color: white !important;
+  background: linear-gradient(135deg, #b71c1c 0%, #9a1919 100%) !important;
+  border: 2px solid #9a1919;
 }
 
-/* ESTILOS PARA EL CÓDIGO DE PEDIDO EN GRANDE */
-/* Estilos para cuando hay documento */
-.con-documento {
+/* Hover effects para botones de comprobante */
+.boton-opcion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.3);
+}
+
+/* ESTILOS PARA VENTANAS SEPARADAS */
+.ventana-separada {
+  max-width: 400px;
+  margin: 20px auto;
   text-align: center;
-  margin: 20px 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
-  border: 2px solid #4caf50;
-  border-radius: 15px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #bebebe;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
 }
 
-.icono-documento {
-  font-size: 4rem;
-  margin-bottom: 15px;
-}
-
-.tipo-documento {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #2e7d32;
-  margin: 10px 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.mensaje-documento {
-  font-size: 1.1rem;
-  color: #388e3c;
-  line-height: 1.4;
-  margin: 15px 0;
-}
-
-/* Estilos para cuando no hay documento */
-.sin-documento {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.mensaje-agradecimiento {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.mensaje-agradecimiento h3 {
-  font-size: 1.8rem;
+.ventana-separada h2 {
+  margin-bottom: 25px;
   color: #333;
-  margin-bottom: 10px;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: bold;
 }
 
-/* Estilos comunes */
+/* VERIFICACIÓN DE CÓDIGO */
+.verificacion-codigo {
+  padding: 20px;
+}
+
+.instruccion {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.simulacion-box {
+  margin: 25px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.boton-simular {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
+  color: white !important;
+  width: 80%;
+  margin: 15px auto;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 2px solid #c21818;
+}
+
+.boton-simular:hover {
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.3);
+}
+
+.boton-cancelar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 80%;
+  margin: 10px auto;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  color: white !important;
+  border: 2px solid #5a6268;
+}
+
+.boton-cancelar:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+  transform: translateY(-2px);
+}
+
+/* KEYPAD MEJORADO */
+.keypad {
+  display: grid;
+  gap: 12px;
+  margin: 25px 0;
+  margin-top: -10px;
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.key-row button {
+  min-width: 70px;
+  height: 55px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-radius: 10px;
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  transition: all 0.2s ease;
+  color: #333;
+}
+
+.key-row button:hover:not([disabled]) {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.key-row button:active {
+  transform: translateY(0);
+}
+
+.btn-del {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e51d1d !important;
+  color: white !important;
+  border-color: #c21818 !important;
+}
+
+.btn-del mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* CÓDIGO DE PEDIDO GRANDE */
 .codigo-pedido-grande {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 3px solid #007bff;
+  border: 3px solid #e51d1d;
   border-radius: 15px;
   padding: 25px 20px;
   margin: 25px 0;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(229, 29, 29, 0.2);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(229, 29, 29, 0.2);
   }
   50% {
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 6px 20px rgba(229, 29, 29, 0.4);
   }
   100% {
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(229, 29, 29, 0.2);
   }
 }
 
@@ -403,14 +503,14 @@ h2, h3, p {
   display: block;
   font-size: 3.5rem;
   font-weight: 800;
-  color: #007bff;
+  color: #e51d1d;
   font-family: 'Courier New', monospace;
   letter-spacing: 8px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   background: white;
   padding: 15px 25px;
   border-radius: 10px;
-  border: 2px dashed #007bff;
+  border: 2px dashed #e51d1d;
   margin: 0 auto;
   max-width: 280px;
 }
@@ -423,310 +523,90 @@ h2, h3, p {
 }
 
 .boton-inicio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 80%;
   margin: 30px auto 10px;
-  background-color: #6c757d !important;
+  background: linear-gradient(135deg, #e51d1d 0%, #c21818 100%) !important;
   color: white !important;
   font-size: 1.1rem;
-  padding: 12px 24px;
-  border-radius: 10px;
+  padding: 14px 24px;
+  border-radius: 12px;
   transition: all 0.3s ease;
+  font-weight: 600;
+  border: 2px solid #c21818;
 }
 
 .boton-inicio:hover {
-  background-color: #5a6268 !important;
+  background: linear-gradient(135deg, #c21818 0%, #a11515 100%) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(229, 29, 29, 0.3);
 }
 
-
-/* Estilos para la sección de registro de DNI */
-.registrar-container {
-  max-width: 400px;
-  margin: 20px auto;
-  text-align: center;
-  padding: 20px;
+.boton-inicio mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
-.registrar-container h2 {
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.dni-input {
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.keypad {
-  display: grid;
-  gap: 10px;
-  margin: 20px 0;
-  margin-top: -15px;
-}
-
-.key-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.key-row button {
-  min-width: 60px;
-  height: 50px;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-/* Botón Confirmar - Verde */
-.action-buttons button:first-child {
-  background-color: #28a745 !important;
-  color: white !important;
-  font-weight: bold;
-}
-
-.action-buttons button:first-child:hover {
-  background-color: #218838 !important;
-}
-
-/* Botón Cancelar - Rojo */
-.action-buttons button:last-child {
-  background-color: #dc3545 !important;
-  color: white !important;
-  font-weight: bold;
-}
-
-.action-buttons button:last-child:hover {
-  background-color: #c82333 !important;
-}
-
-/* Estilos para la solicitud de RUC */
-.solicitud-documento {
-  text-align: center;
-  padding: 20px;
-}
-
-.solicitud-documento h4 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.boton-confirmar {
-  margin: 10px;
-}
-
-
-/* Estilos para ventanas separadas */
-.ventana-separada {
-  max-width: 400px;
-  margin: 20px auto;
-  text-align: center;
-  padding: 20px;
-  background: #fff;
-  border-radius: 20px;
-  /* box-shadow: 0 4px 10px rgba(0,0,0,0.1); */
-  box-sizing: border-box;
-}
-
-.ventana-separada h2 {
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 1.5rem;
-  letter-spacing: 0.7px;
-  line-height: 1;
-}
-
-
-/* LOADER CIRCULAR MEJORADO */
-.procesando-pago {
-  text-align: center;
-  padding: 50px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  margin: 20px auto;
-  max-width: 300px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.cargando {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
+/* LOADER CIRCULAR */
 .loader-circular {
   width: 70px;
   height: 70px;
   border: 4px solid #e0e0e0;
-  border-top: 4px solid #28a745;
-  border-right: 4px solid #28a745;
+  border-top: 4px solid #e51d1d;
+  border-right: 4px solid #e51d1d;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 25px;
-  box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
-  display: block;
-  margin-left: auto;
-  margin-right: auto; /* centra horizontalmente */
+  box-shadow: 0 0 10px rgba(229, 29, 29, 0.3);
 }
 
 @keyframes spin {
   0% { 
     transform: rotate(0deg);
-    border-top-color: #28a745;
-    border-right-color: #28a745;
+    border-top-color: #e51d1d;
+    border-right-color: #e51d1d;
   }
   50% {
-    border-top-color: #20c997;
-    border-right-color: #20c997;
+    border-top-color: #c21818;
+    border-right-color: #c21818;
   }
   100% { 
     transform: rotate(360deg);
-    border-top-color: #28a745;
-    border-right-color: #28a745;
+    border-top-color: #e51d1d;
+    border-right-color: #e51d1d;
   }
 }
 
-.cargando h3 {
-  color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 12px;
-  font-weight: 600;
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .pago-container {
+    margin: 20px auto;
+    padding: 15px;
+  }
+  
+  .contenedor-botones-horizontal {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .boton-opcion-horizontal {
+    min-width: 200px;
+    max-width: 250px;
+  }
+  
+  .key-row button {
+    min-width: 60px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  .codigo-valor {
+    font-size: 2.8rem;
+    letter-spacing: 6px;
+    padding: 12px 20px;
+  }
 }
-
-.cargando p {
-  color: #6c757d;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-
-/* BOTON RECHAZO */
-.pago-rechazado p, h3{
-  font-size: 18px;
-}
-
-.boton-reintentar{
-  margin-top: 15px;
-}
-
-.boton-pago{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 80%;
-  margin: 12px auto;
-  font-size: 15px;
-  transition: all 0.3s ease;
-  word-wrap: break-word;  
-  line-height: 1.2;
-  background-color: #395970;
-  white-space: normal;
-  flex: 1;
-}
-
-
-
-/* Estilos para la verificación por código */
-.verificacion-codigo {
-  text-align: center;
-  padding: 20px;
-}
-
-.verificacion-codigo h3{
-  margin-top: -10px;
-}
-
-.icono-verificacion {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 20px;
-}
-
-.enviando-codigo {
-  margin: 20px 0;
-}
-
-.codigo-enviado {
-  margin: 20px 0;
-}
-
-.instruccion {
-  font-size: 16px;
-  margin-bottom: 15px;
-  color: #666;
-}
-
-.codigo-input {
-  width: 200px;
-  margin-bottom: 20px;
-}
-
-.codigo-input input {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 8px;
-}
-
-.codigo-input.error input {
-  border-color: #f44336;
-  color: #f44336;
-}
-
-.mensaje-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #f44336;
-  margin-bottom: 15px;
-  font-size: 14px;
-}
-
-.icono-error-small {
-  width: 16px;
-  height: 16px;
-}
-
-.keypad-codigo {
-  max-width: 300px;
-  margin: 0 auto 20px;
-}
-
-.boton-verificar {
-  min-width: 180px;
-  margin: 10px;
-}
-
-.boton-renviar {
-  min-width: 180px;
-  margin: 10px;
-  background-color: #85929E !important;
-  color: white !important;
-  margin-top: -3px;
-}
-
-.boton-cancelar {
-  min-width: 180px;
-  margin: 10px;
-  margin-top: -3px;
-}
-
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-
-

@@ -26,10 +26,13 @@
     <div class="lista-productos-pagina" *ngIf="productos.length > 0; else vacio">
       <!-- Iteramos sobre los productos del servicio -->
       <div *ngFor="let item of productos; let i = index" class="item-carrito-pagina">
-        <!-- Icono placeholder (o imagen si el modelo la tuviera) -->
-        <div class="imagen-placeholder">
-          <mat-icon *ngIf="item.esCombo">fastfood</mat-icon>
-          <mat-icon *ngIf="!item.esCombo">restaurant</mat-icon>
+        <!-- 🔹 IMAGEN REAL DEL PRODUCTO -->
+        <div class="imagen-producto">
+          <img 
+            [src]="obtenerImagenProducto(item)" 
+            [alt]="item.nombre"
+            (error)="onImageError($event, item)"
+            class="imagen-producto-carrito">
         </div>
 
         <div class="info-pagina">

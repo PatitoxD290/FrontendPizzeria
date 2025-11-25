@@ -61,18 +61,13 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       });
 
-    // 🔹 NUEVO: Suscribirse a cambios en el carrito
+    // Suscribirse a cambios en el carrito
     this.carritoSubscription = this.carritoService.productos$.subscribe(
       (productos) => {
         this.productos = productos;
         this.total = this.carritoService.obtenerTotal();
         this.cantidadItemsDistintos = this.carritoService.obtenerCantidadItems();
-        this.cdr.detectChanges(); // Forzar actualización de la vista
-        console.log('🔄 Carrito actualizado en componente:', {
-          productos: this.productos,
-          total: this.total,
-          cantidad: this.cantidadItemsDistintos
-        });
+        this.cdr.detectChanges();
       }
     );
 
@@ -92,7 +87,24 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔹 NUEVO: Actualizar estado del carrito
+  // 🔹 Obtener URL de imagen para un producto del carrito
+  obtenerImagenProducto(producto: DatosPedido): string {
+    if (producto.esCombo && producto.idCombo) {
+      return `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/combo_${producto.idCombo}_1.png`;
+    } else if (producto.idProductoT) {
+      // Para productos individuales, usar ID_Producto_T para la imagen
+      return `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/producto_${producto.idProductoT}_1.png`;
+    }
+    
+    return '/assets/imgs/logo-aita/logo.png';
+  }
+
+  // 🔹 Manejar error de carga de imagen
+  onImageError(event: any, producto: DatosPedido) {
+    console.warn('Error cargando imagen para:', producto.nombre);
+    event.target.src = '/assets/imgs/logo-aita/logo.png';
+  }
+
   private actualizarEstadoCarrito(): void {
     this.productos = this.carritoService.obtenerProductos();
     this.total = this.carritoService.obtenerTotal();
@@ -111,7 +123,6 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
 
   toggleCarrito() {
     if (this.modalAbierto || this.esPaginaPago) {
-      console.log('Botón bloqueado - Modal abierto:', this.modalAbierto);
       return;
     }
     

@@ -79,7 +79,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   // 🔹 Estado y paginación
   loading = true;
-  baseUrl = 'http://localhost:3000';
+  baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
   
   pageSize = 8;
   currentPage = 0;

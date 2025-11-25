@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router'; // 🟢 AGREGAR RouterModule
 
 // Angular Material
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +16,8 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { VentaService } from '../../../core/services/venta.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
+
+
 
 // Modelos
 import {
@@ -37,7 +39,7 @@ enum PasoPago {
   FINAL = 'final',
 }
 
-const TIPO_PAGO = { EFECTIVO: 1, BILLETERA: 2, TARJETA: 3 };
+const TIPO_PAGO = { BILLETERA: 2, TARJETA: 3 };
 const TIPO_VENTA = { BOLETA: 1, FACTURA: 2, NOTA: 3 };
 const ORIGEN_VENTA = { KIOSKO: 3 };
 const ID_USUARIO_SISTEMA = 1;
@@ -54,6 +56,7 @@ const ID_USUARIO_SISTEMA = 1;
     MatIconModule,
     MatProgressSpinnerModule,
     DecimalPipe,
+    RouterModule, // 🟢 AGREGAR RouterModule aquí
   ],
   templateUrl: './pago.component.html',
   styleUrls: ['./pago.component.css'],
@@ -65,7 +68,7 @@ export class PagoComponent implements OnInit {
   readonly Pasos = PasoPago;
 
   total = 0;
-  subtotal = 0; // 🟢 AGREGADO: Para mostrar subtotal
+  subtotal = 0;
   selectedMetodoPago: number | null = null;
   montoRecibido: number = 0;
   vuelto: number = 0;
@@ -98,65 +101,18 @@ export class PagoComponent implements OnInit {
     }
   }
 
-  // 🟢 NUEVO: Calcular subtotal y total
   private calcularTotales() {
     const items = this.carritoService.obtenerProductos();
     this.subtotal = items.reduce((sum, item) => sum + item.precioUnitario * item.cantidad, 0);
-    this.total = this.subtotal; // En tu caso, el total es igual al subtotal según los modelos
+    this.total = this.subtotal;
   }
 
   // ============ PASO 1: SELECCIÓN DE PAGO ============
   seleccionarMetodo(idMetodo: number) {
     this.selectedMetodoPago = idMetodo;
-
-    if (idMetodo === this.TIPO_PAGO.EFECTIVO) {
-      this.recibeString = '';
-      this.montoRecibido = 0;
-      this.vuelto = 0;
-    } else {
-      this.montoRecibido = this.total;
-      this.vuelto = 0;
-      this.solicitandoCodigo = true;
-    }
-  }
-
-  addNumber(num: string) {
-    if (this.recibeString === '0') this.recibeString = num;
-    else this.recibeString += num;
-    this.calcularVuelto();
-  }
-
-  addDecimal() {
-    if (!this.recibeString.includes('.')) {
-      this.recibeString = this.recibeString ? this.recibeString + '.' : '0.';
-    }
-  }
-
-  deleteLast() {
-    this.recibeString = this.recibeString.slice(0, -1);
-    this.calcularVuelto();
-  }
-
-  clearMonto() {
-    this.recibeString = '';
-    this.calcularVuelto();
-  }
-
-  calcularVuelto() {
-    this.montoRecibido = parseFloat(this.recibeString) || 0;
-    this.vuelto = Math.max(0, this.montoRecibido - this.total);
-  }
-
-  confirmarPagoEfectivo() {
-    if (this.montoRecibido < this.total) {
-      Swal.fire(
-        'Monto insuficiente',
-        `Faltan S/ ${(this.total - this.montoRecibido).toFixed(2)}`,
-        'warning'
-      );
-      return;
-    }
-    this.pasoActual = PasoPago.COMPROBANTE;
+    this.montoRecibido = this.total;
+    this.vuelto = 0;
+    this.solicitandoCodigo = true;
   }
 
   verificarCodigoSimulado() {
@@ -227,82 +183,79 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  // ============ PROCESO FINAL CORREGIDO ============
-private procesarVentaFinal(idCliente: number) {
-  this.procesando = true;
-  const itemsCarrito = this.carritoService.obtenerProductos();
-  this.generarCodigoPedido();
+  // ============ PROCESO FINAL ============
+  private procesarVentaFinal(idCliente: number) {
+    this.procesando = true;
+    const itemsCarrito = this.carritoService.obtenerProductos();
+    this.generarCodigoPedido();
 
-  // 🟢 CORREGIDO: Crear detalles según el modelo correcto
-  const detallesDTO: PedidoDetalleDTO[] = itemsCarrito.map((item) => ({
-    ID_Producto_T: item.esCombo ? null : item.idProductoT || null,
-    ID_Combo: item.esCombo ? item.idCombo || null : null,
-    Cantidad: item.cantidad,
-    PrecioTotal: item.precioTotal,
-    Complementos: [], // 🟢 AGREGADO: Array vacío por defecto
-    Precio: item.precioUnitario // 🟢 AGREGADO: El backend espera este campo para calcular
-  }));
+    const detallesDTO: PedidoDetalleDTO[] = itemsCarrito.map((item) => ({
+      ID_Producto_T: item.esCombo ? null : item.idProductoT || null,
+      ID_Combo: item.esCombo ? item.idCombo || null : null,
+      Cantidad: item.cantidad,
+      PrecioTotal: item.precioTotal,
+      Complementos: [],
+      Precio: item.precioUnitario
+    }));
 
-  // 🟢 CORREGIDO: Crear pedido CON Hora_Pedido (el backend lo espera)
-  const pedidoDTO: PedidoCreacionDTO = {
-    ID_Cliente: idCliente,
-    ID_Usuario: this.idUsuarioKiosko,
-    Hora_Pedido: new Date().toLocaleTimeString('es-PE', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    }), // 🟢 AGREGADO: El backend lo espera
-    Estado_P: 'P', // Pendiente
-    Notas: `Kiosko - ${this.codigoPedidoGenerado}`,
-    SubTotal: this.subtotal,
-    detalles: detallesDTO,
-  };
+    const pedidoDTO: PedidoCreacionDTO = {
+      ID_Cliente: idCliente,
+      ID_Usuario: this.idUsuarioKiosko,
+      Hora_Pedido: new Date().toLocaleTimeString('es-PE', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }),
+      Estado_P: 'P',
+      Notas: `Kiosko - ${this.codigoPedidoGenerado}`,
+      SubTotal: this.subtotal,
+      detalles: detallesDTO,
+    };
 
-  console.log('Enviando pedido:', pedidoDTO); // Para debug
+    console.log('Enviando pedido:', pedidoDTO);
 
-  this.pedidoService.createPedido(pedidoDTO).subscribe({
-    next: (resPedido: any) => {
-      const idPedido = resPedido.ID_Pedido;
+    this.pedidoService.createPedido(pedidoDTO).subscribe({
+      next: (resPedido: any) => {
+        const idPedido = resPedido.ID_Pedido;
 
-      // 🟢 CORREGIDO: Crear venta según el modelo correcto
-      const ventaDTO: VentaCreacionDTO = {
-        ID_Pedido: idPedido,
-        ID_Tipo_Venta: this.selectedTipoComprobante!,
-        ID_Tipo_Pago: this.selectedMetodoPago!,
-        ID_Origen_Venta: this.ORIGEN_VENTA.KIOSKO,
-        Monto_Recibido: this.montoRecibido,
-      };
+        const ventaDTO: VentaCreacionDTO = {
+          ID_Pedido: idPedido,
+          ID_Tipo_Venta: this.selectedTipoComprobante!,
+          ID_Tipo_Pago: this.selectedMetodoPago!,
+          ID_Origen_Venta: this.ORIGEN_VENTA.KIOSKO,
+          Monto_Recibido: this.montoRecibido,
+        };
 
-      console.log('Enviando venta:', ventaDTO); // Para debug
+        console.log('Enviando venta:', ventaDTO);
 
-      this.ventaService.createVenta(ventaDTO).subscribe({
-        next: (resVenta: any) => {
-          this.procesando = false;
-          this.pasoActual = PasoPago.FINAL;
-          this.generarPDF(idPedido, resVenta.ID_Venta);
-          this.carritoService.vaciarCarrito();
+        this.ventaService.createVenta(ventaDTO).subscribe({
+          next: (resVenta: any) => {
+            this.procesando = false;
+            this.pasoActual = PasoPago.FINAL;
+            this.generarPDF(idPedido, resVenta.ID_Venta);
+            this.carritoService.vaciarCarrito();
 
-          Swal.fire({
-            title: '¡Éxito!',
-            text: 'Pedido y venta registrados correctamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar',
-          });
-        },
-        error: (err) => {
-          this.procesando = false;
-          console.error('Error al crear venta:', err);
-          Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
-        },
-      });
-    },
-    error: (err) => {
-      this.procesando = false;
-      console.error('Error al crear pedido:', err);
-      Swal.fire('Error', 'No se pudo crear el pedido.', 'error');
-    },
-  });
-}
+            Swal.fire({
+              title: '¡Éxito!',
+              text: 'Pedido y venta registrados correctamente',
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+            });
+          },
+          error: (err) => {
+            this.procesando = false;
+            console.error('Error al crear venta:', err);
+            Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
+          },
+        });
+      },
+      error: (err) => {
+        this.procesando = false;
+        console.error('Error al crear pedido:', err);
+        Swal.fire('Error', 'No se pudo crear el pedido.', 'error');
+      },
+    });
+  }
 
   generarCodigoPedido() {
     const rand = Math.floor(1000 + Math.random() * 9000);
@@ -348,7 +301,6 @@ private procesarVentaFinal(idCliente: number) {
     doc.line(marginLeft, y, pageWidth - marginRight, y);
     y += 4;
 
-    // 🟢 AGREGADO: Mostrar subtotal y total
     doc.setFontSize(8).setFont('helvetica', 'bold');
     doc.text(`PEDIDO: ${this.codigoPedidoGenerado}`, marginLeft, y);
     y += 4;
@@ -366,7 +318,6 @@ private procesarVentaFinal(idCliente: number) {
       y += 6;
     }
 
-    // 🟢 AGREGADO: Mostrar items del carrito
     const items = this.carritoService.obtenerProductos();
     doc.text('ITEMS:', marginLeft, y);
     y += 3;
@@ -375,7 +326,6 @@ private procesarVentaFinal(idCliente: number) {
       const itemText = `${item.cantidad}x ${item.nombre}`;
       const precioText = `S/ ${(item.precioUnitario * item.cantidad).toFixed(2)}`;
 
-      // Truncar si es muy largo
       const maxWidth = pageWidth - marginLeft - marginRight - 15;
       let truncatedName = item.nombre;
       if (doc.getTextWidth(itemText) > maxWidth) {
@@ -391,7 +341,6 @@ private procesarVentaFinal(idCliente: number) {
     doc.line(marginLeft, y, pageWidth - marginRight, y);
     y += 4;
 
-    // 🟢 AGREGADO: Mostrar subtotal
     doc.setFontSize(8);
     doc.text(`SubTotal: S/ ${this.subtotal.toFixed(2)}`, marginLeft, y);
     y += 3;
@@ -404,8 +353,8 @@ private procesarVentaFinal(idCliente: number) {
     doc.setFontSize(8);
     doc.text(`Método: ${this.getMetodoPagoText()}`, marginLeft, y);
     y += 3;
-    doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, y);
-    y += 8;
+    
+    y += 5;
 
     doc.setFontSize(13).setFont('helvetica', 'bold');
     doc.text(`TURNO: ${this.codigoPedidoGenerado}`, pageWidth / 2, y, { align: 'center' });
@@ -421,33 +370,87 @@ private procesarVentaFinal(idCliente: number) {
 
   getMetodoPagoText(): string {
     switch (this.selectedMetodoPago) {
-      case TIPO_PAGO.EFECTIVO:
-        return 'Efectivo';
       case TIPO_PAGO.TARJETA:
         return 'Tarjeta';
       case TIPO_PAGO.BILLETERA:
         return 'Yape/Plin';
       default:
-        return 'Efectivo';
+        return 'Digital';
     }
   }
+
+
+
 
   // ============ NAVEGACIÓN ============
   volverInicio() {
-    this.router.navigate(['/']);
-  }
+  this.router.navigate(['/']);
+}
 
-  volverAPago() {
-    if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO) {
-      this.selectedMetodoPago = null;
-    } else {
+volverAPago() {
+  Swal.fire({
+    title: '¿Cancelar compra?',
+    text: 'Si regresas al pago, se perderá el progreso actual de tu pedido',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e51d1d',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, cancelar',
+    cancelButtonText: 'Seguir comprando',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Si confirma la cancelación, regresar al paso de pago
       this.selectedMetodoPago = null;
       this.solicitandoCodigo = false;
+      this.pasoActual = PasoPago.PAGO;
+      
+      Swal.fire({
+        title: 'Compra cancelada',
+        text: 'Has regresado a la sección de pago',
+        icon: 'info',
+        confirmButtonColor: '#e51d1d',
+        confirmButtonText: 'Aceptar'
+      });
     }
-  }
+  });
+}
 
-  volverAComprobante() {
-    this.pasoActual = PasoPago.COMPROBANTE;
-    this.numeroDocumento = '';
-  }
+volverAComprobante() {
+  Swal.fire({
+    title: '¿Volver atrás?',
+    text: 'Se perderá la información del documento ingresado',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#e51d1d',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, volver',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.pasoActual = PasoPago.COMPROBANTE;
+      this.numeroDocumento = '';
+    }
+  });
+}
+
+// 🟢 NUEVO MÉTODO: Volver al carrito con validación
+volverAlCarrito() {
+  Swal.fire({
+    title: '¿Volver al carrito?',
+    text: 'Podrás modificar los productos de tu pedido',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#e51d1d',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, volver',
+    cancelButtonText: 'Seguir en pago',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.router.navigate(['/kiosko/carrito']);
+    }
+  });
+}
 }

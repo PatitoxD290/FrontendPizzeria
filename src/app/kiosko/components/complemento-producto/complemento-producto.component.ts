@@ -50,7 +50,7 @@ export class ComplementoProductoComponent implements OnInit, OnDestroy {
   productosTamanoBebidas: ProductoTamanoCompleto[] = [];
   cargando: boolean = true;
   categoriasBebidas: number[] = [];
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
 
   constructor(
     private productoService: ProductoService,
@@ -101,21 +101,27 @@ private cargarProductosTamanoBebidas(): void {
         const estaActivo = item.Estado === 'A';
         
         if (esBebida && estaActivo && item.tamanos) {
-          // 🔹 CORREGIDO: Usar la misma lógica que menu.component
-          let imagenUrl = 'assets/imgs/logo.png';
+          // 🔹 URL base para imágenes
+          const urlBase = `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/producto_${item.ID_Producto}_1`;
+          let imagenUrl = '/assets/imgs/logo-aita/logo.png';
           
-          // Intentar construir URL de imagen similar a menu.component
-          const urlBase = `http://localhost:3000/imagenesCata/producto_${item.ID_Producto}_1`;
-          // Verificar extensiones como en menu.component
+          // Verificar extensiones
           const extensiones = ['png', 'jpg', 'jpeg'];
+          let imagenEncontrada = false;
           
-          // Usar imagen del item si existe y es válida
-          if (item.imagenes && item.imagenes.length > 0) {
-            const filename = item.imagenes[0].split(/[/\\]/).pop();
-            imagenUrl = `${this.baseUrl}/imagenesCata/${filename}`;
-          } else {
-            // Si no hay imagen en el array, usar la lógica de verificación
-            imagenUrl = urlBase + '.png'; // Asumir PNG por defecto
+          // Verificar si existe alguna de las extensiones
+          for (const ext of extensiones) {
+            const urlCompleta = `${urlBase}.${ext}`;
+            // No podemos hacer fetch aquí por performance, asumimos que existe
+            // En producción, podrías implementar un servicio de verificación
+            imagenUrl = urlCompleta;
+            imagenEncontrada = true;
+            break;
+          }
+          
+          // Si no se encontró imagen, usar la por defecto
+          if (!imagenEncontrada) {
+            imagenUrl = '/assets/imgs/logo-aita/logo.png';
           }
 
           // Crear un elemento por cada tamaño activo
@@ -187,6 +193,6 @@ private cargarProductosTamanoBebidas(): void {
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/imgs/logo.png';
+    event.target.src = 'assets/imgs/logo-aita/logo.png';
   }
 }

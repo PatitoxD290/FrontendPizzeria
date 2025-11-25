@@ -1,5 +1,4 @@
 <div class="pago-container">
-
   <!-- 🔄 LOADING OVERLAY -->
   <div class="loading-overlay" *ngIf="procesando">
     <div class="cargando">
@@ -12,7 +11,7 @@
   <!-- ✅ PANTALLA FINAL (ÉXITO) -->
   <div class="pantalla-final" *ngIf="pasoActual === Pasos.FINAL && !procesando">
     <div class="success-content">
-      <img src="assets/images/check-circle.png" alt="Éxito" class="icono-exito">
+      <mat-icon class="icono-exito">check_circle</mat-icon>
       <h2>¡Pedido Confirmado!</h2>
      
       <div class="codigo-pedido-grande">
@@ -23,7 +22,8 @@
       <p class="instruccion-codigo">Por favor, recoge tu comprobante y espera tu llamado.</p>
      
       <button class="boton-inicio" (click)="volverInicio()">
-        <span>🏠</span> Volver al Inicio
+        <mat-icon>home</mat-icon>
+        <span>Volver al Inicio</span>
       </button>
     </div>
   </div>
@@ -31,98 +31,45 @@
   <!-- 1️⃣ PASO 1: SELECCIÓN DE PAGO -->
   <div class="paso-content" *ngIf="pasoActual === Pasos.PAGO && !selectedMetodoPago && !procesando">
     <h2>
-      <img src="assets/images/payment.png" alt="Pago" class="icono-btn">
-      ¿Cómo deseas pagar?
+      <mat-icon class="icono-titulo">payments</mat-icon>
+      Pago del Pedido
     </h2>
-    
-    <!-- En la sección de resumen de pago, agrega esto: -->
+
+    <!-- Resumen de pago -->
     <div class="resumen-pago">
-      <div class="info-row">
-        <p>SubTotal:</p>
-        <h4>S/ {{ subtotal | number:'1.2-2' }}</h4>
-      </div>
       <div class="info-row">
         <p>Total a pagar:</p>
         <h3>S/ {{ total | number:'1.2-2' }}</h3>
       </div>
     </div>
 
-    
-    <div class="contenedor-botones-horizontal">
-      <button class="boton-opcion-horizontal" (click)="seleccionarMetodo(TIPO_PAGO.EFECTIVO)">
-        <img src="assets/images/efectivo.png" alt="Efectivo">
-        <span>Efectivo</span>
-      </button>
-     
-      <button class="boton-opcion-horizontal" (click)="seleccionarMetodo(TIPO_PAGO.TARJETA)">
-        <img src="assets/images/tarjeta.png" alt="Tarjeta">
-        <span>Tarjeta</span>
-      </button>
-    </div>
+    <!-- OPCIONES PRINCIPALES HORIZONTALES -->
+    <div class="opciones-principales">
+      <div class="contenedor-botones-horizontal">
+        <button mat-raised-button (click)="seleccionarMetodo(TIPO_PAGO.BILLETERA)" 
+                class="boton-opcion-horizontal boton-billetera">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span>Billetera Digital</span>
+        </button>
 
-    <div class="contenedor-botones-horizontal">
-      <button class="boton-opcion" (click)="seleccionarMetodo(TIPO_PAGO.BILLETERA)">
-        <img src="assets/images/yape.png" alt="Yape">
-        <span>Yape / Plin</span>
-      </button>
-    </div>
+        <button mat-raised-button (click)="seleccionarMetodo(TIPO_PAGO.TARJETA)" 
+                class="boton-opcion-horizontal boton-tarjeta">
+          <mat-icon>credit_card</mat-icon>
+          <span>Tarjeta Crédito/Débito</span>
+        </button>
+      </div>
 
-    <button class="boton-volver" routerLink="/kiosko/carrito">
-      <span>←</span> Volver al Carrito
-    </button>
-  </div>
-
-  <!-- 1.1 PAGO EN EFECTIVO (Calculadora) -->
-  <div class="ventana-separada" *ngIf="pasoActual === Pasos.PAGO && selectedMetodoPago === TIPO_PAGO.EFECTIVO && !procesando">
-    <h2>Pago en Efectivo</h2>
-   
-    <div class="resumen-pago">
-      <div class="info-row">
-        <p>Total a Pagar:</p>
-        <h3>S/ {{ total | number:'1.2-2' }}</h3>
-      </div>
-      
-      <div class="info-row">
-        <p>Recibido:</p>
-        <h3 style="color: #007bff;">S/ {{ recibeString || '0.00' }}</h3>
-      </div>
-      
-      <div class="info-row">
-        <p>Vuelto:</p>
-        <h3 style="color: #28a745;">S/ {{ vuelto | number:'1.2-2' }}</h3>
-      </div>
-    </div>
-
-    <div class="keypad">
-      <div class="key-row">
-        <button *ngFor="let n of [1,2,3]" (click)="addNumber(n.toString())">{{ n }}</button>
-      </div>
-      <div class="key-row">
-        <button *ngFor="let n of [4,5,6]" (click)="addNumber(n.toString())">{{ n }}</button>
-      </div>
-      <div class="key-row">
-        <button *ngFor="let n of [7,8,9]" (click)="addNumber(n.toString())">{{ n }}</button>
-      </div>
-      <div class="key-row">
-        <button (click)="addDecimal()">.</button>
-        <button (click)="addNumber('0')">0</button>
-        <button (click)="deleteLast()" class="btn-del">⌫</button>
-      </div>
-    </div>
-
-    <div class="action-buttons">
-      <button class="btn-si" (click)="confirmarPagoEfectivo()" [disabled]="montoRecibido < total">
-        Continuar →
-      </button>
-      <button class="btn-no" (click)="selectedMetodoPago = null">
-        Cancelar
+      <!-- BOTÓN VOLVER AL CARRITO -->
+      <button mat-raised-button (click)="volverAlCarrito()" class="boton-volver-carrito">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Volver al Carrito</span>
       </button>
     </div>
   </div>
 
   <!-- 1.2 VERIFICACIÓN CÓDIGO (Simulado para Tarjeta/Yape) -->
   <div class="ventana-separada verificacion-codigo" *ngIf="solicitandoCodigo && !procesando">
-    <img src="assets/images/verificacion.png" alt="Verificación" class="icono-verificacion">
+    <mat-icon class="icono-verificacion">verified_user</mat-icon>
     <h2>Procesando Pago</h2>
     <p class="instruccion">Sigue las instrucciones en el POS o tu celular.</p>
    
@@ -130,47 +77,53 @@
       <div class="loader-circular" style="width: 50px; height: 50px; margin: 20px auto;"></div>
       <p>Esperando confirmación...</p>
       <button class="boton-simular btn-si" (click)="verificarCodigoSimulado()">
-        Simular Pago Exitoso
+        <mat-icon>check_circle</mat-icon>
+        <span>Simular Pago Exitoso</span>
       </button>
     </div>
 
     <button class="btn-no boton-cancelar" (click)="cancelarVerificacion()">
-      Cancelar Operación
+      <mat-icon>cancel</mat-icon>
+      <span>Cancelar Operación</span>
     </button>
   </div>
 
   <!-- 2️⃣ PASO 2: COMPROBANTE -->
   <div class="paso-content" *ngIf="pasoActual === Pasos.COMPROBANTE && !procesando">
     <h2>
-      <img src="assets/images/documento.png" alt="Documento" class="icono-btn">
+      <mat-icon class="icono-titulo">receipt</mat-icon>
       Selecciona Comprobante
     </h2>
 
     <div class="contenedor-boleta-factura">
       <button class="boton-opcion btn-no-documento" (click)="seleccionarComprobante(TIPO_VENTA.NOTA)">
-        <img src="assets/images/nota.png" alt="Nota">
+        <mat-icon>description</mat-icon>
         <span>Sin Comprobante</span>
       </button>
      
       <button class="boton-opcion btn-boleta" (click)="seleccionarComprobante(TIPO_VENTA.BOLETA)">
-        <img src="assets/images/boleta.png" alt="Boleta">
+        <mat-icon>receipt_long</mat-icon>
         <span>Boleta (DNI)</span>
       </button>
      
       <button class="boton-opcion btn-factura" (click)="seleccionarComprobante(TIPO_VENTA.FACTURA)">
-        <img src="assets/images/factura.png" alt="Factura">
+        <mat-icon>assignment</mat-icon>
         <span>Factura (RUC)</span>
       </button>
     </div>
 
     <button class="boton-volver" (click)="volverAPago()">
-      <span>←</span> Volver
+      <mat-icon>arrow_back</mat-icon>
+      <span>Volver al Pago</span>
     </button>
   </div>
 
   <!-- 3️⃣ PASO 3: DOCUMENTO -->
   <div class="ventana-separada" *ngIf="pasoActual === Pasos.DOCUMENTO && !procesando">
-    <h2>Ingrese {{ tipoDocumento }}</h2>
+    <h2>
+      <mat-icon class="icono-titulo">badge</mat-icon>
+      Ingrese {{ tipoDocumento }}
+    </h2>
    
     <div class="resumen-pago">
       <p class="codigo-valor" style="font-size: 2rem; letter-spacing: 4px;">
@@ -191,7 +144,9 @@
       <div class="key-row">
         <button disabled style="opacity: 0.3;">.</button>
         <button (click)="addDocNumber('0')">0</button>
-        <button (click)="deleteDocLast()" class="btn-del">⌫</button>
+        <button (click)="deleteDocLast()" class="btn-del">
+          <mat-icon>backspace</mat-icon>
+        </button>
       </div>
     </div>
 
@@ -199,12 +154,13 @@
       <button class="btn-si" (click)="confirmarDocumento()"
               [disabled]="(tipoDocumento === 'DNI' && numeroDocumento.length < 8) || 
                          (tipoDocumento === 'RUC' && numeroDocumento.length < 11)">
-        Confirmar
+        <mat-icon>check_circle</mat-icon>
+        <span>Confirmar</span>
       </button>
       <button class="btn-no" (click)="volverAComprobante()">
-        Atrás
+        <mat-icon>arrow_back</mat-icon>
+        <span>Atrás</span>
       </button>
     </div>
   </div>
-
 </div>

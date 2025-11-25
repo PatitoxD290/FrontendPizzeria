@@ -54,7 +54,7 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   imagen: string = '';
   precioBase: number = 0;
 
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -119,26 +119,26 @@ private construirUrlImagenCompleta(item: any): string {
   // Si no, construirla
   const id = this.esCombo ? item.ID_Combo : item.ID_Producto;
   const tipo = this.esCombo ? 'combo' : 'producto';
-  const urlBase = `${this.baseUrl}/imagenesCata/${tipo}_${id}_1`;
+  const urlBase = `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/${tipo}_${id}_1`;
   
-  return urlBase;
+  return urlBase + '.png'; // Asumir PNG por defecto
 }
 
   // 🖼️ Helper para construir URL de imagen limpia
 private construirUrlImagen(imagenes?: string[]): string {
   if (imagenes && imagenes.length > 0) {
     const filename = imagenes[0].split(/[/\\]/).pop();
-    return `${this.baseUrl}/imagenesCata/${filename}`;
+    return `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/${filename}`;
   }
   
-  // 🔹 NUEVO: Si no hay imagen en el array, intentar construirla desde los datos
+  // Si no hay imagen en el array, intentar construirla desde los datos
   if (this.data && this.data.ID_Producto) {
     const id = this.data.ID_Producto;
     const tipo = this.esCombo ? 'combo' : 'producto';
-    return `${this.baseUrl}/imagenesCata/${tipo}_${id}_1.png`;
+    return `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/${tipo}_${id}_1.png`;
   }
   
-  return 'assets/imgs/no-image.png';
+  return '/assets/imgs/logo-aita/logo.png';
 }
 
   seleccionarTamano(tamano: ProductoTamano) {
