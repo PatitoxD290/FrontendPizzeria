@@ -15,23 +15,27 @@
     </div>
   </div>
 
-  <!-- 🏷️ Categorías (Scroll Horizontal) -->
-  <div class="categories-scroll">
-    <mat-chip-listbox class="mat-mdc-chip-set-stacked">
-      <mat-chip-option 
-        [selected]="categoriaSeleccionada === null" 
-        (click)="filtrarPorCategoria(null)"
-        color="accent">
-        Todos
-      </mat-chip-option>
-      <mat-chip-option 
-        *ngFor="let cat of categorias" 
-        [selected]="categoriaSeleccionada === cat.ID_Categoria_P"
-        (click)="filtrarPorCategoria(cat.ID_Categoria_P)"
-        color="primary">
-        {{ cat.Nombre }}
-      </mat-chip-option>
-    </mat-chip-listbox>
+  <!-- 🏷️ Categorías (Scroll Horizontal Mejorado) -->
+  <div class="categories-scroll-container">
+    <div class="categories-scroll-wrapper">
+      <div class="categories-scroll">
+        <button 
+          class="category-btn"
+          [class.active]="categoriaSeleccionada === null"
+          (click)="filtrarPorCategoria(null)">
+          <span>Todos</span>
+        </button>
+        <button 
+          *ngFor="let cat of categorias" 
+          class="category-btn"
+          [class.active]="categoriaSeleccionada === cat.ID_Categoria_P"
+          (click)="filtrarPorCategoria(cat.ID_Categoria_P)">
+          <span>{{ cat.Nombre }}</span>
+        </button>
+      </div>
+    </div>
+   
+    </div>
   </div>
 
   <!-- 🌀 Loading -->
@@ -49,9 +53,6 @@
       [class.disabled]="!item.disponible"
       (click)="abrirModalCantidad(item)">
       
-      <div class="card-image">
-        <img [src]="getProductoImage(item)" [alt]="item.nombre" (error)="onImageError($event)">
-        
         <!-- Badge para combos -->
         <div class="combo-badge" *ngIf="item.esCombo">COMBO</div>
         
@@ -64,7 +65,7 @@
         <div class="agotado-overlay" *ngIf="!item.disponible">
           <span>AGOTADO</span>
         </div>
-      </div>
+    
 
       <mat-card-content class="card-content">
         <h3 class="product-title">
@@ -124,4 +125,3 @@
     class="custom-paginator">
   </mat-paginator>
 
-</div>

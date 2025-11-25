@@ -64,7 +64,6 @@
 
     <!-- Tabla CON MAT-TABLE -->
     <div class="table-container" [hidden]="loading">
-      <!-- Usar mat-table en lugar de table normal -->
       <mat-table [dataSource]="dataSource" class="custom-table">
         
         <!-- Columna ID -->
@@ -81,7 +80,7 @@
         </ng-container>
 
         <!-- Columna Cliente -->
-        <ng-container matColumnDef="Cliente">
+        <ng-container matColumnDef="Cliente_Nombre">
           <mat-header-cell *matHeaderCellDef class="table-header">
             <div class="header-content">
               <span class="material-icons">person</span>
@@ -96,7 +95,7 @@
         </ng-container>
 
         <!-- Columna Tipo -->
-        <ng-container matColumnDef="Tipo">
+        <ng-container matColumnDef="Tipo_Venta_Nombre">
           <mat-header-cell *matHeaderCellDef class="table-header">
             <div class="header-content">
               <span class="material-icons">receipt</span>
@@ -111,7 +110,7 @@
         </ng-container>
 
         <!-- Columna Metodo -->
-        <ng-container matColumnDef="Metodo">
+        <ng-container matColumnDef="Metodo_Pago_Nombre">
           <mat-header-cell *matHeaderCellDef class="table-header">
             <div class="header-content">
               <span class="material-icons">payments</span>
@@ -142,7 +141,7 @@
         </ng-container>
 
         <!-- Columna Fecha -->
-        <ng-container matColumnDef="Fecha">
+        <ng-container matColumnDef="Fecha_Registro">
           <mat-header-cell *matHeaderCellDef class="table-header">
             <div class="header-content">
               <span class="material-icons">event</span>

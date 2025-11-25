@@ -19,9 +19,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 // Services & Models
 import { VentaService } from '../../../../core/services/venta.service';
-import { PedidoService } from '../../../../core/services/pedido.service';
-import { Venta } from '../../../../core/models/venta.model';
-import { PedidoDetalle } from '../../../../core/models/pedido.model';
+import { Venta, VentaProducto } from '../../../../core/models/venta.model'; // Asegúrate de importar VentaProducto
 
 // PDF
 import jsPDF from 'jspdf';
@@ -58,11 +56,11 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   // ================================================================
   displayedColumns: string[] = [
     'ID_Venta', 
-    'Cliente', 
-    'Tipo', 
-    'Metodo', 
+    'Cliente_Nombre', 
+    'Tipo_Venta_Nombre', 
+    'Metodo_Pago_Nombre', 
     'Total', 
-    'Fecha', 
+    'Fecha_Registro', 
     'acciones'
   ];
   
@@ -84,8 +82,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private ventaService: VentaService,
-    private pedidoService: PedidoService 
+    private ventaService: VentaService
   ) {}
 
   // ================================================================
@@ -96,11 +93,8 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Configurar paginación y ordenamiento
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    
-    // Configurar el filtro personalizado
     this.setupFilterPredicate();
   }
 
@@ -114,7 +108,6 @@ export class VentaListComponent implements OnInit, AfterViewInit {
         this.dataSource.data = data;
         this.loading = false;
         
-        // Configurar paginación después de cargar datos
         if (this.paginator) {
           this.paginator.firstPage();
         }
@@ -132,17 +125,13 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   // ================================================================
   setupFilterPredicate() {
     this.dataSource.filterPredicate = (venta: Venta, filter: string) => {
-      // El parámetro 'filter' es el valor que se establece en dataSource.filter
-      // En nuestro caso, usamos un trigger, pero los filtros reales están en las propiedades
-      
-      // 1. Filtro de Texto
       const term = this.filtroTexto.trim().toLowerCase();
       const matchText = term === '' || 
         (venta.Cliente_Nombre?.toLowerCase().includes(term) || false) ||
         (venta.ID_Venta?.toString().includes(term) || false) ||
-        (venta.Tipo_Venta_Nombre?.toLowerCase().includes(term) || false);
+        (venta.Tipo_Venta_Nombre?.toLowerCase().includes(term) || false) ||
+        (venta.Metodo_Pago_Nombre?.toLowerCase().includes(term) || false);
 
-      // 2. Filtro de Periodo
       let matchPeriodo = true;
       if (this.selectedPeriodo !== 'todos') {
         const fechaVenta = new Date(venta.Fecha_Registro);
@@ -205,10 +194,8 @@ export class VentaListComponent implements OnInit, AfterViewInit {
 
   // 🎛️ Aplicar Filtros
   aplicarFiltros(): void {
-    // Usar un trigger único para forzar el re-filtrado
     this.dataSource.filter = Math.random().toString();
     
-    // Ir a la primera página cuando se aplican filtros
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -227,11 +214,15 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   // ================================================================
-  // 🎨 HELPERS VISUALES
+  // 🎨 HELPERS VISUALES - ACTUALIZADOS
   // ================================================================
   getMetodoPagoLabel(venta: Venta): string {
-    if (venta.Metodo_Pago_Nombre) return venta.Metodo_Pago_Nombre;
-    switch (venta.ID_Tipo_Pago) {
+    // Usar el nombre del método de pago si está disponible
+    return venta.Metodo_Pago_Nombre || this.getMetodoPagoPorId(venta.ID_Tipo_Pago);
+  }
+
+  private getMetodoPagoPorId(id: number): string {
+    switch (id) {
       case 1: return 'Efectivo';
       case 2: return 'YAPE/PLIN';
       case 3: return 'Tarjeta';
@@ -240,35 +231,44 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   getTipoVentaLabel(venta: Venta): string {
-    return venta.Tipo_Venta_Nombre || (venta.ID_Tipo_Venta === 1 ? 'BOLETA' : 
-           venta.ID_Tipo_Venta === 2 ? 'FACTURA' : 'NOTA');
+    // Usar el nombre del tipo de venta si está disponible
+    return venta.Tipo_Venta_Nombre || this.getTipoVentaPorId(venta.ID_Tipo_Venta);
+  }
+
+  private getTipoVentaPorId(id: number): string {
+    switch (id) {
+      case 1: return 'BOLETA';
+      case 2: return 'FACTURA';
+      default: return 'NOTA';
+    }
   }
 
   // ================================================================
-  // 🔧 MÉTODO PARA OBTENER DATOS VISIBLES (para el paginator length)
+  // 🔧 MÉTODO PARA OBTENER DATOS VISIBLES
   // ================================================================
   getTotalFiltrado(): number {
     return this.dataSource.filteredData.length;
   }
 
   // ================================================================
-  // 📄 GENERACIÓN DE PDF - MÉTODO PRINCIPAL
+  // 📄 GENERACIÓN DE PDF - ACTUALIZADO
   // ================================================================
   async generarPDFVenta(venta: Venta): Promise<void> {
     this.cargandoPDF = venta.ID_Venta;
     
     try {
-      const detallesPedido = await this.obtenerDetallesPedido(venta.ID_Pedido);
+      // Usar el servicio de ventas para obtener los detalles
+      const datosBoleta = await this.obtenerDatosBoleta(venta.ID_Venta);
       
       switch (venta.ID_Tipo_Venta) {
         case 1: // Boleta
-          this.generarBoletaPDF(venta, detallesPedido);
+          this.generarBoletaPDF(venta, datosBoleta.detalles || []);
           break;
         case 2: // Factura
-          this.generarFacturaPDF(venta, detallesPedido);
+          this.generarFacturaPDF(venta, datosBoleta.detalles || []);
           break;
         default:
-          this.generarComprobanteGeneralPDF(venta, detallesPedido);
+          this.generarComprobanteGeneralPDF(venta, datosBoleta.detalles || []);
       }
     } catch (error) {
       console.error('Error al generar PDF:', error);
@@ -279,19 +279,19 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   // ================================================================
-  // 🔧 MÉTODOS AUXILIARES PDF
+  // 🔧 MÉTODOS AUXILIARES PDF ACTUALIZADOS
   // ================================================================
-  private obtenerDetallesPedido(idPedido: number): Promise<PedidoDetalle[]> {
-    return new Promise((resolve) => {
-      this.pedidoService.getPedidoDetalles(idPedido).subscribe({
-        next: (detalles) => resolve(detalles || []),
-        error: () => resolve([])
+  private obtenerDatosBoleta(idVenta: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.ventaService.getDatosBoletaVenta(idVenta).subscribe({
+        next: (datos) => resolve(datos),
+        error: (err) => reject(err)
       });
     });
   }
 
   // ================================================================
-  // 📊 EXPORTACIÓN DE REPORTE PDF COMPLETO
+  // 📊 EXPORTACIÓN DE REPORTE PDF COMPLETO - ACTUALIZADO
   // ================================================================
   exportarPDF(): void {
     const doc = new jsPDF({
@@ -302,50 +302,35 @@ export class VentaListComponent implements OnInit, AfterViewInit {
 
     const ventas = this.dataSource.filteredData;
     
-    // Título y cabecera
     this.agregarCabeceraPDF(doc, ventas.length);
-    
-    // Tabla de datos
     this.agregarTablaPDF(doc, ventas);
-    
-    // Totales y pie de página
     this.agregarTotalesPDF(doc, ventas);
     
-    // Guardar PDF
     doc.save(`Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
-  // ================================================================
-  // 🧾 MÉTODOS AUXILIARES PARA REPORTE COMPLETO
-  // ================================================================
   private agregarCabeceraPDF(doc: jsPDF, totalVentas: number): void {
-    // Fondo decorativo
     doc.setFillColor(63, 81, 181);
     doc.rect(0, 0, 297, 30, 'F');
     
-    // Logo o ícono
     doc.setFontSize(20);
     doc.setTextColor(255, 255, 255);
     doc.text('💰', 15, 18);
     
-    // Título principal
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('REPORTE DE VENTAS', 25, 18);
     
-    // Información de la empresa
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('Sistema de Gestión Comercial', 200, 12);
     doc.text('Tel: (01) 123-4567', 200, 17);
     doc.text('Email: info@empresa.com', 200, 22);
     
-    // Fecha de generación
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
     
-    // Período del reporte
     let periodo = 'Todos los registros';
     if (this.selectedPeriodo !== 'todos') {
       periodo = `Período: ${this.selectedPeriodo}`;
@@ -357,7 +342,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
 
   private agregarTablaPDF(doc: jsPDF, ventas: Venta[]): void {
     const headers = [
-      ['ID', 'CLIENTE', 'TIPO', 'MÉTODO PAGO', 'MONTO RECIBIDO', 'VUELTO', 'IGV', 'TOTAL', 'FECHA REGISTRO']
+      ['ID', 'CLIENTE', 'TIPO VENTA', 'MÉTODO PAGO', 'MONTO RECIBIDO', 'VUELTO', 'IGV', 'TOTAL', 'FECHA REGISTRO']
     ];
 
     const data = ventas.map(venta => [
@@ -393,15 +378,15 @@ export class VentaListComponent implements OnInit, AfterViewInit {
         fillColor: [245, 245, 245]
       },
       columnStyles: {
-        0: { cellWidth: 15, halign: 'center' }, // ID
-        1: { cellWidth: 40 }, // Cliente
-        2: { cellWidth: 25, halign: 'center' }, // Tipo
-        3: { cellWidth: 30, halign: 'center' }, // Método Pago
-        4: { cellWidth: 25, halign: 'right' }, // Monto Recibido
-        5: { cellWidth: 20, halign: 'right' }, // Vuelto
-        6: { cellWidth: 20, halign: 'right' }, // IGV
-        7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Total
-        8: { cellWidth: 30, halign: 'center' } // Fecha
+        0: { cellWidth: 15, halign: 'center' },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 25, halign: 'center' },
+        3: { cellWidth: 30, halign: 'center' },
+        4: { cellWidth: 25, halign: 'right' },
+        5: { cellWidth: 20, halign: 'right' },
+        6: { cellWidth: 20, halign: 'right' },
+        7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
+        8: { cellWidth: 30, halign: 'center' }
       },
       margin: { left: 10, right: 10 }
     });
@@ -410,7 +395,6 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   private agregarTotalesPDF(doc: jsPDF, ventas: Venta[]): void {
     const finalY = (doc as any).lastAutoTable?.finalY || 100;
     
-    // Calcular totales
     const totalIGV = ventas.reduce((sum, venta) => sum + (venta.IGV || 0), 0);
     const totalVentas = ventas.reduce((sum, venta) => sum + venta.Total, 0);
     const totalEfectivo = ventas
@@ -423,11 +407,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
       .filter(v => v.ID_Tipo_Pago === 2)
       .reduce((sum, venta) => sum + venta.Total, 0);
 
-    // Fondo para totales
     doc.setFillColor(240, 240, 240);
     doc.rect(10, finalY + 5, 277, 30, 'F');
 
-    // Totales principales
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
@@ -439,13 +421,11 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     doc.text(`Total IGV: S/${totalIGV.toFixed(2)}`, 15, finalY + 22);
     doc.text(`Total Ventas: S/${totalVentas.toFixed(2)}`, 15, finalY + 28);
 
-    // Métodos de pago
     doc.text('POR MÉTODO DE PAGO:', 120, finalY + 15);
     doc.text(`Efectivo: S/${totalEfectivo.toFixed(2)}`, 120, finalY + 22);
     doc.text(`Tarjeta: S/${totalTarjeta.toFixed(2)}`, 120, finalY + 28);
     doc.text(`Digital: S/${totalDigital.toFixed(2)}`, 200, finalY + 22);
 
-    // Pie de página
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
@@ -462,9 +442,9 @@ export class VentaListComponent implements OnInit, AfterViewInit {
   }
 
   // ================================================================
-  // 🧾 MÉTODOS DE GENERACIÓN DE PDF ESPECÍFICOS
+  // 🧾 MÉTODOS DE GENERACIÓN DE PDF ESPECÍFICOS - ACTUALIZADOS
   // ================================================================
-  private generarBoletaPDF(venta: Venta, detalles: PedidoDetalle[]): void {
+  private generarBoletaPDF(venta: Venta, detalles: any[]): void {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 297] });
     const pageWidth = 80;
     let y = 10;
@@ -490,7 +470,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     // LÍNEA SEPARADORA
     doc.line(5, y, pageWidth - 5, y); y += 4;
 
-    // DETALLES DE PRODUCTOS
+    // DETALLES DE PRODUCTOS - USANDO VentaProducto
     doc.setFontSize(7).setFont('helvetica', 'bold');
     doc.text('Cant.', 5, y); 
     doc.text('Descripción', 15, y); 
@@ -498,9 +478,10 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     y += 4;
 
     doc.setFont('helvetica', 'normal');
-    detalles.forEach(d => {
-      const nombre = d.Nombre_Producto || d.Nombre_Combo || 'Item';
-      const desc = d.Tamano_Nombre ? `${nombre} (${d.Tamano_Nombre})` : nombre;
+    detalles.forEach((d: any) => {
+      const desc = d.Item_Nombre && d.Tamano_Nombre ? 
+        `${d.Item_Nombre} (${d.Tamano_Nombre})` : 
+        d.Item_Nombre || 'Item';
       
       const splitTitle = doc.splitTextToSize(desc, 55);
       
@@ -533,7 +514,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     this.abrirPDFEnNuevaVentana(doc, `Boleta_${venta.ID_Venta}.pdf`);
   }
 
-  private generarFacturaPDF(venta: Venta, detalles: PedidoDetalle[]): void {
+  private generarFacturaPDF(venta: Venta, detalles: any[]): void {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 297] });
     const pageWidth = 80;
     let y = 10;
@@ -563,9 +544,11 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     y += 4;
 
     doc.setFont('helvetica', 'normal');
-    detalles.forEach(d => {
-      const nombre = d.Nombre_Producto || d.Nombre_Combo || 'Item';
-      const desc = d.Tamano_Nombre ? `${nombre} (${d.Tamano_Nombre})` : nombre;
+    detalles.forEach((d: any) => {
+      const desc = d.Item_Nombre && d.Tamano_Nombre ? 
+        `${d.Item_Nombre} (${d.Tamano_Nombre})` : 
+        d.Item_Nombre || 'Item';
+      
       const split = doc.splitTextToSize(desc, 55);
       
       doc.text(d.Cantidad.toString(), 5, y);
@@ -574,7 +557,6 @@ export class VentaListComponent implements OnInit, AfterViewInit {
       y += (split.length * 3) + 2;
     });
 
-    // LÍNEA SEPARADORA ANTES DE TOTAL
     y += 2;
     doc.line(5, y, pageWidth - 5, y); y += 5;
 
@@ -585,7 +567,7 @@ export class VentaListComponent implements OnInit, AfterViewInit {
     this.abrirPDFEnNuevaVentana(doc, `Factura_${venta.ID_Venta}.pdf`);
   }
 
-  private generarComprobanteGeneralPDF(venta: Venta, detalles: PedidoDetalle[]) {
+  private generarComprobanteGeneralPDF(venta: Venta, detalles: any[]) {
     this.generarBoletaPDF(venta, detalles);
   }
 

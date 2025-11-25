@@ -172,13 +172,13 @@
 }
 
 .pdf-btn {
-  background: #ff9800;
-  border-color: #ff9800;
+  background: #e51d1d;
+  border-color: #e51d1d;
 }
 
 .pdf-btn:hover:not(:disabled) {
-  background: #f57c00;
-  border-color: #f57c00;
+  background: #e51d1d;
+  border-color: #e51d1d;
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
 }
 
@@ -381,7 +381,7 @@
 
 .cantidad-badge {
   background: #e3f2fd;
-  color: #1976d2;
+  color: #e51d1d;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.75rem;

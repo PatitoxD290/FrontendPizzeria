@@ -53,6 +53,7 @@ export class TamanoListComponent implements OnInit {
   filterValue = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+input: any;
 
   constructor(
     private tamanoService: TamanoService, 

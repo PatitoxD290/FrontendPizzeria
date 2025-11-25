@@ -143,9 +143,9 @@
   align-items: center;
   justify-content: center;
   padding: 0 16px;
-  background: #3f51b5;
+  background: #cc413d;
   color: white;
-  border: 1.5px solid #3f51b5;
+  border: 1.5px solid #cc413d;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -157,8 +157,8 @@
 }
 
 .export-btn-text:hover {
-  background: #303f9f;
-  border-color: #303f9f;
+  background: #cc413d;
+  border-color: #cc413d;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
 }
@@ -447,11 +447,11 @@
 
 .edit-btn {
   background: #e3f2fd;
-  color: #1976d2;
+  color: #cc413d;
 }
 
 .edit-btn:hover:not(:disabled) {
-  background: #1976d2;
+  background: #cc413d;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
