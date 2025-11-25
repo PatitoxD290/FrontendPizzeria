@@ -48,7 +48,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./cliente-list.component.css']
 })
 export class ClienteListComponent implements OnInit, AfterViewInit {
-
   displayedColumns: string[] = [
     'ID_Cliente', 
     'nombre_completo', 
@@ -62,7 +61,8 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
   loading = false;
   
   // Filtros
-  searchTerm: string = '';
+  filtroTexto: string = '';
+  selectedPeriodo: string = 'todos';
   fechaInicio?: Date;
   fechaFin?: Date;
 
@@ -108,46 +108,93 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
   setupFilterPredicate() {
     this.dataSource.filterPredicate = (cliente: Cliente, filter: string) => {
       // 1. Filtro de Texto
-      const term = this.searchTerm.trim().toLowerCase();
-      const matchText =
+      const term = this.filtroTexto.trim().toLowerCase();
+      const matchText = term === '' || 
         (cliente.Nombre?.toLowerCase().includes(term) || false) ||
         (cliente.Apellido?.toLowerCase().includes(term) || false) ||
         (cliente.Numero_Documento?.toLowerCase().includes(term) || false) ||
-        (cliente.Telefono?.toLowerCase().includes(term) || false);
+        (cliente.Telefono?.toLowerCase().includes(term) || false) ||
+        (cliente.ID_Cliente?.toString().includes(term) || false);
 
-      // 2. Filtro de Fechas
-      let matchDate = true;
-      if (this.fechaInicio || this.fechaFin) {
+      // 2. Filtro de Periodo
+      let matchPeriodo = true;
+      if (this.selectedPeriodo !== 'todos') {
         const fechaCliente = new Date(cliente.Fecha_Registro);
-        fechaCliente.setHours(0, 0, 0, 0);
+        const hoy = new Date();
         
-        if (this.fechaInicio) {
-          const inicio = new Date(this.fechaInicio);
-          inicio.setHours(0, 0, 0, 0);
-          if (fechaCliente < inicio) matchDate = false;
-        }
-        
-        if (this.fechaFin) {
-          const fin = new Date(this.fechaFin);
-          fin.setHours(23, 59, 59, 999);
-          if (fechaCliente > fin) matchDate = false;
+        switch (this.selectedPeriodo) {
+          case 'hoy':
+            matchPeriodo = this.esMismoDia(fechaCliente, hoy);
+            break;
+          case 'semana':
+            matchPeriodo = this.esEstaSemana(fechaCliente);
+            break;
+          case 'mes':
+            matchPeriodo = this.esEsteMes(fechaCliente);
+            break;
+          case 'mes_anterior':
+            matchPeriodo = this.esMesAnterior(fechaCliente);
+            break;
         }
       }
       
-      return matchText && matchDate;
+      return matchText && matchPeriodo;
     };
   }
 
-  applyFilters() {
-    this.dataSource.filter = 'trigger'; // Disparar el predicado
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  // 🗓️ Métodos para filtros de fecha
+  private esMismoDia(fecha1: Date, fecha2: Date): boolean {
+    return fecha1.getDate() === fecha2.getDate() &&
+           fecha1.getMonth() === fecha2.getMonth() &&
+           fecha1.getFullYear() === fecha2.getFullYear();
   }
 
+  private esEstaSemana(fecha: Date): boolean {
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+    inicioSemana.setHours(0, 0, 0, 0);
+    
+    const finSemana = new Date(inicioSemana);
+    finSemana.setDate(inicioSemana.getDate() + 6);
+    finSemana.setHours(23, 59, 59, 999);
+    
+    return fecha >= inicioSemana && fecha <= finSemana;
+  }
+
+  private esEsteMes(fecha: Date): boolean {
+    const hoy = new Date();
+    return fecha.getMonth() === hoy.getMonth() && 
+           fecha.getFullYear() === hoy.getFullYear();
+  }
+
+  private esMesAnterior(fecha: Date): boolean {
+    const hoy = new Date();
+    const mesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+    const inicioMesAnterior = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth(), 1);
+    const finMesAnterior = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth() + 1, 0, 23, 59, 59, 999);
+    
+    return fecha >= inicioMesAnterior && fecha <= finMesAnterior;
+  }
+
+  // 🎛️ Aplicar Filtros
+  aplicarFiltros() {
+    this.dataSource.filter = 'trigger'; // Disparar el predicado
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  // 🔄 Cambio de Periodo
+  onPeriodoChange() {
+    this.aplicarFiltros();
+  }
+
+  // 🧹 Limpiar Filtros
   limpiarFiltros() {
-    this.searchTerm = '';
-    this.fechaInicio = undefined;
-    this.fechaFin = undefined;
-    this.applyFilters();
+    this.filtroTexto = '';
+    this.selectedPeriodo = 'todos';
+    this.aplicarFiltros();
   }
 
   // 📝 Abrir Formulario
@@ -162,8 +209,6 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
       if (result === true) this.loadClientes();
     });
   }
-
- 
 
   // 🌟 Ver Puntos
   verPuntos(cliente: Cliente) {

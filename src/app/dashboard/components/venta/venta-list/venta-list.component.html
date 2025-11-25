@@ -7,65 +7,55 @@
       <p class="card-subtitle">Consulta y reimprime comprobantes</p>
     </div>
 
-    <!-- Filtros -->
     <div class="filtros-container">
+      <!-- Grupo izquierdo - Solo el buscador -->
       <div class="filtros-izquierda">
+        <!-- 🔍 BUSCADOR COMPACTO Y ELEGANTE -->
         <div class="search-field-compact">
           <div class="input-group-compact">
             <span class="material-icons input-icon-compact">search</span>
-            <input 
-              type="text" 
-              [(ngModel)]="filtroTexto" 
-              (keyup)="aplicarFiltros()" 
-              placeholder="Buscar por Cliente o ID"
-              #input
-              class="search-input-compact"
-            >
-            <button *ngIf="input.value" class="clear-search-btn-compact" (click)="limpiarFiltros()">
+            <input
+              type="text"
+              placeholder="Buscar cliente o ID..."
+              [(ngModel)]="filtroTexto"
+              (input)="aplicarFiltros()"
+              class="search-input-compact">
+            <button *ngIf="filtroTexto" class="clear-search-btn-compact" (click)="limpiarFiltros()">
               <span class="material-icons">close</span>
             </button>
           </div>
         </div>
-
-        <div class="date-group">
-          <div class="date-field-compact">
-            <input 
-              type="date" 
-              [(ngModel)]="fechaInicio" 
-              (change)="aplicarFiltros()"
-              class="date-input-compact"
-            >
-            <label class="date-label-compact">Desde</label>
-          </div>
-
-          <div class="date-field-compact">
-            <input 
-              type="date" 
-              [(ngModel)]="fechaFin" 
-              (change)="aplicarFiltros()"
-              class="date-input-compact"
-            >
-            <label class="date-label-compact">Hasta</label>
-          </div>
-        </div>
-
-        <button 
-          *ngIf="filtroTexto || fechaInicio || fechaFin" 
-          (click)="limpiarFiltros()" 
-          class="limpiar-btn-compact"
-        >
-          <span class="material-icons">filter_alt_off</span>
-          <span>Limpiar</span>
-        </button>
       </div>
 
       <div class="filtros-derecha">
+        <!-- 📅 Selector de Periodo mejorado -->
+        <div class="periodo-selector">
+          <label>Periodo</label>
+          <select 
+            class="periodo-select"
+            [(ngModel)]="selectedPeriodo" 
+            (change)="onPeriodoChange()">
+            <option value="todos">Todos los registros</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="mes_anterior">Mes anterior</option>
+          </select>
+        </div>
+
+        <!-- Botón Exportar PDF -->
         <button (click)="exportarPDF()" class="export-btn-text" title="Generar reporte PDF">
           <span class="material-icons">picture_as_pdf</span>
           <span class="btn-text">Exportar PDF</span>
         </button>
+
+        <!-- Botón Limpiar compacto -->
+        <button class="clear-btn" (click)="limpiarFiltros()" title="Limpiar filtros">
+          <span class="material-icons">close</span>
+        </button>
       </div>
     </div>
+
 
     <!-- Loading -->
     <div *ngIf="loading" class="spinner-container">
@@ -150,7 +140,7 @@
               <span class="total-text">S/ {{ row.Total | number:'1.2-2' }}</span>
             </td>
             <td class="table-cell">
-              <span class="date-text">{{ row.Fecha_Registro | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="date-text">{{ row.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
             </td>
             <td class="table-cell acciones-column">
               <div class="acciones-container">
@@ -173,13 +163,21 @@
               <div class="no-data-message">
                 <span class="material-icons no-data-icon">search_off</span>
                 <h3>No se encontraron ventas</h3>
-                <p *ngIf="filtroTexto || fechaInicio || fechaFin">No hay ventas que coincidan con los filtros aplicados</p>
-                <p *ngIf="!filtroTexto && !fechaInicio && !fechaFin">No hay ventas registradas en el sistema</p>
+                <p *ngIf="filtroTexto || selectedPeriodo !== 'todos'">No hay ventas que coincidan con los filtros aplicados</p>
+                <p *ngIf="!filtroTexto && selectedPeriodo === 'todos'">No hay ventas registradas en el sistema</p>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <!-- Paginación de Angular Material -->
+    <mat-paginator 
+      [pageSize]="5" 
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+      aria-label="Seleccionar página de ventas">
+    </mat-paginator>
   </div>
 </div>

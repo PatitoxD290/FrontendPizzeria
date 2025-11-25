@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription, interval, forkJoin, Subject } from 'rxjs';
-import { startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { Subscription, interval } from 'rxjs';
+import { startWith, switchMap } from 'rxjs/operators';
 
 // Angular Material
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -22,7 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 // Services & Models
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
-import { Pedido, PedidoDetalle } from '../../../../core/models/pedido.model';
+import { Pedido } from '../../../../core/models/pedido.model';
 import { Cliente } from '../../../../core/models/cliente.model';
 import { VerDetallePedidoComponent } from '../ver-detalle-pedido/ver-detalle-pedido.component';
 
@@ -137,7 +137,7 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // ✅ Cargar pedidos y calcular total
+  // ✅ Cargar pedidos - SOLO MOSTRAR PrecioTotal del backend
   loadPedidos(): void {
     this.loading = true;
     this.pedidoService.getPedidos().subscribe({
@@ -153,64 +153,29 @@ export class PedidoListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // 🔄 Procesar datos de pedidos (reutilizable)
-private processPedidosData(pedidos: Pedido[]): void {
-  pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
-  const pedidosConTotales: Pedido[] = [];
-
-  const promises = pedidos.map(pedido =>
-    this.pedidoService.getPedidoDetalles(pedido.ID_Pedido).toPromise()
-      .then((detalles: PedidoDetalle[] | undefined) => {
-        const listaDetalles = detalles ?? [];
-        
-        // 🟢 ESTRATEGIA DE CÁLCULO MEJORADA:
-        // 1. Priorizar SubTotal del pedido principal
-        // 2. Si no hay SubTotal, sumar PrecioTotal de detalles
-        // 3. Si no hay nada, usar 0
-        
-        let totalCalculado = 0;
-        
-        // Calcular total desde detalles si es necesario
-        if (!pedido.SubTotal || pedido.SubTotal === 0) {
-          totalCalculado = listaDetalles.reduce((acc, det) => {
-            return acc + (det.PrecioTotal || 0);
-          }, 0);
-        }
-        
-        // 🟢 DECISIÓN FINAL: Usar SubTotal si existe, sino el calculado
-        const precioFinal = pedido.SubTotal || totalCalculado;
-
-        pedidosConTotales.push({ 
-          ...pedido, 
-          PrecioTotal: precioFinal,
-          SubTotal: pedido.SubTotal || precioFinal // Mantener consistencia
-        });
-      })
-      .catch(() => {
-        // 🟢 En caso de error, usar SubTotal o 0
-        pedidosConTotales.push({ 
-          ...pedido, 
-          PrecioTotal: pedido.SubTotal || 0 
-        });
-      })
-  );
-
-  Promise.all(promises).then(() => {
+  // 🔄 Procesar datos de pedidos - SIN CÁLCULOS
+  private processPedidosData(pedidos: Pedido[]): void {
+    // Ordenar por ID descendente (más recientes primero)
+    pedidos.sort((a, b) => b.ID_Pedido - a.ID_Pedido);
+    
+    // Mantener el paginador actual si existe
     const currentPaginator = this.dataSource.paginator;
     const currentFilter = this.dataSource.filter;
     
-    this.dataSource = new MatTableDataSource(pedidosConTotales);
-    this.dataSource.paginator = currentPaginator || this.paginator;
+    // Asignar directamente los pedidos del backend
+    this.dataSource.data = pedidos;
+    
+    if (currentPaginator) {
+      this.dataSource.paginator = currentPaginator;
+    }
+    
     this.dataSource.sort = this.sort;
     this.dataSource.filter = currentFilter;
     
     this.loadClientes();
     this.setupFilterPredicate();
-  });
-}
+  }
 
-
-  
   // ✅ Configurar filtro personalizado
   private setupFilterPredicate(): void {
     this.dataSource.filterPredicate = (pedido: Pedido, filter: string) => {
@@ -278,9 +243,9 @@ private processPedidosData(pedidos: Pedido[]): void {
     });
   }
 
-formatMoneda(valor: number | undefined): string {
-  return this.moneda.format(valor || 0);
-}
+  formatMoneda(valor: number): string {
+    return this.moneda.format(valor || 0);
+  }
 
   // ✅ CORREGIDO: Estados según tu especificación
   getEstadoTexto(estado: string): string {
@@ -293,7 +258,7 @@ formatMoneda(valor: number | undefined): string {
     }
   }
 
-  // 🆕 EXPORTAR PDF
+  // 🆕 EXPORTAR PDF (sin cambios)
   exportarPDF(): void {
     if (this.dataSource.filteredData.length === 0) {
       Swal.fire('Información', 'No hay datos para generar el reporte PDF', 'info');

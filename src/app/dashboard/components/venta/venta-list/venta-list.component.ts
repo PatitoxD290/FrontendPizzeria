@@ -52,27 +52,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./venta-list.component.css']
 })
 export class VentaListComponent implements OnInit, AfterViewInit {
-getMetodoPagoIcon(_t67: Venta) {
-throw new Error('Method not implemented.');
-}
-getTipoComprobanteClass(_t67: Venta) {
-throw new Error('Method not implemented.');
-}
-previousPage() {
-throw new Error('Method not implemented.');
-}
-getRolLabel(_t87: any) {
-throw new Error('Method not implemented.');
-}
-canDelete(_t60: Venta) {
-throw new Error('Method not implemented.');
-}
-deleteUsuario(_t60: Venta) {
-throw new Error('Method not implemented.');
-}
-openNuevo() {
-throw new Error('Method not implemented.');
-}
 
   // ================================================================
   // 📊 PROPIEDADES DE LA TABLA Y DATOS
@@ -94,8 +73,7 @@ throw new Error('Method not implemented.');
   // 🔍 FILTROS
   // ================================================================
   filtroTexto: string = '';
-  fechaInicio: Date | null = null;
-  fechaFin: Date | null = null;
+  selectedPeriodo: string = 'todos';
   
   // ================================================================
   // 📄 CONTROL PDF
@@ -120,7 +98,7 @@ throw new Error('Method not implemented.');
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.configurarFiltro();
+    this.setupFilterPredicate();
   }
 
   // ================================================================
@@ -132,10 +110,15 @@ throw new Error('Method not implemented.');
       next: (data) => {
         this.dataSource.data = data;
         this.loading = false;
+        
+        if (this.paginator) {
+          this.paginator.firstPage();
+        }
       },
       error: (err) => {
         console.error('Error al cargar ventas:', err);
         this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar las ventas', 'error');
       }
     });
   }
@@ -143,39 +126,77 @@ throw new Error('Method not implemented.');
   // ================================================================
   // 🔍 MÉTODOS DE FILTRADO
   // ================================================================
-  configurarFiltro() {
-    this.dataSource.filterPredicate = (v: Venta, filter: string) => {
+  setupFilterPredicate() {
+    this.dataSource.filterPredicate = (venta: Venta, filter: string) => {
       // 1. Filtro de Texto
-      const txt = this.filtroTexto.toLowerCase();
-      
-      const coincideTexto =
-        (v.Cliente_Nombre || '').toLowerCase().includes(txt) ||
-        v.ID_Venta.toString().includes(txt) ||
-        (v.Tipo_Venta_Nombre || '').toLowerCase().includes(txt);
+      const term = this.filtroTexto.trim().toLowerCase();
+      const matchText = term === '' || 
+        (venta.Cliente_Nombre?.toLowerCase().includes(term) || false) ||
+        (venta.ID_Venta?.toString().includes(term) || false) ||
+        (venta.Tipo_Venta_Nombre?.toLowerCase().includes(term) || false);
 
-      // 2. Filtro de Fecha
-      let coincideFecha = true;
-      if (this.fechaInicio || this.fechaFin) {
-        const fechaVenta = new Date(v.Fecha_Registro);
-        fechaVenta.setHours(0,0,0,0);
-
-        if (this.fechaInicio) {
-          const inicio = new Date(this.fechaInicio);
-          inicio.setHours(0,0,0,0);
-          if (fechaVenta < inicio) coincideFecha = false;
-        }
+      // 2. Filtro de Periodo
+      let matchPeriodo = true;
+      if (this.selectedPeriodo !== 'todos') {
+        const fechaVenta = new Date(venta.Fecha_Registro);
+        const hoy = new Date();
         
-        if (this.fechaFin) {
-          const fin = new Date(this.fechaFin);
-          fin.setHours(23,59,59,999);
-          if (fechaVenta > fin) coincideFecha = false;
+        switch (this.selectedPeriodo) {
+          case 'hoy':
+            matchPeriodo = this.esMismoDia(fechaVenta, hoy);
+            break;
+          case 'semana':
+            matchPeriodo = this.esEstaSemana(fechaVenta);
+            break;
+          case 'mes':
+            matchPeriodo = this.esEsteMes(fechaVenta);
+            break;
+          case 'mes_anterior':
+            matchPeriodo = this.esMesAnterior(fechaVenta);
+            break;
         }
       }
-
-      return coincideTexto && coincideFecha;
+      
+      return matchText && matchPeriodo;
     };
   }
 
+  // 🗓️ Métodos para filtros de fecha
+  private esMismoDia(fecha1: Date, fecha2: Date): boolean {
+    return fecha1.getDate() === fecha2.getDate() &&
+           fecha1.getMonth() === fecha2.getMonth() &&
+           fecha1.getFullYear() === fecha2.getFullYear();
+  }
+
+  private esEstaSemana(fecha: Date): boolean {
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+    inicioSemana.setHours(0, 0, 0, 0);
+    
+    const finSemana = new Date(inicioSemana);
+    finSemana.setDate(inicioSemana.getDate() + 6);
+    finSemana.setHours(23, 59, 59, 999);
+    
+    return fecha >= inicioSemana && fecha <= finSemana;
+  }
+
+  private esEsteMes(fecha: Date): boolean {
+    const hoy = new Date();
+    return fecha.getMonth() === hoy.getMonth() && 
+           fecha.getFullYear() === hoy.getFullYear();
+  }
+
+  private esMesAnterior(fecha: Date): boolean {
+    const hoy = new Date();
+    const mesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+    const inicioMesAnterior = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth(), 1);
+    const finMesAnterior = new Date(mesAnterior.getFullYear(), mesAnterior.getMonth() + 1, 0, 23, 59, 59, 999);
+    
+    return fecha >= inicioMesAnterior && fecha <= finMesAnterior;
+  }
+
+  // 🎛️ Aplicar Filtros
   aplicarFiltros(): void {
     this.dataSource.filter = 'trigger'; 
     
@@ -184,12 +205,16 @@ throw new Error('Method not implemented.');
     }
   }
 
+  // 🔄 Cambio de Periodo
+  onPeriodoChange(): void {
+    this.aplicarFiltros();
+  }
+
+  // 🧹 Limpiar Filtros
   limpiarFiltros(): void {
     this.filtroTexto = '';
-    this.fechaInicio = null;
-    this.fechaFin = null;
-    this.dataSource.filter = '';
-    this.cargarVentas();
+    this.selectedPeriodo = 'todos';
+    this.aplicarFiltros();
   }
 
   // ================================================================
@@ -199,14 +224,15 @@ throw new Error('Method not implemented.');
     if (venta.Metodo_Pago_Nombre) return venta.Metodo_Pago_Nombre;
     switch (venta.ID_Tipo_Pago) {
       case 1: return 'Efectivo';
-      case 2: return 'Billetera Digital';
+      case 2: return 'YAPE/PLIN';
       case 3: return 'Tarjeta';
       default: return 'Otro';
     }
   }
 
   getTipoVentaLabel(venta: Venta): string {
-    return venta.Tipo_Venta_Nombre || (venta.ID_Tipo_Venta === 1 ? 'Boleta' : 'Factura');
+    return venta.Tipo_Venta_Nombre || (venta.ID_Tipo_Venta === 1 ? 'BOLETA' : 
+           venta.ID_Tipo_Venta === 2 ? 'FACTURA' : 'NOTA');
   }
 
   // ================================================================
@@ -249,180 +275,175 @@ throw new Error('Method not implemented.');
   }
 
   // ================================================================
-// 📊 EXPORTACIÓN DE REPORTE PDF COMPLETO
-// ================================================================
-exportarPDF(): void {
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4'
-  });
+  // 📊 EXPORTACIÓN DE REPORTE PDF COMPLETO
+  // ================================================================
+  exportarPDF(): void {
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
 
-  const ventas = this.dataSource.filteredData;
-  const fechaGeneracion = new Date().toLocaleString('es-PE');
-  
-  // Título y cabecera
-  this.agregarCabeceraPDF(doc, ventas.length);
-  
-  // Tabla de datos
-  this.agregarTablaPDF(doc, ventas);
-  
-  // Totales y pie de página
-  this.agregarTotalesPDF(doc, ventas);
-  
-  // Guardar PDF
-  doc.save(`Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
-}
-
-// ================================================================
-// 🧾 MÉTODOS AUXILIARES PARA REPORTE COMPLETO
-// ================================================================
-private agregarCabeceraPDF(doc: jsPDF, totalVentas: number): void {
-  // Fondo decorativo
-  doc.setFillColor(63, 81, 181);
-  doc.rect(0, 0, 297, 30, 'F');
-  
-  // Logo o ícono
-  doc.setFontSize(20);
-  doc.setTextColor(255, 255, 255);
-  doc.text('💰', 15, 18);
-  
-  // Título principal
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('REPORTE DE VENTAS', 25, 18);
-  
-  // Información de la empresa
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Sistema de Gestión Comercial', 200, 12);
-  doc.text('Tel: (01) 123-4567', 200, 17);
-  doc.text('Email: info@empresa.com', 200, 22);
-  
-  // Fecha de generación
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
-  
-  // Período del reporte
-  let periodo = 'Todos los registros';
-  if (this.fechaInicio && this.fechaFin) {
-    periodo = `Del ${this.formatearFechaParaPDF(this.fechaInicio)} al ${this.formatearFechaParaPDF(this.fechaFin)}`;
-  } else if (this.fechaInicio) {
-    periodo = `Desde ${this.formatearFechaParaPDF(this.fechaInicio)}`;
-  } else if (this.fechaFin) {
-    periodo = `Hasta ${this.formatearFechaParaPDF(this.fechaFin)}`;
+    const ventas = this.dataSource.filteredData;
+    
+    // Título y cabecera
+    this.agregarCabeceraPDF(doc, ventas.length);
+    
+    // Tabla de datos
+    this.agregarTablaPDF(doc, ventas);
+    
+    // Totales y pie de página
+    this.agregarTotalesPDF(doc, ventas);
+    
+    // Guardar PDF
+    doc.save(`Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
   }
-  
-  doc.text(`Período: ${periodo}`, 15, 45);
-  doc.text(`Total de ventas: ${totalVentas}`, 200, 40);
-}
 
-private agregarTablaPDF(doc: jsPDF, ventas: Venta[]): void {
-  const headers = [
-    ['ID', 'CLIENTE', 'TIPO', 'MÉTODO PAGO', 'MONTO RECIBIDO', 'VUELTO', 'IGV', 'TOTAL', 'FECHA REGISTRO']
-  ];
+  // ================================================================
+  // 🧾 MÉTODOS AUXILIARES PARA REPORTE COMPLETO
+  // ================================================================
+  private agregarCabeceraPDF(doc: jsPDF, totalVentas: number): void {
+    // Fondo decorativo
+    doc.setFillColor(63, 81, 181);
+    doc.rect(0, 0, 297, 30, 'F');
+    
+    // Logo o ícono
+    doc.setFontSize(20);
+    doc.setTextColor(255, 255, 255);
+    doc.text('💰', 15, 18);
+    
+    // Título principal
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DE VENTAS', 25, 18);
+    
+    // Información de la empresa
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Sistema de Gestión Comercial', 200, 12);
+    doc.text('Tel: (01) 123-4567', 200, 17);
+    doc.text('Email: info@empresa.com', 200, 22);
+    
+    // Fecha de generación
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generado: ${new Date().toLocaleString('es-PE')}`, 15, 40);
+    
+    // Período del reporte
+    let periodo = 'Todos los registros';
+    if (this.selectedPeriodo !== 'todos') {
+      periodo = `Período: ${this.selectedPeriodo}`;
+    }
+    
+    doc.text(periodo, 15, 45);
+    doc.text(`Total de ventas: ${totalVentas}`, 200, 40);
+  }
 
-  const data = ventas.map(venta => [
-    venta.ID_Venta.toString(),
-    venta.Cliente_Nombre || 'Cliente General',
-    this.getTipoVentaLabel(venta),
-    this.getMetodoPagoLabel(venta),
-    `S/${(venta.Monto_Recibido || 0).toFixed(2)}`,
-    venta.ID_Tipo_Pago === 1 && venta.Vuelto ? `S/${venta.Vuelto.toFixed(2)}` : '-',
-    `S/${venta.IGV?.toFixed(2) || '0.00'}`,
-    `S/${venta.Total.toFixed(2)}`,
-    this.formatearFechaParaPDF(venta.Fecha_Registro)
-  ]);
+  private agregarTablaPDF(doc: jsPDF, ventas: Venta[]): void {
+    const headers = [
+      ['ID', 'CLIENTE', 'TIPO', 'MÉTODO PAGO', 'MONTO RECIBIDO', 'VUELTO', 'IGV', 'TOTAL', 'FECHA REGISTRO']
+    ];
 
-  autoTable(doc, {
-    head: headers,
-    body: data,
-    startY: 50,
-    theme: 'grid',
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [200, 200, 200],
-      lineWidth: 0.1
-    },
-    headStyles: {
-      fillColor: [41, 128, 185],
-      textColor: 255,
-      fontStyle: 'bold',
-      fontSize: 9
-    },
-    alternateRowStyles: {
-      fillColor: [245, 245, 245]
-    },
-    columnStyles: {
-      0: { cellWidth: 15, halign: 'center' }, // ID
-      1: { cellWidth: 40 }, // Cliente
-      2: { cellWidth: 25, halign: 'center' }, // Tipo
-      3: { cellWidth: 30, halign: 'center' }, // Método Pago
-      4: { cellWidth: 25, halign: 'right' }, // Monto Recibido
-      5: { cellWidth: 20, halign: 'right' }, // Vuelto
-      6: { cellWidth: 20, halign: 'right' }, // IGV
-      7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Total
-      8: { cellWidth: 30, halign: 'center' } // Fecha
-    },
-    margin: { left: 10, right: 10 }
-  });
-}
+    const data = ventas.map(venta => [
+      venta.ID_Venta.toString(),
+      venta.Cliente_Nombre || 'Cliente General',
+      this.getTipoVentaLabel(venta),
+      this.getMetodoPagoLabel(venta),
+      `S/${(venta.Monto_Recibido || 0).toFixed(2)}`,
+      venta.ID_Tipo_Pago === 1 && venta.Vuelto ? `S/${venta.Vuelto.toFixed(2)}` : '-',
+      `S/${venta.IGV?.toFixed(2) || '0.00'}`,
+      `S/${venta.Total.toFixed(2)}`,
+      this.formatearFechaParaPDF(venta.Fecha_Registro)
+    ]);
 
-private agregarTotalesPDF(doc: jsPDF, ventas: Venta[]): void {
-  const finalY = (doc as any).lastAutoTable?.finalY || 100;
-  
-  // Calcular totales
-  const totalIGV = ventas.reduce((sum, venta) => sum + (venta.IGV || 0), 0);
-  const totalVentas = ventas.reduce((sum, venta) => sum + venta.Total, 0);
-  const totalEfectivo = ventas
-    .filter(v => v.ID_Tipo_Pago === 1)
-    .reduce((sum, venta) => sum + venta.Total, 0);
-  const totalTarjeta = ventas
-    .filter(v => v.ID_Tipo_Pago === 3)
-    .reduce((sum, venta) => sum + venta.Total, 0);
-  const totalDigital = ventas
-    .filter(v => v.ID_Tipo_Pago === 2)
-    .reduce((sum, venta) => sum + venta.Total, 0);
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 50,
+      theme: 'grid',
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      columnStyles: {
+        0: { cellWidth: 15, halign: 'center' }, // ID
+        1: { cellWidth: 40 }, // Cliente
+        2: { cellWidth: 25, halign: 'center' }, // Tipo
+        3: { cellWidth: 30, halign: 'center' }, // Método Pago
+        4: { cellWidth: 25, halign: 'right' }, // Monto Recibido
+        5: { cellWidth: 20, halign: 'right' }, // Vuelto
+        6: { cellWidth: 20, halign: 'right' }, // IGV
+        7: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Total
+        8: { cellWidth: 30, halign: 'center' } // Fecha
+      },
+      margin: { left: 10, right: 10 }
+    });
+  }
 
-  // Fondo para totales
-  doc.setFillColor(240, 240, 240);
-  doc.rect(10, finalY + 5, 277, 30, 'F');
+  private agregarTotalesPDF(doc: jsPDF, ventas: Venta[]): void {
+    const finalY = (doc as any).lastAutoTable?.finalY || 100;
+    
+    // Calcular totales
+    const totalIGV = ventas.reduce((sum, venta) => sum + (venta.IGV || 0), 0);
+    const totalVentas = ventas.reduce((sum, venta) => sum + venta.Total, 0);
+    const totalEfectivo = ventas
+      .filter(v => v.ID_Tipo_Pago === 1)
+      .reduce((sum, venta) => sum + venta.Total, 0);
+    const totalTarjeta = ventas
+      .filter(v => v.ID_Tipo_Pago === 3)
+      .reduce((sum, venta) => sum + venta.Total, 0);
+    const totalDigital = ventas
+      .filter(v => v.ID_Tipo_Pago === 2)
+      .reduce((sum, venta) => sum + venta.Total, 0);
 
-  // Totales principales
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 0, 0);
-  
-  doc.text('RESUMEN DE VENTAS', 15, finalY + 15);
-  
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Total IGV: S/${totalIGV.toFixed(2)}`, 15, finalY + 22);
-  doc.text(`Total Ventas: S/${totalVentas.toFixed(2)}`, 15, finalY + 28);
+    // Fondo para totales
+    doc.setFillColor(240, 240, 240);
+    doc.rect(10, finalY + 5, 277, 30, 'F');
 
-  // Métodos de pago
-  doc.text('POR MÉTODO DE PAGO:', 120, finalY + 15);
-  doc.text(`Efectivo: S/${totalEfectivo.toFixed(2)}`, 120, finalY + 22);
-  doc.text(`Tarjeta: S/${totalTarjeta.toFixed(2)}`, 120, finalY + 28);
-  doc.text(`Digital: S/${totalDigital.toFixed(2)}`, 200, finalY + 22);
+    // Totales principales
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    
+    doc.text('RESUMEN DE VENTAS', 15, finalY + 15);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total IGV: S/${totalIGV.toFixed(2)}`, 15, finalY + 22);
+    doc.text(`Total Ventas: S/${totalVentas.toFixed(2)}`, 15, finalY + 28);
 
-  // Pie de página
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
-  doc.text('Página 1 de 1', 260, 190);
-}
+    // Métodos de pago
+    doc.text('POR MÉTODO DE PAGO:', 120, finalY + 15);
+    doc.text(`Efectivo: S/${totalEfectivo.toFixed(2)}`, 120, finalY + 22);
+    doc.text(`Tarjeta: S/${totalTarjeta.toFixed(2)}`, 120, finalY + 28);
+    doc.text(`Digital: S/${totalDigital.toFixed(2)}`, 200, finalY + 22);
 
-private formatearFechaParaPDF(fecha: string | Date): string {
-  const fechaObj = new Date(fecha);
-  return fechaObj.toLocaleDateString('es-PE', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-}
+    // Pie de página
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Este reporte fue generado automáticamente por el Sistema de Gestión Comercial', 15, 190);
+    doc.text('Página 1 de 1', 260, 190);
+  }
+
+  private formatearFechaParaPDF(fecha: string | Date): string {
+    const fechaObj = new Date(fecha);
+    return fechaObj.toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  }
 
   // ================================================================
   // 🧾 MÉTODOS DE GENERACIÓN DE PDF ESPECÍFICOS

@@ -1,4 +1,4 @@
-/* cliente-list.component.css - ESTILO ELEGANTE COMPACTO */
+/* cliente-list.component.css - TABLA COMPACTA */
 :host {
   display: block;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -8,7 +8,7 @@
   padding: 24px;
   background: #f8f9fa;
   min-height: 100vh;
-  max-width: 1400px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
@@ -19,11 +19,6 @@
   overflow: hidden;
   border: 1px solid #e1e5e9;
   transition: all 0.3s ease;
-}
-
-.card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-  transform: translateY(-2px);
 }
 
 .card-header {
@@ -47,22 +42,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 10px 20px;
   background: #d11616;
   color: white;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(209, 22, 22, 0.3);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .add-btn:hover {
-  background: #b31212;
+  background: #a81010;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(209, 22, 22, 0.4);
+  box-shadow: 0 4px 12px rgba(209, 22, 22, 0.3);
 }
 
 .add-btn .material-icons {
@@ -70,7 +64,7 @@
 }
 
 /* ==================================================
-   🎨 FILTROS ELEGANTES - BUSCADOR COMPACTO
+   🎨 FILTROS
 ================================================== */
 .filtros-container {
   display: flex;
@@ -83,29 +77,29 @@
   flex-wrap: wrap;
 }
 
-/* 🔍 BUSCADOR COMPACTO */
 .filtros-izquierda {
   display: flex;
   align-items: center;
-  flex: 1;
 }
 
-.search-field {
-  min-width: 160px;
-  max-width: 240px;
-  flex: 0 1 auto;
+/* ==================================================
+   🎨 BUSCADOR COMPACTO Y ELEGANTE
+================================================== */
+.search-field-compact {
+  min-width: 340px;
+  max-width: 250px;
 }
 
-.input-group {
+.input-group-compact {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-.input-icon {
+.input-icon-compact {
   position: absolute;
-  left: 12px;
+  left: 10px;
   color: #64748b;
   z-index: 2;
   display: flex;
@@ -115,76 +109,83 @@
   transition: all 0.3s ease;
 }
 
-.search-input {
+.search-input-compact {
   width: 100%;
-  padding: 8px 14px 8px 36px;
+  padding: 4px 30px 4px 32px;
   border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 16px;
   font-size: 0.85rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: #ffffff;
   color: #1e293b;
   font-family: inherit;
-  height: 36px;
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  height: 32px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-.search-input:hover {
-  border-color: #cbd5e1;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    inset 0 1px 2px rgba(255, 255, 255, 0.9);
-}
-
-.search-input:focus {
+.search-input-compact:focus {
   outline: none;
   border-color: #d11616;
-  box-shadow: 
-    0 0 0 2px rgba(209, 22, 22, 0.1),
-    0 3px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 2px rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(209, 22, 22, 0.12);
+  padding-left: 34px;
 }
 
-.search-input:focus + .input-icon {
+.search-input-compact:focus + .input-icon-compact {
   color: #d11616;
   transform: scale(1.05);
 }
 
-.search-input::placeholder {
+.clear-search-btn-compact {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
   color: #94a3b8;
-  font-weight: 400;
-  font-size: 0.82rem;
-  letter-spacing: -0.1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
-/* ==================================================
-   🎨 GRUPO DERECHO - FECHAS Y BOTÓN LIMPIAR
-================================================== */
+.clear-search-btn-compact:hover {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.clear-search-btn-compact .material-icons {
+  font-size: 16px;
+}
+
 .filtros-derecha {
   display: flex;
   align-items: flex-end;
   gap: 16px;
+  margin-left: auto;
 }
 
-/* Selector de Fechas elegante */
-.fecha-selector {
+/* ==================================================
+   📅 SELECTOR DE PERIODO MEJORADO
+================================================== */
+.periodo-selector {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 140px;
+  min-width: 160px;
 }
 
-.fecha-selector label {
+.periodo-selector label {
   font-weight: 600;
   color: #5a6c7d;
   font-size: 0.85rem;
   margin-bottom: 0;
+  white-space: nowrap;
 }
 
-.fecha-input {
+.periodo-select {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #d1d9e2;
@@ -196,37 +197,42 @@
   font-family: inherit;
   height: 36px;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.fecha-input:focus {
+.periodo-select:focus {
   outline: none;
   border-color: #d11616;
-  box-shadow: 0 0 0 3px rgba(209, 22, 22, 0.1);
+  box-shadow: 0 0 0 2px rgba(209, 22, 22, 0.12);
 }
 
-/* Botón Limpiar elegante */
+.periodo-select:hover {
+  border-color: #a0aec0;
+}
+
+/* ==================================================
+   🎨 BOTÓN LIMPIAR COMPACTO
+================================================== */
 .clear-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  width: 36px;
+  height: 36px;
   background: #f8f9fa;
-  color: #6c757d;
-  border: 1.5px solid #dee2e6;
+  border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  height: 36px;
-  width: 36px;
-  min-width: 36px;
+  color: #64748b;
 }
 
 .clear-btn:hover {
-  background: #d11616;
-  border-color: #d11616;
+  background: #e53e3e;
+  border-color: #e53e3e;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(209, 22, 22, 0.3);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
 
 .clear-btn .material-icons {
@@ -234,7 +240,7 @@
 }
 
 /* ==================================================
-   🎨 TABLA ELEGANTE
+   🎨 TABLA COMPACTA
 ================================================== */
 .table-container {
   padding: 0;
@@ -247,19 +253,19 @@
   width: 100%;
   border-collapse: collapse;
   background: white;
-  font-size: 1.05rem;
+  font-size: 0.82rem;
   table-layout: fixed;
 }
 
-/* HEADERS ELEGANTES */
+/* HEADERS COMPACTOS */
 .table-header {
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
   color: #4a5568;
   font-weight: 700;
-  padding: 17px 14px;
+  padding: 12px 10px;
   text-align: left;
   border-bottom: 2px solid #d1d9e6;
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -267,64 +273,63 @@
   text-overflow: ellipsis;
 }
 
-/* DISTRIBUCIÓN ELEGANTE DE COLUMNAS */
+/* DISTRIBUCIÓN DE COLUMNAS COMPACTA */
 .table-header:nth-child(1), .table-cell:nth-child(1) { 
-  width: 8%; 
-  padding-left: 18px;
-  padding-right: 10px;
+  width: 4%; 
+  padding-left: 16px;
+  padding-right: 8px;
 }
 
 .table-header:nth-child(2), .table-cell:nth-child(2) { 
   width: 25%; 
-  padding-left: 14px;
-  padding-right: 10px;
+  padding-left: 12px;
+  padding-right: 8px;
 }
 
 .table-header:nth-child(3), .table-cell:nth-child(3) { 
   width: 15%; 
-  padding-left: 14px;
-  padding-right: 10px;
+  padding-left: 12px;
+  padding-right: 8px;
 }
 
 .table-header:nth-child(4), .table-cell:nth-child(4) { 
   width: 15%;
-  padding-left: 14px;
-  padding-right: 10px;
+  padding-left: 12px;
+  padding-right: 8px;
 }
 
 .table-header:nth-child(5), .table-cell:nth-child(5) { 
-  width: 12%; 
-  padding-left: 14px;
-  padding-right: 10px;
+  width: 14%; 
+  padding-left: 12px;
+  padding-right: 8px;
 }
 
 .table-header:nth-child(6), .table-cell:nth-child(6) { 
-  width: 15%; 
-  padding-left: 14px;
-  padding-right: 18px;
+  width: 12%; 
+  padding-left: 12px;
+  padding-right: 16px;
 }
 
-/* CONTENIDO DE HEADERS ELEGANTE */
 .header-content {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   overflow: hidden;
   justify-content: flex-start;
   text-align: left;
 }
 
 .header-content .material-icons {
-  font-size: 17px;
+  font-size: 15px;
   color: #6b7280;
   flex-shrink: 0;
 }
 
-/* FILAS ELEGANTES */
+/* FILAS COMPACTAS */
 .table-row {
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #f1f5f9;
-  height: 64px;
+  height: 48px;
 }
 
 .table-row:hover {
@@ -333,17 +338,17 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
 
-/* CELDAS ELEGANTES */
+/* CELDAS COMPACTAS */
 .table-cell {
-  padding: 14px 12px;
-  font-size: 1rem;
+  padding: 10px 8px;
+  font-size: 0.82rem;
   color: #4a5568;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
   border-bottom: 1px solid #f1f5f9;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 /* ALINEACIÓN ESPECÍFICA POR COLUMNA */
@@ -351,10 +356,10 @@
 .table-cell:nth-child(2) { text-align: left; }
 .table-cell:nth-child(3) { text-align: left; }
 .table-cell:nth-child(4) { text-align: left; }
-.table-cell:nth-child(5) { text-align: left; }
+.table-cell:nth-child(5) { text-align: center; }
 .table-cell:nth-child(6) { text-align: center; }
 
-/* Celdas específicas */
+/* Elementos internos compactos */
 .id-cell {
   text-align: center;
 }
@@ -362,15 +367,15 @@
 .id-badge {
   background: #f1f5f9;
   color: #475569;
-  padding: 7px 12px;
-  border-radius: 7px;
-  font-size: 0.9rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
   font-weight: 700;
   display: inline-block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.35;
+  line-height: 1.3;
   border: 1px solid #e2e8f0;
 }
 
@@ -380,23 +385,23 @@
   white-space: nowrap;
   display: block;
   text-align: left;
-  line-height: 1.45;
+  line-height: 1.4;
   font-weight: 500;
 }
 
 .date-text {
   color: #6b7280;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  line-height: 1.4;
   font-weight: 500;
 }
 
 .text-muted {
-  color: #9ca3af !important;
+  color: #9ca3af;
   font-style: italic;
 }
 
-/* ACCIONES ELEGANTES */
+/* ACCIONES COMPACTAS */
 .acciones-container {
   display: flex;
   justify-content: center;
@@ -407,68 +412,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 16px;
-}
-
-.puntos-btn {
-  background: #fff3e0;
-  color: #ff9800;
-}
-
-.puntos-btn:hover:not([disabled]) {
-  background: #ff9800;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-}
-
-.puntos-btn:disabled {
-  background: #f5f5f5;
-  color: #bdbdbd;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  font-size: 15px;
 }
 
 .edit-btn {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #f5f5f5;
+  color: #e9280e;
 }
 
 .edit-btn:hover {
-  background: #1976d2;
-  color: white;
+  background: #ffffff;
+  color: #e9280e;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
-.delete-btn {
-  background: #ffebee;
-  color: #f44336;
-}
-
-.delete-btn:hover:not([disabled]) {
-  background: #f44336;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
-}
-
-.delete-btn:disabled {
-  background: #f5f5f5;
-  color: #bdbdbd;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Spinner elegante */
+/* ==================================================
+   🎨 ELEMENTOS ADICIONALES
+================================================== */
 .spinner-container {
   display: flex;
   flex-direction: column;
@@ -500,7 +467,6 @@
   font-size: 1.05rem;
 }
 
-/* Mensaje sin datos elegante */
 .no-data {
   text-align: center;
   padding: 65px 24px;
@@ -527,7 +493,7 @@
 }
 
 /* ==================================================
-   🎨 PAGINACIÓN ELEGANTE ROJA
+   🎨 PAGINACIÓN
 ================================================== */
 .pagination-container {
   display: flex;
@@ -549,7 +515,7 @@
 .pagination-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 7px;
 }
 
 .pagination-btn {
@@ -575,7 +541,7 @@
 }
 
 .pagination-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -586,9 +552,9 @@
 
 .page-info {
   color: #64748b;
-  font-size: 0.9rem;
   font-weight: 600;
-  padding: 8px 12px;
+  font-size: 0.9rem;
+  padding: 0 12px;
 }
 
 .page-size-selector {
@@ -612,3 +578,189 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
+/* ==================================================
+   📱 RESPONSIVE COMPACTO
+================================================== */
+@media (max-width: 1400px) {
+  .table-header,
+  .table-cell {
+    font-size: 0.78rem;
+    padding: 10px 8px;
+  }
+  
+  .table-row {
+    height: 44px;
+  }
+  
+  .header-content .material-icons {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .table-header,
+  .table-cell {
+    font-size: 0.75rem;
+    padding: 9px 7px;
+  }
+  
+  .table-row {
+    height: 42px;
+  }
+  
+  .card-header {
+    padding: 20px 24px;
+  }
+  
+  .filtros-container {
+    padding: 18px 24px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .table-header:nth-child(3),
+  .table-cell:nth-child(3) {
+    display: none;
+  }
+  
+  .table-header:nth-child(1), .table-cell:nth-child(1) { width: 10%; }
+  .table-header:nth-child(2), .table-cell:nth-child(2) { width: 30%; }
+  .table-header:nth-child(4), .table-cell:nth-child(4) { width: 20%; }
+  .table-header:nth-child(5), .table-cell:nth-child(5) { width: 15%; }
+  .table-header:nth-child(6), .table-cell:nth-child(6) { width: 15%; }
+}
+
+@media (max-width: 768px) {
+  .cliente-container {
+    padding: 16px;
+  }
+  
+  .card-header {
+    padding: 18px 24px 16px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .card-header h2 {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+  
+  .filtros-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 20px;
+  }
+  
+  .filtros-izquierda,
+  .filtros-derecha {
+    width: 100%;
+  }
+  
+  .search-field-compact {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+  }
+  
+  .filtros-derecha {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+  
+  .periodo-selector {
+    min-width: auto;
+    flex: 1;
+  }
+  
+  .table-header:nth-child(4),
+  .table-cell:nth-child(4) {
+    display: none;
+  }
+  
+  .table-header:nth-child(1), .table-cell:nth-child(1) { 
+    width: 15%; 
+    padding-left: 14px;
+  }
+  .table-header:nth-child(2), .table-cell:nth-child(2) { 
+    width: 35%; 
+  }
+  .table-header:nth-child(5), .table-cell:nth-child(5) { 
+    width: 20%; 
+  }
+  .table-header:nth-child(6), .table-cell:nth-child(6) { 
+    width: 20%; 
+  }
+  
+  .table-cell {
+    padding: 10px 8px;
+    font-size: 0.78rem;
+  }
+  
+  .table-row {
+    height: 40px;
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 14px;
+    padding: 16px 20px;
+  }
+  
+  .pagination-controls {
+    justify-content: center;
+  }
+  
+  .page-numbers {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .cliente-container {
+    padding: 12px;
+  }
+  
+  .card-header {
+    padding: 16px 20px 14px;
+  }
+  
+  .card-header h2 {
+    font-size: 1.4rem;
+  }
+  
+  .no-data {
+    padding: 45px 20px;
+  }
+  
+  .no-data h3 {
+    font-size: 1.2rem;
+  }
+  
+  .table-row {
+    height: 38px;
+  }
+  
+  .filtros-derecha {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .periodo-selector {
+    width: 100%;
+  }
+  
+  .clear-btn {
+    align-self: flex-end;
+  }
+  
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
