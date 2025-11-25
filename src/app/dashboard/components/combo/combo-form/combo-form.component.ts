@@ -180,20 +180,17 @@ export class ComboFormComponent implements OnInit {
   // =========================================
   // 🔍 FILTROS Y BÚSQUEDA
   // =========================================
-
-  filtrarProductos() {
-    const termino = this.terminoBusqueda.toLowerCase().trim();
+filtrarProductos() {
+  const termino = this.terminoBusqueda.toLowerCase().trim();
+  
+  this.productosFiltrados = this.productos.filter(producto => {
+    const coincideNombre = producto.Nombre.toLowerCase().includes(termino);
+    const coincideCategoria = this.categoriaFiltro === 0 || producto.ID_Categoria_P === this.categoriaFiltro;
+    const productoActivo = producto.Estado === 'A'; // Solo productos con Estado = 'A'
     
-    this.productosFiltrados = this.productos.filter(producto => {
-      const coincideNombre = producto.Nombre.toLowerCase().includes(termino);
-      const coincideCategoria = this.categoriaFiltro === 0 || producto.ID_Categoria_P === this.categoriaFiltro;
-      const activo = producto.Estado === 'A';
-      // Verificar que tenga al menos un tamaño activo
-      const tieneTamanos = producto.tamanos && producto.tamanos.some(t => t.Estado === 'A');
-
-      return coincideNombre && coincideCategoria && activo && tieneTamanos;
-    });
-  }
+    return coincideNombre && coincideCategoria && productoActivo;
+  });
+}
 
   limpiarFiltros() {
     this.terminoBusqueda = '';
@@ -284,9 +281,20 @@ export class ComboFormComponent implements OnInit {
     return undefined;
   }
 
-  getTamanosActivos(producto: Producto): ProductoTamano[] {
-    return producto.tamanos?.filter(t => t.Estado === 'A') || [];
-  }
+getTamanosActivos(producto: Producto): ProductoTamano[] {
+  // Filtrar solo los tamaños con estado 'A' (Activo)
+  return (producto.tamanos || []).filter(tamano => tamano.Estado === 'A');
+}
+
+// Método para verificar si un producto tiene tamaños activos disponibles
+tieneTamanosActivos(producto: Producto): boolean {
+  return this.getTamanosActivos(producto).length > 0;
+}
+
+// Método para obtener todos los tamaños (activos e inactivos) - para mostrar información
+getTodosLosTamanos(producto: Producto): ProductoTamano[] {
+  return producto.tamanos || [];
+}
 
   getNombreCategoria(id: number): string {
     const cat = this.categorias.find(c => c.ID_Categoria_P === id);

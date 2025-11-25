@@ -386,3 +386,65 @@ mat-form-field {
     justify-content: space-between;
   }
 }
+
+/* Estados de productos */
+.estado-badge {
+  font-size: 0.7em;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.estado-badge.activo {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.estado-badge.inactivo {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.estado-badge.agotado {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffe0b2;
+}
+
+/* Estado de tamaños */
+.estado-tamano {
+  font-size: 0.65em;
+  margin-top: 2px;
+}
+
+.estado-tamano.activo {
+  color: #4caf50;
+}
+
+.estado-tamano:not(.activo) {
+  color: #f44336;
+}
+
+/* Tamaños inactivos */
+.tamano-item.tamano-inactivo {
+  opacity: 0.6;
+  background-color: #f9f9f9;
+}
+
+/* Mensaje sin tamaños */
+.no-tamanos {
+  text-align: center;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+/* Deshabilitar botón para tamaños inactivos */
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

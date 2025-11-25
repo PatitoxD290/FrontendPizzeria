@@ -30,19 +30,22 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* 🔹 CONTENEDOR DE IMAGEN MODIFICADO PARA MOSTRAR IMAGEN COMPLETA */
 .producto-imagen-container {
-  width: 98%;
-  height: 200px;
+  width: 100%; /* Cambiado de 98% a 100% */
+  height: 160px; /* Aumentado de 140px a 160px */
   overflow: hidden;
   position: relative;
-  margin: 0 auto;
-  margin-top: 6px;
+  margin: 0; /* Eliminado el margen auto y top */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa; /* Fondo por si la imagen es más pequeña */
 }
-
 .producto-imagen {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Cambiado de 'cover' a 'contain' para mostrar imagen completa */
   transition: transform 0.3s ease;
 }
 
@@ -65,7 +68,7 @@
   display: flex;
   align-items: center;
   margin-bottom: -2px;
-  gap: 0.5px; /* 🔹 REDUCIDO AÚN MÁS: de 1.8px a 0.5px */
+  gap: 0.5px;
 }
 
 /* Para combos: el badge ocupa la posición */
@@ -236,7 +239,7 @@
   align-items: center;
   gap: 4px;
   transform: scale(0.7);
-  transform-origin: left center; /* 🔹 CAMBIADO: ahora desde la izquierda */
+  transform-origin: left center;
   box-shadow: none;
   z-index: auto;
 }
@@ -261,7 +264,7 @@
   position: relative;
 }
 
-/* 📱 AJUSTES RESPONSIVE */
+/* 📱 AJUSTES RESPONSIVE CON IMAGEN MÁS PEQUEÑA */
 @media (max-width: 768px) {
   .menu-container {
     padding: 15px;
@@ -273,8 +276,8 @@
   }
 
   .producto-imagen-container {
-    height: 170px;
-    width: 98%;
+    height: 120px; /* Aumentado de 100px a 120px en móvil */
+    width: 100%;
   }
 
   .producto-info {
@@ -310,8 +313,8 @@
   }
 
   .producto-imagen-container {
-    height: 150px;
-    width: 98%;
+    height: 110px; /* Aumentado de 90px a 110px en móvil pequeño */
+    width: 100%;
   }
 
   .producto-nombre {
@@ -333,7 +336,7 @@
   .categoria-badges-container {
     flex-direction: row;
     align-items: center;
-    gap: 1.4px; /* 🔹 REDUCIDO 70%: de 4px a 1.4px para móvil */
+    gap: 1.4px;
   }
 }
 
