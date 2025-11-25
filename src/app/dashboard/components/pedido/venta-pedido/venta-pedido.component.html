@@ -5,9 +5,9 @@
   <mat-dialog-content>
     <!-- Total a Pagar -->
     <div class="total-display">
-      <span class="total-label">Total a Pagar</span>
-      <span class="total-amount">S/ {{ data.total | number:'1.2-2' }}</span>
-    </div>
+    <span class="total-label">Total a Pagar</span>
+    <span class="total-amount">S/ {{ totalCalculado | number:'1.2-2' }}</span>
+  </div>
 
     <!-- Selección de Método -->
     <div class="metodos-wrapper">
@@ -74,7 +74,7 @@
       <mat-icon class="icono-grande">qr_code_2</mat-icon>
       <h3>Billetera Digital</h3>
       <p>Pago por Yape o Plin. Confirme una vez recibido.</p>
-      <div class="monto-exacto">Monto exacto: <strong>S/ {{ data.total | number:'1.2-2' }}</strong></div>
+<div class="monto-exacto">Monto exacto: <strong>S/ {{ totalCalculado | number:'1.2-2' }}</strong></div>
     </div>
 
     <!-- TARJETA -->

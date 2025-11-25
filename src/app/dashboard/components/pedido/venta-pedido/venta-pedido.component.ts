@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
 import { VentaService } from '../../../../core/services/venta.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
-import { PedidoDetalle, PedidoCreacionDTO } from '../../../../core/models/pedido.model';
+import { PedidoDetalle, PedidoCreacionDTO, DatosPedido } from '../../../../core/models/pedido.model';
 import { VentaCreacionDTO } from '../../../../core/models/venta.model';
 import { Cliente } from '../../../../core/models/cliente.model';
 
@@ -67,28 +67,57 @@ export class VentaPedidoComponent implements OnInit {
   cargando: boolean = false;
   clienteData: Cliente | null = null;
 
+  // 🔹 Datos calculados
+  subTotalCalculado: number = 0;
+  totalCalculado: number = 0;
+
   constructor(
     public dialogRef: MatDialogRef<VentaPedidoComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { 
       total: number, 
       codigoPedido: string, 
       idUsuario: number,
-      detalles: PedidoDetalle[]
+      detalles: PedidoDetalle[],
+      datosPedido?: DatosPedido[] // 🔹 AGREGADO: Para calcular precios
     },
     private pedidoService: PedidoService,
     private ventaService: VentaService,
     private clienteService: ClienteService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.calcularMontos(); // 🔹 CALCULAR MONTOS AL INICIAR
+  }
 
   // ============================================================
-  // 1️⃣ LÓGICA DE PAGO (CALCULADORA)
+  // 🧮 CÁLCULO DE MONTOS - CORREGIDO
+  // ============================================================
+
+private calcularMontos(): void {
+  // 🔹 CALCULAR SUBTOTAL SUMANDO TODOS LOS PRECIOS TOTALES DE DETALLES
+  this.subTotalCalculado = this.data.detalles.reduce((total, detalle) => {
+    const precioDetalle = detalle.PrecioTotal || 0;
+    console.log(`📊 Detalle: ${detalle.Nombre_Item} - PrecioTotal: ${precioDetalle}`);
+    return total + precioDetalle;
+  }, 0);
+
+  // 🔹 EN TU MODELO, EL TOTAL ES EL MISMO QUE SUBTOTAL (IGV=0)
+  this.totalCalculado = this.subTotalCalculado;
+
+  console.log('🔢 Montos calculados:', {
+    subtotal: this.subTotalCalculado,
+    total: this.totalCalculado,
+    detallesCount: this.data.detalles.length
+  });
+}
+
+  // ============================================================
+  // 1️⃣ LÓGICA DE PAGO (CALCULADORA) - ACTUALIZADA
   // ============================================================
 
   calcularVuelto() {
     const recibeNum = parseFloat(this.recibe) || 0;
-    this.vuelto = Math.max(0, recibeNum - this.data.total);
+    this.vuelto = Math.max(0, recibeNum - this.totalCalculado); // 🔹 USAR totalCalculado
   }
 
   onRecibeChange() {
@@ -125,7 +154,7 @@ export class VentaPedidoComponent implements OnInit {
   }
 
   setMontoExacto() {
-    this.recibe = this.data.total.toString();
+    this.recibe = this.totalCalculado.toString(); // 🔹 USAR totalCalculado
     this.calcularVuelto();
   }
 
@@ -143,18 +172,18 @@ export class VentaPedidoComponent implements OnInit {
         return false;
       }
       
-      if (recibeNum < this.data.total) {
+      if (recibeNum < this.totalCalculado) { // 🔹 USAR totalCalculado
         Swal.fire({
           icon: 'warning',
           title: 'Monto insuficiente',
-          text: `El monto recibido es menor al total a pagar. Faltan S/ ${(this.data.total - recibeNum).toFixed(2)}`,
+          text: `El monto recibido es menor al total a pagar. Faltan S/ ${(this.totalCalculado - recibeNum).toFixed(2)}`,
           confirmButtonColor: '#d33'
         });
         return false;
       }
     } else {
       // Para tarjeta/billetera asumimos pago exacto
-      this.recibe = this.data.total.toString();
+      this.recibe = this.totalCalculado.toString(); // 🔹 USAR totalCalculado
       this.vuelto = 0;
     }
     return true;
@@ -271,60 +300,104 @@ export class VentaPedidoComponent implements OnInit {
   }
 
   // ============================================================
-  // 🚀 PROCESO FINAL: CREAR PEDIDO Y VENTA
+  // 🚀 PROCESO FINAL: CREAR PEDIDO Y VENTA - CORREGIDO
   // ============================================================
 
-  private registrarVentaCompleta(idCliente: number) {
-    this.cargando = true;
+private registrarVentaCompleta(idCliente: number) {
+  this.cargando = true;
 
-    // 1. Preparar Detalles para el Backend
-    const detallesDTO = this.data.detalles.map(d => ({
+  // 🔹 1. PREPARAR DETALLES CON PRECIOTOTAL CORRECTO - VERIFICAR ESTO
+  const detallesDTO = this.data.detalles.map(d => {
+    // 🔹 VERIFICAR QUE PRECIOTOTAL ESTÉ CALCULADO CORRECTAMENTE
+    const precioTotal = d.PrecioTotal || 0;
+    
+    console.log('📦 Mapeando detalle para backend:', {
+      nombre: d.Nombre_Item,
+      cantidad: d.Cantidad,
+      precioTotal: precioTotal,
+      tipo: d.Tipo
+    });
+
+    return {
       ID_Producto_T: d.ID_Producto_T || null,
       ID_Combo: d.ID_Combo || null,
       Cantidad: d.Cantidad,
-      PrecioTotal: d.PrecioTotal
-    }));
-
-    // 2. Crear Objeto Pedido DTO
-    const pedidoDTO: PedidoCreacionDTO = {
-      ID_Cliente: idCliente,
-      ID_Usuario: this.data.idUsuario,
-      Notas: this.generarNotas(),
-      SubTotal: this.data.total,
-      detalles: detallesDTO
+      PrecioTotal: precioTotal, // 🔹 ESTE DEBE SER > 0
+      Complementos: []
     };
+  });
 
-    // 3. Llamar al servicio de Pedidos
+  // 🔹 2. CALCULAR SUBTOTAL NUEVAMENTE PARA VERIFICAR
+  const subTotalVerificado = detallesDTO.reduce((total, detalle) => {
+    return total + (detalle.PrecioTotal || 0);
+  }, 0);
+
+  console.log('🔢 Verificación final antes de enviar:', {
+    subtotalCalculado: this.subTotalCalculado,
+    subtotalVerificado: subTotalVerificado,
+    detallesDTO: detallesDTO
+  });
+
+  // 🔹 3. CREAR OBJETO PEDIDO DTO CON VALORES CORRECTOS
+  const pedidoDTO: PedidoCreacionDTO = {
+    ID_Cliente: idCliente,
+    ID_Usuario: this.data.idUsuario,
+    Notas: this.generarNotas(),
+    SubTotal: subTotalVerificado, // 🔹 USAR EL VALOR VERIFICADO
+    Estado_P: 'P',
+    detalles: detallesDTO
+  };
+
+  console.log('📤 FINAL - Enviando Pedido DTO al backend:', pedidoDTO);
+
+    // 🔹 3. LLAMAR AL SERVICIO DE PEDIDOS
     this.pedidoService.createPedido(pedidoDTO).subscribe({
       next: (resPedido) => {
         const idPedidoCreado = resPedido.ID_Pedido;
+        
+        console.log('✅ Pedido creado:', {
+          idPedido: idPedidoCreado,
+          subtotal: resPedido.SubTotal
+        });
 
-        // 4. Crear Objeto Venta DTO
+        // 🔹 4. CREAR OBJETO VENTA DTO
         const ventaDTO: VentaCreacionDTO = {
           ID_Pedido: idPedidoCreado,
           ID_Tipo_Venta: this.selectedTipoComprobante!,
           ID_Tipo_Pago: this.selectedMetodoPago,
           ID_Origen_Venta: this.ORIGEN_VENTA.MOSTRADOR,
-          Monto_Recibido: parseFloat(this.recibe) || this.data.total
+          Monto_Recibido: parseFloat(this.recibe) || this.totalCalculado // 🔹 USAR TOTAL CALCULADO
         };
-console.log('Venta DTO:', ventaDTO);
-        // 5. Llamar al servicio de Ventas
+
+        console.log('📤 Enviando Venta DTO:', ventaDTO);
+
+        // 🔹 5. LLAMAR AL SERVICIO DE VENTAS
         this.ventaService.createVenta(ventaDTO).subscribe({
           next: (resVenta) => {
             this.cargando = false;
             
-            // 🔹 Generar comprobante PDF
+            console.log('✅ Venta creada:', {
+              idVenta: resVenta.ID_Venta,
+              total: resVenta.Total,
+              puntos: resVenta.Puntos_Ganados
+            });
+            
+            // 🔹 GENERAR COMPROBANTE PDF
             this.generarComprobantePDF(resVenta.ID_Venta, idPedidoCreado);
             
-            // 🔹 Mostrar mensaje de éxito
+            // 🔹 MOSTRAR MENSAJE DE ÉXITO
             this.mostrarMensajeExito(resVenta.Puntos_Ganados, idPedidoCreado, resVenta.ID_Venta);
             
-            // 🔹 Cerrar modal indicando éxito
-            this.dialogRef.close({ registrado: true });
+            // 🔹 CERRAR MODAL INDICANDO ÉXITO
+            this.dialogRef.close({ 
+              registrado: true,
+              idPedido: idPedidoCreado,
+              idVenta: resVenta.ID_Venta
+            });
           },
           error: (err) => {
             this.cargando = false;
-            console.error('Error al crear venta:', err);
+            console.error('❌ Error al crear venta:', err);
             Swal.fire({ 
               icon: 'error', 
               title: 'Error en venta', 
@@ -335,7 +408,7 @@ console.log('Venta DTO:', ventaDTO);
       },
       error: (err) => {
         this.cargando = false;
-        console.error('Error al crear pedido:', err);
+        console.error('❌ Error al crear pedido:', err);
         Swal.fire({ 
           icon: 'error', 
           title: 'Error', 
@@ -361,7 +434,8 @@ console.log('Venta DTO:', ventaDTO);
         • Pedido: <strong>${this.data.codigoPedido}</strong><br>
         • ID Pedido: <strong>${idPedido}</strong><br>
         • ID Venta: <strong>${idVenta}</strong><br>
-        • Total: <strong>S/ ${this.data.total.toFixed(2)}</strong>
+        • SubTotal: <strong>S/ ${this.subTotalCalculado.toFixed(2)}</strong><br>
+        • Total: <strong>S/ ${this.totalCalculado.toFixed(2)}</strong>
     `;
 
     if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO && parseFloat(this.recibe) > 0) {
@@ -385,7 +459,7 @@ console.log('Venta DTO:', ventaDTO);
   }
 
   // ============================================================
-  // 📄 GENERACIÓN DE PDF (ACTUALIZADO)
+  // 📄 GENERACIÓN DE PDF (MANTENIDO)
   // ============================================================
 
   private generarComprobantePDF(idVenta: number, idPedido: number) {

@@ -17,7 +17,7 @@ import { VentaService } from '../../../core/services/venta.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 
-// Modelos (DTOs)
+// Modelos
 import { PedidoCreacionDTO, PedidoDetalleDTO } from '../../../core/models/pedido.model';
 import { VentaCreacionDTO } from '../../../core/models/venta.model';
 import { Cliente } from '../../../core/models/cliente.model';
@@ -25,13 +25,7 @@ import { Cliente } from '../../../core/models/cliente.model';
 // Utils
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; 
 
-// ===========================================
-// ENUMS Y CONSTANTES (Globales para el módulo)
-// ===========================================
-
-// Definición de pasos para mejorar legibilidad
 enum PasoPago {
   PAGO = 'pago',
   COMPROBANTE = 'comprobante',
@@ -39,10 +33,10 @@ enum PasoPago {
   FINAL = 'final'
 }
 
-const TIPO_PAGO_CONST = { EFECTIVO: 1, BILLETERA: 2, TARJETA: 3 };
-const TIPO_VENTA_CONST = { BOLETA: 1, FACTURA: 2, NOTA: 3 };
-const ORIGEN_VENTA_CONST = { KIOSKO: 3 }; 
-const ID_USUARIO_SISTEMA = 1; // ID 1 para Kiosko/Sistema
+const TIPO_PAGO = { EFECTIVO: 1, BILLETERA: 2, TARJETA: 3 };
+const TIPO_VENTA = { BOLETA: 1, FACTURA: 2, NOTA: 3 };
+const ORIGEN_VENTA = { KIOSKO: 3 };
+const ID_USUARIO_SISTEMA = 1;
 
 @Component({
   selector: 'app-pago',
@@ -57,40 +51,27 @@ const ID_USUARIO_SISTEMA = 1; // ID 1 para Kiosko/Sistema
     MatProgressSpinnerModule,
     DecimalPipe
   ],
-  templateUrl: './pago.component.html', // Usando archivo externo
+  templateUrl: './pago.component.html',
   styleUrls: ['./pago.component.css']
 })
 export class PagoComponent implements OnInit {
-
-  // 🔹 Constantes y Enum expuestos al Template
-  readonly TIPO_PAGO = TIPO_PAGO_CONST;
-  readonly TIPO_VENTA = TIPO_VENTA_CONST;
-  readonly ORIGEN_VENTA = ORIGEN_VENTA_CONST;
-  readonly Pasos = PasoPago; // Exponemos el Enum para el HTML
+  readonly TIPO_PAGO = TIPO_PAGO;
+  readonly TIPO_VENTA = TIPO_VENTA;
+  readonly ORIGEN_VENTA = ORIGEN_VENTA;
+  readonly Pasos = PasoPago;
   
-  // Estado del flujo
   total = 0;
-  
-  // Paso 1: Pago
   selectedMetodoPago: number | null = null;
   montoRecibido: number = 0;
   vuelto: number = 0;
-  
-  // Paso 2: Comprobante
   pasoActual: PasoPago = PasoPago.PAGO;
   selectedTipoComprobante: number | null = null;
-
-  // Paso 3: Documento
   tipoDocumento: 'DNI' | 'RUC' | null = null;
   numeroDocumento: string = '';
-  
-  // Control UI
-  recibeString: string = ''; 
+  recibeString: string = '';
   procesando = false;
   codigoPedidoGenerado: string = '';
   clienteData: Cliente | null = null;
-
-  // Verificación Código (Simulado)
   solicitandoCodigo = false;
   codigoVerificacion = '';
   
@@ -112,10 +93,7 @@ export class PagoComponent implements OnInit {
     }
   }
 
-  // ============================================================
-  // 1️⃣ PASO 1: SELECCIÓN DE PAGO
-  // ============================================================
-
+  // ============ PASO 1: SELECCIÓN DE PAGO ============
   seleccionarMetodo(idMetodo: number) {
     this.selectedMetodoPago = idMetodo;
     
@@ -130,7 +108,6 @@ export class PagoComponent implements OnInit {
     }
   }
 
-  // Lógica del Teclado Numérico (Efectivo)
   addNumber(num: string) {
     if (this.recibeString === '0') this.recibeString = num;
     else this.recibeString += num;
@@ -166,7 +143,6 @@ export class PagoComponent implements OnInit {
     this.pasoActual = PasoPago.COMPROBANTE;
   }
 
-  // Lógica de Verificación (Tarjeta/Yape)
   verificarCodigoSimulado() {
     this.procesando = true;
     setTimeout(() => {
@@ -181,15 +157,12 @@ export class PagoComponent implements OnInit {
     this.selectedMetodoPago = null;
   }
 
-  // ============================================================
-  // 2️⃣ PASO 2: SELECCIÓN DE COMPROBANTE
-  // ============================================================
-
+  // ============ PASO 2: COMPROBANTE ============
   seleccionarComprobante(idTipo: number) {
     this.selectedTipoComprobante = idTipo;
 
     if (idTipo === this.TIPO_VENTA.NOTA) {
-      this.procesarVentaFinal(1); 
+      this.procesarVentaFinal(1);
     } else {
       this.tipoDocumento = (idTipo === this.TIPO_VENTA.FACTURA) ? 'RUC' : 'DNI';
       this.numeroDocumento = '';
@@ -197,11 +170,7 @@ export class PagoComponent implements OnInit {
     }
   }
 
-  // ============================================================
-  // 3️⃣ PASO 3: DOCUMENTO CLIENTE
-  // ============================================================
-
-  // Teclado para DNI/RUC
+  // ============ PASO 3: DOCUMENTO ============
   addDocNumber(num: string) {
     const maxLen = this.tipoDocumento === 'DNI' ? 8 : 11;
     if (this.numeroDocumento.length < maxLen) {
@@ -228,10 +197,9 @@ export class PagoComponent implements OnInit {
 
     this.procesando = true;
     
-    // Buscar/Crear Cliente
     this.clienteService.buscarClientePorDocumento(this.numeroDocumento).subscribe({
       next: (res) => {
-        const cliente = res.cliente || res; 
+        const cliente = res.cliente || res;
         this.clienteData = cliente;
         this.procesarVentaFinal(cliente.ID_Cliente);
       },
@@ -243,13 +211,9 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // 🚀 PROCESO FINAL: REGISTRO EN BD
-  // ============================================================
-
+  // ============ PROCESO FINAL ============
   private procesarVentaFinal(idCliente: number) {
     this.procesando = true;
-
     const itemsCarrito = this.carritoService.obtenerProductos();
     this.generarCodigoPedido();
 
@@ -257,7 +221,7 @@ export class PagoComponent implements OnInit {
       ID_Producto_T: i.idProductoT || undefined,
       ID_Combo: i.idCombo || undefined,
       Cantidad: i.cantidad,
-      PrecioTotal: i.precioTotal 
+      PrecioTotal: i.precioTotal
     }));
 
     const pedidoDTO: PedidoCreacionDTO = {
@@ -285,9 +249,7 @@ export class PagoComponent implements OnInit {
           next: (resVenta) => {
             this.procesando = false;
             this.pasoActual = PasoPago.FINAL;
-            
             this.generarPDF(idPedido, resVenta.ID_Venta);
-            
             this.carritoService.vaciarCarrito();
           },
           error: (err) => {
@@ -310,58 +272,88 @@ export class PagoComponent implements OnInit {
     this.codigoPedidoGenerado = `K-${rand}`;
   }
 
-  volverInicio() {
-    this.router.navigate(['/']);
-  }
-
-  // ============================================================
-  // 📄 GENERACIÓN DE PDF (Simplificada)
-  // ============================================================
-  
+  // ============ GENERACIÓN PDF ============
   generarPDF(idPedido: number, idVenta: number) {
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 200]
+      format: [58, 297]
     });
 
-    const fecha = new Date().toLocaleString();
-    let y = 10;
+    const fecha = new Date();
+    const fechaStr = fecha.toLocaleDateString('es-PE');
+    const horaStr = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    
+    const pageWidth = 58;
+    const marginLeft = 4;
+    const marginRight = 4;
+    let y = 8;
 
-    doc.setFontSize(10).setFont('helvetica', 'bold');
-    doc.text('COMPROBANTE DE PAGO', 40, y, { align: 'center' }); y += 5;
-    doc.setFontSize(8);
-    doc.text('AITA PIZZA - KIOSKO', 40, y, { align: 'center' }); y += 5;
+    doc.setFontSize(11).setFont('helvetica', 'bold');
+    doc.text('COMPROBANTE DE PAGO', pageWidth / 2, y, { align: 'center' }); y += 5;
+    
+    doc.setFontSize(9);
+    doc.text('AITA PIZZA S.A.C.', pageWidth / 2, y, { align: 'center' }); y += 4;
     
     doc.setFont('helvetica', 'normal');
-    doc.text(`Venta: #${idVenta}`, 5, y); y += 4;
-    doc.text(`Fecha: ${fecha}`, 5, y); y += 4;
-    doc.text(`Pedido: ${this.codigoPedidoGenerado}`, 5, y); y += 6;
+    doc.text('RUC: 10713414561', pageWidth / 2, y, { align: 'center' }); y += 4;
     
+    doc.setFontSize(7);
+    doc.text('Jr. 2 de Mayo - Yarina', pageWidth / 2, y, { align: 'center' }); y += 3;
+    doc.text('Pucallpa, Ucayali', pageWidth / 2, y, { align: 'center' }); y += 6;
+
+    doc.setLineWidth(0.2);
+    doc.line(marginLeft, y, pageWidth - marginRight, y); y += 4;
+
+    doc.setFontSize(8).setFont('helvetica', 'bold');
+    doc.text(`PEDIDO: ${this.codigoPedidoGenerado}`, marginLeft, y); y += 4;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Fecha: ${fechaStr} ${horaStr}`, marginLeft, y); y += 3;
+    doc.text(`Canal: Kiosko Autoservicio`, marginLeft, y); y += 6;
+
     if (this.clienteData) {
-      doc.text(`Cliente: ${this.clienteData.Nombre}`, 5, y); y += 4;
-      doc.text(`Doc: ${this.numeroDocumento}`, 5, y); y += 6;
+      doc.text(`Cliente: ${this.clienteData.Nombre}`, marginLeft, y); y += 3;
+      doc.text(`Doc: ${this.numeroDocumento}`, marginLeft, y); y += 6;
     }
 
-    doc.line(5, y, 75, y); y += 4;
-
-    doc.text('Detalle enviado a cocina.', 5, y); y += 6;
-    
-    doc.line(5, y, 75, y); y += 4;
+    doc.line(marginLeft, y, pageWidth - marginRight, y); y += 4;
 
     doc.setFont('helvetica', 'bold');
-    doc.text(`TOTAL: S/ ${this.total.toFixed(2)}`, 75, y, { align: 'right' }); y += 10;
-
-    doc.setFontSize(12);
-    doc.text(`TURNO: ${this.codigoPedidoGenerado}`, 40, y, { align: 'center' });
+    doc.setFontSize(9);
+    doc.text(`TOTAL: S/ ${this.total.toFixed(2)}`, marginLeft, y); y += 5;
     
+    doc.setFontSize(8);
+    doc.text(`Método: ${this.getMetodoPagoText()}`, marginLeft, y); y += 3;
+    doc.text(`Vuelto: S/ ${this.vuelto.toFixed(2)}`, marginLeft, y); y += 8;
+
+    doc.setFontSize(13).setFont('helvetica', 'bold');
+    doc.text(`TURNO: ${this.codigoPedidoGenerado}`, pageWidth / 2, y, { align: 'center' }); y += 8;
+
+    doc.setFontSize(7).setFont('helvetica', 'normal');
+    doc.text('¡Gracias por tu compra!', pageWidth / 2, y, { align: 'center' }); y += 4;
+    doc.text('@AITA.PIZZA', pageWidth / 2, y, { align: 'center' });
+
     window.open(doc.output('bloburl'), '_blank');
   }
 
-  // Navegación interna (usando el Enum)
+  getMetodoPagoText(): string {
+    switch(this.selectedMetodoPago) {
+      case TIPO_PAGO.EFECTIVO: return 'Efectivo';
+      case TIPO_PAGO.TARJETA: return 'Tarjeta';
+      case TIPO_PAGO.BILLETERA: return 'Yape/Plin';
+      default: return 'Efectivo';
+    }
+  }
+
+  // ============ NAVEGACIÓN ============
+  volverInicio() {
+    this.router.navigate(['/']);
+  }
+
   volverAPago() {
     if (this.selectedMetodoPago === this.TIPO_PAGO.EFECTIVO) {
-      this.selectedMetodoPago = null; 
+      this.selectedMetodoPago = null;
     } else {
       this.selectedMetodoPago = null;
       this.solicitandoCodigo = false;

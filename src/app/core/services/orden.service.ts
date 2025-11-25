@@ -18,50 +18,62 @@ export class OrdenService {
   // ==========================================
   // 🟩 AGREGAR (Producto o Combo)
   // ==========================================
-  agregarProducto(detalle: PedidoDetalle) {
-    if (!detalle.Cantidad || detalle.Cantidad <= 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Cantidad inválida',
-        text: 'No puedes agregar un ítem con cantidad 0.',
-        confirmButtonColor: '#1976d2'
-      });
-      return;
-    }
-
-    // Validar si es Combo o Producto
-    const esCombo = !!detalle.ID_Combo;
-    const idBusqueda = esCombo ? detalle.ID_Combo : detalle.ID_Producto_T;
-
-    if (!idBusqueda) {
-      console.error('Error: El detalle no tiene ID de Producto ni de Combo');
-      return;
-    }
-
-    // Buscar si ya existe en la lista
-    const existente = this.detalles.find(d => {
-      if (esCombo) {
-        return d.ID_Combo === idBusqueda;
-      } else {
-        return d.ID_Producto_T === idBusqueda && !d.ID_Combo; // Asegurar que no sea parte de un combo mixto
-      }
+agregarProducto(detalle: PedidoDetalle) {
+  console.log('🔄 Recibiendo detalle en orden.service:', detalle);
+  
+  // Validar PrecioTotal
+  if (!detalle.PrecioTotal || detalle.PrecioTotal <= 0) {
+    console.error('❌ ERROR: PrecioTotal inválido o cero:', detalle);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error en precio',
+      text: 'El precio del producto no es válido. Por favor, selecciona el producto nuevamente.',
+      confirmButtonColor: '#1976d2'
     });
-
-    if (existente) {
-      // Actualizar existente
-      existente.Cantidad += detalle.Cantidad;
-      // Recalcular precio total (PrecioUnitario * NuevaCantidad)
-      // Nota: Para que esto funcione bien, idealmente deberías guardar el PrecioUnitario en el objeto.
-      // Aquí asumimos que el precio unitario se puede deducir: (PrecioTotal / Cantidad Antigua)
-      const precioUnitario = existente.PrecioTotal / (existente.Cantidad - detalle.Cantidad);
-      existente.PrecioTotal = precioUnitario * existente.Cantidad;
-    } else {
-      // Agregar nuevo (Usamos spread para romper referencia)
-      this.detalles.push({ ...detalle });
-    }
-
-    this.actualizarEstado();
+    return;
   }
+
+  // Validar PrecioTotal
+  if (!detalle.PrecioTotal || detalle.PrecioTotal <= 0) {
+    console.error('❌ PrecioTotal inválido en detalle:', detalle);
+    Swal.fire({
+      icon: 'error',
+      title: 'Precio inválido',
+      text: 'El precio del item no es válido.',
+      confirmButtonColor: '#1976d2'
+    });
+    return;
+  }
+
+  const esCombo = !!detalle.ID_Combo;
+  const idBusqueda = esCombo ? detalle.ID_Combo : detalle.ID_Producto_T;
+
+  if (!idBusqueda) {
+    console.error('Error: El detalle no tiene ID de Producto ni de Combo');
+    return;
+  }
+
+  // Buscar si ya existe en la lista
+  const existente = this.detalles.find(d => {
+    if (esCombo) {
+      return d.ID_Combo === idBusqueda;
+    } else {
+      return d.ID_Producto_T === idBusqueda && !d.ID_Combo;
+    }
+  });
+
+  if (existente) {
+    // Calcular precio unitario basado en el nuevo detalle
+    const nuevoPrecioUnitario = detalle.PrecioTotal / detalle.Cantidad;
+    existente.Cantidad += detalle.Cantidad;
+    existente.PrecioTotal = nuevoPrecioUnitario * existente.Cantidad;
+  } else {
+    // Agregar nuevo
+    this.detalles.push({ ...detalle });
+  }
+
+  this.actualizarEstado();
+}
 
   // ==========================================
   // ⬆️ AUMENTAR CANTIDAD

@@ -198,38 +198,39 @@ export class CantidadPedidoComponent implements OnInit {
 
   // --- Acción Final ---
 
-  agregarAlPedido(): void {
-    // Validación: Si es producto, debe tener tamaño seleccionado
-    if (!this.esCombo && !this.tamanoSeleccionado) {
-      Swal.fire('Atención', 'Debes seleccionar un tamaño.', 'warning');
-      return;
-    }
-
-    // Construir objeto Detalle
-    const detalle: PedidoDetalle = {
-      ID_Pedido_D: 0,
-      ID_Pedido: 0,
-      
-      // 🟢 IDs (Manejo seguro de undefined)
-      ID_Producto_T: this.esCombo ? undefined : this.tamanoSeleccionado!.ID_Producto_T,
-      ID_Combo: this.esCombo ? this.data.combo!.ID_Combo : undefined,
-      
-      Cantidad: this.cantidad,
-      PrecioTotal: this.precioTotal,
-      
-      // 🟢 Datos Visuales
-      Nombre_Producto: this.esCombo ? undefined : this.data.producto!.Nombre,
-      Nombre_Combo: this.esCombo ? this.data.combo!.Nombre : undefined,
-      
-      // Helper visual unificado
-      Nombre_Item: this.nombreDisplay,
-      
-      Tamano_Nombre: this.esCombo ? 'Combo' : (this.tamanoSeleccionado?.nombre_tamano || 'Estándar'),
-      Tipo: this.esCombo ? 'combo' : 'producto'
-    };
-
-    this.dialogRef.close(detalle);
+agregarAlPedido(): void {
+  if (!this.esCombo && !this.tamanoSeleccionado) {
+    Swal.fire('Atención', 'Debes seleccionar un tamaño.', 'warning');
+    return;
   }
+
+  // 🔹 CALCULAR PRECIO TOTAL EXPLÍCITAMENTE
+  const precioUnitario = this.precioUnitario;
+  const precioTotal = Number((precioUnitario * this.cantidad).toFixed(2));
+
+  console.log('🧮 Cálculo final en cantidad-pedido:', {
+    precioUnitario,
+    cantidad: this.cantidad,
+    precioTotal
+  });
+
+  const detalle: PedidoDetalle = {
+    ID_Pedido_D: 0,
+    ID_Pedido: 0,
+    ID_Producto_T: this.esCombo ? undefined : this.tamanoSeleccionado!.ID_Producto_T,
+    ID_Combo: this.esCombo ? this.data.combo!.ID_Combo : undefined,
+    Cantidad: this.cantidad,
+    PrecioTotal: precioTotal, // 🔹 ASEGURAR QUE ES NUMÉRICO
+    Nombre_Producto: this.esCombo ? undefined : this.data.producto!.Nombre,
+    Nombre_Combo: this.esCombo ? this.data.combo!.Nombre : undefined,
+    Nombre_Item: this.nombreDisplay,
+    Tamano_Nombre: this.esCombo ? 'Combo' : (this.tamanoSeleccionado?.nombre_tamano || 'Estándar'),
+    Tipo: this.esCombo ? 'combo' : 'producto'
+  };
+
+  console.log('✅ Detalle final a enviar:', detalle);
+  this.dialogRef.close(detalle);
+}
 
   cancelar(): void {
     this.dialogRef.close();
