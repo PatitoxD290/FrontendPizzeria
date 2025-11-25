@@ -15,19 +15,19 @@
   <!-- SECCIÓN CENTRAL ELIMINADA (BUSCADOR) -->
 
   <div class="navbar-right">
-    <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">
+    <!-- <button mat-icon-button class="action-btn" (click)="openNotifications()" matTooltip="Notificaciones">
       <div class="notification-wrapper">
         <mat-icon>notifications</mat-icon>
         <span class="notification-badge" *ngIf="notificationsCount > 0">
           {{ notificationsCount > 9 ? '9+' : notificationsCount }}
         </span>
       </div>
-    </button>
-
+    </button> -->
+<!-- 
     <button mat-icon-button class="action-btn" (click)="toggleDarkMode()" 
             [matTooltip]="isDarkMode ? 'Modo Claro' : 'Modo Oscuro'">
       <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-    </button>
+    </button> -->
 
     <!-- BOTÓN DE PERFIL CON ÍCONO Y TEXTO -->
     <button mat-button class="profile-btn" [matMenuTriggerFor]="userMenu">
@@ -61,10 +61,10 @@
       </div>
     </div>
     
-    <mat-divider></mat-divider>
+    <!-- <mat-divider></mat-divider> -->
     
     <!-- Opciones del menú -->
-    <button mat-menu-item (click)="navigateTo('/dashboard/cambiar-contrasena')" class="menu-item">
+    <!-- <button mat-menu-item (click)="navigateTo('/dashboard/cambiar-contrasena')" class="menu-item">
       <div class="menu-item-content">
         <div class="menu-icon-wrapper">
           <mat-icon class="menu-icon">lock</mat-icon>
@@ -80,16 +80,16 @@
         </div>
         <span>Configuración</span>
       </div>
-    </button>
+    </button> -->
     
-    <button mat-menu-item (click)="navigateTo('/dashboard/ayuda')" class="menu-item">
+    <!-- <button mat-menu-item (click)="navigateTo('/dashboard/ayuda')" class="menu-item">
       <div class="menu-item-content">
         <div class="menu-icon-wrapper">
           <mat-icon class="menu-icon">help</mat-icon>
         </div>
         <span>Centro de Ayuda</span>
       </div>
-    </button>
+    </button> -->
     
     <mat-divider></mat-divider>
     
