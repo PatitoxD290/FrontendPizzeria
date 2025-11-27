@@ -1,7 +1,7 @@
 <div class="menu-container">
   <!-- 🌀 Loading -->
   <div *ngIf="loading" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
+    <mat-spinner class="custom-spinner" [diameter]="80"></mat-spinner>
   </div>
 
   <!-- 🧾 Lista de productos - AHORA MUESTRA PRODUCTOS CON RANGO DE PRECIOS -->

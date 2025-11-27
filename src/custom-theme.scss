@@ -33,3 +33,85 @@ body {
   // Reset the user agent margin.
   margin: 0;
 }
+
+// En custom-theme.scss
+.estado-activo {
+  background-color: #2ECC71 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}
+
+.estado-inactivo {
+  background-color: #ef4444 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}
+
+/* QUITAR COMPLETAMENTE BORDES DEL CHIP */
+.estado-activo,
+.estado-inactivo {
+  border: none !important;
+  outline: none !important;
+}
+
+.status-chip {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Forzar eliminación de bordes internos de Material */
+.status-chip .mdc-evolution-chip__surface {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.mdc-evolution-chip__cell, 
+.mdc-evolution-chip__action--primary {
+  border: none !important;
+}
+
+
+
+// FILTROS DE ESTADO EN CUSTOM THEME
+.filtro-todos {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}
+
+.filtro-activos {
+  background-color: #10b981 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}
+
+.filtro-inactivos {
+  background-color: #ef4444 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}
+
+.filtro-default {
+  background-color: #6b7280 !important;
+  color: white !important;
+  
+  .mdc-evolution-chip__text-label {
+    color: white !important;
+  }
+}

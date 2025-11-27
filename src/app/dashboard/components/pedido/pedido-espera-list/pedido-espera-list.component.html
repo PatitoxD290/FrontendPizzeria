@@ -1,4 +1,4 @@
-<div class="pedidos-container">
+<div class="pedidos-container"> 
   <!-- Header compacto -->
   <div class="header">
     <div class="header-title">
@@ -8,7 +8,16 @@
     </div>
     <button mat-raised-button color="primary" (click)="refrescar()" [disabled]="isLoading" class="refresh-btn">
       <mat-icon>refresh</mat-icon>
+      <span>Actualizar</span>
     </button>
+  </div>
+
+  <!-- Loading overlay igual al de Historial de Pedidos -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <mat-spinner class="custom-spinner" diameter="50"></mat-spinner>
+      <p class="loading-text">Cargando pedidos en espera...</p>
+    </div>
   </div>
 
   <!-- Contenido principal -->
@@ -21,9 +30,9 @@
     <!-- Grid de pedidos compacto -->
     <div *ngIf="pedidos.length > 0" class="pedidos-section">
       <div class="pedidos-grid">
-        <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card" 
-                 [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)">
-          
+        <mat-card *ngFor="let pedido of pedidosPaginados" class="pedido-card"
+          [class.critical]="esTiempoCritico(pedido.Fecha_Registro, pedido.Hora_Pedido)">
+
           <!-- Header compacto -->
           <mat-card-header class="pedido-header">
             <div class="pedido-info">
@@ -63,12 +72,12 @@
                 <div class="producto-item">
                   <span class="producto-nombre">
                     {{
-                      detalle.nombreItem ||
-                        detalle.productoInfo?.Nombre ||
-                        detalle.comboInfo?.Nombre ||
-                        detalle.Nombre_Producto ||
-                        detalle.Nombre_Combo ||
-                        'Producto'
+                    detalle.nombreItem ||
+                    detalle.productoInfo?.Nombre ||
+                    detalle.comboInfo?.Nombre ||
+                    detalle.Nombre_Producto ||
+                    detalle.Nombre_Combo ||
+                    'Producto'
                     }}
                   </span>
                   <div class="producto-details">
@@ -81,8 +90,8 @@
                 </div>
 
                 <!-- Combo compacto -->
-                <div *ngIf="detalle.ID_Combo && detalle.comboDetalles && detalle.comboDetalles.length > 0" 
-                     class="combo-detalles">
+                <div *ngIf="detalle.ID_Combo && detalle.comboDetalles && detalle.comboDetalles.length > 0"
+                  class="combo-detalles">
                   <div *ngFor="let item of detalle.comboDetalles" class="combo-item">
                     <span class="item-nombre">• {{ item.nombreProducto }}</span>
                     <span class="item-detalle">({{ item.tamano }} x{{ item.cantidad }})</span>
@@ -97,9 +106,9 @@
                 <span>Total:</span>
                 <span class="total-precio" [class.no-data]="!pedido.PrecioTotal || pedido.PrecioTotal === 0">
                   {{
-                    pedido.PrecioTotal && pedido.PrecioTotal > 0
-                      ? 'S/ ' + (pedido.PrecioTotal | number : '1.2-2')
-                      : 'S/ ' + (pedido.SubTotal || 0 | number : '1.2-2')
+                  pedido.PrecioTotal && pedido.PrecioTotal > 0
+                  ? 'S/ ' + (pedido.PrecioTotal | number : '1.2-2')
+                  : 'S/ ' + (pedido.SubTotal || 0 | number : '1.2-2')
                   }}
                 </span>
               </div>
@@ -108,17 +117,14 @@
 
           <!-- Acciones compactas -->
           <mat-card-actions class="pedido-actions">
-            <button mat-icon-button color="warn" 
-                    (click)="cambiarEstado(pedido, 'C')"
-                    [disabled]="processingId === pedido.ID_Pedido"
-                    class="btn-cancelar"
-                    matTooltip="Cancelar pedido">
+            <button mat-icon-button color="warn" (click)="cambiarEstado(pedido, 'C')"
+              [disabled]="processingId === pedido.ID_Pedido" class="btn-cancelar" matTooltip="Cancelar pedido">
               <mat-icon>close</mat-icon>
+              <span *ngIf="processingId !== pedido.ID_Pedido">Cancelar</span>
+              <mat-spinner *ngIf="processingId === pedido.ID_Pedido" diameter="16"></mat-spinner>
             </button>
-            <button mat-flat-button color="primary"
-                    (click)="cambiarEstado(pedido, 'E')"
-                    [disabled]="processingId === pedido.ID_Pedido"
-                    class="btn-entregar">
+            <button mat-flat-button color="primary" (click)="cambiarEstado(pedido, 'E')"
+              [disabled]="processingId === pedido.ID_Pedido" class="btn-entregar">
               <mat-icon>check</mat-icon>
               <span *ngIf="processingId !== pedido.ID_Pedido">Listo</span>
               <mat-spinner *ngIf="processingId === pedido.ID_Pedido" diameter="16"></mat-spinner>
@@ -128,13 +134,8 @@
       </div>
 
       <!-- Paginación -->
-      <mat-paginator
-        [length]="pedidos.length"
-        [pageSize]="pageSize"
-        [pageIndex]="pageIndex"
-        [pageSizeOptions]="pageSizeOptions"
-        (page)="onPageChange($event)"
-        class="custom-paginator">
+      <mat-paginator [length]="pedidos.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
+        [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" class="custom-paginator">
       </mat-paginator>
     </div>
   </div>

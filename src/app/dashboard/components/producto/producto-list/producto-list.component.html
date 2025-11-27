@@ -84,7 +84,8 @@
             (error)="onImageError($event)"
           >
           <div class="image-overlay">
-            <mat-chip [color]="getEstadoColor(producto.Estado)" class="status-chip">
+            <mat-chip [class.estado-activo]="producto.Estado === 'A'" [class.estado-inactivo]="producto.Estado !== 'A'"
+              class="status-chip">
               {{ getEstadoText(producto.Estado) }}
             </mat-chip>
           </div>

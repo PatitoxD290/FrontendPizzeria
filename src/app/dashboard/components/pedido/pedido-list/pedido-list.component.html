@@ -44,7 +44,7 @@
         </div>
 
         <!-- Botón Actualizar -->
-        <button (click)="refrescarManual()" [disabled]="loading" class="export-btn-text" title="Actualizar lista">
+        <button (click)="refrescarManual()" [disabled]="loading" class="export-btn-update" title="Actualizar lista">
           <span class="material-icons">refresh</span>
           <span class="btn-text">Actualizar</span>
         </button>
@@ -122,7 +122,7 @@
         <ng-container matColumnDef="PrecioTotal">
           <mat-header-cell *matHeaderCellDef class="table-header">
             <div class="header-content">
-              <span class="material-icons">attach_money</span>
+              <span class="sol-icon">S/</span>
               <span>TOTAL</span>
             </div>
           </mat-header-cell>

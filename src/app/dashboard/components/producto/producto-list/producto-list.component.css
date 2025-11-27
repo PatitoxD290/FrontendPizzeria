@@ -303,7 +303,7 @@
 /* Card Header - IMAGEN GRANDE QUE OCUPA TODO EL ESPACIO */
 .card-header {
   position: relative;
-  height: 160px;
+  height: 95px;
   overflow: hidden;
   background: #f8fafc;
   flex-shrink: 0;
@@ -338,7 +338,7 @@
   font-size: 0.65rem;
   height: 20px;
   font-weight: 600;
-  border-radius: 5px;
+  border-radius: 7.5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   background: rgba(255, 255, 255, 0.9) !important;
 }
@@ -871,4 +871,28 @@
 
 .sizes-list::-webkit-scrollbar-thumb:hover {
   background: #a81212;
+}
+
+
+/* SOLUCIÓN AGRESIVA - TEXTO BLANCO */
+.estado-activo *,
+.estado-inactivo * {
+  color: white !important;
+}
+
+.estado-activo {
+  background: #00c552 !important;
+}
+
+.estado-inactivo {
+  background: #d11616 !important;
+}
+
+/* SOLUCIÓN NUCLEAR - ELIMINAR TODOS LOS BORDES */
+.estado-activo *,
+.estado-inactivo *,
+.status-chip * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
