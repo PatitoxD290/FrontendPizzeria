@@ -21,7 +21,7 @@
   font-size: 1.4rem;
   font-weight: 700;
   color: #1f2937;
-  background: linear-gradient(135deg, #d11616, #a81212);
+  background: #566573;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -33,20 +33,20 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #d11616 !important;
+  background: #566573 !important;
   color: white !important;
   border: none;
   border-radius: 8px;
   padding: 0 14px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(209, 22, 22, 0.3);
+  /* box-shadow: 0 2px 6px rgba(209, 22, 22, 0.3); */
 }
 
 .add-button:hover {
-  background: #a81212 !important;
+  background: #566573 !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(209, 22, 22, 0.4);
+  /* box-shadow: 0 4px 12px rgba(209, 22, 22, 0.4); */
 }
 
 .add-button mat-icon {
@@ -591,12 +591,12 @@
 }
 
 .action-button[color="primary"] {
-  background: #d11616 !important;
+  background: #5499C7 !important;
   color: white !important;
 }
 
 .action-button[color="primary"]:hover {
-  background: #a81212 !important;
+  background: #5499C7 !important;
 }
 
 .action-button[color="warn"] {

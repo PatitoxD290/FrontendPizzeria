@@ -41,13 +41,12 @@ import Swal from 'sweetalert2';
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
-    MatChipsModule
+    MatChipsModule,
   ],
   templateUrl: './proveedor-list.component.html',
-  styleUrls: ['./proveedor-list.component.css']
+  styleUrls: ['./proveedor-list.component.css'],
 })
 export class ProveedorListComponent implements OnInit, AfterViewInit {
-
   dataSource = new MatTableDataSource<Proveedor>([]);
   loading = false;
   changingState: number | null = null;
@@ -55,10 +54,7 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(
-    private proveedorService: ProveedorService, 
-    private dialog: MatDialog
-  ) {}
+  constructor(private proveedorService: ProveedorService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadProveedores();
@@ -73,19 +69,19 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
   loadProveedores() {
     this.loading = true;
     this.proveedorService.getProveedores().subscribe({
-      next: data => {
+      next: (data) => {
         this.dataSource.data = data;
         this.loading = false;
-        
+
         if (this.paginator) {
           this.paginator.firstPage();
         }
       },
-      error: err => { 
-        console.error('Error al cargar proveedores', err); 
+      error: (err) => {
+        console.error('Error al cargar proveedores', err);
         this.loading = false;
         Swal.fire('Error', 'No se pudieron cargar los proveedores', 'error');
-      }
+      },
     });
   }
 
@@ -118,22 +114,26 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.proveedorService.deleteProveedor(proveedor.ID_Proveedor).subscribe({ 
+        this.proveedorService.deleteProveedor(proveedor.ID_Proveedor).subscribe({
           next: () => {
             Swal.fire('Eliminado', 'Proveedor eliminado correctamente', 'success');
             this.loadProveedores();
-          }, 
-          error: err => {
+          },
+          error: (err) => {
             console.error(err);
             if (err.status === 400 || err.status === 409) {
-              Swal.fire('No se puede eliminar', err.error.error || 'El proveedor tiene stock asociado.', 'warning');
+              Swal.fire(
+                'No se puede eliminar',
+                err.error.error || 'El proveedor tiene stock asociado.',
+                'warning'
+              );
             } else {
               Swal.fire('Error', 'Ocurrió un error al eliminar.', 'error');
             }
-          }
+          },
         });
       }
     });
@@ -144,7 +144,7 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
     const nuevoEstado = proveedor.Estado === 'A' ? 'I' : 'A';
     const accion = nuevoEstado === 'A' ? 'activar' : 'desactivar';
     const colorBtn = nuevoEstado === 'A' ? '#28a745' : '#ffc107';
-    
+
     Swal.fire({
       title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} proveedor?`,
       text: `El proveedor cambiará a estado ${nuevoEstado === 'A' ? 'Activo' : 'Inactivo'}.`,
@@ -152,11 +152,11 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
       showCancelButton: true,
       confirmButtonColor: colorBtn,
       cancelButtonColor: '#d33',
-      confirmButtonText: `Sí, ${accion}`
+      confirmButtonText: `Sí, ${accion}`,
     }).then((result) => {
       if (result.isConfirmed) {
         this.changingState = proveedor.ID_Proveedor;
-        
+
         this.proveedorService.statusProveedor(proveedor.ID_Proveedor, nuevoEstado).subscribe({
           next: () => {
             proveedor.Estado = nuevoEstado;
@@ -167,7 +167,7 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
             console.error(error);
             this.changingState = null;
             Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
-          }
+          },
         });
       }
     });
@@ -175,13 +175,13 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
 
   // 📝 Abrir Modal
   openProveedorForm(proveedor?: Proveedor) {
-    const dialogRef = this.dialog.open(ProveedorFormComponent, { 
-      width: '700px', 
+    const dialogRef = this.dialog.open(ProveedorFormComponent, {
+      width: '700px',
       disableClose: true,
-      data: { proveedor } 
+      data: { proveedor },
     });
-    dialogRef.afterClosed().subscribe(result => { 
-      if (result) this.loadProveedores(); 
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) this.loadProveedores();
     });
   }
 
@@ -197,5 +197,12 @@ export class ProveedorListComponent implements OnInit, AfterViewInit {
   // Propiedad computada para filteredData
   get filteredData(): Proveedor[] {
     return this.dataSource.filteredData;
+  }
+
+  canDelete(estado: string): boolean {
+    return estado !== 'A'; // Solo se puede eliminar si NO está activo
+  }
+  canEdit(estado: string): boolean {
+    return estado === 'A'; // Solo se puede editar si está activo
   }
 }

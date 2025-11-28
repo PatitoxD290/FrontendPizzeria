@@ -20,11 +20,9 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #1f2937;
-  background: linear-gradient(135deg, #d11616, #a81212);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #5EA529;
+  /* background: #64d80b;
+  background-clip: text; */
 }
 
 .add-button {
@@ -33,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #d11616 !important;
+  background: #5EA529 !important;
   color: white !important;
   border: none;
   border-radius: 8px;

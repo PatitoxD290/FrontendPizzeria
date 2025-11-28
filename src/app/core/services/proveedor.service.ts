@@ -45,13 +45,13 @@ export class ProveedorService {
   // =========================================
 
   // Eliminar proveedor
-  deleteProveedor(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
+    deleteProveedor(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+    }
 
-  // Cambiar estado del proveedor (A=Activo, I=Inactivo)
-  statusProveedor(id: number, estado: 'A' | 'I'): Observable<any> {
-    // ✅ CORREGIDO: Se cambia el método a PUT para coincidir con el backend
-    return this.http.put(`${this.apiUrl}/${id}/status`, { Estado: estado });
-  }
+    // Cambiar estado del proveedor (A=Activo, I=Inactivo)
+    statusProveedor(id: number, estado: 'A' | 'I'): Observable<any> {
+    // ✅ CORREGIDO: Cambiar a PATCH y usar la ruta correcta "estado"
+    return this.http.patch(`${this.apiUrl}/${id}/estado`, { Estado: estado });
+    }
 }
