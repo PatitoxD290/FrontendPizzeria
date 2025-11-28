@@ -21,10 +21,10 @@
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef class="compact-header acciones-header">Acciones</th>
       <td mat-cell *matCellDef="let t" class="compact-cell acciones-column">
-        <button mat-icon-button color="primary" (click)="openForm(t)" matTooltip="Editar tamaño" class="compact-button">
+        <button mat-icon-button color="primary" (click)="openForm(t)" matTooltip="Editar tamaño" class="btn-edit">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deleteTamano(t)" matTooltip="Eliminar tamaño" class="compact-button">
+        <button mat-icon-button color="warn" (click)="deleteTamano(t)" matTooltip="Eliminar tamaño" class="btn-delete">
           <mat-icon>delete</mat-icon>
         </button>
       </td>

@@ -13,7 +13,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: #d11616;
+  background: #626D6F;
   color: white;
   border: none;
   border-radius: 6px;
@@ -23,13 +23,13 @@
   font-size: 0.9rem;
   font-family: inherit;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(209, 22, 22, 0.25);
+  /* box-shadow: 0 2px 6px rgba(209, 22, 22, 0.25); */
 }
 
 .toolbar button:hover {
-  background: #a81212;
+  background: #626D6F;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(209, 22, 22, 0.35);
+  /* box-shadow: 0 3px 10px rgba(209, 22, 22, 0.35); */
 }
 
 .toolbar button mat-icon {
@@ -618,4 +618,18 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Ícono editar */
+.btn-edit mat-icon {
+  color: #1d4ed8 !important; /* Azul */
+  font-size: 20px;
+  margin-top: -9px;
+}
+
+/* Ícono eliminar */
+.btn-delete mat-icon {
+  color: #dc2626 !important; /* Rojo */
+  font-size: 20px;
+  margin-top: -9px;
 }

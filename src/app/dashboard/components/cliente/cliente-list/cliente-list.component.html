@@ -102,7 +102,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of dataSource.filteredData" class="table-row">
+          <tr *ngFor="let c of getPaginatedData()" class="table-row">
             <td class="table-cell id-cell">
               <span class="id-badge">#{{ c.ID_Cliente }}</span>
             </td>

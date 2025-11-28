@@ -6,10 +6,11 @@ body, html {
   font-family: 'Inter', sans-serif;
   overflow: hidden;
 }
+
 /* Contenedor principal con efecto de vidrio */
 .login-container {
   background-image: url("/assets/imgs/login-fondo-new.jpg");
-  background-size: 100%; /* Aumenta el tamaño de la imagen */
+  background-size: cover; /* Mejor para imágenes grandes */
   background-position: center;
   background-repeat: no-repeat;
   display: flex;
@@ -23,6 +24,85 @@ body, html {
   padding: 36px;
 }
 
+/* 🔄 EFECTO RESPONSIVE OPTIMIZADO PARA 1600x1067 */
+/* En desktop se ve completa, en móviles se hace zoom en el centro */
+
+/* Tablets en landscape */
+@media (max-width: 1024px) and (orientation: landscape) {
+  .login-container {
+    background-size: cover;
+    background-position: center center;
+  }
+}
+
+
+/* Tablets */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .login-container {
+    background-size: cover;
+    background-position: center top;
+  }
+}
+
+
+/* Tablets pequeñas */
+@media (max-width: 768px) {
+  .login-container {
+    background-size: cover;
+    background-position: center center;
+  }
+}
+
+/* Phones grandes */
+@media (max-width: 600px) {
+  .login-container {
+    background-size: cover;
+    background-position: center center;
+    /* Forzar cobertura completa */
+    background-attachment: fixed;
+  }
+}
+
+/* Phones medianos */
+@media (max-width: 480px) {
+  .login-container {
+    background-size: 120%; /* Zoom leve */
+    background-position: center center;
+    background-attachment: fixed;
+  }
+}
+/* Phones pequeños */
+@media (max-width: 375px) {
+  .login-container {
+    background-size: 140%; /* Zoom medio */
+    background-position: center center;
+    background-attachment: fixed;
+  }
+}
+
+/* Phones muy pequeños - MÁXIMO ZOOM */
+@media (max-width: 320px) {
+  .login-container {
+    background-size: 160%; /* Zoom máximo */
+    background-position: center center;
+    background-attachment: fixed;
+  }
+}
+
+/* Ajustes especiales para pantallas muy altas o muy anchas */
+@media (max-height: 600px) {
+  .login-container {
+    background-size: cover;
+    background-position: center 30%;
+  }
+}
+
+@media (max-width: 360px) and (max-height: 640px) {
+  .login-container {
+    background-size: 150%;
+    background-position: center center;
+  }
+}
 
 /* Efecto de partículas de fondo */
 .login-container::before {
@@ -42,13 +122,13 @@ body, html {
 /* Tarjeta REDUCIDA con efecto de vidrio y sombra mejorada */
 .login-card {
   background: rgba(107, 105, 105, 0);
-  padding: 50px 30px 30px 30px; /* Reducido */
+  padding: 50px 30px 30px 30px;
   border-radius: 16px;
   text-align: center;
   box-shadow: 
     0 10px 30px rgba(0, 0, 0, 0.15),
     0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 340px; /* Reducido de 380px */
+  width: 340px;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
@@ -64,29 +144,23 @@ body, html {
 
 /* 🔸 Icono login agrandado y fijo */
 .login-icon {
-   width: 120px; /* antes más pequeño */
+  width: 120px;
   height: 120px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: -60px; /* ajustado para centrar sobre la tarjeta */
+  top: -60px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 /* Imagen dentro del icono */
 .login-icon img {
-  width: 200px; /* antes más pequeño */
+  width: 200px;
   height: 200px;
   border-radius: 50%;
   object-fit: contain;
-  border-radius: 50%;
-}
-
-/* Sin movimiento */
-.login-icon:hover {
-  transform: translateX(-50%);
 }
 
 .login-icon:hover {
@@ -95,18 +169,18 @@ body, html {
 
 /* Títulos mejorados y REDUCIDOS */
 .login-title {
-  margin-top: 25px; /* Reducido */
-  font-size: 22px; /* Reducido */
+  margin-top: 25px;
+  font-size: 22px;
   color: #ffffff;
   font-weight: 700;
-  margin-bottom: 6px; /* Reducido */
+  margin-bottom: 6px;
   letter-spacing: 0.5px;
 }
 
 .login-subtitle {
   color: #ffffff;
-  font-size: 13px; /* Reducido */
-  margin-bottom: 25px; /* Reducido */
+  font-size: 13px;
+  margin-bottom: 25px;
   font-weight: 400;
 }
 
@@ -114,8 +188,8 @@ body, html {
 .input-label {
   display: block;
   text-align: left;
-  margin-bottom: 6px; /* Reducido */
-  font-size: 13px; /* Reducido */
+  margin-bottom: 6px;
+  font-size: 13px;
   color: #ffffff;
   font-weight: 500;
 }
@@ -128,31 +202,31 @@ body, html {
   margin-bottom: 5px;
 }
 
-/* Iconos dentro de los inputs - CENTRADOS VERTICALMENTE */
+/* Iconos dentro de los inputs */
 .input-icon {
   position: absolute;
-  left: 12px; /* Reducido */
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
-  font-size: 15px; /* Reducido */
+  color: #e51d1d;
+  font-size: 15px;
   z-index: 2;
   transition: color 0.3s;
 }
 
-/* Campos de formulario mejorados y REDUCIDOS */
+/* Campos de formulario mejorados */
 .form-group {
-  margin-bottom: 18px; /* Reducido */
+  margin-bottom: 18px;
   position: relative;
   text-align: left;
 }
 
 .form-control {
   width: 100%;
-  padding: 12px 40px 12px 40px; /* Reducido */
+  padding: 12px 40px 12px 40px;
   border: 1.5px solid #e1e1e1;
   border-radius: 8px;
-  font-size: 14px; /* Reducido */
+  font-size: 14px;
   outline: none;
   transition: all 0.3s;
   box-sizing: border-box;
@@ -161,24 +235,24 @@ body, html {
 }
 
 .form-control:focus {
-  border-color: #991e1e;
-  box-shadow: 0 0 0 3px rgba(128, 33, 33, 0.1);
+  border-color: #e51d1d;
+  box-shadow: 0 0 0 3px rgba(229, 29, 29, 0.1);
   background-color: #fff;
 }
 
 .form-control:focus + .input-icon {
-  color: #991e1e;
+  color: #e51d1d;
 }
 
-/* Icono del ojo mejorado - CENTRADO VERTICALMENTE */
+/* Icono del ojo mejorado */
 .toggle-password {
   position: absolute;
-  right: 12px; /* Reducido */
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
+  color: #e51d1d;
   cursor: pointer;
-  font-size: 16px; /* Reducido */
+  font-size: 16px;
   transition: all 0.2s;
   z-index: 2;
   padding: 5px;
@@ -186,8 +260,8 @@ body, html {
 }
 
 .toggle-password:hover {
-  color:#f0ebeb;
-  background-color: rgba(128, 33, 33, 0.1);
+  color: #c01919;
+  background-color: rgba(229, 29, 29, 0.1);
 }
 
 /* Opciones del formulario */
@@ -195,8 +269,8 @@ body, html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px; /* Reducido */
-  font-size: 13px; /* Reducido */
+  margin-bottom: 20px;
+  font-size: 13px;
 }
 
 /* Checkbox personalizado */
@@ -206,7 +280,7 @@ body, html {
   cursor: pointer;
   color: #555;
   position: relative;
-  padding-left: 28px; /* Reducido */
+  padding-left: 28px;
 }
 
 .checkbox-container input {
@@ -220,8 +294,8 @@ body, html {
 .checkmark {
   position: absolute;
   left: 0;
-  height: 18px; /* Reducido */
-  width: 18px; /* Reducido */
+  height: 18px;
+  width: 18px;
   background-color: #f1f1f1;
   border-radius: 4px;
   border: 1.5px solid #ddd;
@@ -229,22 +303,22 @@ body, html {
 }
 
 .checkbox-container:hover input ~ .checkmark {
-  border-color: #991e1e;
+  border-color: #e51d1d;
 }
 
 .checkbox-container input:checked ~ .checkmark {
-  background-color: #802121;
-  border-color: #802121;
+  background-color: #e51d1d;
+  border-color: #e51d1d;
 }
 
 .checkmark:after {
   content: "";
   position: absolute;
   display: none;
-  left: 5px; /* Ajustado */
+  left: 5px;
   top: 2px;
   width: 5px;
-  height: 9px; /* Reducido */
+  height: 9px;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
@@ -257,22 +331,22 @@ body, html {
 /* Botón mejorado con gradiente */
 .login-button {
   width: 100%;
-  background: #a32121;
+  background: #e51d1d;
   color: white;
   border: none;
-  padding: 12px; /* Reducido */
+  padding: 12px;
   border-radius: 8px;
-  font-size: 15px; /* Reducido */
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(128, 33, 33, 0.3);
+  box-shadow: 0 4px 10px rgba(229, 29, 29, 0.3);
   letter-spacing: 0.5px;
 }
 
 .login-button:hover {
-  background: #a32121;
-  box-shadow: 0 6px 15px #a32121;
+  background: #c01919;
+  box-shadow: 0 6px 15px rgba(229, 29, 29, 0.4);
   transform: translateY(-2px);
 }
 
@@ -284,7 +358,7 @@ body, html {
 .separator {
   display: flex;
   align-items: center;
-  margin: 20px 0; /* Reducido */
+  margin: 20px 0;
   color: #999;
 }
 
@@ -297,20 +371,20 @@ body, html {
 
 .separator span {
   padding: 0 15px;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 /* Sección de registro */
 .register-section {
-  margin-top: 15px; /* Reducido */
-  font-size: 13px; /* Reducido */
+  margin-top: 15px;
+  font-size: 13px;
   color: #666;
 }
 
 /* Enlaces mejorados */
 .forgot-link, .register-link {
-  color: #802121;
-  font-size: 13px; /* Reducido */
+  color: #e51d1d;
+  font-size: 13px;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
@@ -318,7 +392,7 @@ body, html {
 }
 
 .forgot-link:hover, .register-link:hover {
-  color: #5a242a;
+  color: #c01919;
   text-decoration: underline;
 }
 
@@ -329,7 +403,7 @@ body, html {
   height: 1px;
   bottom: -2px;
   left: 0;
-  background-color: #802121;
+  background-color: #e51d1d;
   transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 0.3s;
@@ -342,8 +416,8 @@ body, html {
 
 /* Error mejorado */
 .error-message {
-  color: #d32f2f;
-  font-size: 12px; /* Reducido */
+  color: #e51d1d;
+  font-size: 12px;
   margin-top: 5px;
   text-align: left;
   padding-left: 5px;
@@ -354,15 +428,16 @@ body, html {
 .error-message::before {
   content: '⚠';
   margin-right: 5px;
-  font-size: 11px; /* Reducido */
+  font-size: 11px;
 }
 
-/* Responsive */
+/* Responsive para la tarjeta - MÁS ESPECÍFICO */
 @media (max-width: 480px) {
   .login-card {
     width: 90%;
-    padding: 40px 20px 25px; /* Reducido */
-    margin: 20px;
+    max-width: 320px;
+    padding: 40px 20px 25px;
+    margin: 15px;
   }
   
   .form-options {
@@ -372,7 +447,34 @@ body, html {
   }
   
   .login-button {
-    padding: 10px; /* Reducido */
+    padding: 10px;
+  }
+  
+  .login-icon {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+  }
+  
+  .login-icon img {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 320px) {
+  .login-card {
+    padding: 35px 15px 20px;
+    margin: 10px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+  
+  .login-subtitle {
+    font-size: 12px;
   }
 }
 
