@@ -41,19 +41,27 @@
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
-  font-size: 0.7rem;
+  font-size: 0.7rem bold 2px;
   font-weight: 500;
 }
 
 .refresh-btn {
   min-width: auto;
   padding: 4px 8px;
+  background: #2FA28B !important;
+  border: none !important;
 }
 
 .refresh-btn mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
+  right: -7px;
+  color: white !important;
+}
+
+.refresh-btn span{
+  color: white !important;
 }
 
 /* Grid ultra compacto */
@@ -148,6 +156,8 @@
   height: 20px;
   min-height: 20px;
   padding: 0 6px;
+  margin: 12px;
+  right: -14px;
 }
 
 /* Contenido compacto */
@@ -317,15 +327,23 @@
 }
 
 .btn-cancelar {
-  width: 28px;
   height: 28px;
   line-height: 28px;
+  font-size: 0.75rem;
+  padding: 0 8px;
+  min-width: 83px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #D32F2F;
+  color: white;
 }
 
 .btn-cancelar mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: white;
 }
 
 .btn-entregar {
@@ -343,6 +361,7 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
+  right: -8px;
 }
 
 /* Estados compactos */
@@ -436,4 +455,38 @@
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 8px;
   }
+}
+
+
+/* Loading overlay igual al de Historial de Pedidos */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* background: rgba(255, 255, 255, 0.9); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-text {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+::ng-deep .custom-spinner circle {
+  stroke: #be1b1c !important;
 }

@@ -610,3 +610,9 @@
     padding: 12px 20px;
   }
 }
+
+
+.loader-circular {
+  margin: 0 auto; /* 🔹 Centrado horizontal */
+  display: block; /* 🔹 Necesario para que el auto funcione */
+}

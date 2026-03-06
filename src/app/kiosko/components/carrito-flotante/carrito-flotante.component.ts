@@ -20,7 +20,7 @@ import { DatosPedido } from '../../../core/models/pedido.model';
   styleUrls: ['./carrito-flotante.component.css']
 })
 export class CarritoFlotanteComponent implements OnInit, OnDestroy {
-  
+
   esPaginaCarrito = false;
   esPaginaPagoVariable = false;
   modalAbierto = false;
@@ -39,12 +39,12 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     private location: Location,
     private modalStateService: ModalStateService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Verificar rutas iniciales
     this.checkRoute();
-    
+
     // Suscribirse al estado de los modales
     this.modalSubscription = this.modalStateService.modalAbierto$.subscribe(
       (abierto) => {
@@ -95,7 +95,7 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
       // Para productos individuales, usar ID_Producto_T para la imagen
       return `https://backend-pizza-git-175143409336.us-central1.run.app/imagenesCata/producto_${producto.idProductoT}_1.png`;
     }
-    
+
     return '/assets/imgs/logo-aita/logo.png';
   }
 
@@ -125,13 +125,14 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
     if (this.modalAbierto || this.esPaginaPago) {
       return;
     }
-    
+
     this.router.navigate(['/kiosko/carrito']);
   }
 
   volver() {
     if (this.esPaginaCarrito) {
-      this.location.back();
+      // this.location.back();
+      this.router.navigate(['/kiosko/menu']);
     }
   }
 
@@ -157,8 +158,8 @@ export class CarritoFlotanteComponent implements OnInit, OnDestroy {
   }
 
   vaciarCarrito() {
-    if(confirm('¿Estás seguro de vaciar el carrito?')) {
+    if (confirm('¿Estás seguro de vaciar el carrito?')) {
       this.carritoService.vaciarCarrito();
     }
   }
-}
+}     

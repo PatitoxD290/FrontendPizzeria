@@ -193,6 +193,22 @@
 /* ==================================================
    🎨 BOTONES - ESTILO COHERENTE
 ================================================== */
+.export-btn-update {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #2FA28B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.85rem;
+  height: 36px;
+}
+
 .export-btn-text {
   display: flex;
   align-items: center;
@@ -260,7 +276,7 @@
 }
 
 /* ==================================================
-   🎨 TABLA COMPACTA - MISMOS ESTILOS BASE
+   🎨 TABLA COMPACTA - ID CENTRADO Y NOTAS CONTENIDAS
 ================================================== */
 .table-container {
   padding: 0;
@@ -277,13 +293,13 @@
   table-layout: fixed;
 }
 
-/* HEADERS COMPACTOS - MISMO ESTILO */
+/* HEADERS COMPACTOS - PERFECTAMENTE ALINEADOS */
 .table-header {
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
   color: #4a5568;
   font-weight: 700;
-  padding: 12px 10px;
-  text-align: left;
+  padding: 12px 6px;
+  text-align: center;
   border-bottom: 2px solid #d1d9e6;
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -291,58 +307,60 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
-/* DISTRIBUCIÓN DE COLUMNAS COMPACTA - AJUSTADA PARA PEDIDOS */
+/* DISTRIBUCIÓN DE COLUMNAS - ID MÁS REDUCIDO (4%) Y MÁS ESPACIO PARA NOTAS/CLIENTE */
 .table-header:nth-child(1), .table-cell:nth-child(1) { 
-  width: 6%; 
-  padding-left: 16px;
-  padding-right: 8px;
+  width: 4%; 
+  padding-left: 6px;
+  padding-right: 4px;
 }
 
 .table-header:nth-child(2), .table-cell:nth-child(2) { 
-  width: 16%; 
-  padding-left: 12px;
+  width: 26%; 
+  padding-left: 8px;
   padding-right: 8px;
 }
 
 .table-header:nth-child(3), .table-cell:nth-child(3) { 
-  width: 10%; 
-  padding-left: 12px;
+  width: 22%; 
+  padding-left: 8px;
   padding-right: 8px;
 }
 
 .table-header:nth-child(4), .table-cell:nth-child(4) { 
-  width: 6%;
-  padding-left: 12px;
+  width: 8%;
+  padding-left: 8px;
   padding-right: 8px;
 }
 
 .table-header:nth-child(5), .table-cell:nth-child(5) { 
-  width: 9%; 
-  padding-left: 12px;
+  width: 10%; 
+  padding-left: 8px;
   padding-right: 8px;
 }
 
 .table-header:nth-child(6), .table-cell:nth-child(6) { 
-  width: 12%; 
-  padding-left: 12px;
+  width: 16%; 
+  padding-left: 8px;
   padding-right: 8px;
 }
 
 .table-header:nth-child(7), .table-cell:nth-child(7) { 
   width: 8%; 
-  padding-left: 12px;
-  padding-right: 16px;
+  padding-left: 8px;
+  padding-right: 10px;
 }
 
 .header-content {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   overflow: hidden;
-  justify-content: flex-start;
-  text-align: left;
+  text-align: center;
+  width: 100%;
 }
 
 .header-content .material-icons {
@@ -351,11 +369,12 @@
   flex-shrink: 0;
 }
 
-/* FILAS COMPACTAS - MISMO ESTILO */
+/* FILAS COMPACTAS - ALTURA AUTOMÁTICA COMPLETA PARA NOTAS LARGAS */
 .table-row {
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #f1f5f9;
-  height: 48px;
+  height: auto !important;
+  min-height: 52px;
 }
 
 .table-row:hover {
@@ -364,94 +383,131 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
 
-/* CELDAS COMPACTAS - MISMO ESTILO */
+/* CELDAS COMPACTAS - ALINEACIÓN PERFECTA CON ALTURA AUTOMÁTICA COMPLETA */
 .table-cell {
-  padding: 10px 8px;
+  padding: 12px 6px;
   font-size: 0.82rem;
   color: #4a5568;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
   vertical-align: middle;
   border-bottom: 1px solid #f1f5f9;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  height: auto !important;
+  min-height: 52px;
 }
 
-/* ALINEACIÓN ESPECÍFICA POR COLUMNA */
+/* ALINEACIÓN ESPECÍFICA POR COLUMNA - CONSISTENTE */
 .table-cell:nth-child(1) { text-align: center; }
-.table-cell:nth-child(2) { text-align: left; }
-.table-cell:nth-child(3) { text-align: left; }
-.table-cell:nth-child(4) { text-align: right; }
+.table-cell:nth-child(2) { text-align: center; }
+.table-cell:nth-child(3) { text-align: center; }
+.table-cell:nth-child(4) { text-align: center; }
 .table-cell:nth-child(5) { text-align: center; }
 .table-cell:nth-child(6) { text-align: center; }
 .table-cell:nth-child(7) { text-align: center; }
 
 /* ==================================================
-   🎨 ELEMENTOS ESPECÍFICOS DE PEDIDOS
+   🎨 ELEMENTOS ESPECÍFICOS - ID Y NOTAS CORREGIDOS
 ================================================== */
+
+/* ✅ ID PERFECTAMENTE CENTRADO VERTICAL Y HORIZONTALMENTE */
 .id-cell {
   text-align: center;
+  vertical-align: middle;
 }
 
 .id-badge {
   background: #f1f5f9;
   color: #475569;
-  padding: 5px 10px;
+  padding: 5px 8px;
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 700;
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #e2e8f0;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.2;
+  margin: 0 auto;
 }
 
+/* ✅ NOTAS COMPLETAMENTE VISIBLES CON SALTO DE LÍNEA Y ALTURA COMPLETA */
 .notas-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: auto !important;
+  min-height: 100%;
+  padding: 8px 4px;
 }
 
 .notas-text {
   font-weight: 500;
   color: #4a5568;
   font-size: 0.82rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: center;
+  line-height: 1.5;
   display: block;
-  text-align: left;
-  line-height: 1.4;
+  width: 100%;
+  padding: 0 6px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  margin: 0;
+  height: auto;
 }
 
+/* CLIENTE COMPLETAMENTE VISIBLE */
 .cliente-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .name-text {
   font-weight: 600;
   color: #2c3e50;
   font-size: 0.82rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
   display: block;
-  text-align: left;
-  line-height: 1.4;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 4px;
 }
 
+/* TOTAL PERFECTAMENTE CENTRADO */
 .total-text {
   color: #1e3a1e;
   font-weight: 700;
-  text-align: right;
+  text-align: center;
   font-size: 0.82rem;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-height: 1.3;
+  margin: 0;
+  display: block;
+  width: 100%;
 }
 
-/* BADGES DE ESTADO */
+/* BADGES DE ESTADO - PERFECTAMENTE CENTRADOS */
 .estado-badge {
   padding: 4px 8px;
   border-radius: 6px;
@@ -460,8 +516,13 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: inline-block;
-  min-width: 100px;
+  min-width: 90px;
   text-align: center;
+  white-space: nowrap;
+  word-break: keep-all;
+  max-width: 100%;
+  line-height: 1.2;
+  margin: 0 auto;
 }
 
 .estado-p {
@@ -491,15 +552,22 @@
 .date-text {
   color: #6b7280;
   font-size: 0.8rem;
-  line-height: 1.4;
+  line-height: 1.3;
   font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  word-break: keep-all;
+  margin: 0;
 }
 
-/* ACCIONES COMPACTAS - MISMO ESTILO BASE */
+/* ACCIONES COMPACTAS - PERFECTAMENTE CENTRADAS */
 .acciones-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 6px;
+  width: 100%;
+  height: 100%;
 }
 
 .action-btn {
@@ -622,17 +690,18 @@ mat-paginator {
 }
 
 /* ==================================================
-   📱 RESPONSIVE COMPACTO - MISMA ESTRUCTURA
+   📱 RESPONSIVE COMPACTO - MANTENIENDO ALINEACIÓN
 ================================================== */
 @media (max-width: 1400px) {
   .table-header,
   .table-cell {
     font-size: 0.78rem;
-    padding: 10px 8px;
+    padding: 12px 5px;
   }
   
   .table-row {
-    height: 44px;
+    height: auto !important;
+    min-height: 50px;
   }
   
   .header-content .material-icons {
@@ -644,11 +713,12 @@ mat-paginator {
   .table-header,
   .table-cell {
     font-size: 0.75rem;
-    padding: 9px 7px;
+    padding: 12px 4px;
   }
   
   .table-row {
-    height: 42px;
+    height: auto !important;
+    min-height: 48px;
   }
   
   .card-header {
@@ -666,11 +736,11 @@ mat-paginator {
     display: none;
   }
   
-  .table-header:nth-child(1), .table-cell:nth-child(1) { width: 8%; }
-  .table-header:nth-child(3), .table-cell:nth-child(3) { width: 25%; }
-  .table-header:nth-child(4), .table-cell:nth-child(4) { width: 15%; }
+  .table-header:nth-child(1), .table-cell:nth-child(1) { width: 5%; }
+  .table-header:nth-child(3), .table-cell:nth-child(3) { width: 38%; }
+  .table-header:nth-child(4), .table-cell:nth-child(4) { width: 12%; }
   .table-header:nth-child(5), .table-cell:nth-child(5) { width: 15%; }
-  .table-header:nth-child(6), .table-cell:nth-child(6) { width: 25%; }
+  .table-header:nth-child(6), .table-cell:nth-child(6) { width: 22%; }
   .table-header:nth-child(7), .table-cell:nth-child(7) { width: 12%; }
 }
 
@@ -733,26 +803,27 @@ mat-paginator {
   }
   
   .table-header:nth-child(1), .table-cell:nth-child(1) { 
-    width: 15%; 
-    padding-left: 14px;
+    width: 8%; 
+    padding-left: 6px;
   }
   .table-header:nth-child(4), .table-cell:nth-child(4) { 
     width: 25%; 
   }
   .table-header:nth-child(5), .table-cell:nth-child(5) { 
-    width: 25%; 
+    width: 40%; 
   }
   .table-header:nth-child(7), .table-cell:nth-child(7) { 
     width: 20%; 
   }
   
   .table-cell {
-    padding: 10px 8px;
+    padding: 12px 5px;
     font-size: 0.78rem;
   }
   
   .table-row {
-    height: 40px;
+    height: auto !important;
+    min-height: 46px;
   }
   
   mat-paginator {
@@ -782,7 +853,8 @@ mat-paginator {
   }
   
   .table-row {
-    height: 38px;
+    height: auto !important;
+    min-height: 44px;
   }
   
   .filtros-derecha {
@@ -803,4 +875,12 @@ mat-paginator {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* icono de soles */
+.sol-icon {
+  font-weight: 700;
+  margin-right: 4px;
+  display: inline-block;
+  right: -50px !important;
 }

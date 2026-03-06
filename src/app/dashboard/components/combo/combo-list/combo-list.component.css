@@ -20,11 +20,9 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #1f2937;
-  background: linear-gradient(135deg, #d11616, #a81212);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #5EA529;
+  /* background: #64d80b;
+  background-clip: text; */
 }
 
 .add-button {
@@ -33,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #d11616 !important;
+  background: #5EA529 !important;
   color: white !important;
   border: none;
   border-radius: 8px;
@@ -175,6 +173,8 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
+  position: relative;
+  top: 2px;
 }
 
 /* Loading más elegante */
@@ -319,9 +319,9 @@
   font-size: 0.65rem;
   height: 20px;
   font-weight: 600;
-  border-radius: 5px;
+  border-radius: 7.5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.9) !important;
+  /* background: rgba(255, 255, 255, 0.9) !important; */
 }
 
 /* Card Content MÁS COMPACTO - ESPACIOS REDUCIDOS */
@@ -763,3 +763,5 @@
   border-radius: 6px !important;
   padding: 6px 10px !important;
 }
+
+

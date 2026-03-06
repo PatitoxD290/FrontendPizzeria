@@ -13,7 +13,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: #d11616;
+  background: #DC7633;
   color: white;
   border: none;
   border-radius: 6px;
@@ -575,4 +575,19 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+
+/* Ícono editar */
+.btn-edit mat-icon {
+  color: #1d4ed8 !important; /* Azul */
+  font-size: 20px;
+  margin-top: -9px;
+}
+
+/* Ícono eliminar */
+.btn-delete mat-icon {
+  color: #dc2626 !important; /* Rojo */
+  font-size: 20px;
+  margin-top: -9px;
 }

@@ -243,16 +243,47 @@ export class ClienteListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ✅ Métodos para la paginación personalizada
+  // ✅ Método para obtener los datos paginados (CORREGIDO)
+  getPaginatedData(): Cliente[] {
+    // Si hay filtros aplicados, usa filteredData, sino usa data
+    const dataToPaginate = this.dataSource.filteredData.length > 0 
+      ? this.dataSource.filteredData 
+      : this.dataSource.data;
+    
+    if (!this.dataSource.paginator) {
+      return dataToPaginate;
+    }
+    
+    const startIndex = this.dataSource.paginator.pageIndex * this.dataSource.paginator.pageSize;
+    const endIndex = startIndex + this.dataSource.paginator.pageSize;
+    return dataToPaginate.slice(startIndex, endIndex);
+  }
+
+  // ✅ Métodos para la paginación personalizada (ACTUALIZADOS)
   getStartIndex(): number {
-    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize : 0;
+    const dataToCount = this.dataSource.filteredData.length > 0 
+      ? this.dataSource.filteredData 
+      : this.dataSource.data;
+    return this.paginator ? this.paginator.pageIndex * this.paginator.pageSize + 1 : 1;
   }
 
   getEndIndex(): number {
-    if (!this.paginator) return 0;
+    const dataToCount = this.dataSource.filteredData.length > 0 
+      ? this.dataSource.filteredData 
+      : this.dataSource.data;
+    
+    if (!this.paginator) return dataToCount.length;
+    
     const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
     const endIndex = startIndex + this.paginator.pageSize;
-    return Math.min(endIndex, this.dataSource.filteredData.length);
+    return Math.min(endIndex, dataToCount.length);
+  }
+
+  getTotalItems(): number {
+    const dataToCount = this.dataSource.filteredData.length > 0 
+      ? this.dataSource.filteredData 
+      : this.dataSource.data;
+    return dataToCount.length;
   }
 
   getCurrentPage(): number {

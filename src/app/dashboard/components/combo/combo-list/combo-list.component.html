@@ -24,22 +24,16 @@
 
     <div class="filter-chips">
       <mat-chip-set>
-        <mat-chip 
-          [color]="filtroEstado === 'todos' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'todos'; aplicarFiltros()"
-          highlighted>
+        <mat-chip [class.filtro-todos]="filtroEstado === 'todos'" [class.filtro-default]="filtroEstado !== 'todos'"
+          (click)="filtroEstado = 'todos'; aplicarFiltros()" highlighted>
           Todos
         </mat-chip>
-        <mat-chip 
-          [color]="filtroEstado === 'A' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'A'; aplicarFiltros()"
-          highlighted>
+        <mat-chip [class.filtro-activos]="filtroEstado === 'A'" [class.filtro-default]="filtroEstado !== 'A'"
+          (click)="filtroEstado = 'A'; aplicarFiltros()" highlighted>
           Activos
         </mat-chip>
-        <mat-chip 
-          [color]="filtroEstado === 'I' ? 'primary' : 'default'" 
-          (click)="filtroEstado = 'I'; aplicarFiltros()"
-          highlighted>
+        <mat-chip [class.filtro-inactivos]="filtroEstado === 'I'" [class.filtro-default]="filtroEstado !== 'I'"
+          (click)="filtroEstado = 'I'; aplicarFiltros()" highlighted>
           Inactivos
         </mat-chip>
       </mat-chip-set>
@@ -80,7 +74,8 @@
             (error)="onImageError($event)"
           >
           <div class="image-overlay">
-            <mat-chip [color]="getEstadoColor(combo.Estado)" class="status-chip">
+            <mat-chip [class.estado-activo]="combo.Estado === 'A'" [class.estado-inactivo]="combo.Estado !== 'A'"
+              class="status-chip">
               {{ getEstadoText(combo.Estado) }}
             </mat-chip>
           </div>

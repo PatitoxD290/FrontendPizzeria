@@ -74,6 +74,7 @@
 /* Para combos: el badge ocupa la posición */
 .categoria-badges-container:has(.combo-badge) {
   justify-content: flex-start;
+  font-size: 20px;
 }
 
 /* Para productos con tamaños: ambos alineados a la izquierda en línea */
@@ -194,7 +195,7 @@
 .meta-badge {
   font-weight: 600;
   color: white;
-  font-size: 0.9em;
+  font-size: 20px;
   padding: 4px 8px;
   border-radius: 5px;
   display: inline-block;
@@ -233,7 +234,7 @@
   color: white;
   padding: 4px 8px;
   border-radius: 5px;
-  font-size: 0.9em;
+  font-size: 20px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -246,8 +247,8 @@
 
 /* 🔹 ESTILOS PARA LOS ICONOS DE LOS BADGES */
 .badge-icon {
-  width: 14px;
-  height: 14px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 }
 
@@ -343,4 +344,21 @@
 /* Asegurar que el carrito flotante solo se muestre cuando no hay productos */
 app-carrito-flotante {
   display: block;
+}
+
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-container .mat-spinner {
+  width: 120px !important;   /* tamaño personalizado */
+  height: 120px !important;  /* tamaño personalizado */
+}
+
+
+::ng-deep .custom-spinner circle {
+  stroke: #be1b1c !important;
 }

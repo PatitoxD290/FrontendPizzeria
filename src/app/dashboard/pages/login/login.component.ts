@@ -1,7 +1,6 @@
-// Tu archivo TypeScript corregido y adaptado a validación de correo
-
+// Tu archivo TypeScript corregido
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -39,11 +38,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
     const input = event.target as HTMLInputElement;
     const correo = input.value.trim();
 
-    // Expresión regular para validar correo electrónico
+    // Solo validar formato básico mientras escribe, sin mostrar alertas
     const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
 
     if (!correoValido && correo.length > 0) {
-      this.CorreoError = 'Ingresa un correo electrónico válido (ejemplo@dominio.com)';
+      this.CorreoError = 'Ingresa un correo electrónico válido';
     } else {
       this.CorreoError = '';
     }
@@ -56,30 +55,36 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   login() {
+    // Limpiar mensajes de error previos
+    this.CorreoError = '';
+
+    let hasError = false;
+    let errorMessage = '';
+
     // Validar campos vacíos
-    if (!this.Correo || !this.Password) {
+    if (!this.Correo.trim() || !this.Password.trim()) {
+      hasError = true;
+      errorMessage = 'Por favor, ingresa tu correo y contraseña.';
+    }
+    // Validar formato de correo solo si no está vacío
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.Correo)) {
+      hasError = true;
+      errorMessage = 'Por favor, ingresa un correo electrónico válido.';
+      this.CorreoError = 'Ingresa un correo electrónico válido (ejemplo@dominio.com)';
+    }
+
+    // Mostrar alerta si hay errores
+    if (hasError) {
       Swal.fire({
         icon: 'warning',
-        title: 'Campos vacíos',
-        text: 'Por favor, ingresa tu correo y contraseña.',
+        title: 'Datos incorrectos',
+        text: errorMessage,
         confirmButtonColor: '#722f37',
       });
       return;
     }
 
-    // Validar formato de correo
-    const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.Correo);
-    if (!correoValido) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Correo inválido',
-        text: 'Por favor, ingresa un correo electrónico válido.',
-        confirmButtonColor: '#722f37',
-      });
-      return;
-    }
-
-    // Intentar inicio de sesión
+    // Si todo está bien, proceder con el login
     this.authService.login(this.Correo, this.Password).subscribe({
       next: () => {
         Swal.fire({

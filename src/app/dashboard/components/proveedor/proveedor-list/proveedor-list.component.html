@@ -1,5 +1,5 @@
 <div class="venta-container">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
   <div class="card">
     <div class="card-header">
@@ -19,7 +19,8 @@
               placeholder="Buscar proveedor, RUC, contacto..."
               (keyup)="applyFilter($event)"
               #input
-              class="search-input-compact">
+              class="search-input-compact"
+            />
             <button *ngIf="input.value" class="clear-search-btn-compact" (click)="limpiarFiltros()">
               <span class="material-icons">close</span>
             </button>
@@ -125,37 +126,48 @@
               </span>
             </td>
             <td class="table-cell date-column">
-              <span class="date-text">{{ p.Fecha_Registro | date:'dd/MM/yyyy' }}</span>
+              <span class="date-text">{{ p.Fecha_Registro | date : 'dd/MM/yyyy' }}</span>
             </td>
             <td class="table-cell acciones-column">
               <div class="acciones-container">
+                <!-- Editar -->
+                <button
+                  class="action-btn edit-btn"
+                  (click)="openProveedorForm(p)"
+                  [disabled]="!canEdit(p.Estado)"
+                  [matTooltip]="
+                    canEdit(p.Estado) ? 'Editar' : 'No se puede editar proveedores inactivos'
+                  "
+                  [class.disabled-btn]="!canEdit(p.Estado)"
+                >
+                  <span class="material-icons">edit</span>
+                </button>
+
                 <!-- Toggle Estado -->
-                <button 
-                  class="action-btn estado-btn" 
+                <button
+                  class="action-btn estado-btn"
                   [class.estado-activo]="p.Estado === 'A'"
                   [class.estado-inactivo]="p.Estado === 'I'"
                   (click)="cambiarEstadoProveedor(p)"
                   [disabled]="changingState === p.ID_Proveedor"
-                  [matTooltip]="p.Estado === 'A' ? 'Desactivar' : 'Activar'">
+                  [matTooltip]="p.Estado === 'A' ? 'Desactivar' : 'Activar'"
+                >
                   <span *ngIf="changingState !== p.ID_Proveedor" class="material-icons">
                     {{ p.Estado === 'A' ? 'toggle_on' : 'toggle_off' }}
                   </span>
                   <div *ngIf="changingState === p.ID_Proveedor" class="mini-spinner"></div>
                 </button>
 
-                <!-- Editar -->
-                <button 
-                  class="action-btn edit-btn" 
-                  (click)="openProveedorForm(p)"
-                  matTooltip="Editar">
-                  <span class="material-icons">edit</span>
-                </button>
-
                 <!-- Eliminar -->
-                <button 
-                  class="action-btn delete-btn" 
+                <button
+                  class="action-btn delete-btn"
                   (click)="deleteProveedor(p)"
-                  matTooltip="Eliminar">
+                  [disabled]="!canDelete(p.Estado)"
+                  [matTooltip]="
+                    canDelete(p.Estado) ? 'Eliminar' : 'No se puede eliminar proveedores activos'
+                  "
+                  [class.disabled-btn]="!canDelete(p.Estado)"
+                >
                   <span class="material-icons">delete</span>
                 </button>
               </div>
@@ -163,21 +175,22 @@
           </tr>
         </tbody>
       </table>
-      
+
       <!-- Mensaje cuando no hay datos -->
       <div *ngIf="dataSource.filteredData.length === 0 && input.value" class="no-data">
         <span class="material-icons no-data-icon">search_off</span>
         <h3>No se encontraron proveedores</h3>
-        <p>No hay proveedores que coincidan con "{{input.value}}"</p>
+        <p>No hay proveedores que coincidan con "{{ input.value }}"</p>
       </div>
     </div>
 
     <!-- Paginación de Angular Material -->
-    <mat-paginator 
-      [pageSize]="5" 
+    <mat-paginator
+      [pageSize]="5"
       [pageSizeOptions]="[5, 10, 20, 50]"
       showFirstLastButtons
-      aria-label="Seleccionar página de proveedores">
+      aria-label="Seleccionar página de proveedores"
+    >
     </mat-paginator>
   </div>
 </div>
