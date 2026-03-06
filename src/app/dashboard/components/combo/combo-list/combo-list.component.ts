@@ -58,7 +58,7 @@ export class ComboListComponent implements OnInit, OnDestroy {
   terminoBusqueda: string = '';
 
   private destroy$ = new Subject<void>();
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 

@@ -63,7 +63,7 @@ throw new Error('Method not implemented.');
   // UI
   loading = false;
   error = '';
-  baseUrl = 'http://localhost:3000';
+  baseUrl = 'https://backend-pizza-git-175143409336.us-central1.run.app';
 
   // Paginación
   pageSize = 8;
